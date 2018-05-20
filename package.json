@@ -1,0 +1,28 @@
+{
+  "name": "polychrome.p5",
+  "version": "1.0.0",
+  "description": "A colorful text painter",
+  "main": "index.html/sketch.js",
+  "scripts": {
+    "lint": "standard --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MichaelPaulukonis/polychrome.p5.git"
+  },
+  "keywords": [
+    "p5",
+    "text",
+    "paint"
+  ],
+  "author": "Michael J. Paulukonis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MichaelPaulukonis/polychrome.p5/issues"
+  },
+  "homepage": "https://github.com/MichaelPaulukonis/polychrome.p5#readme",
+  "devDependencies": {
+    "standard": "^11.0.1"
+  }
+}
