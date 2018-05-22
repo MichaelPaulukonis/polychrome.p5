@@ -33,7 +33,7 @@ function draw () {
   // ignore mouse outside confines of window.
   // or you'll crash the app! or something....
   if (mouseIsPressed && mouseY > 0 && mouseY < height &&
-        mouseX > 0 && mouseX < width) {
+    mouseX > 0 && mouseX < width) {
     paint(mouseX, mouseY)
   }
 }
@@ -238,8 +238,15 @@ function keyPressed () {
   if (keyCode == BACKSPACE || keyCode == DELETE) {
     clearScreen()
   }
+  console.log(key)
+}
 
-  switch (key) {
+function keyTyped () {
+  keyHandler(key)
+}
+
+function keyHandler (char) {
+  switch (char) {
     case 'f':
       flip(HORIZONTAL)
       break
@@ -355,26 +362,19 @@ function paint6 () {
 // http://processing.org/reference/var_loadPixels_.html
 // http://processing.org/discourse/beta/num_1269545825.html
 function shift (verticalOffset, horizontalOffset) {
-  var screen = createImage(width, height, RGB)
-  var temp = createImage(width, height, RGB)
+  let context = this.drawingContext
+  let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
-  loadPixels()
-  screen.pixels = pixels
-  // screen.loadPixels();
+  let cw = (horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
+  let ch = (verticalOffset > 0 ? context.canvas.height : -context.canvas.height)
 
-  var offset = verticalOffset * width + horizontalOffset
-  var totPixels = pixels.length
-
-  for (var i = 0; i < totPixels; i++) {
-    var orig = (i + offset) % totPixels
-    if (orig < 0) orig += totPixels // nope, not quite; (???)
-    pixels[i] = screen.pixels[orig]
+  context.putImageData(imageData, 0 + horizontalOffset, 0 + verticalOffset)
+  if (horizontalOffset !== 0) {
+    context.putImageData(imageData, 0 + horizontalOffset - cw, 0 + verticalOffset)
   }
-
-  // screen.pixels = temp.pixels;
-  // screen.updatePixels();
-  // image(screen, 0, 0);
-  updatePixels()
+  if (verticalOffset !== 0) {
+    context.putImageData(imageData, 0 + horizontalOffset, 0 + verticalOffset - ch)
+  }
 }
 
 var HORIZONTAL = 0
