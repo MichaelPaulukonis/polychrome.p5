@@ -32,11 +32,14 @@ function setup () {
   })
 }
 
+const mouseInCanvas = () => {
+  return mouseY > 0 && mouseY < height && mouseX > 0 && mouseX < width
+}
+
 function draw () {
   // ignore mouse outside confines of window.
   // or you'll crash the app! or something....
-  if (mouseIsPressed && mouseY > 0 && mouseY < height &&
-    mouseX > 0 && mouseX < width) {
+  if (mouseIsPressed && mouseInCanvas()) {
     // TODO: if some modifier, drag the image around the screen
     // first call, save image, and keep it around for drag-drawing?
     paint(mouseX, mouseY)
@@ -49,6 +52,7 @@ function colorAlpha (aColor, alpha) {
 }
 
 function mousePressed () {
+  if (!mouseInCanvas()) return
   fill(colorAlpha('#FFFFFF', 0.5))
   noStroke()
   rect(0, 0, width, height)
