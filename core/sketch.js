@@ -19,7 +19,8 @@ function setBodyCopy (text) {
 }
 
 function setup () {
-  createCanvas(900, 600)
+  const canvas = createCanvas(900, 600)
+  canvas.parent('sketch-holder')
   // createCanvas(90,60);
   // strokeWeight(2);
   textAlign(CENTER, CENTER)

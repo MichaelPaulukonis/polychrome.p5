@@ -1,126 +1,150 @@
 <!DOCTYPE html>
-<html>
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0>
-  <style>
-    body {
-      padding: 0;
-      margin: 0;
-    }
-  </style>
-  <style type="text/css">
-    body {
-      background-color: #333;
-      color: #bbb;
-      line-height: normal;
-      font-family: Lucida Grande, Lucida Sans, Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
-      font-size: 11px;
-      font-weight: normal;
-      text-decoration: none;
-      line-height: 1.5em;
-    }
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>polychrome_03 : Built with Processing and Processing.js</title>
+    <style type="text/css">
+        body {
+            background-color: #333;
+            color: #bbb;
+            line-height: normal;
+            font-family: Lucida Grande, Lucida Sans, Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
+            font-size: 11px;
+            font-weight: normal;
+            text-decoration: none;
+            line-height: 1.5em;
+        }
 
-    a img {
-      border: 0px solid transparent;
-    }
+        a img {
+            border: 0px solid transparent;
+        }
 
-    a,
-    a:link,
-    a:visited,
-    a:active,
-    a:hover {
-      color: #cdcdcd;
-      text-decoration: underline;
-    }
+        a,
+        a:link,
+        a:visited,
+        a:active,
+        a:hover {
+            color: #cdcdcd;
+            text-decoration: underline;
+        }
 
-    h1 {
-      font-family: Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
-      width: 100%;
-      letter-spacing: 0.1em;
-      margin-bottom: 1em;
-      font-size: 1.65em;
-    }
+        h1 {
+            font-family: Arial, Helvetica Neue, Verdana, Geneva, sans-serif;
+            width: 100%;
+            letter-spacing: 0.1em;
+            margin-bottom: 1em;
+            font-size: 1.65em;
+        }
 
-    canvas {
-      display: block;
-      outline: 0px;
-      margin-bottom: 1.5em;
-    }
+        canvas {
+            display: block;
+            outline: 0px;
+            margin-bottom: 1.5em;
+        }
 
-    #content {
-      margin: 50px auto 0px auto;
-      padding: 25px 25px 15px 25px;
-      width: 900px;
-      min-width: 300px;
-      overflow: auto;
-      border-left: 1px solid #444;
-      border-top: 1px solid #444;
-      border-right: 1px solid #333;
-      border-bottom: 1px solid #333;
-      background-color: #3d3d3d;
-    }
+        #content {
+            margin: 50px auto 0px auto;
+            padding: 25px 25px 15px 25px;
+            width: 900px;
+            min-width: 300px;
+            overflow: auto;
+            border-left: 1px solid #444;
+            border-top: 1px solid #444;
+            border-right: 1px solid #333;
+            border-bottom: 1px solid #333;
+            background-color: #3d3d3d;
+        }
 
-    .keys {
-      font-family: monospace;
-    }
-  </style>
-  <script src="../p5.min.js"></script>
-  <script src="../addons/p5.dom.min.js"></script>
+        .keys {
+            font-family: monospace;
+        }
+    </style>
+    <script src="../p5.min.js"></script>
+    <script src="../addons/p5.dom.min.js"></script>
 </head>
 
 <body>
-  <div id="info-area">
-    <h1>polychrome text</h1>
-    <p id="description"></p>
-    <p>
-      <a id='savebtn' href="#" alt='enable pop-up blocker to open in new tab'>save</a>
-      -
-      <a id='focus' href='#' alt='set focus to canvas'>focus on canvas</a>
-    </p>
+    <div id="content">
+        <div>
+            <div id="sketch-holder">
+                <!-- Our sketch will go here! -->
+              </div>
+            <noscript>
+                <p>JavaScript is required to view the contents of this page.</p>
+            </noscript>
+        </div>
+        <h1>polychrome text</h1>
+        <p id="description"></p>
+        <p>
+            <a id='savebtn' href="#" alt='enable pop-up blocker to open in new tab'>save</a>
+            -
+            <a id='focus' href='#' alt='set focus to canvas'>focus on canvas</a>
+        </p>
 
-    <p>
-      Mouse click and drag to paint (previous paints will fade slightly).
-      <br /> Color and size are based on mouse position.
-      <br />
-      <span CLASS="keys">SPACE</span> - paint without fading previous actions
-      <br />
-      <span CLASS="keys">RIGHT/LEFT</span> - increase/decrease rotation of letters
-      <br />
-      <span class="keys">R</span> - reset rotation to 0
-      <br />
-      <span class="keys">z|Z</span> - shift canvas right|left 10 px
-      <br />
-      <span class="keys">x|X</span> - shift canvas up|down 10 px
-      <br />
-      <span class="keys">f|F</span> - flip canvas horizontally|vertically
-      <br />
-      <span class="keys">123456</span> - preset painting macros
-      <br />
-      <span CLASS="keys">UP/DOWN</span> - change paint mode (TODO: change keys)
-      <br />
-      <span class="keys">M</span> - switch between grids and circles (TODO: change keys)
-      <br />
-      <span class="keys">Delete|Backspace</span> - clear the screen
-      <br />
-      <span class="keys">S</span> - Save
-    </p>
-    <p id="sources">Source code:
-      <a href="./javascript/pages/024.pde">polychrome</a> - More
-      <a href="./PrantedMutter/Sketch">Web Sketches</a> - Built with
-      <a href="http://processing.org" title="Processing">Processing</a>
-      and
-      <a href="http://processingjs.org" title="Processing.js">Processing.js</a>
-    </p>
-  </div>
+        <p>
+            Mouse click and drag to paint (previous paints will fade slightly).
+            <br /> Color and size are based on mouse position.
+            <br />
+            <span CLASS="keys">SPACE</span> - paint without fading previous actions
+            <br />
+            <span CLASS="keys">RIGHT/LEFT</span> - increase/decrease rotation of letters
+            <br />
+            <span class="keys">R</span> - reset rotation to 0
+            <br />
+            <span class="keys">z|Z</span> - shift canvas right|left 10 px
+            <br />
+            <span class="keys">x|X</span> - shift canvas up|down 10 px
+            <br />
+            <span class="keys">f|F</span> - flip canvas horizontally|vertically
+            <br />
+            <span class="keys">123456</span> - preset painting macros
+            <br />
+            <span CLASS="keys">UP/DOWN</span> - change paint mode (TODO: change keys)
+            <br />
+            <span class="keys">M</span> - switch between grids and circles (TODO: change keys)
+            <br />
+            <span class="keys">Delete|Backspace</span> - clear the screen
+            <br />
+            <span class="keys">S</span> - Save
+        </p>
+        <p id="sources">Source code:
+            <a href="./javascript/pages/024.pde">polychrome</a> - More
+            <a href="./PrantedMutter/Sketch">Web Sketches</a> - Built with
+            <a href="http://processing.org" title="Processing">Processing</a>
+            and
+            <a href="http://processingjs.org" title="Processing.js">Processing.js</a>
+        </p>
+        <div>
+            <textarea id='bodycopy'></textarea>
+            <button id='applytext'>Apply text</button>
+        </div>
+    </div>
+    <script type="text/javascript">
+        // sets focus w/o mouseclick
+        var cvs = document.getElementsByTagName('canvas');
+        if (cvs && cvs[0]) {
+            cvs = cvs[0];
+        }
 
-  <div>
-    <textarea id='bodycopy'></textarea>
-    <button id='applytext'>Apply text</button>
-  </div>
-  <script src="sketch.js"></script>
-  
+        var setfocus = function () {
+            cvs.focus();
+        };
+
+        var savecanvas = function () {
+            if (cvs) {
+                img = cvs.toDataURL('image/jpg');
+                window.open(img, '_blank');
+            }
+        };
+
+        var sv = document.getElementById('savebtn');
+        sv.onclick = savecanvas;
+
+        var fc = document.getElementById('focus');
+        fc.onclick = setfocus;
+        setfocus();
+    </script>
+    <script src="sketch.js"></script>
 </body>
 
 </html>
