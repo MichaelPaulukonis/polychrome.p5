@@ -23,6 +23,10 @@
   },
   "homepage": "https://github.com/MichaelPaulukonis/polychrome.p5#readme",
   "devDependencies": {
+    "eslint-config-p5js": "^1.0.1",
     "standard": "^11.0.1"
+  },
+  "eslintConfig": {
+    "extends": "p5js"
   }
 }

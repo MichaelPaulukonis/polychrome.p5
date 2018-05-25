@@ -1,22 +1,21 @@
 /* Traditionally, text and image are segregated in Western Art.
    This sketch plays with those boundaries, providing an polychromatic
    text painting environment.
-
-   inspired by Marco Scarfagna's sketch https://class.coursera.org/compartsprocessing-001/forum/thread?thread_id=145#post-1804
-   https://class.coursera.org/compartsprocessing-001/forum/profile?user_id=536813
 */
 
 var bodycopy = 'An sketch a day keeps the doctor away........*****xxx                                 '
+const textInputBox = document.getElementById('bodycopy')
 setBodyCopy(bodycopy)
+
 var curRot = 0
 var t
 
 function getBodyCopy () {
-  return document.getElementById('bodycopy').value
+  return textInputBox.value
 }
 
 function setBodyCopy (text) {
-  document.getElementById('bodycopy').value = text
+  textInputBox.value = text
 }
 
 function setup () {
@@ -27,6 +26,10 @@ function setup () {
   colorMode(HSB, width, height, 100)
   clearScreen()
   t = new TextManager(getBodyCopy())
+  const textButton = document.getElementById('applytext')
+  textButton.addEventListener('click', () => {
+    t.setText(getBodyCopy())
+  })
 }
 
 function draw () {
@@ -34,6 +37,8 @@ function draw () {
   // or you'll crash the app! or something....
   if (mouseIsPressed && mouseY > 0 && mouseY < height &&
     mouseX > 0 && mouseX < width) {
+    // TODO: if some modifier, drag the image around the screen
+    // first call, save image, and keep it around for drag-drawing?
     paint(mouseX, mouseY)
   }
 }
@@ -238,7 +243,6 @@ function keyPressed () {
   if (keyCode == BACKSPACE || keyCode == DELETE) {
     clearScreen()
   }
-  console.log(key)
 }
 
 function keyTyped () {
@@ -318,6 +322,10 @@ function keyHandler (char) {
     case '6':
       paint6()
       break
+
+    case '9':
+      testit()
+      break
   }
 }
 
@@ -375,6 +383,15 @@ function shift (verticalOffset, horizontalOffset) {
   if (verticalOffset !== 0) {
     context.putImageData(imageData, 0 + horizontalOffset, 0 + verticalOffset - ch)
   }
+}
+
+const testit = () => {
+  console.log(width, height)
+  let screen = createImage(width, height)
+  loadPixels()
+  screen.pixels = pixels
+  screen.updatePixels()
+  image(screen, 100, 100)
 }
 
 var HORIZONTAL = 0
