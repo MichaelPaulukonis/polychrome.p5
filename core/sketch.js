@@ -229,7 +229,9 @@ function save_sketch () {
   saveCanvas('polychrome.text.####.png')
 }
 
-function keyPressed () {
+// TODO: this is not quite what I'm looking for. UGH.
+// function keyPressed () {
+function keyPresser () {
   if (keyCode == UP_ARROW || keyCode == DOWN_ARROW) {
     if (keyCode == UP_ARROW) {
       nextpaintMode(1)
@@ -248,10 +250,14 @@ function keyPressed () {
   if (keyCode == BACKSPACE || keyCode == DELETE) {
     clearScreen()
   }
+  // return false
 }
 
 function keyTyped () {
+  keyPresser()
   keyHandler(key)
+  // if (mouseInCanvas()) return false
+  return false
 }
 
 function keyHandler (char) {
