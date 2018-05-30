@@ -56,6 +56,7 @@ function mousePressed () {
   if (!mouseInCanvas()) return
   fill(colorAlpha('#FFFFFF', 0.5))
   noStroke()
+  // TODO: make this on/off option
   rect(0, 0, width, height)
 }
 
@@ -133,6 +134,9 @@ function drawCircle (xPos, yPos) {
 }
 
 function drawGrid (xPos, yPos) {
+  // negatives are possible, it seems....
+  xPos = xPos < 5 ? 5 : xPos
+  yPos = yPos < 5 ? 5 : yPos
   var stepX = xPos + 5
   textSize(stepX)
 
@@ -256,6 +260,7 @@ function keyTyped () {
   return false
 }
 
+const shiftAmount = 50
 function keyHandler (char) {
   switch (char) {
     case 'f':
@@ -293,17 +298,17 @@ function keyHandler (char) {
       break
 
     case 'x':
-      shift(10, 0)
+      shift(shiftAmount, shiftAmount)
       break
     case 'X':
-      shift(-10, 0)
+    shift(-shiftAmount, -shiftAmount)
       break
 
     case 'z':
-      shift(0, -10)
+      shift(shiftAmount, -shiftAmount)
       break
     case 'Z':
-      shift(0, 10)
+      shift(-shiftAmount, shiftAmount)
       break
 
     case '1':
@@ -374,8 +379,6 @@ function paint6 () {
 }
 
 // shift pixels in image
-// http://processing.org/reference/var_loadPixels_.html
-// http://processing.org/discourse/beta/num_1269545825.html
 function shift (verticalOffset, horizontalOffset) {
   let context = this.drawingContext
   let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
@@ -390,6 +393,7 @@ function shift (verticalOffset, horizontalOffset) {
   if (verticalOffset !== 0) {
     context.putImageData(imageData, 0 + horizontalOffset, 0 + verticalOffset - ch)
   }
+  context.putImageData(imageData, 0 - cw + horizontalOffset, 0 - ch + verticalOffset)
 }
 
 const testit = () => {
