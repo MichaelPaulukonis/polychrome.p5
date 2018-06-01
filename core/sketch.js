@@ -25,7 +25,7 @@ function setup () {
   // strokeWeight(2);
   textAlign(CENTER, CENTER)
   colorMode(HSB, width, height, 100)
-  clearScreen()
+  clearCanvas()
   t = new TextManager(getBodyCopy())
   const textButton = document.getElementById('applytext')
   textButton.addEventListener('click', () => {
@@ -102,7 +102,7 @@ function drawCircle (xPos, yPos) {
   // random chars until we've come... full-circle
   while (arclength < circumference) {
     // Instead of a constant width, we check the width of each character.
-    currentchar = t.getchar()
+    const currentchar = t.getchar()
     var w = textWidth(currentchar)
 
     // Each box is centered so we move half the width
@@ -168,13 +168,7 @@ function drawGrid (xPos, yPos) {
   }
 }
 
-function getText () {
-  var i = random(bodycopy.length())
-  return bodycopy.charAt(i)
-}
-
-// TODO rename Screen to canvas ?
-function clearScreen () {
+function clearCanvas () {
   background(0, 0, 100)
 }
 
@@ -198,9 +192,13 @@ function nextRotation (direction) {
   if (curRot < 0) curRot = 360
 }
 
-var paintModes = 6 // 1..n
+// TODO: if these were.... functions, we could have an array, and not have to worry about counting the mode
+// also, functions could take params that could change them up a bit.....
+// like the grays - sideways, or something. angles....
+var paintModes = 8 // 0..n+1
 var currentpaintMode = 0
-function setpaintMode (gridX, gridY) {
+function
+setpaintMode (gridX, gridY) {
   // TODO: I don't understand the third-parameter here, in HSB mode.
 
   switch (currentpaintMode) {
@@ -224,6 +222,22 @@ function setpaintMode (gridX, gridY) {
 
     case 5:
       fill(255)
+      break
+
+    case 6:
+      {
+        const grayScaled = (gridY * 255) / height
+        // console.log(`x: ${gridX} y: ${gridY} width: ${width} height: ${height} scaled: ${grayScaled}`)
+        fill(grayScaled)
+      }
+      break
+
+    case 7:
+      {
+        const grayScaled = (gridY * 255) / height
+        // console.log(`x: ${gridX} y: ${gridY} width: ${width} height: ${height} scaled: ${grayScaled}`)
+        fill(255 - grayScaled)
+      }
       break
 
     case 0:
@@ -255,26 +269,32 @@ function save_sketch () {
 }
 
 function keyPresser () {
-  if (keyCode == UP_ARROW || keyCode == DOWN_ARROW) {
-    if (keyCode == UP_ARROW) {
+  let handled = false
+  if (keyCode === UP_ARROW || keyCode === DOWN_ARROW) {
+    handled = true
+    if (keyCode === UP_ARROW) {
       nextpaintMode(1)
     } else {
       nextpaintMode(-1)
     }
-  } else if (keyCode == LEFT_ARROW || keyCode == RIGHT_ARROW) {
-    if (keyCode == LEFT_ARROW) {
+  } else if (keyCode === LEFT_ARROW || keyCode === RIGHT_ARROW) {
+    handled = true
+    if (keyCode === LEFT_ARROW) {
       nextRotation(-1)
     } else {
       nextRotation(1)
     }
-  } else if (keyCode == BACKSPACE || keyCode == DELETE) {
-    clearScreen()
+  } else if (keyCode === BACKSPACE || keyCode === DELETE) {
+    handled = true
+    clearCanvas()
   }
+  return handled
 }
 
 function keyPressed () {
   if (!mouseInCanvas()) return
-  keyPresser(keyCode)
+  let handled = keyPresser(keyCode)
+  return !handled
 }
 
 function keyTyped () {
@@ -426,7 +446,7 @@ function flip (axis) {
   loadPixels()
   screen.pixels = pixels
   push()
-  if (axis == HORIZONTAL) {
+  if (axis === HORIZONTAL) {
     scale(-1, 1)
     image(screen, width / 2, 0)
   } else {
