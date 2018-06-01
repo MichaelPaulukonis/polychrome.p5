@@ -156,7 +156,9 @@ function drawGrid (xPos, yPos) {
       // since characters can be all over the place in the max/min of the font
       // it's really hard [for me] to find a good all-over alignment
       // and this is wonky with rotation (see horizontal roation, f'r example)
-      translate(gridX + stepX / 2, gridY + stepX / 5)
+      // off to the left and up to the top, but we don't have white gaps any more.....
+      // translate(gridX + stepX / 2, gridY + stepX / 5)
+      translate(gridX + stepX / 4, gridY + stepX / 5)
 
       rotate(radians(curRot))
       text(letter, 0, 0)
@@ -196,7 +198,7 @@ function nextRotation (direction) {
   if (curRot < 0) curRot = 360
 }
 
-var paintModes = 4 // 1..n
+var paintModes = 6 // 1..n
 var currentpaintMode = 0
 function setpaintMode (gridX, gridY) {
   // TODO: I don't understand the third-parameter here, in HSB mode.
@@ -214,6 +216,14 @@ function setpaintMode (gridX, gridY) {
       var x = (gridX + width / 2) % width
       var y = (height - gridY + height / 2) % height
       fill(x, y, 900, 180)
+      break
+
+    case 4:
+      fill(0)
+      break
+
+    case 5:
+      fill(255)
       break
 
     case 0:
@@ -252,10 +262,12 @@ function keyPresser () {
 }
 
 function keyPressed () {
+  if (!mouseInCanvas()) return
   keyPresser(keyCode)
 }
 
 function keyTyped () {
+  if (!mouseInCanvas()) return
   keyHandler(key)
   return false
 }
@@ -301,7 +313,7 @@ function keyHandler (char) {
       shift(shiftAmount, shiftAmount)
       break
     case 'X':
-    shift(-shiftAmount, -shiftAmount)
+      shift(-shiftAmount, -shiftAmount)
       break
 
     case 'z':
@@ -333,10 +345,6 @@ function keyHandler (char) {
 
     case '6':
       paint6()
-      break
-
-    case '9':
-      testit()
       break
   }
 }
@@ -379,6 +387,7 @@ function paint6 () {
 }
 
 // shift pixels in image
+// I'd love to be able to drag the image around, but I think that will require something else, but related
 function shift (verticalOffset, horizontalOffset) {
   let context = this.drawingContext
   let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
@@ -396,17 +405,10 @@ function shift (verticalOffset, horizontalOffset) {
   context.putImageData(imageData, 0 - cw + horizontalOffset, 0 - ch + verticalOffset)
 }
 
-const testit = () => {
-  console.log(width, height)
-  let screen = createImage(width, height)
-  loadPixels()
-  screen.pixels = pixels
-  screen.updatePixels()
-  image(screen, 100, 100)
-}
-
 var HORIZONTAL = 0
 var VERTICAL = 1
+// should work, but it does not
+// https://forum.processing.org/two/discussion/22546/how-do-i-flip-video-in-canvas-horizontally-in-p5js
 function flip (axis) {
   var screen = createImage(width, height, RGB)
 
