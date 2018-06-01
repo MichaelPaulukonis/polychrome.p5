@@ -240,7 +240,18 @@ function reset () {
 
 function save_sketch () {
   // TODO: temp-name method needed
-  saveCanvas('polychrome.text.####.png')
+  const getDateFormatted = function () {
+    var d = new Date()
+    var df = `${d.getFullYear()}${pad((d.getMonth() + 1), 2)}${pad(d.getDate(), 2)}.${pad(d.getHours(), 2)}${pad(d.getMinutes(), 2)}${pad(d.getSeconds(), 2)}`
+    return df
+  }
+
+  const pad = function (nbr, width, fill) {
+    fill = fill || '0'
+    nbr = nbr + ''
+    return nbr.length >= width ? nbr : new Array(width - nbr.length + 1).join(fill) + nbr
+  }
+  saveCanvas(`polychrome.text.${getDateFormatted()}.png`)
 }
 
 function keyPresser () {
