@@ -35,11 +35,11 @@
             <br />
             <span class="keys">R</span> - reset rotation to 0
             <br />
-            <span class="keys">z|Z</span> - shift canvas right|left 10 px
+            <span class="keys">z|Z</span> - shift canvas right|left 10 px (angle, different amount)
             <br />
-            <span class="keys">x|X</span> - shift canvas up|down 10 px
+            <span class="keys">x|X</span> - shift canvas up|down 10 px (angle, different amount)
             <br />
-            <span class="keys">f|F</span> - flip canvas horizontally|vertically
+            <span class="keys">f|F</span> - flip canvas horizontally|vertically (NOT WORKING)
             <br />
             <span class="keys">123456</span> - preset painting macros
             <br />
@@ -48,8 +48,6 @@
             <span class="keys">M</span> - switch between grids and circles (TODO: change keys)
             <br />
             <span class="keys">Delete|Backspace</span> - clear the screen
-            <br />
-            <span class="keys">S</span> - Save
         </p>
         <p id="sources">Source code:
             <a href="./javascript/pages/024.pde">polychrome</a> - More
@@ -64,6 +62,9 @@
         </div>
     </div>
 </body>
+<script>
+
+</script>
 <script src="/lib/sketch.js"></script>
 
 <script type="text/javascript">
@@ -85,39 +86,37 @@
             img = cvs.toDataURL('image/jpg');
             // https://ourcodeworld.com/articles/read/682/what-does-the-not-allowed-to-navigate-top-frame-to-data-url-javascript-exception-means-in-google-chrome
             var win = window.open();
-            win.document.write('<iframe src="' + img + 
-            '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
+            win.document.write('<iframe src="' + img +
+                '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
         }
     };
-
-    var sv = document.getElementById('savebtn');
-    sv.onclick = openCanvasInNewTab;
 
     var fc = document.getElementById('focus');
     fc.onclick = setfocus;
 </script>
 <script>
-    var gui = new dat.GUI();
     var obj = {
-        name: "David Walsh",
+        name: "polychrome.text",
         num: 23,
         winner: true,
         open: openCanvasInNewTab,
-        save: save_sketch
+        save: save_sketch,
+        clear: clearCanvas,
+        rotation: 0,
+        paintMode: 0
     };
+    var gui = new dat.GUI();
 
     // String field
-    gui.add(obj, "name");
+    gui.add(obj, "name"); // TODO: use for saving? eh, probably not.....
 
     // Number field with slider
-    gui.add(obj, "num").min(1).max(50).step(1);
-
-    // Checkbox field
-    gui.add(obj, "winner");
+    gui.add(obj, "rotation").min(0).max(360).step(15);
 
     gui.add(obj, 'open');
-
     gui.add(obj, 'save');
+    gui.add(obj, 'clear');
+    gui.add(obj, 'paintMode', [0,1,2,3,4,5,6,7]) // work in-progress....
 </script>
 
 </html>
