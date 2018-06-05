@@ -31,7 +31,9 @@
   },
   "standard": {
     "globals": [
-      "setup", "draw", "mousePressed",
+      "setup",
+      "draw",
+      "mousePressed",
       "remove",
       "canvas",
       "width",
@@ -404,5 +406,8 @@
       "BEZIER",
       "CURVE"
     ]
+  },
+  "dependencies": {
+    "dat.gui": "^0.7.2"
   }
 }
