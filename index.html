@@ -14,7 +14,7 @@
         <div>
             <div id="sketch-holder">
                 <!-- Our sketch will go here! -->
-              </div>
+            </div>
             <noscript>
                 <p>JavaScript is required to view the contents of this page.</p>
             </noscript>
@@ -22,8 +22,6 @@
         <h1>polychrome text</h1>
         <p id="description"></p>
         <p>
-            <a id='savebtn' href="#" alt='enable pop-up blocker to open in new tab'>save</a>
-            -
             <a id='focus' href='#' alt='set focus to canvas'>focus on canvas</a>
         </p>
 
@@ -65,32 +63,61 @@
             <button id='applytext'>Apply text</button>
         </div>
     </div>
-    <script type="text/javascript">
-        // sets focus w/o mouseclick
-        var cvs = document.getElementsByTagName('canvas');
+</body>
+<script src="/lib/sketch.js"></script>
+
+<script type="text/javascript">
+    var cvs
+    var setupGui = function () {
+        cvs = document.getElementsByTagName('canvas');
         if (cvs && cvs[0]) {
             cvs = cvs[0];
         }
-
-        var setfocus = function () {
-            cvs.focus();
-        };
-
-        var savecanvas = function () {
-            if (cvs) {
-                img = cvs.toDataURL('image/jpg');
-                window.open(img, '_blank');
-            }
-        };
-
-        var sv = document.getElementById('savebtn');
-        sv.onclick = savecanvas;
-
-        var fc = document.getElementById('focus');
-        fc.onclick = setfocus;
         setfocus();
-    </script>
-    <script src="/lib/sketch.js"></script>
-</body>
+    }
+
+    var setfocus = function () {
+        cvs.focus();
+    };
+
+    var openCanvasInNewTab = function () {
+        if (cvs) {
+            img = cvs.toDataURL('image/jpg');
+            // https://ourcodeworld.com/articles/read/682/what-does-the-not-allowed-to-navigate-top-frame-to-data-url-javascript-exception-means-in-google-chrome
+            var win = window.open();
+            win.document.write('<iframe src="' + img + 
+            '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
+        }
+    };
+
+    var sv = document.getElementById('savebtn');
+    sv.onclick = openCanvasInNewTab;
+
+    var fc = document.getElementById('focus');
+    fc.onclick = setfocus;
+</script>
+<script>
+    var gui = new dat.GUI();
+    var obj = {
+        name: "David Walsh",
+        num: 23,
+        winner: true,
+        open: openCanvasInNewTab,
+        save: save_sketch
+    };
+
+    // String field
+    gui.add(obj, "name");
+
+    // Number field with slider
+    gui.add(obj, "num").min(1).max(50).step(1);
+
+    // Checkbox field
+    gui.add(obj, "winner");
+
+    gui.add(obj, 'open');
+
+    gui.add(obj, 'save');
+</script>
 
 </html>
