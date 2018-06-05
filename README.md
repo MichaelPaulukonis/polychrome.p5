@@ -1,5 +1,5 @@
 # Polychrome Text - p5.js version
-Online @ https://michaelpaulukonis.github.io/polychrome.p5/core/
+Online @ https://michaelpaulukonis.github.io/polychrome.p5/
 
 ## Previous version
 Conversion of my Processing.js text-app from [WebText sketches](https://github.com/MichaelPaulukonis/WebText)
