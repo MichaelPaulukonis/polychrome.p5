@@ -11,3 +11,5 @@ THIS IS A HORRIBLE MISH-MASH of procedural code and un-planned cowboy coding
 
 Also, the standard-js globals blob in `package.json` was dapted from `eslint-config-p5js` - I couldn't figure out another method to get the `vscode-standardjs` plugin to use it.
 
+## makes use of
+ - [dat.gui](https://github.com/dataarts/dat.gui)
