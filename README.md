@@ -13,3 +13,4 @@ Also, the standard-js globals blob in `package.json` was dapted from `eslint-con
 
 ## makes use of
  - [dat.gui](https://github.com/dataarts/dat.gui)
+  - [tutorial](http://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage)
