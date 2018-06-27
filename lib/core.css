@@ -52,3 +52,14 @@ canvas {
 .keys {
     font-family: monospace;
 }
+
+.radio-select {
+    height: auto !important;
+}
+
+/** Hides closed items */
+/* from https://github.com/dataarts/dat.gui/blob/master/src/dat/gui/_structure.scss */
+.closed .radio-select{
+    height: 0 !important;
+}
+
