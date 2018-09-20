@@ -47,5 +47,5 @@ build
 # package-lock
 package-lock.json
 
-# Docs folder
-docs
+# dist
+dist

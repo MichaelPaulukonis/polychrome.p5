@@ -1,4 +1,4 @@
-class TextManager {
+export default class TextManager {
   constructor (text) {
     var defaultText = 'These are the pearls that were his eyes'
     // var randomText = defaultText + '...........---___*****xxx                                            '

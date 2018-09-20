@@ -1,5 +1,6 @@
+import * as dat from './dat.gui.js'
 
-class GuiControl {
+export default class GuiControl {
   constructor () {
     var cnvs
     this.setupGui = function (sketch) {
@@ -20,11 +21,11 @@ class GuiControl {
         // https://ourcodeworld.com/articles/read/682/what-does-the-not-allowed-to-navigate-top-frame-to-data-url-javascript-exception-means-in-google-chrome
         var win = window.open()
         win.document.write('<iframe src="' + img +
-          '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>')
+                    '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>')
       }
     }
-    var fc = document.getElementById('focus')
-    fc.onclick = setfocus
+    let fc = document.getElementById('focus')
+    if (fc) fc.onclick = setfocus
     this.urlToColors = (url) => {
       // based on https://bl.ocks.org/mootari/bfbf01320da6c14f9cba186c581d507d
       return url.split('/').pop().split('-').map((c) => '#' + c)
@@ -33,7 +34,7 @@ class GuiControl {
       function gradient (colors) {
         function stops (color, i, colors) {
           return color + ' ' + (i * 100 / colors.length) + '%' +
-            ',' + color + ' ' + ((i + 1) * 100 / colors.length) + '%'
+                        ',' + color + ' ' + ((i + 1) * 100 / colors.length) + '%'
         }
         return 'linear-gradient(90deg,' + colors.map(stops) + ')'
       }
@@ -204,5 +205,3 @@ class GuiControl {
     this.params = params
   }
 }
-
-let gc = new GuiControl()

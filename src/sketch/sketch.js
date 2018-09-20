@@ -31,7 +31,6 @@ and their upturapikepointandplace is at the knock out in the park
 where oranges have been laid to rust upon the green since dev- 
 linsfirst loved livvy. `]
 
-var t
 const textInputBox = document.getElementById('bodycopy')
 
 function getBodyCopy () {
@@ -42,48 +41,48 @@ function setBodyCopy (text) {
   textInputBox.value = text
 }
 
-let Sketch = function (p, guiControl) {
+export default function Sketch (p5, guiControl, textManager) {
   let params = guiControl.params
   let sketch = this
 
-  p.setup = () => {
-    const canvas = p.createCanvas(900, 600)
+  p5.setup = () => {
+    const canvas = p5.createCanvas(900, 600)
     canvas.parent('sketch-holder')
-    p.textAlign(p.CENTER, p.CENTER)
-    p.colorMode(p.HSB, p.width, p.height, 100, 1)
+    p5.textAlign(p5.CENTER, p5.CENTER)
+    p5.colorMode(p5.HSB, p5.width, p5.height, 100, 1)
     sketch.clearCanvas()
-    setBodyCopy(p.random(bodycopy))
-    t = new TextManager(getBodyCopy())
+    setBodyCopy(p5.random(bodycopy))
+    textManager.setText(getBodyCopy())
     const textButton = document.getElementById('applytext')
     textButton.addEventListener('click', () => {
-      t.setText(getBodyCopy())
+      textManager.setText(getBodyCopy())
     })
     guiControl.setupGui(this)
   }
 
   const mouseInCanvas = () => {
-    return p.mouseY > 0 && p.mouseY < p.height && p.mouseX > 0 && p.mouseX < p.width
+    return p5.mouseY > 0 && p5.mouseY < p5.height && p5.mouseX > 0 && p5.mouseX < p5.width
   }
 
-  p.draw = () => {
+  p5.draw = () => {
     // or you'll crash the app! or something....
     // ignore mouse outside confines of window.
-    if (p.mouseIsPressed && mouseInCanvas()) {
+    if (p5.mouseIsPressed && mouseInCanvas()) {
       // TODO: if some modifier, drag the image around the screen
       // first call, save image, and keep it around for drag-drawing?
-      paint(p.mouseX, p.mouseY, params)
+      paint(p5.mouseX, p5.mouseY, params)
     }
   }
 
-  p.mousePressed = () => {
+  p5.mousePressed = () => {
     if (!mouseInCanvas()) return
 
     if (params.fadeBackground) {
-      p.push()
-      p.fill(colorAlpha('#FFFFFF', 0.5))
-      p.noStroke()
-      p.rect(0, 0, p.width, p.height)
-      p.pop()
+      p5.push()
+      p5.fill(colorAlpha('#FFFFFF', 0.5))
+      p5.noStroke()
+      p5.rect(0, 0, p5.width, p5.height)
+      p5.pop()
     }
   }
 
@@ -152,16 +151,16 @@ let Sketch = function (p, guiControl) {
     var rows = params.rows
     let cols = rows // tidally lock them together for the time being.
 
-    var cellHeight = p.height / rows
-    var cellWidth = p.width / cols
+    var cellHeight = p5.height / rows
+    var cellWidth = p5.width / cols
 
-    p.textAlign(p.CENTER, p.CENTER)
+    p5.textAlign(p5.CENTER, p5.CENTER)
 
     // this kept ending up being almost the same as cellWidth everytime
     // so I just went with the fudge factor. :::sigh:::
     // let fontsize = fitTextOnCanvas('.', 'Arial', cellWidth)
     // textSize(fontsize)
-    p.textSize(cellWidth * 1.5)
+    p5.textSize(cellWidth * 1.5)
 
     // const tSize = logslider(params.maxrows - rows, params.maxrows)
     // textSize(tSize)
@@ -173,9 +172,9 @@ let Sketch = function (p, guiControl) {
     const sw = params.useOutline
       ? params.outline_strokeWeight
       : 0
-    p.strokeWeight(sw)
-    p.strokeJoin(params.outline_strokeJoin)
-    const fetchText = textGetter(params.nextCharMode, t)
+    p5.strokeWeight(sw)
+    p5.strokeJoin(params.outline_strokeJoin)
+    const fetchText = textGetter(params.nextCharMode, textManager)
 
     for (var y = 0; y < rows; y++) {
       for (var x = 0; x < cols; x++) {
@@ -187,41 +186,41 @@ let Sketch = function (p, guiControl) {
         pixelX += cellWidth / 2
         pixelY += cellHeight / 2
 
-        setPaintMode(pixelX, pixelY, params, 'fill', p.fill)
-        setPaintMode(pixelX, pixelY, params, 'outline', p.stroke)
+        setPaintMode(pixelX, pixelY, params, 'fill', p5.fill)
+        setPaintMode(pixelX, pixelY, params, 'outline', p5.stroke)
 
         if (params.cumulativeRotation) {
-          p.rotate(p.radians(params.rotation))
+          p5.rotate(p5.radians(params.rotation))
           // text(letter, gridX, gridY)
-          p.text(fetchText(), pixelX, pixelY)
+          p5.text(fetchText(), pixelX, pixelY)
         } else {
-          p.push()
+          p5.push()
           // translate(gridX + step / 4, gridY + step / 5)
-          p.rotate(p.radians(params.rotation))
+          p5.rotate(p5.radians(params.rotation))
           // text(letter, 0, 0)
-          p.text(fetchText(), pixelX, pixelY)
-          p.pop()
+          p5.text(fetchText(), pixelX, pixelY)
+          p5.pop()
         }
 
-        p.text(fetchText(), pixelX, pixelY)
+        p5.text(fetchText(), pixelX, pixelY)
       }
     }
   }
 
   function drawCircle (xPos, yPos, params) {
     // The radius of a circle
-    let radius = params.invert ? (p.width * 1.2 / 2) - xPos : xPos
+    let radius = params.invert ? (p5.width * 1.2 / 2) - xPos : xPos
     if (radius < 0) radius = 0.1
-    var circumference = 2 * p.PI * radius
+    var circumference = 2 * p5.PI * radius
     var tx = xPos / 2
     if (tx < 1) tx = 1
 
-    p.textSize(tx) // what if it was based on the yPos, which we are ignoring otherwise?
+    p5.textSize(tx) // what if it was based on the yPos, which we are ignoring otherwise?
     // well, it's somewhat used for color - fade, in some cases
 
-    p.push()
+    p5.push()
     // Start in the center and draw the circle
-    p.translate(p.width / 2, p.height / 2)
+    p5.translate(p5.width / 2, p5.height / 2)
 
     // We must keep track of our position avar the curve
     // offset the start/end povar based on mouse position...
@@ -229,50 +228,50 @@ let Sketch = function (p, guiControl) {
     const sw = params.useOutline
       ? params.outline_strokeWeight
       : 0
-    p.strokeWeight(sw)
-    p.strokeJoin(params.outline_strokeJoin)
+    p5.strokeWeight(sw)
+    p5.strokeJoin(params.outline_strokeJoin)
 
-    setPaintMode(xPos, yPos, params, 'fill', p.fill)
-    setPaintMode(xPos, yPos, params, 'outline', p.stroke)
+    setPaintMode(xPos, yPos, params, 'fill', p5.fill)
+    setPaintMode(xPos, yPos, params, 'outline', p5.stroke)
 
     var arclength = 0
     // random chars until we've come... full-circle
     while (arclength < circumference) {
       // const currentchar = params.nextCharMode === '1' ? t.getchar() : t.getcharRandom()
-      const currentchar = textGetter(params.nextCharMode, t)()
+      const currentchar = textGetter(params.nextCharMode, textManager)()
 
       // Instead of a constant p.width, we check the p.width of each character.
-      var w = p.textWidth(currentchar)
+      var w = p5.textWidth(currentchar)
       // Each box is centered so we move half the p.width
       arclength += w / 2
       // Angle in radians is the arclength divided by the radius
       // Starting on the left side of the circle by adding PI
-      var theta = p.PI + arclength / radius
+      var theta = p5.PI + arclength / radius
 
       if (params.cumulativeRotation) {
-        p.translate(radius * p.cos(theta), radius * p.sin(theta))
-        p.rotate(theta + p.PI / 2 + p.radians(params.rotation))
-        p.text(currentchar, 0, 0)
+        p5.translate(radius * p5.cos(theta), radius * p5.sin(theta))
+        p5.rotate(theta + p5.PI / 2 + p5.radians(params.rotation))
+        p5.text(currentchar, 0, 0)
       } else {
-        p.push()
+        p5.push()
         // Polar to cartesian coordinate conversion
-        p.translate(radius * p.cos(theta), radius * p.sin(theta))
-        p.rotate(theta + p.PI / 2 + p.radians(params.rotation))
-        p.text(currentchar, 0, 0)
-        p.pop()
+        p5.translate(radius * p5.cos(theta), radius * p5.sin(theta))
+        p5.rotate(theta + p5.PI / 2 + p5.radians(params.rotation))
+        p5.text(currentchar, 0, 0)
+        p5.pop()
       }
       // Move halfway again
       arclength += w / 2
     }
-    p.pop()
+    p5.pop()
   }
 
   const defaultGridParm = (xPos, height, width) => {
     const step = xPos + 5
     return {
       step: step,
-      condy: (y) => y < p.height,
-      condx: (x) => x < p.width,
+      condy: (y) => y < p5.height,
+      condx: (x) => x < p5.width,
       changey: (y) => y + step,
       changex: (x) => x + step,
       initY: 0,
@@ -281,15 +280,15 @@ let Sketch = function (p, guiControl) {
   }
 
   const invertGridParm = (xPos, height, width) => {
-    const step = p.width - xPos + 5
+    const step = p5.width - xPos + 5
     return {
       step: step,
       condy: (y) => y > 0,
       condx: (x) => x > 0,
       changey: (y) => y - step,
       changex: (x) => x - step,
-      initY: p.height,
-      initX: p.width
+      initY: p5.height,
+      initX: p5.width
     }
   }
 
@@ -300,15 +299,15 @@ let Sketch = function (p, guiControl) {
     xPos = xPos < 5 ? 5 : xPos
     // yPos = yPos < 5 ? 5 : yPos
 
-    const gridParams = params.invert ? invertGridParm(xPos, p.height, p.width) : defaultGridParm(xPos, p.height, p.width)
-    p.textSize(gridParams.step)
+    const gridParams = params.invert ? invertGridParm(xPos, p5.height, p5.width) : defaultGridParm(xPos, p5.height, p5.width)
+    p5.textSize(gridParams.step)
     const sw = params.useOutline
       ? params.outline_strokeWeight
         ? params.outline_strokeWeight
         : (gridParams.step / 5)
       : 0
-    p.strokeWeight(sw)
-    p.strokeJoin(params.outline_strokeJoin)
+    p5.strokeWeight(sw)
+    p5.strokeJoin(params.outline_strokeJoin)
 
     for (var gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
       for (var gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
@@ -317,25 +316,25 @@ let Sketch = function (p, guiControl) {
     }
 
     function paintActions (gridX, gridY, step) {
-      setPaintMode(gridX, gridY, params, 'fill', p.fill)
-      setPaintMode(gridX, gridY, params, 'outline', p.stroke)
-      const currentText = textGetter(params.nextCharMode, t)()
+      setPaintMode(gridX, gridY, params, 'fill', p5.fill)
+      setPaintMode(gridX, gridY, params, 'outline', p5.stroke)
+      const currentText = textGetter(params.nextCharMode, textManager)()
 
       if (params.cumulativeRotation) {
-        p.rotate(p.radians(params.rotation))
-        p.text(currentText, gridX, gridY)
+        p5.rotate(p5.radians(params.rotation))
+        p5.text(currentText, gridX, gridY)
       } else {
-        p.push()
-        p.translate(gridX + step / 4, gridY + step / 5)
-        p.rotate(p.radians(params.rotation))
-        p.text(currentText, 0, 0)
-        p.pop()
+        p5.push()
+        p5.translate(gridX + step / 4, gridY + step / 5)
+        p5.rotate(p5.radians(params.rotation))
+        p5.text(currentText, 0, 0)
+        p5.pop()
       }
     }
   }
 
   this.clearCanvas = function () {
-    p.background(0, 0, 100)
+    p5.background(0, 0, 100)
   }
 
   var drawModes = 3 // shouldn't be constrained in here....
@@ -366,8 +365,8 @@ let Sketch = function (p, guiControl) {
   }
 
   function colorAlpha (aColor, alpha) {
-    var c = p.color(aColor)
-    return p.color('rgba(' + [p.red(c), p.green(c), p.blue(c), alpha].join(',') + ')')
+    var c = p5.color(aColor)
+    return p5.color('rgba(' + [p5.red(c), p5.green(c), p5.blue(c), alpha].join(',') + ')')
   }
   // TODO: if these were.... functions, we could have an array, and not have to worry about counting the mode
   // also, functions could take params that could change them up a bit.....
@@ -375,13 +374,13 @@ let Sketch = function (p, guiControl) {
   const paintModes = 9 // 0..n+1
 
   function setPaintMode (gridX, gridY, params, prefix, func) {
-    func = func.bind(p)
+    func = func.bind(p5)
     // TODO: I don't understand the third-parameter here, in HSB mode.
     const transparency = params[`${prefix}_transparent`] ? parseInt(params[`${prefix}_transparency`], 10) / 100 : 100
     var mode = parseInt(params[`${prefix}_paintMode`], 10)
     switch (mode) {
       case 1:
-        func(p.width - gridX, gridY, 100, transparency)
+        func(p5.width - gridX, gridY, 100, transparency)
 
         break
 
@@ -390,8 +389,8 @@ let Sketch = function (p, guiControl) {
         break
 
       case 3: // offset from default
-        var x = (gridX + p.width / 2) % p.width
-        var y = (p.height - gridY + p.height / 2) % p.height
+        var x = (gridX + p5.width / 2) % p5.width
+        var y = (p5.height - gridY + p5.height / 2) % p5.height
         func(x, y, 100, transparency)
         break
 
@@ -405,14 +404,14 @@ let Sketch = function (p, guiControl) {
 
       case 6:
         {
-          const grayScaled = (gridY * 255) / p.height
+          const grayScaled = (gridY * 255) / p5.height
           func(grayScaled, transparency)
         }
         break
 
       case 7:
         {
-          const grayScaled = (gridY * 255) / p.height
+          const grayScaled = (gridY * 255) / p5.height
           func(255 - grayScaled, transparency)
         }
         break
@@ -435,7 +434,7 @@ let Sketch = function (p, guiControl) {
 
       case 0:
       default:
-        func(gridX, p.height - gridY, 100, transparency)
+        func(gridX, p5.height - gridY, 100, transparency)
         break
     }
   }
@@ -456,22 +455,22 @@ let Sketch = function (p, guiControl) {
       nbr = nbr + ''
       return nbr.length >= width ? nbr : new Array(width - nbr.length + 1).join(fill) + nbr
     }
-    p.saveCanvas(`${params.name}.${getDateFormatted()}.png`)
+    p5.saveCanvas(`${params.name}.${getDateFormatted()}.png`)
   }
 
   const keyPresser = (keyCode) => {
     let handled = false
-    if (keyCode === p.UP_ARROW || keyCode === p.DOWN_ARROW) {
+    if (keyCode === p5.UP_ARROW || keyCode === p5.DOWN_ARROW) {
       handled = true
-      if (keyCode === p.UP_ARROW) {
+      if (keyCode === p5.UP_ARROW) {
         nextpaintMode(1, params.fill_paintMode)
       } else {
         nextpaintMode(-1, params.fill_paintMode)
       }
-    } else if (keyCode === p.LEFT_ARROW || keyCode === p.RIGHT_ARROW) {
+    } else if (keyCode === p5.LEFT_ARROW || keyCode === p5.RIGHT_ARROW) {
       handled = true
       // TODO: if mode is grid-2, mod row/col
-      if (keyCode === p.LEFT_ARROW) {
+      if (keyCode === p5.LEFT_ARROW) {
         if (params.drawMode === DRAWING_MODE.ROWCOL) {
           nextRow(-1, params)
         } else {
@@ -484,22 +483,22 @@ let Sketch = function (p, guiControl) {
           nextRotation(1, params)
         }
       }
-    } else if (keyCode === p.BACKSPACE || keyCode === p.DELETE) {
+    } else if (keyCode === p5.BACKSPACE || keyCode === p5.DELETE) {
       handled = true
       sketch.clearCanvas()
     }
     return handled
   }
 
-  p.keyPressed = () => {
+  p5.keyPressed = () => {
     if (!mouseInCanvas()) return
-    let handled = keyPresser(p.keyCode)
+    let handled = keyPresser(p5.keyCode)
     return !handled
   }
 
-  p.keyTyped = () => {
+  p5.keyTyped = () => {
     if (!mouseInCanvas()) return
-    keyHandler(p.key, params)
+    keyHandler(p5.key, params)
     return false
   }
 
@@ -515,7 +514,7 @@ let Sketch = function (p, guiControl) {
         break
 
       case ' ':
-        paint(p.mouseX, p.mouseY, params)
+        paint(p5.mouseX, p5.mouseY, params)
         break
 
       case 'm':
@@ -542,7 +541,7 @@ let Sketch = function (p, guiControl) {
 
       case 'w':
       case 'W':
-        t.setText(getBodyCopy())
+        textManager.setText(getBodyCopy())
         break
 
       case 'x':
@@ -598,15 +597,15 @@ let Sketch = function (p, guiControl) {
   }
 
   function macro3 (params) {
-    for (var i = 1; i < p.width; i += 10) {
+    for (var i = 1; i < p5.width; i += 10) {
       drawCircle(i, i, params)
     }
   }
 
   function macro4 (params) {
     var origRot = params.rotation
-    for (var i = p.width; i > p.width / 2; i -= 80) {
-      if (i < ((p.width / 3) * 2)) params.rotation = 90
+    for (var i = p5.width; i > p5.width / 2; i -= 80) {
+      if (i < ((p5.width / 3) * 2)) params.rotation = 90
       drawGrid(i, i, params)
     }
     params.rotation = origRot
@@ -617,7 +616,7 @@ let Sketch = function (p, guiControl) {
   }
 
   function macro6 (params) {
-    for (var i = 1; i < p.width; i += 5) {
+    for (var i = 1; i < p5.width; i += 5) {
       drawGrid(i, mouseY, params)
     }
   }
@@ -625,7 +624,7 @@ let Sketch = function (p, guiControl) {
   // shift pixels in image
   // I'd love to be able to drag the image around, but I think that will require something else, but related
   function shift (verticalOffset, horizontalOffset) {
-    let context = p.drawingContext
+    let context = p5.drawingContext
     let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
     let cw = (horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
@@ -647,29 +646,23 @@ let Sketch = function (p, guiControl) {
     // NOTE: get() is soooooo much quicker!
     // but since it only works in RGBA, it creates problems for HSB canvases like ours
     // or, it creates problems, possibly for a different reason
-    const d = p.pixelDensity()
-    var tmp = p.createImage(p.width * d, p.height * d)
+    const d = p5.pixelDensity()
+    var tmp = p5.createImage(p5.width * d, p5.height * d)
     tmp.loadPixels()
-    p.loadPixels()
-    for (let i = 0; i < p.pixels.length; i++) {
-      tmp.pixels[i] = p.pixels[i]
+    p5.loadPixels()
+    for (let i = 0; i < p5.pixels.length; i++) {
+      tmp.pixels[i] = p5.pixels[i]
     }
     tmp.updatePixels()
-    p.push()
+    p5.push()
     if (axis === HORIZONTAL) {
-      p.translate(0, p.height)
-      p.scale(1, -1)
+      p5.translate(0, p5.height)
+      p5.scale(1, -1)
     } else {
-      p.translate(p.width, 0)
-      p.scale(-1, 1)
+      p5.translate(p5.width, 0)
+      p5.scale(-1, 1)
     }
-    p.image(tmp, 0, 0, p.width, p.height)
-    p.pop()
+    p5.image(tmp, 0, 0, p5.width, p5.height)
+    p5.pop()
   }
 }
-
-function builder (p) {
-  myP5 = new Sketch(p, gc)
-}
-
-var myP5 = new p5(builder)
