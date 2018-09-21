@@ -162,8 +162,8 @@ export default class GuiControl {
     gui.add(params, 'fadeBackground').listen()
     gui.add(params, 'invert').listen()
     gui.add(params, 'nextCharMode', {
-      'Random': 0,
-      'Sequential': 1,
+      'Sequential': 0,
+      'Random': 1,
       'Word': 2
     }).listen()
     gui.add(params, 'rotation').min(-360).max(360).step(1).listen()
