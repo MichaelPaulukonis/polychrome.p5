@@ -3,6 +3,8 @@
    text painting environment.
 */
 
+import Undo from './undo.js'
+
 var bodycopy = ['An sketch a day keeps the doctor away........*****xxx                                 ',
   `riverrun, past Eve and Adam's, from swerve of shore to bend 
 of bay, brings us by a commodius vicus of recirculation back to 
@@ -45,6 +47,8 @@ export default function Sketch (p5, guiControl, textManager) {
   let params = guiControl.params
   let sketch = this
 
+  var undo
+
   p5.setup = () => {
     const canvas = p5.createCanvas(900, 600)
     canvas.parent('sketch-holder')
@@ -58,6 +62,7 @@ export default function Sketch (p5, guiControl, textManager) {
       textManager.setText(getBodyCopy())
     })
     guiControl.setupGui(this)
+    undo = new Undo(p5, 10)
   }
 
   const mouseInCanvas = () => {
@@ -71,6 +76,7 @@ export default function Sketch (p5, guiControl, textManager) {
       // TODO: if some modifier, drag the image around the screen
       // first call, save image, and keep it around for drag-drawing?
       paint(p5.mouseX, p5.mouseY, params)
+      undo.takeSnapshot()
     }
   }
 
@@ -537,6 +543,11 @@ export default function Sketch (p5, guiControl, textManager) {
       case 's':
       case 'S':
         guiControl.swapParams()
+        break
+
+      case 'u':
+      case 'U':
+        undo.undo()
         break
 
       case 'w':
