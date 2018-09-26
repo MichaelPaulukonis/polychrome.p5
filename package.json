@@ -10,7 +10,8 @@
     "start": "webpack-dev-server",
     "build": "npm run clean && webpack -p",
     "clean": "rm -rf dist",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "bump": "npm version patch"
   },
   "repository": {
     "type": "git",
@@ -422,7 +423,8 @@
       "LINEAR",
       "QUADRATIC",
       "BEZIER",
-      "CURVE"
+      "CURVE",
+      "VERSION"
     ]
   }
 }
