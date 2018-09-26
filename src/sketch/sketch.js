@@ -76,7 +76,6 @@ export default function Sketch (p5, guiControl, textManager) {
       // TODO: if some modifier, drag the image around the screen
       // first call, save image, and keep it around for drag-drawing?
       paint(p5.mouseX, p5.mouseY, params)
-      undo.takeSnapshot()
     }
   }
 
@@ -90,6 +89,10 @@ export default function Sketch (p5, guiControl, textManager) {
       p5.rect(0, 0, p5.width, p5.height)
       p5.pop()
     }
+  }
+
+  p5.mouseReleased = () => {
+    undo.takeSnapshot()
   }
 
   const DRAWING_MODE = {
@@ -510,16 +513,21 @@ export default function Sketch (p5, guiControl, textManager) {
 
   const shiftAmount = 50
   function keyHandler (char, params) {
+    // TODO: need to capture undo on most actions
+    // HAH HAH HAH! ugh
     switch (char) {
       case 'f':
+        undo.takeSnapshot()
         flip(HORIZONTAL)
         break
 
       case 'F':
+        undo.takeSnapshot()
         flip(VERTICAL)
         break
 
       case ' ':
+        undo.takeSnapshot()
         paint(p5.mouseX, p5.mouseY, params)
         break
 
@@ -546,8 +554,10 @@ export default function Sketch (p5, guiControl, textManager) {
         break
 
       case 'u':
-      case 'U':
         undo.undo()
+        break
+      case 'U':
+        undo.redo()
         break
 
       case 'w':
@@ -556,40 +566,50 @@ export default function Sketch (p5, guiControl, textManager) {
         break
 
       case 'x':
+        undo.takeSnapshot()
         shift(shiftAmount, shiftAmount)
         break
       case 'X':
+        undo.takeSnapshot()
         shift(-shiftAmount, -shiftAmount)
         break
 
       case 'z':
+        undo.takeSnapshot()
         shift(shiftAmount, -shiftAmount)
         break
       case 'Z':
+        undo.takeSnapshot()
         shift(-shiftAmount, shiftAmount)
         break
 
       case '1':
+        undo.takeSnapshot()
         macro1(params)
         break
 
       case '2':
+        undo.takeSnapshot()
         macro2(params)
         break
 
       case '3':
+        undo.takeSnapshot()
         macro3(params)
         break
 
       case '4':
+        undo.takeSnapshot()
         macro4(params)
         break
 
       case '5':
+        undo.takeSnapshot()
         macro5(params)
         break
 
       case '6':
+        undo.takeSnapshot()
         macro6(params)
         break
     }
