@@ -1,6 +1,6 @@
 {
   "name": "polychrome.p5",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A colorful text painter",
   "main_orig": "index.html/sketch.js",
   "main": "src/index.js",
