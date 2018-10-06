@@ -121,20 +121,20 @@ export default function Sketch (p5, guiControl, textManager) {
   }
 
   // based on https://stackoverflow.com/a/846249/41153
-  function logslider (position, max) {
-    // position will be between 0 and 100
-    var minp = 1
-    var maxp = max
+  // function logslider (position, max) {
+  //   // position will be between 0 and 100
+  //   var minp = 1
+  //   var maxp = max
 
-    // The result should be between 100 an 10000000
-    var minv = Math.log(4)
-    var maxv = Math.log(1000)
+  //   // The result should be between 100 an 10000000
+  //   var minv = Math.log(4)
+  //   var maxv = Math.log(1000)
 
-    // calculate adjustment factor
-    var scale = (maxv - minv) / (maxp - minp)
+  //   // calculate adjustment factor
+  //   var scale = (maxv - minv) / (maxp - minp)
 
-    return Math.exp(minv + scale * (position - minp))
-  }
+  //   return Math.exp(minv + scale * (position - minp))
+  // }
 
   const textGetter = (textMode, t) => {
     var tfunc
@@ -315,7 +315,7 @@ export default function Sketch (p5, guiControl, textManager) {
         ? params.outline_strokeWeight
         : (gridParams.step / 5)
       : 0
-    p5.strokeWeight(sw)
+    p5.strokeWeight(sw / 4)
     p5.strokeJoin(params.outline_strokeJoin)
 
     for (var gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
@@ -326,7 +326,7 @@ export default function Sketch (p5, guiControl, textManager) {
 
     function paintActions (gridX, gridY, step) {
       setPaintMode(gridX, gridY, params, 'fill', p5.fill)
-      setPaintMode(gridX, gridY, params, 'outline', p5.stroke)
+      if (params.useOutline) setPaintMode(gridX, gridY, params, 'outline', p5.stroke)
       const currentText = textGetter(params.nextCharMode, textManager)()
 
       if (params.cumulativeRotation) {
@@ -390,7 +390,6 @@ export default function Sketch (p5, guiControl, textManager) {
     switch (mode) {
       case 1:
         func(p5.width - gridX, gridY, 100, transparency)
-
         break
 
       case 2:
@@ -513,8 +512,6 @@ export default function Sketch (p5, guiControl, textManager) {
 
   const shiftAmount = 50
   function keyHandler (char, params) {
-    // TODO: need to capture undo on most actions
-    // HAH HAH HAH! ugh
     switch (char) {
       case 'f':
         undo.takeSnapshot()
@@ -551,6 +548,10 @@ export default function Sketch (p5, guiControl, textManager) {
       case 's':
       case 'S':
         guiControl.swapParams()
+        break
+
+      case 't':
+        mirror()
         break
 
       case 'u':
@@ -694,6 +695,28 @@ export default function Sketch (p5, guiControl, textManager) {
       p5.scale(-1, 1)
     }
     p5.image(tmp, 0, 0, p5.width, p5.height)
+    p5.pop()
+  }
+
+  const mirror = (axis = HORIZONTAL) => {
+    const d = p5.pixelDensity()
+    var tmp = p5.createImage(p5.width * d, p5.height * d)
+    tmp.loadPixels()
+    p5.loadPixels()
+    for (let i = 0; i < p5.pixels.length; i++) {
+      tmp.pixels[i] = p5.pixels[i]
+    }
+    tmp.updatePixels()
+    p5.push()
+    if (axis === HORIZONTAL) {
+      p5.translate(p5.width, 0)
+      p5.scale(-1, 1)
+      p5.image(tmp, p5.width / 2, 0, p5.width, p5.height)
+    } else {
+      // p5.translate(p5.width, 0)
+      p5.scale(-1, 1)
+      p5.image(tmp, 0, 0, p5.width, p5.height)
+    }
     p5.pop()
   }
 }

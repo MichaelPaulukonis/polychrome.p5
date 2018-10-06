@@ -166,7 +166,7 @@ export default class GuiControl {
       'Random': 1,
       'Word': 2
     }).listen()
-    gui.add(params, 'rotation').min(-360).max(360).step(1).listen()
+    gui.add(params, 'rotation').min(-360).max(360).step(1)
     gui.add(params, 'cumulativeRotation').listen()
     gui.add(params, 'drawMode', { 'Grid': 0, 'Circle': 1, 'Grid2': 2 }).listen()
     gui.add(params, 'rows').min(1).max(params.rowmax).listen()
@@ -185,8 +185,8 @@ export default class GuiControl {
         'solid': 9
       }).listen() // work in-progress....
       gui.add(params, `${prefix}_transparent`).listen()
-      gui.add(params, `${prefix}_transparency`).min(0).max(100).step(1).listen()
-      const cm = gui.addColor(params, `${prefix}_color`).listen()
+      gui.add(params, `${prefix}_transparency`).min(1).max(100).step(1)
+      gui.addColor(params, `${prefix}_color`).listen()
       // NOTE: creating a "new" setting triggers this. hunh.
       // cm.onChange((m) => { params[`${prefix}_paintMode`] = 9 }) // auto-set to solid color mode
       const ccm = gui.add(params, `${prefix}_scheme`, schemeList).name(prefix)
@@ -199,7 +199,7 @@ export default class GuiControl {
     addFlatParams(fpGui, params, 'fill')
     gui.add(params, 'useOutline').listen()
     const olGui = gui.addFolder('outlineControls')
-    olGui.add(params, 'outline_strokeWeight').min(0).max(100).step(1).listen()
+    olGui.add(params, 'outline_strokeWeight').min(1).max(800).step(1)
     olGui.add(params, 'outline_strokeJoin', { 'MITER': 'miter', 'BEVEL': 'bevel', 'ROUND': 'round' })
     addFlatParams(olGui, params, 'outline')
     this.params = params
