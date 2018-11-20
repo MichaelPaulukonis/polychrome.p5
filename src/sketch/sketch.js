@@ -551,7 +551,13 @@ export default function Sketch (p5, guiControl, textManager) {
         break
 
       case 't':
-        mirror()
+        undo.takeSnapshot()
+        mirror(HORIZONTAL)
+        break
+
+      case 'T':
+        undo.takeSnapshot()
+        mirror(VERTICAL)
         break
 
       case 'u':
@@ -698,7 +704,7 @@ export default function Sketch (p5, guiControl, textManager) {
     p5.pop()
   }
 
-  const mirror = (axis = HORIZONTAL) => {
+  const mirror = (axis = VERTICAL) => {
     const d = p5.pixelDensity()
     var tmp = p5.createImage(p5.width * d, p5.height * d)
     tmp.loadPixels()
@@ -711,11 +717,13 @@ export default function Sketch (p5, guiControl, textManager) {
     if (axis === HORIZONTAL) {
       p5.translate(p5.width, 0)
       p5.scale(-1, 1)
-      p5.image(tmp, p5.width / 2, 0, p5.width, p5.height)
+      // image(img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight])
+      p5.image(tmp, 0, 0, p5.width / 2, p5.height, 0, 0, p5.width, p5.height * 2)
     } else {
-      // p5.translate(p5.width, 0)
-      p5.scale(-1, 1)
-      p5.image(tmp, 0, 0, p5.width, p5.height)
+      p5.translate(0, p5.height)
+      p5.scale(1, -1)
+      // image(img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight])
+      p5.image(tmp, 0, 0, p5.width, p5.height / 2, 0, 0, p5.width * 2, p5.height)
     }
     p5.pop()
   }
