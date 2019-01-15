@@ -140,6 +140,7 @@ export default class GuiControl {
       swap: this.swapParams,
       rotation: 0,
       cumulativeRotation: false,
+      drawModes: { 'Grid': 0, 'Circle': 1, 'Grid2': 2 },
       drawMode: 1,
       fadeBackground: false,
       invert: false,
@@ -168,7 +169,7 @@ export default class GuiControl {
     }).listen()
     gui.add(params, 'rotation').min(-360).max(360).step(1)
     gui.add(params, 'cumulativeRotation').listen()
-    gui.add(params, 'drawMode', { 'Grid': 0, 'Circle': 1, 'Grid2': 2 }).listen()
+    gui.add(params, 'drawMode', params.drawModes).listen()
     gui.add(params, 'rows').min(1).max(params.rowmax).listen()
     gui.add(params, 'columns').min(1).max(params.colmax).listen()
     const addFlatParams = (gui, params, prefix) => {

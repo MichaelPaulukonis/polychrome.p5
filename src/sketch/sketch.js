@@ -43,8 +43,8 @@ function setBodyCopy (text) {
   textInputBox.value = text
 }
 
-export default function Sketch (p5, guiControl, textManager) {
-  let params = guiControl.params
+export default function Sketch (p5, guiControl, textManager, params) {
+  params = params || guiControl.params
   let sketch = this
 
   var undo
@@ -195,18 +195,15 @@ export default function Sketch (p5, guiControl, textManager) {
         pixelX += cellWidth / 2
         pixelY += cellHeight / 2
 
-        setPaintMode(pixelX, pixelY, params, 'fill', p5.fill)
-        setPaintMode(pixelX, pixelY, params, 'outline', p5.stroke)
+        setPaintMode(pixelX, pixelY, params, 'fill', p5.fill, p5)
+        setPaintMode(pixelX, pixelY, params, 'outline', p5.stroke, p5)
 
         if (params.cumulativeRotation) {
           p5.rotate(p5.radians(params.rotation))
-          // text(letter, gridX, gridY)
           p5.text(fetchText(), pixelX, pixelY)
         } else {
           p5.push()
-          // translate(gridX + step / 4, gridY + step / 5)
           p5.rotate(p5.radians(params.rotation))
-          // text(letter, 0, 0)
           p5.text(fetchText(), pixelX, pixelY)
           p5.pop()
         }
@@ -240,8 +237,8 @@ export default function Sketch (p5, guiControl, textManager) {
     p5.strokeWeight(sw)
     p5.strokeJoin(params.outline_strokeJoin)
 
-    setPaintMode(xPos, yPos, params, 'fill', p5.fill)
-    setPaintMode(xPos, yPos, params, 'outline', p5.stroke)
+    setPaintMode(xPos, yPos, params, 'fill', p5.fill, p5)
+    setPaintMode(xPos, yPos, params, 'outline', p5.stroke, p5)
 
     var arclength = 0
     // random chars until we've come... full-circle
@@ -320,25 +317,25 @@ export default function Sketch (p5, guiControl, textManager) {
 
     for (var gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
       for (var gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
-        paintActions(gridX, gridY, gridParams.step)
+        paintActions(gridX, gridY, gridParams.step, p5, params)
       }
     }
+  }
 
-    function paintActions (gridX, gridY, step) {
-      setPaintMode(gridX, gridY, params, 'fill', p5.fill)
-      if (params.useOutline) setPaintMode(gridX, gridY, params, 'outline', p5.stroke)
-      const currentText = textGetter(params.nextCharMode, textManager)()
+  function paintActions (gridX, gridY, step, layer, params) {
+    setPaintMode(gridX, gridY, params, 'fill', layer.fill, layer)
+    if (params.useOutline) setPaintMode(gridX, gridY, params, 'outline', layer.stroke, layer)
+    const currentText = textGetter(params.nextCharMode, textManager)()
 
-      if (params.cumulativeRotation) {
-        p5.rotate(p5.radians(params.rotation))
-        p5.text(currentText, gridX, gridY)
-      } else {
-        p5.push()
-        p5.translate(gridX + step / 4, gridY + step / 5)
-        p5.rotate(p5.radians(params.rotation))
-        p5.text(currentText, 0, 0)
-        p5.pop()
-      }
+    if (params.cumulativeRotation) {
+      layer.rotate(layer.radians(params.rotation))
+      layer.text(currentText, gridX, gridY)
+    } else {
+      layer.push()
+      layer.translate(gridX + step / 4, gridY + step / 5)
+      layer.rotate(layer.radians(params.rotation))
+      layer.text(currentText, 0, 0)
+      layer.pop()
     }
   }
 
@@ -346,11 +343,10 @@ export default function Sketch (p5, guiControl, textManager) {
     p5.background(0, 0, 100)
   }
 
-  var drawModes = 3 // shouldn't be constrained in here....
   function nextDrawMode (direction, params) {
     let drawMode = params.drawMode
-    drawMode = (drawMode + direction) % drawModes
-    if (drawMode < 0) drawMode = drawModes - 1
+    drawMode = (drawMode + direction) % params.drawModes.length
+    if (drawMode < 0) drawMode = params.drawModes.length - 1
     params.drawMode = drawMode
   }
 
@@ -382,7 +378,7 @@ export default function Sketch (p5, guiControl, textManager) {
   // like the grays - sideways, or something. angles....
   const paintModes = 9 // 0..n+1
 
-  function setPaintMode (gridX, gridY, params, prefix, func) {
+  function setPaintMode (gridX, gridY, params, prefix, func, p5) {
     func = func.bind(p5)
     // TODO: I don't understand the third-parameter here, in HSB mode.
     const transparency = params[`${prefix}_transparent`] ? parseInt(params[`${prefix}_transparency`], 10) / 100 : 100
@@ -622,6 +618,9 @@ export default function Sketch (p5, guiControl, textManager) {
     }
   }
 
+  // these aren't "macros" as in recorded
+  // but that's a hoped-for goal
+  // in the meantime, they can be fun to use
   function macro1 (params) {
     drawGrid(20, 10, params)
   }
@@ -655,7 +654,7 @@ export default function Sketch (p5, guiControl, textManager) {
 
   function macro6 (params) {
     for (var i = 1; i < p5.width; i += 5) {
-      drawGrid(i, mouseY, params)
+      drawGrid(i, p5.mouseY, params)
     }
   }
 

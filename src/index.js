@@ -9,8 +9,8 @@ console.log(`APP-VERSION: ${VERSION}`)
 let gc = new GuiControl()
 let t = new TextManager()
 
-function builder (p) {
-  myP5 = new Sketch(p, gc, t)
+const builder = (p) => {
+  new Sketch(p, gc, t)
 }
 
-var myP5 = new P5(builder)
+new P5(builder)
