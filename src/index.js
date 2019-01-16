@@ -10,7 +10,7 @@ let gc = new GuiControl()
 let t = new TextManager()
 
 const builder = (p) => {
-  new Sketch(p, gc, t)
+  new Sketch(p, gc, t) // eslint-disable-line no-new
 }
 
-new P5(builder)
+new P5(builder) // eslint-disable-line no-new

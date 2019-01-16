@@ -305,6 +305,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     xPos = xPos < 5 ? 5 : xPos
     // yPos = yPos < 5 ? 5 : yPos
 
+    // THIS SHOULD ALL BE DEFAULT STUFF DONE COMONLY
     const gridParams = params.invert ? invertGridParm(xPos, p5.height, p5.width) : defaultGridParm(xPos, p5.height, p5.width)
     p5.textSize(gridParams.step)
     const sw = params.useOutline
@@ -315,18 +316,29 @@ export default function Sketch (p5, guiControl, textManager, params) {
     p5.strokeWeight(sw / 4)
     p5.strokeJoin(params.outline_strokeJoin)
 
-    for (var gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
-      for (var gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
-        paintActions(gridX, gridY, gridParams.step, p5, params)
-      }
-    }
+    const nextText = textGetter(params.nextCharMode, textManager)
+    const filler = (prefix, func, layer, params) => bloc => setPaintMode(bloc.x, bloc.y, params, prefix, func, layer)
+    const fill = filler('fill', p5.fill, p5, params)
+    // const fill = ((prefix, func, layer, params) => (bloc) => setPaintMode(bloc.x, bloc.y, params, prefix, func, layer))('fill', p5.fill, p5, params)
+    const outline = params.useOutline ? filler('outline', p5.stroke, p5, params) : () => {}
+    const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(gridParams.step, p5, params)
+    let blocGen = blocGenerator(gridParams, nextText)
+    let apx = (...fns) => gen => [...gen].map(b => fns.forEach(f => f(b)))
+    apx(fill, outline, paint)(blocGen)
   }
 
-  function paintActions (gridX, gridY, step, layer, params) {
-    setPaintMode(gridX, gridY, params, 'fill', layer.fill, layer)
-    if (params.useOutline) setPaintMode(gridX, gridY, params, 'outline', layer.stroke, layer)
-    const currentText = textGetter(params.nextCharMode, textManager)()
+  function * blocGenerator (gridParams, nextText) {
+    for (var gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
+      for (var gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
+        yield { x: gridX, y: gridY, text: nextText() }
+      }
+    }
+    return 'done'
+  }
 
+  // TODO: make all params explicit
+  // break down more granularly
+  function paintActions (gridX, gridY, step, layer, params, currentText) {
     if (params.cumulativeRotation) {
       layer.rotate(layer.radians(params.rotation))
       layer.text(currentText, gridX, gridY)
@@ -339,9 +351,10 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
   }
 
-  this.clearCanvas = function () {
-    p5.background(0, 0, 100)
-  }
+  this.clearCanvas = ((layer) => () => {
+    layer.pixelDensity(2)
+    layer.background(0, 0, 100)
+  })(p5)
 
   function nextDrawMode (direction, params) {
     let drawMode = params.drawMode
