@@ -47,9 +47,10 @@ export default function Sketch (p5, guiControl, textManager, params) {
   params = params || guiControl.params
   let sketch = this
 
-  var undo
+  var undo // hunh
 
   p5.setup = () => {
+    p5.pixelDensity(2)
     const canvas = p5.createCanvas(900, 600)
     canvas.parent('sketch-holder')
     p5.textAlign(p5.CENTER, p5.CENTER)
@@ -320,7 +321,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const filler = (prefix, func, layer, params) => bloc => setPaintMode(bloc.x, bloc.y, params, prefix, func, layer)
     const fill = filler('fill', p5.fill, p5, params)
     // const fill = ((prefix, func, layer, params) => (bloc) => setPaintMode(bloc.x, bloc.y, params, prefix, func, layer))('fill', p5.fill, p5, params)
-    const outline = params.useOutline ? filler('outline', p5.stroke, p5, params) : () => {}
+    const outline = params.useOutline ? filler('outline', p5.stroke, p5, params) : () => { }
     const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(gridParams.step, p5, params)
     let blocGen = blocGenerator(gridParams, nextText)
     let apx = (...fns) => gen => [...gen].map(b => fns.forEach(f => f(b)))
@@ -520,7 +521,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const shiftAmount = 50
-  function keyHandler (char, params) {
+  const keyHandler = (char, params) => {
     switch (char) {
       case 'f':
         undo.takeSnapshot()
@@ -600,76 +601,73 @@ export default function Sketch (p5, guiControl, textManager, params) {
         break
 
       case '1':
-        undo.takeSnapshot()
-        macro1(params)
-        break
-
       case '2':
-        undo.takeSnapshot()
-        macro2(params)
-        break
-
       case '3':
-        undo.takeSnapshot()
-        macro3(params)
-        break
-
       case '4':
-        undo.takeSnapshot()
-        macro4(params)
-        break
-
       case '5':
-        undo.takeSnapshot()
-        macro5(params)
-        break
-
       case '6':
+      case '7':
         undo.takeSnapshot()
-        macro6(params)
+        this[`macro${char}`](params)
         break
     }
+  }
+
+  const macroWrapper = (f) => (params) => {
+    undo.takeSnapshot()
+    f({ ...params })
   }
 
   // these aren't "macros" as in recorded
   // but that's a hoped-for goal
   // in the meantime, they can be fun to use
-  function macro1 (params) {
+  this.macro1 = macroWrapper((params) => {
     drawGrid(20, 10, params)
-  }
+  })
 
-  function macro2 (params) {
+  this.macro2 = macroWrapper((params) => {
     drawCircle(89, 89, params)
     drawCircle(50, 50, params)
     drawCircle(40, 40, params)
     drawCircle(30, 30, params)
     drawCircle(100, 100, params)
-  }
+  })
 
-  function macro3 (params) {
+  this.macro3 = macroWrapper((params) => {
     for (var i = 1; i < p5.width; i += 10) {
       drawCircle(i, i, params)
     }
-  }
+  })
 
-  function macro4 (params) {
-    var origRot = params.rotation
+  this.macro4 = macroWrapper((params) => {
     for (var i = p5.width; i > p5.width / 2; i -= 80) {
       if (i < ((p5.width / 3) * 2)) params.rotation = 90
       drawGrid(i, i, params)
     }
-    params.rotation = origRot
-  }
+  })
 
-  function macro5 (params) {
+  this.macro5 = macroWrapper((params) => {
     drawGrid(4, 4, params)
-  }
+  })
 
-  function macro6 (params) {
+  this.macro6 = macroWrapper((params) => {
     for (var i = 1; i < p5.width; i += 5) {
       drawGrid(i, p5.mouseY, params)
     }
-  }
+  })
+
+  this.macro7 = macroWrapper((params) => {
+    // get something that's a clean param-set
+    // rotation reset, etc.
+    params.drawMode = 1 // grid
+    params.fill_paintMode = 4
+    params.fill_transparent = false
+    params.useOutline = false
+    params.nextCharMode = 0
+    params.rotation = 0
+    params.cumulativeRotation = false
+    drawGrid(10, 10, params)
+  })
 
   // shift pixels in image
   // I'd love to be able to drag the image around, but I think that will require something else, but related

@@ -38,14 +38,16 @@ class CircImgCollection {
   constructor (p5, amountOfImages) {
     let current = 0
     let img = []
+    let context = p5.drawingContext
 
     let amount = amountOfImages
     this.amount = amount
 
     // Initialize all images as copies of the current display
+    let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
+
     for (let i = 0; i < amount; i++) {
-      img[i] = p5.createImage(p5.width, p5.height)
-      img[i] = p5.get()
+      img[i] = imageData // initialize  - necesary?????
     }
 
     this.next = () => {
@@ -55,10 +57,11 @@ class CircImgCollection {
       current = (current - 1 + amount) % amount
     }
     this.capture = () => {
-      img[current] = p5.get()
+      img[current] = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
     }
     this.show = () => {
-      p5.image(img[current], 0, 0)
+      // UGH - not nesc captured by p5...
+      context.putImageData(img[current], 0, 0)
     }
   }
 }
