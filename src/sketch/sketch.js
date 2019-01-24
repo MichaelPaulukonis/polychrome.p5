@@ -33,13 +33,12 @@ and their upturapikepointandplace is at the knock out in the park
 where oranges have been laid to rust upon the green since dev- 
 linsfirst loved livvy. `]
 
+// TODO: this is UI stuff !!!
 const textInputBox = document.getElementById('bodycopy')
-
-function getBodyCopy () {
+const getBodyCopy = () => {
   return textInputBox.value
 }
-
-function setBodyCopy (text) {
+const setBodyCopy = (text) => {
   textInputBox.value = text
 }
 
@@ -102,21 +101,11 @@ export default function Sketch (p5, guiControl, textManager, params) {
     ROWCOL: '2'
   }
 
-  function paint (xPos, yPos, params) {
-    // switch (parseInt(params.drawMode, 10)) {
-    switch (params.drawMode) {
-      case DRAWING_MODE.GRID:
-      default:
-        // yPos is ignored in drawGrid. hunh.
-        drawGrid(xPos, yPos, params)
-        break
-      case DRAWING_MODE.CIRCLE:
-        drawCircle(xPos, yPos, params)
-        break
-      case DRAWING_MODE.ROWCOL:
-        drawRowCol(xPos, yPos, params)
-        break
-    }
+  const paint = (xPos, yPos, params) => {
+    const draw = params.drawMode === DRAWING_MODE.GRID ? drawGrid
+      : params.drawMode === DRAWING_MODE.CIRCLE ? drawCircle
+        : drawRowCol
+    draw(xPos, yPos, params)
     params.fill_donePainting = true
     params.outline_donePainting = true
   }
@@ -157,7 +146,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // originally from http://happycoding.io/examples/processing/for-loops/letters
   // a reminder of something simpler
-  function drawRowCol (xPos, yPos, params) {
+  const drawRowCol = (xPos, yPos, params) => {
     var rows = params.rows
     let cols = rows // tidally lock them together for the time being.
 
@@ -214,7 +203,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
   }
 
-  function drawCircle (xPos, yPos, params) {
+  const drawCircle = (xPos, yPos, params) => {
     // The radius of a circle
     let radius = params.invert ? (p5.width * 1.2 / 2) - xPos : xPos
     if (radius < 0) radius = 0.1
@@ -301,7 +290,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // alternatively http://happycoding.io/examples/processing/for-loops/letters
   // cleaner?
-  function drawGrid (xPos, yPos, params) {
+  const drawGrid = (xPos, yPos, params) => {
     // negatives are possible, it seems....
     xPos = xPos < 5 ? 5 : xPos
     // yPos = yPos < 5 ? 5 : yPos
@@ -316,11 +305,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
       : 0
     p5.strokeWeight(sw / 4)
     p5.strokeJoin(params.outline_strokeJoin)
+    p5.textAlign(p5.CENTER, p5.CENTER)
+    // p5.textAlign(p5.LEFT, p5.BOTTOM)
 
     const nextText = textGetter(params.nextCharMode, textManager)
     const filler = (prefix, func, layer, params) => bloc => setPaintMode(bloc.x, bloc.y, params, prefix, func, layer)
     const fill = filler('fill', p5.fill, p5, params)
-    // const fill = ((prefix, func, layer, params) => (bloc) => setPaintMode(bloc.x, bloc.y, params, prefix, func, layer))('fill', p5.fill, p5, params)
     const outline = params.useOutline ? filler('outline', p5.stroke, p5, params) : () => { }
     const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(gridParams.step, p5, params)
     let blocGen = blocGenerator(gridParams, nextText)
@@ -339,7 +329,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // TODO: make all params explicit
   // break down more granularly
-  function paintActions (gridX, gridY, step, layer, params, currentText) {
+  const paintActions = (gridX, gridY, step, layer, params, currentText) => {
     if (params.cumulativeRotation) {
       layer.rotate(layer.radians(params.rotation))
       layer.text(currentText, gridX, gridY)
@@ -357,42 +347,41 @@ export default function Sketch (p5, guiControl, textManager, params) {
     layer.background(0, 0, 100)
   })(p5)
 
-  function nextDrawMode (direction, params) {
+  const nextDrawMode = (direction, params) => {
     let drawMode = params.drawMode
     drawMode = (drawMode + direction) % params.drawModes.length
     if (drawMode < 0) drawMode = params.drawModes.length - 1
     params.drawMode = drawMode
   }
 
-  function nextpaintMode (direction, pPaintMode) {
-    pPaintMode = (pPaintMode + direction) % paintModes
-    if (pPaintMode < 0) pPaintMode = paintModes - 1
-    return pPaintMode
+  const nextpaintMode = (direction, prevMode) => {
+    const paintModes = Object.keys(params.paintModes).length
+    let newMode = (prevMode + direction) % paintModes
+    if (newMode < 0) newMode = paintModes - 1
+    return newMode
   }
 
-  function nextRotation (direction, params) {
+  const nextRotation = (direction, params) => {
     var step = 5
     params.rotation = (params.rotation + step * direction) % 360
     if (params.rotation > 360) params.rotation = 360
     if (params.rotation < -360) params.rotation = -360
   }
 
-  let nextRow = (direction, params) => {
+  const nextRow = (direction, params) => {
     params.rows = params.rows + direction
     if (params.rows > params.maxrow) params.rows = params.maxrow
     if (params.rows < 1) params.rows = 1
   }
 
-  function colorAlpha (aColor, alpha) {
+  const colorAlpha = (aColor, alpha) => {
     var c = p5.color(aColor)
     return p5.color('rgba(' + [p5.red(c), p5.green(c), p5.blue(c), alpha].join(',') + ')')
   }
   // TODO: if these were.... functions, we could have an array, and not have to worry about counting the mode
   // also, functions could take params that could change them up a bit.....
   // like the grays - sideways, or something. angles....
-  const paintModes = 9 // 0..n+1
-
-  function setPaintMode (gridX, gridY, params, prefix, func, p5) {
+  const setPaintMode = (gridX, gridY, params, prefix, func, p5) => {
     func = func.bind(p5)
     // TODO: I don't understand the third-parameter here, in HSB mode.
     const transparency = params[`${prefix}_transparent`] ? parseInt(params[`${prefix}_transparency`], 10) / 100 : 100
@@ -462,14 +451,81 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.rotation = 0
   }
 
-  this.save_sketch = function () {
-    const getDateFormatted = function () {
+  const HORIZONTAL = 0
+  const VERTICAL = 1
+  const flip = (axis) => {
+    // NOTE: get() is soooooo much quicker!
+    // but since it only works in RGBA, it creates problems for HSB canvases like ours
+    // or, it creates problems, possibly for a different reason
+    const d = p5.pixelDensity()
+    var tmp = p5.createImage(p5.width * d, p5.height * d)
+    tmp.loadPixels()
+    p5.loadPixels()
+    for (let i = 0; i < p5.pixels.length; i++) {
+      tmp.pixels[i] = p5.pixels[i]
+    }
+    tmp.updatePixels()
+    p5.push()
+    if (axis === HORIZONTAL) {
+      p5.translate(0, p5.height)
+      p5.scale(1, -1)
+    } else {
+      p5.translate(p5.width, 0)
+      p5.scale(-1, 1)
+    }
+    p5.image(tmp, 0, 0, p5.width, p5.height)
+    p5.pop()
+  }
+
+  const mirror = (axis = VERTICAL) => {
+    const d = p5.pixelDensity()
+    var tmp = p5.createImage(p5.width * d, p5.height * d)
+    tmp.loadPixels()
+    p5.loadPixels()
+    for (let i = 0; i < p5.pixels.length; i++) {
+      tmp.pixels[i] = p5.pixels[i]
+    }
+    tmp.updatePixels()
+    p5.push()
+    if (axis === HORIZONTAL) {
+      p5.translate(p5.width, 0)
+      p5.scale(-1, 1)
+      p5.image(tmp, 0, 0, p5.width / 2, p5.height, 0, 0, p5.width, p5.height * 2)
+    } else {
+      p5.translate(0, p5.height)
+      p5.scale(1, -1)
+      p5.image(tmp, 0, 0, p5.width, p5.height / 2, 0, 0, p5.width * 2, p5.height)
+    }
+    p5.pop()
+  }
+
+  // shift pixels in image
+  // I'd love to be able to drag the image around, but I think that will require something else, but related
+  const shift = (verticalOffset, horizontalOffset) => {
+    let context = p5.drawingContext
+    let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
+
+    let cw = (horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
+    let ch = (verticalOffset > 0 ? context.canvas.height : -context.canvas.height)
+
+    context.putImageData(imageData, 0 + horizontalOffset, 0 + verticalOffset)
+    if (horizontalOffset !== 0) {
+      context.putImageData(imageData, 0 + horizontalOffset - cw, 0 + verticalOffset)
+    }
+    if (verticalOffset !== 0) {
+      context.putImageData(imageData, 0 + horizontalOffset, 0 + verticalOffset - ch)
+    }
+    context.putImageData(imageData, 0 - cw + horizontalOffset, 0 - ch + verticalOffset)
+  }
+
+  this.save_sketch = () => {
+    const getDateFormatted = () => {
       var d = new Date()
       var df = `${d.getFullYear()}${pad((d.getMonth() + 1), 2)}${pad(d.getDate(), 2)}.${pad(d.getHours(), 2)}${pad(d.getMinutes(), 2)}${pad(d.getSeconds(), 2)}`
       return df
     }
 
-    const pad = function (nbr, width, fill = '0') {
+    const pad = (nbr, width, fill = '0') => {
       nbr = nbr + ''
       return nbr.length >= width ? nbr : new Array(width - nbr.length + 1).join(fill) + nbr
     }
@@ -480,27 +536,13 @@ export default function Sketch (p5, guiControl, textManager, params) {
     let handled = false
     if (keyCode === p5.UP_ARROW || keyCode === p5.DOWN_ARROW) {
       handled = true
-      if (keyCode === p5.UP_ARROW) {
-        nextpaintMode(1, params.fill_paintMode)
-      } else {
-        nextpaintMode(-1, params.fill_paintMode)
-      }
+      const vector = (keyCode === p5.UP_ARROW) ? 1 : -1
+      params.fill_paintMode = nextpaintMode(vector, params.fill_paintMode)
     } else if (keyCode === p5.LEFT_ARROW || keyCode === p5.RIGHT_ARROW) {
       handled = true
-      // TODO: if mode is grid-2, mod row/col
-      if (keyCode === p5.LEFT_ARROW) {
-        if (params.drawMode === DRAWING_MODE.ROWCOL) {
-          nextRow(-1, params)
-        } else {
-          nextRotation(-1, params)
-        }
-      } else {
-        if (params.drawMode === DRAWING_MODE.ROWCOL) {
-          nextRow(1, params)
-        } else {
-          nextRotation(1, params)
-        }
-      }
+      const vector = (keyCode === p5.RIGHT_ARROW) ? 1 : -1
+      const func = (params.drawMode === DRAWING_MODE.ROWCOL) ? nextRow : nextRotation
+      func(vector, params)
     } else if (keyCode === p5.BACKSPACE || keyCode === p5.DELETE) {
       handled = true
       sketch.clearCanvas()
@@ -607,7 +649,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
       case '5':
       case '6':
       case '7':
-        undo.takeSnapshot()
+      case '8':
         this[`macro${char}`](params)
         break
     }
@@ -656,85 +698,41 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
   })
 
-  this.macro7 = macroWrapper((params) => {
-    // get something that's a clean param-set
-    // rotation reset, etc.
+  this.macro7 = macroWrapper((params, overrides) => {
+    params = this.defaultParams
     params.drawMode = 1 // grid
     params.fill_paintMode = 4
     params.fill_transparent = false
     params.useOutline = false
     params.nextCharMode = 0
-    params.rotation = 0
-    params.cumulativeRotation = false
-    drawGrid(10, 10, params)
+    params = { ...params, ...overrides }
+    const x = p5.mouseX
+    const y = p5.mouseY
+    drawGrid(x, y, params)
   })
 
-  // shift pixels in image
-  // I'd love to be able to drag the image around, but I think that will require something else, but related
-  function shift (verticalOffset, horizontalOffset) {
-    let context = p5.drawingContext
-    let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
+  this.macro7 = macroWrapper((params) => {
+    params = this.defaultParams
+    params.drawMode = 1 // grid
+    params.fill_paintMode = 4
+    params.fill_transparent = false
+    params.useOutline = false
+    params.nextCharMode = 0
+    const x = p5.mouseX
+    const y = p5.mouseY
+    drawGrid(x, y, params)
+  })
 
-    let cw = (horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
-    let ch = (verticalOffset > 0 ? context.canvas.height : -context.canvas.height)
-
-    context.putImageData(imageData, 0 + horizontalOffset, 0 + verticalOffset)
-    if (horizontalOffset !== 0) {
-      context.putImageData(imageData, 0 + horizontalOffset - cw, 0 + verticalOffset)
-    }
-    if (verticalOffset !== 0) {
-      context.putImageData(imageData, 0 + horizontalOffset, 0 + verticalOffset - ch)
-    }
-    context.putImageData(imageData, 0 - cw + horizontalOffset, 0 - ch + verticalOffset)
-  }
-
-  var HORIZONTAL = 0
-  var VERTICAL = 1
-  function flip (axis) {
-    // NOTE: get() is soooooo much quicker!
-    // but since it only works in RGBA, it creates problems for HSB canvases like ours
-    // or, it creates problems, possibly for a different reason
-    const d = p5.pixelDensity()
-    var tmp = p5.createImage(p5.width * d, p5.height * d)
-    tmp.loadPixels()
-    p5.loadPixels()
-    for (let i = 0; i < p5.pixels.length; i++) {
-      tmp.pixels[i] = p5.pixels[i]
-    }
-    tmp.updatePixels()
-    p5.push()
-    if (axis === HORIZONTAL) {
-      p5.translate(0, p5.height)
-      p5.scale(1, -1)
-    } else {
-      p5.translate(p5.width, 0)
-      p5.scale(-1, 1)
-    }
-    p5.image(tmp, 0, 0, p5.width, p5.height)
-    p5.pop()
-  }
-
-  const mirror = (axis = VERTICAL) => {
-    const d = p5.pixelDensity()
-    var tmp = p5.createImage(p5.width * d, p5.height * d)
-    tmp.loadPixels()
-    p5.loadPixels()
-    for (let i = 0; i < p5.pixels.length; i++) {
-      tmp.pixels[i] = p5.pixels[i]
-    }
-    tmp.updatePixels()
-    p5.push()
-    if (axis === HORIZONTAL) {
-      p5.translate(p5.width, 0)
-      p5.scale(-1, 1)
-      // image(img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight])
-      p5.image(tmp, 0, 0, p5.width / 2, p5.height, 0, 0, p5.width, p5.height * 2)
-    } else {
-      p5.translate(0, p5.height)
-      p5.scale(1, -1)
-      // image(img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight])
-      p5.image(tmp, 0, 0, p5.width, p5.height / 2, 0, 0, p5.width * 2, p5.height)
-    }
-    p5.pop()
-  }
+  this.macro8 = (overrides) => macroWrapper((params) => {
+    params = this.defaultParams
+    params.drawMode = 1 // grid
+    params.fill_paintMode = 4
+    params.fill_transparent = false
+    params.useOutline = false
+    params.nextCharMode = 0
+    params = { ...params, ...overrides }
+    const x = p5.mouseX
+    const y = p5.mouseY
+    drawGrid(x, y, params)
+  })({ fill_paintMode: params.fill_paintMode }) // doh! this is AT THE TIME OF APP CREATION, not clicky.....
 }

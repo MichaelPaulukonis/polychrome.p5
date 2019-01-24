@@ -11,10 +11,13 @@ export default class GuiControl {
       setfocus()
       this.params.save = sketch.save_sketch
       this.params.clear = sketch.clearCanvas
+      sketch.defaultParams = { ...(this.params) }
     }
+
     var setfocus = function () {
       cnvs.focus()
     }
+
     this.openCanvasInNewTab = function () {
       if (cnvs) {
         const img = cnvs.toDataURL('image/jpg')
@@ -24,12 +27,15 @@ export default class GuiControl {
                     '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>')
       }
     }
+
     let fc = document.getElementById('focus')
     if (fc) fc.onclick = setfocus
+
     this.urlToColors = (url) => {
       // based on https://bl.ocks.org/mootari/bfbf01320da6c14f9cba186c581d507d
       return url.split('/').pop().split('-').map((c) => '#' + c)
     }
+
     const colorLabel = (label) => {
       function gradient (colors) {
         function stops (color, i, colors) {
@@ -47,6 +53,7 @@ export default class GuiControl {
       span.style.marginRight = '.5em'
       label.appendChild(span)
     }
+
     // Adds and links labeled radios to select controller, hides select.
     // Radios are wrapped inside labels and stored in controller.__radios.
     function selectToRadios (controller) {
@@ -98,8 +105,8 @@ export default class GuiControl {
       donePainting: false
     })
     this.swapParams = () => {
-      let swapped = swapPrefixParams(params, 'outline', 'fill')
-      Object.keys(swapped).map((key) => (params[key] = swapped[key]))
+      let swapped = swapPrefixParams(allParams, 'outline', 'fill')
+      Object.keys(swapped).map((key) => (allParams[key] = swapped[key]))
     }
     // http://www.jstips.co/en/javascript/picking-and-rejecting-object-properties/
     function pick (obj, keys) {
@@ -131,7 +138,7 @@ export default class GuiControl {
     }
     let fillParams = colorParams()
     let outlineParams = Object.assign({}, colorParams(), { strokeWeight: 1, strokeJoin: 'round', paintMode: 4 })
-    var paramsInitial = {
+    let paramsInitial = {
       name: 'polychrome.text',
       open: this.openCanvasInNewTab,
       // bind after defined in sketch
@@ -141,7 +148,7 @@ export default class GuiControl {
       rotation: 0,
       cumulativeRotation: false,
       drawModes: { 'Grid': 0, 'Circle': 1, 'Grid2': 2 },
-      drawMode: 1,
+      drawMode: 0,
       fadeBackground: false,
       invert: false,
       useOutline: true,
@@ -150,31 +157,8 @@ export default class GuiControl {
       rows: 10,
       columns: 10,
       rowmax: 100,
-      colmax: 100
-    }
-    let params = Object.assign({}, paramsInitial, flattenObj(fillParams, 'fill'), flattenObj(outlineParams, 'outline'))
-    var gui = new dat.GUI()
-    gui.remember(params)
-    gui.add(params, 'name')
-    gui.add(params, 'open')
-    gui.add(params, 'save')
-    gui.add(params, 'clear')
-    gui.add(params, 'swap')
-    gui.add(params, 'fadeBackground').listen()
-    gui.add(params, 'invert').listen()
-    gui.add(params, 'nextCharMode', {
-      'Sequential': 0,
-      'Random': 1,
-      'Word': 2
-    }).listen()
-    gui.add(params, 'rotation').min(-360).max(360).step(1).listen()
-    gui.add(params, 'cumulativeRotation').listen()
-    gui.add(params, 'drawMode', params.drawModes).listen()
-    gui.add(params, 'rows').min(1).max(params.rowmax).listen()
-    gui.add(params, 'columns').min(1).max(params.colmax).listen()
-
-    const addFlatParams = (gui, params, prefix) => {
-      gui.add(params, `${prefix}_paintMode`, {
+      colmax: 100,
+      paintModes: {
         'Rainbow1': 0,
         'Rainbow2': 1,
         'Rainbow3': 2,
@@ -185,7 +169,34 @@ export default class GuiControl {
         'Gray2': 7,
         'cycle': 8,
         'solid': 9
-      }).listen() // work in-progress....
+      },
+      nextCharModes: {
+        'Sequential': 0,
+        'Random': 1,
+        'Word': 2
+      }
+    }
+
+    let allParams = Object.assign({}, paramsInitial, flattenObj(fillParams, 'fill'), flattenObj(outlineParams, 'outline'))
+
+    var gui = new dat.GUI()
+    gui.remember(allParams)
+    gui.add(allParams, 'name')
+    gui.add(allParams, 'open')
+    gui.add(allParams, 'save')
+    gui.add(allParams, 'clear')
+    gui.add(allParams, 'swap')
+    gui.add(allParams, 'fadeBackground').listen()
+    gui.add(allParams, 'invert').listen()
+    gui.add(allParams, 'nextCharMode', allParams.nextCharModes).listen()
+    gui.add(allParams, 'rotation').min(-360).max(360).step(1).listen()
+    gui.add(allParams, 'cumulativeRotation').listen()
+    gui.add(allParams, 'drawMode', allParams.drawModes).listen()
+    gui.add(allParams, 'rows').min(1).max(allParams.rowmax).listen()
+    gui.add(allParams, 'columns').min(1).max(allParams.colmax).listen()
+
+    const addFlatParams = (gui, params, prefix) => {
+      gui.add(params, `${prefix}_paintMode`, allParams.paintModes).listen() // work in-progress....
       gui.add(params, `${prefix}_transparent`).listen()
       gui.add(params, `${prefix}_transparency`).min(0).max(100).step(1)
       gui.addColor(params, `${prefix}_color`).listen()
@@ -199,12 +210,12 @@ export default class GuiControl {
     }
 
     const fpGui = gui.addFolder('fillControls')
-    addFlatParams(fpGui, params, 'fill')
-    gui.add(params, 'useOutline').listen()
+    addFlatParams(fpGui, allParams, 'fill')
+    gui.add(allParams, 'useOutline').listen()
     const olGui = gui.addFolder('outlineControls')
-    olGui.add(params, 'outline_strokeWeight').min(1).max(800).step(1)
-    olGui.add(params, 'outline_strokeJoin', { 'MITER': 'miter', 'BEVEL': 'bevel', 'ROUND': 'round' })
-    addFlatParams(olGui, params, 'outline')
-    this.params = params
+    olGui.add(allParams, 'outline_strokeWeight').min(1).max(800).step(1)
+    olGui.add(allParams, 'outline_strokeJoin', { 'MITER': 'miter', 'BEVEL': 'bevel', 'ROUND': 'round' })
+    addFlatParams(olGui, allParams, 'outline')
+    this.params = allParams
   }
 }
