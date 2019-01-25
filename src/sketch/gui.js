@@ -145,6 +145,7 @@ export default class GuiControl {
       save: () => { },
       clear: () => { },
       swap: this.swapParams,
+      fixedWidth: true,
       rotation: 0,
       cumulativeRotation: false,
       drawModes: { 'Grid': 0, 'Circle': 1, 'Grid2': 2 },
@@ -186,6 +187,7 @@ export default class GuiControl {
     gui.add(allParams, 'save')
     gui.add(allParams, 'clear')
     gui.add(allParams, 'swap')
+    gui.add(allParams, 'fixedWidth')
     gui.add(allParams, 'fadeBackground').listen()
     gui.add(allParams, 'invert').listen()
     gui.add(allParams, 'nextCharMode', allParams.nextCharModes).listen()

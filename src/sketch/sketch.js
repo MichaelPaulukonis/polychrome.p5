@@ -110,22 +110,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.outline_donePainting = true
   }
 
-  // based on https://stackoverflow.com/a/846249/41153
-  // function logslider (position, max) {
-  //   // position will be between 0 and 100
-  //   var minp = 1
-  //   var maxp = max
-
-  //   // The result should be between 100 an 10000000
-  //   var minv = Math.log(4)
-  //   var maxv = Math.log(1000)
-
-  //   // calculate adjustment factor
-  //   var scale = (maxv - minv) / (maxp - minp)
-
-  //   return Math.exp(minv + scale * (position - minp))
-  // }
-
   const textGetter = (textMode, t) => {
     var tfunc
     switch (parseInt(textMode, 10)) {
@@ -305,20 +289,28 @@ export default function Sketch (p5, guiControl, textManager, params) {
       : 0
     p5.strokeWeight(sw / 4)
     p5.strokeJoin(params.outline_strokeJoin)
-    p5.textAlign(p5.CENTER, p5.CENTER)
-    // p5.textAlign(p5.LEFT, p5.BOTTOM)
+    if (params.fixedWidth) {
+      p5.textAlign(p5.CENTER, p5.CENTER)
+    } else {
+      p5.textAlign(p5.LEFT, p5.BOTTOM)
+    }
 
     const nextText = textGetter(params.nextCharMode, textManager)
     const filler = (prefix, func, layer, params) => bloc => setPaintMode(bloc.x, bloc.y, params, prefix, func, layer)
     const fill = filler('fill', p5.fill, p5, params)
     const outline = params.useOutline ? filler('outline', p5.stroke, p5, params) : () => { }
-    const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(gridParams.step, p5, params)
-    let blocGen = blocGenerator(gridParams, nextText)
+    const step = (params.fixedWidth) ? gridParams.step : 0
+    const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, p5, params)
+    const yOffset = getYoffset(p5.textAscent(), 0) // only used for TextWidth
+    // TODO: also the alignments above. ugh
+    let blocGen = (params.fixedWidth)
+      ? blocGeneratorFixedWidth(gridParams, nextText)
+      : blocGeneratorTextWidth(nextText, whOnly(p5), yOffset, p5)
     let apx = (...fns) => gen => [...gen].map(b => fns.forEach(f => f(b)))
     apx(fill, outline, paint)(blocGen)
   }
 
-  function * blocGenerator (gridParams, nextText) {
+  function * blocGeneratorFixedWidth (gridParams, nextText) {
     for (var gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
       for (var gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
         yield { x: gridX, y: gridY, text: nextText() }
@@ -327,6 +319,40 @@ export default function Sketch (p5, guiControl, textManager, params) {
     return 'done'
   }
 
+  function * blocGeneratorTextWidth (nextText, gridSize, yOffset, r) {
+    let t = nextText()
+    let coords = { x: 0, y: yOffset }
+    let offsets = { x: 0, y: yOffset }
+    while (hasNextCoord(coords, gridSize, yOffset)) {
+      yield { x: coords.x, y: coords.y, text: t }
+      offsets.x = r.textWidth(t)
+      coords = nextCoord(coords, offsets, gridSize.width)
+      t = nextText()
+    }
+    return 'done'
+  }
+
+  const whOnly = obj => ({ width: obj.width, height: obj.height })
+
+  const getYoffset = (textAscent, heightOffset) => {
+    var yOffset = textAscent + heightOffset
+    yOffset = (yOffset > 2) ? yOffset : 3
+    return yOffset
+  }
+
+  const hasNextCoord = (coords, gridSize, yOffset) => {
+    return coords.x < gridSize.width && (coords.y - yOffset) < gridSize.height
+  }
+
+  const nextCoord = (coords, offsets, gridWidth) => {
+    let nc = { ...coords }
+    nc.x = nc.x + offsets.x
+    if (nc.x + (0.25 * offsets.x) > gridWidth) {
+      nc.x = 0
+      nc.y = nc.y + offsets.y
+    }
+    return nc
+  }
   // TODO: make all params explicit
   // break down more granularly
   const paintActions = (gridX, gridY, step, layer, params, currentText) => {
@@ -681,6 +707,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
   })
 
+  // when INVERT is on THIS IS AMAZING
+  // which suggests........
   this.macro4 = macroWrapper((params) => {
     for (var i = p5.width; i > p5.width / 2; i -= 80) {
       if (i < ((p5.width / 3) * 2)) params.rotation = 90
