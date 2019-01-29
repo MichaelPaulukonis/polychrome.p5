@@ -169,8 +169,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
         pixelX += cellWidth / 2
         pixelY += cellHeight / 2
 
-        setPaintMode(pixelX, pixelY, params, 'fill', p5.fill, p5)
-        setPaintMode(pixelX, pixelY, params, 'outline', p5.stroke, p5)
+        setFillMode(pixelX, pixelY, params)
+        setOutlineMode(pixelX, pixelY, params)
 
         if (params.cumulativeRotation) {
           p5.rotate(p5.radians(params.rotation))
@@ -188,62 +188,74 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const drawCircle = (xPos, yPos, params) => {
-    // The radius of a circle
-    let radius = params.invert ? (p5.width * 1.2 / 2) - xPos : xPos
-    if (radius < 0) radius = 0.1
-    var circumference = 2 * p5.PI * radius
     var tx = xPos / 2
     if (tx < 1) tx = 1
-
     p5.textSize(tx) // what if it was based on the yPos, which we are ignoring otherwise?
     // well, it's somewhat used for color - fade, in some cases
 
     p5.push()
-    // Start in the center and draw the circle
     p5.translate(p5.width / 2, p5.height / 2)
-
-    // We must keep track of our position avar the curve
-    // offset the start/end povar based on mouse position...
-    // this will change the while condition
     const sw = params.useOutline
       ? params.outline_strokeWeight
       : 0
     p5.strokeWeight(sw)
     p5.strokeJoin(params.outline_strokeJoin)
 
-    setPaintMode(xPos, yPos, params, 'fill', p5.fill, p5)
-    setPaintMode(xPos, yPos, params, 'outline', p5.stroke, p5)
+    setFillMode(xPos, yPos, params)
+    setOutlineMode(xPos, yPos, params)
 
-    var arclength = 0
-    // random chars until we've come... full-circle
-    while (arclength < circumference) {
-      // const currentchar = params.nextCharMode === '1' ? t.getchar() : t.getcharRandom()
-      const currentchar = textGetter(params.nextCharMode, textManager)()
-
-      // Instead of a constant p.width, we check the p.width of each character.
-      var w = p5.textWidth(currentchar)
-      // Each box is centered so we move half the p.width
-      arclength += w / 2
-      // Angle in radians is the arclength divided by the radius
-      // Starting on the left side of the circle by adding PI
-      var theta = p5.PI + arclength / radius
-
-      if (params.cumulativeRotation) {
-        p5.translate(radius * p5.cos(theta), radius * p5.sin(theta))
-        p5.rotate(theta + p5.PI / 2 + p5.radians(params.rotation))
-        p5.text(currentchar, 0, 0)
-      } else {
-        p5.push()
-        // Polar to cartesian coordinate conversion
-        p5.translate(radius * p5.cos(theta), radius * p5.sin(theta))
-        p5.rotate(theta + p5.PI / 2 + p5.radians(params.rotation))
-        p5.text(currentchar, 0, 0)
-        p5.pop()
-      }
-      // Move halfway again
-      arclength += w / 2
-    }
+    const nextText = textGetter(params.nextCharMode, textManager)
+    circlePainter(params, p5, xPos, nextText)
     p5.pop()
+  }
+
+  const circlePainter = (params, p5, xPos, nextText) => {
+    let radius = params.invert ? (p5.width * 1.2 / 2) - xPos : xPos
+    if (radius < 0) { radius = 0.1 }
+    const paint = bloc => circlePaintAction(radius, params)(bloc.theta, bloc.text)
+    const circumference = 2 * p5.PI * radius
+    let blocGen = blocGeneratorCircle(radius, circumference)(nextText, p5)
+    let apx = (...fns) => gen => [...gen].map(b => fns.forEach(f => f(b)))
+    apx(paint)(blocGen)
+  }
+
+  // generator returns { theta, text }
+  // and circlePaintActions intake radius, params, theta, text
+  // so, need to move some things about
+  // const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, p5, params)
+  const gimmeCircleGenerator = (params, p5, xPos, nextText) => {
+    let radius = params.invert ? (p5.width * 1.2 / 2) - xPos : xPos
+    if (radius < 0) { radius = 0.1 }
+    const circumference = 2 * p5.PI * radius
+    return blocGeneratorCircle(radius, circumference)(nextText, p5)
+  }
+
+  const blocGeneratorCircle = (radius, circumference) => {
+    return function * (nextText, r) {
+      let arclength = 0
+      while (arclength < circumference) {
+        const t = nextText()
+        const w = r.textWidth(t)
+        // Each box is centered so we move half the p.width
+        arclength += w / 2
+        // Angle in radians is the arclength divided by the radius
+        // Starting on the left side of the circle by adding PI
+        const theta = r.PI + arclength / radius
+        yield { theta, text: t }
+        // Move halfway again
+        arclength += w / 2
+      }
+      return 'done'
+    }
+  }
+
+  const circlePaintAction = (radius, params) => (theta, currentchar) => {
+    if (!params.cumulativeRotation) { p5.push() }
+    // Polar to cartesian coordinate conversion
+    p5.translate(radius * p5.cos(theta), radius * p5.sin(theta))
+    p5.rotate(theta + p5.PI / 2 + p5.radians(params.rotation))
+    p5.text(currentchar, 0, 0)
+    if (!params.cumulativeRotation) { p5.pop() }
   }
 
   const defaultGridParm = (xPos, height, width) => {
@@ -296,9 +308,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
 
     const nextText = textGetter(params.nextCharMode, textManager)
-    const filler = (prefix, func, layer, params) => bloc => setPaintMode(bloc.x, bloc.y, params, prefix, func, layer)
-    const fill = filler('fill', p5.fill, p5, params)
-    const outline = params.useOutline ? filler('outline', p5.stroke, p5, params) : () => { }
+    const fill = bloc => setFillMode(bloc.x, bloc.y, params)
+    const outline = params.useOutline ? bloc => setOutlineMode(bloc.x, bloc.y, params) : () => { }
     const step = (params.fixedWidth) ? gridParams.step : 0
     const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, p5, params)
     const yOffset = getYoffset(p5.textAscent(), 0) // only used for TextWidth
@@ -404,6 +415,10 @@ export default function Sketch (p5, guiControl, textManager, params) {
     var c = p5.color(aColor)
     return p5.color('rgba(' + [p5.red(c), p5.green(c), p5.blue(c), alpha].join(',') + ')')
   }
+
+  const setFillMode = ((prefix, func, r) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, r))('fill', p5.fill, p5)
+  const setOutlineMode = ((prefix, func, r) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, r))('outline', p5.stroke, p5)
+
   // TODO: if these were.... functions, we could have an array, and not have to worry about counting the mode
   // also, functions could take params that could change them up a bit.....
   // like the grays - sideways, or something. angles....
