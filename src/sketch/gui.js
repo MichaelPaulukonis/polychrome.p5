@@ -194,8 +194,8 @@ export default class GuiControl {
     gui.add(allParams, 'rotation').min(-360).max(360).step(1).listen()
     gui.add(allParams, 'cumulativeRotation').listen()
     gui.add(allParams, 'drawMode', allParams.drawModes).listen()
-    gui.add(allParams, 'rows').min(1).max(allParams.rowmax).listen()
-    gui.add(allParams, 'columns').min(1).max(allParams.colmax).listen()
+    gui.add(allParams, 'rows').min(1).max(allParams.rowmax).step(1).listen()
+    gui.add(allParams, 'columns').min(1).max(allParams.colmax).step(1).listen()
 
     const addFlatParams = (gui, params, prefix) => {
       gui.add(params, `${prefix}_paintMode`, allParams.paintModes).listen() // work in-progress....

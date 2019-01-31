@@ -58,6 +58,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     setBodyCopy(p5.random(bodycopy))
     textManager.setText(getBodyCopy())
     const textButton = document.getElementById('applytext')
+    // TODO: need to handle this better
     textButton.addEventListener('click', () => {
       textManager.setText(getBodyCopy())
     })
@@ -144,14 +145,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
     // let fontsize = fitTextOnCanvas('.', 'Arial', cellWidth)
     // textSize(fontsize)
     p5.textSize(cellWidth * 1.5)
-
-    // const tSize = logslider(params.maxrows - rows, params.maxrows)
-    // textSize(tSize)
-
-    // this is part of the paint mode
-    // but doesn't need to be set each iteration
-    // so we have it here
-    // and there, and there, and ....
     const sw = params.useOutline
       ? params.outline_strokeWeight
       : 0
@@ -177,24 +170,40 @@ export default function Sketch (p5, guiControl, textManager, params) {
           p5.text(fetchText(), pixelX, pixelY)
         } else {
           p5.push()
+          p5.translate(pixelX, pixelY)
           p5.rotate(p5.radians(params.rotation))
-          p5.text(fetchText(), pixelX, pixelY)
+          p5.text(fetchText(), 0, 0)
           p5.pop()
         }
 
-        p5.text(fetchText(), pixelX, pixelY)
+        // p5.text(fetchText(), pixelX, pixelY)
+
+        // const doit = () => {
+        //   p5.rotate(p5.radians(params.rotation))
+        //   p5.text(fetchText(), pixelX, pixelY)
+        //   console.log(`x: ${pixelX} y: ${pixelY}`)
+        // }
+
+        // const t = params.cumulativeRotation ? doit : pushpop(p5)(doit)
+        // t()
       }
     }
   }
 
-  const drawCircle = (xPos, yPos, params) => {
+  const pushpop = l => f => () => {
+    l.push()
+    f()
+    l.pop()
+  }
+
+  const drawCircle = (xPos, yPos, params, width = p5.width, height = p5.height) => {
     var tx = xPos / 2
     if (tx < 1) tx = 1
     p5.textSize(tx) // what if it was based on the yPos, which we are ignoring otherwise?
     // well, it's somewhat used for color - fade, in some cases
 
     p5.push()
-    p5.translate(p5.width / 2, p5.height / 2)
+    p5.translate(width / 2, height / 2)
     const sw = params.useOutline
       ? params.outline_strokeWeight
       : 0
@@ -209,40 +218,40 @@ export default function Sketch (p5, guiControl, textManager, params) {
     p5.pop()
   }
 
-  const circlePainter = (params, p5, xPos, nextText) => {
-    let radius = params.invert ? (p5.width * 1.2 / 2) - xPos : xPos
-    if (radius < 0) { radius = 0.1 }
+  const circlePainter = (params, p5, xPos, nextText, width) => {
+    const radius = getRadius(params, width, xPos)
     const paint = bloc => circlePaintAction(radius, params)(bloc.theta, bloc.text)
-    const circumference = 2 * p5.PI * radius
-    let blocGen = blocGeneratorCircle(radius, circumference)(nextText, p5)
+    const blocGen = gimmeCircleGenerator(radius, nextText, p5)
     let apx = (...fns) => gen => [...gen].map(b => fns.forEach(f => f(b)))
     apx(paint)(blocGen)
+  }
+
+  const getRadius = (params, width, xPos) => {
+    const radius = params.invert ? (width * 1.2 / 2) - xPos : xPos
+    return radius < 0 ? 0.1 : radius
   }
 
   // generator returns { theta, text }
   // and circlePaintActions intake radius, params, theta, text
   // so, need to move some things about
   // const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, p5, params)
-  const gimmeCircleGenerator = (params, p5, xPos, nextText) => {
-    let radius = params.invert ? (p5.width * 1.2 / 2) - xPos : xPos
-    if (radius < 0) { radius = 0.1 }
-    const circumference = 2 * p5.PI * radius
-    return blocGeneratorCircle(radius, circumference)(nextText, p5)
+  const gimmeCircleGenerator = (radius, nextText, l) => {
+    const circumference = 2 * Math.PI * radius
+    return blocGeneratorCircle(radius, circumference)(nextText, l)
   }
 
+  // generator will return { theta, text }
   const blocGeneratorCircle = (radius, circumference) => {
-    return function * (nextText, r) {
+    return function * (nextText, l) {
       let arclength = 0
       while (arclength < circumference) {
         const t = nextText()
-        const w = r.textWidth(t)
-        // Each box is centered so we move half the p.width
+        const w = l.textWidth(t)
         arclength += w / 2
         // Angle in radians is the arclength divided by the radius
         // Starting on the left side of the circle by adding PI
-        const theta = r.PI + arclength / radius
+        const theta = Math.PI + arclength / radius
         yield { theta, text: t }
-        // Move halfway again
         arclength += w / 2
       }
       return 'done'
@@ -262,8 +271,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const step = xPos + 5
     return {
       step: step,
-      condy: (y) => y < p5.height,
-      condx: (x) => x < p5.width,
+      condy: (y) => y < height,
+      condx: (x) => x < width,
       changey: (y) => y + step,
       changex: (x) => x + step,
       initY: 0,
@@ -272,27 +281,27 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const invertGridParm = (xPos, height, width) => {
-    const step = p5.width - xPos + 5
+    const step = width - xPos + 5
     return {
       step: step,
       condy: (y) => y > 0,
       condx: (x) => x > 0,
       changey: (y) => y - step,
       changex: (x) => x - step,
-      initY: p5.height,
-      initX: p5.width
+      initY: height,
+      initX: width
     }
   }
 
   // alternatively http://happycoding.io/examples/processing/for-loops/letters
   // cleaner?
-  const drawGrid = (xPos, yPos, params) => {
+  const drawGrid = (xPos, yPos, params, width = p5.width, height = p5.height) => {
     // negatives are possible, it seems....
     xPos = xPos < 5 ? 5 : xPos
     // yPos = yPos < 5 ? 5 : yPos
 
     // THIS SHOULD ALL BE DEFAULT STUFF DONE COMONLY
-    const gridParams = params.invert ? invertGridParm(xPos, p5.height, p5.width) : defaultGridParm(xPos, p5.height, p5.width)
+    const gridParams = params.invert ? invertGridParm(xPos, height, width) : defaultGridParm(xPos, height, width)
     p5.textSize(gridParams.step)
     const sw = params.useOutline
       ? params.outline_strokeWeight
@@ -316,7 +325,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     // TODO: also the alignments above. ugh
     let blocGen = (params.fixedWidth)
       ? blocGeneratorFixedWidth(gridParams, nextText)
-      : blocGeneratorTextWidth(nextText, whOnly(p5), yOffset, p5)
+      : blocGeneratorTextWidth(nextText, whOnly(p5), yOffset, p5) // whonly needs to be reworked
     let apx = (...fns) => gen => [...gen].map(b => fns.forEach(f => f(b)))
     apx(fill, outline, paint)(blocGen)
   }
@@ -691,14 +700,17 @@ export default function Sketch (p5, guiControl, textManager, params) {
       case '6':
       case '7':
       case '8':
+      case '9':
         this[`macro${char}`](params)
         break
     }
   }
 
   const macroWrapper = (f) => (params) => {
+    p5.push()
     undo.takeSnapshot()
     f({ ...params })
+    p5.pop()
   }
 
   // these aren't "macros" as in recorded
@@ -766,16 +778,23 @@ export default function Sketch (p5, guiControl, textManager, params) {
     drawGrid(x, y, params)
   })
 
-  this.macro8 = (overrides) => macroWrapper((params) => {
-    params = this.defaultParams
-    params.drawMode = 1 // grid
-    params.fill_paintMode = 4
-    params.fill_transparent = false
-    params.useOutline = false
-    params.nextCharMode = 0
-    params = { ...params, ...overrides }
+  this.macro8 = macroWrapper((params) => {
+    const width = p5.width / 2
+    const height = p5.height / 2
     const x = p5.mouseX
     const y = p5.mouseY
-    drawGrid(x, y, params)
-  })({ fill_paintMode: params.fill_paintMode }) // doh! this is AT THE TIME OF APP CREATION, not clicky.....
+    p5.translate(x, y)
+    drawGrid(x, y, params, width, height)
+  })
+
+  this.macro9 = macroWrapper((params) => {
+    params.invert = true
+    const width = p5.width / 2
+    const height = p5.height / 2
+    p5.translate(p5.mouseX, p5.mouseY)
+    for (var i = width; i > width / 2; i -= 40) {
+      if (i < ((width / 3) * 2)) params.rotation = 90
+      drawGrid(i, i, params, width, height)
+    }
+  })
 }
