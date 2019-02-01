@@ -5,43 +5,6 @@
 
 import Undo from './undo.js'
 
-var bodycopy = ['An sketch a day keeps the doctor away........*****xxx                                 ',
-  `riverrun, past Eve and Adam's, from swerve of shore to bend 
-of bay, brings us by a commodius vicus of recirculation back to 
-Howth Castle and Environs. 
-
-Sir Tristram, violer d'amores, fr'over the short sea, had passen- 
-core rearrived from North Armorica on this side the scraggy 
-isthmus of Europe Minor to wielderfight his penisolate war: nor 
-had topsawyer's rocks by the stream Oconee exaggerated themselse 
-to Laurens County's gorgios while they went doublin their mumper 
-all the time: nor avoice from afire bellowsed mishe mishe to 
-tauftauf thuartpeatrick: not yet, though venissoon after, had a 
-kidscad buttended a bland old isaac: not yet, though all's fair in 
-vanessy, were sosie sesthers wroth with twone nathandjoe. Rot a 
-peck of pa's malt had Jhem or Shen brewed by arclight and rory 
-end to the regginbrow was to be seen ringsome on the aquaface. 
-
-The fall (bababadalgharaghtakamminarronnkonnbronntqnner- 
-ronntuonnthunntrovarrhounawnskawntoohoohoordenenthur- 
-nuk!) of a once wallstrait oldparr is retaled early in bed and later 
-on life down through all christian minstrelsy. The great fall of the 
-offwall entailed at such short notice the pftjschute of Finnegan, 
-erse solid man, that the humptyhillhead of humself prumptly sends 
-an unquiring one well to the west in quest of his tumptytumtoes: 
-and their upturapikepointandplace is at the knock out in the park 
-where oranges have been laid to rust upon the green since dev- 
-linsfirst loved livvy. `]
-
-// TODO: this is UI stuff !!!
-const textInputBox = document.getElementById('bodycopy')
-const getBodyCopy = () => {
-  return textInputBox.value
-}
-const setBodyCopy = (text) => {
-  textInputBox.value = text
-}
-
 export default function Sketch (p5, guiControl, textManager, params) {
   params = params || guiControl.params
   let sketch = this
@@ -55,12 +18,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
     p5.textAlign(p5.CENTER, p5.CENTER)
     p5.colorMode(p5.HSB, p5.width, p5.height, 100, 1)
     sketch.clearCanvas()
-    setBodyCopy(p5.random(bodycopy))
-    textManager.setText(getBodyCopy())
+    textManager.setText(guiControl.getBodyCopy())
+    // TODO: THIS IS ALSO GUI STUFF
     const textButton = document.getElementById('applytext')
     // TODO: need to handle this better
     textButton.addEventListener('click', () => {
-      textManager.setText(getBodyCopy())
+      textManager.setText(guiControl.getBodyCopy())
     })
     guiControl.setupGui(this)
     undo = new Undo(p5, 10)
@@ -106,7 +69,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const draw = params.drawMode === DRAWING_MODE.GRID ? drawGrid
       : params.drawMode === DRAWING_MODE.CIRCLE ? drawCircle
         : drawRowCol
-    draw(xPos, yPos, params)
+    draw(xPos, yPos, params, p5.width, p5.height, p5)
     params.fill_donePainting = true
     params.outline_donePainting = true
   }
@@ -131,25 +94,25 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // originally from http://happycoding.io/examples/processing/for-loops/letters
   // a reminder of something simpler
-  const drawRowCol = (xPos, yPos, params) => {
+  const drawRowCol = (xPos, yPos, params, width, height, layer) => {
     var rows = params.rows
     let cols = rows // tidally lock them together for the time being.
 
-    var cellHeight = p5.height / rows
-    var cellWidth = p5.width / cols
+    var cellHeight = height / rows
+    var cellWidth = width / cols
 
-    p5.textAlign(p5.CENTER, p5.CENTER)
+    layer.textAlign(layer.CENTER, layer.CENTER)
 
     // this kept ending up being almost the same as cellWidth everytime
     // so I just went with the fudge factor. :::sigh:::
     // let fontsize = fitTextOnCanvas('.', 'Arial', cellWidth)
     // textSize(fontsize)
-    p5.textSize(cellWidth * 1.5)
+    layer.textSize(cellWidth * 1.5)
     const sw = params.useOutline
       ? params.outline_strokeWeight
       : 0
-    p5.strokeWeight(sw)
-    p5.strokeJoin(params.outline_strokeJoin)
+    layer.strokeWeight(sw)
+    layer.strokeJoin(params.outline_strokeJoin)
     const fetchText = textGetter(params.nextCharMode, textManager)
 
     for (var y = 0; y < rows; y++) {
@@ -165,27 +128,19 @@ export default function Sketch (p5, guiControl, textManager, params) {
         setFillMode(pixelX, pixelY, params)
         setOutlineMode(pixelX, pixelY, params)
 
-        if (params.cumulativeRotation) {
-          p5.rotate(p5.radians(params.rotation))
-          p5.text(fetchText(), pixelX, pixelY)
-        } else {
-          p5.push()
-          p5.translate(pixelX, pixelY)
-          p5.rotate(p5.radians(params.rotation))
-          p5.text(fetchText(), 0, 0)
-          p5.pop()
-        }
+        const txt = fetchText()
+        const cum = trText(layer)(pixelX, pixelY, 0, 0, txt)
+        const norm = pushpop(layer)(trText(layer)(0, 0, pixelX, pixelY, txt))
+        params.cumulativeRotation ? cum() : norm()
 
-        // p5.text(fetchText(), pixelX, pixelY)
-
+        // the whole block is rotated. which is ... interesting....
+        // because of the push/pop
         // const doit = () => {
         //   p5.rotate(p5.radians(params.rotation))
         //   p5.text(fetchText(), pixelX, pixelY)
         //   console.log(`x: ${pixelX} y: ${pixelY}`)
         // }
-
-        // const t = params.cumulativeRotation ? doit : pushpop(p5)(doit)
-        // t()
+        // pushpop(p5)(doit)()
       }
     }
   }
@@ -196,32 +151,32 @@ export default function Sketch (p5, guiControl, textManager, params) {
     l.pop()
   }
 
-  const drawCircle = (xPos, yPos, params, width = p5.width, height = p5.height) => {
+  const drawCircle = (xPos, yPos, params, width, height, layer) => {
     var tx = xPos / 2
     if (tx < 1) tx = 1
-    p5.textSize(tx) // what if it was based on the yPos, which we are ignoring otherwise?
+    layer.textSize(tx) // what if it was based on the yPos, which we are ignoring otherwise?
     // well, it's somewhat used for color - fade, in some cases
 
-    p5.push()
-    p5.translate(width / 2, height / 2)
+    layer.push()
+    layer.translate(width / 2, height / 2)
     const sw = params.useOutline
       ? params.outline_strokeWeight
       : 0
-    p5.strokeWeight(sw)
-    p5.strokeJoin(params.outline_strokeJoin)
+    layer.strokeWeight(sw)
+    layer.strokeJoin(params.outline_strokeJoin)
 
     setFillMode(xPos, yPos, params)
     setOutlineMode(xPos, yPos, params)
 
     const nextText = textGetter(params.nextCharMode, textManager)
     circlePainter(params, p5, xPos, nextText)
-    p5.pop()
+    layer.pop()
   }
 
-  const circlePainter = (params, p5, xPos, nextText, width) => {
+  const circlePainter = (params, layer, xPos, nextText, width) => {
     const radius = getRadius(params, width, xPos)
-    const paint = bloc => circlePaintAction(radius, params)(bloc.theta, bloc.text)
-    const blocGen = gimmeCircleGenerator(radius, nextText, p5)
+    const paint = bloc => circlePaintAction(layer)(radius, params)(bloc.theta, bloc.text)
+    const blocGen = gimmeCircleGenerator(radius, nextText, layer)
     let apx = (...fns) => gen => [...gen].map(b => fns.forEach(f => f(b)))
     apx(paint)(blocGen)
   }
@@ -258,13 +213,13 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
   }
 
-  const circlePaintAction = (radius, params) => (theta, currentchar) => {
-    if (!params.cumulativeRotation) { p5.push() }
+  const circlePaintAction = (layer = p5) => (radius, params) => (theta, currentchar) => {
+    if (!params.cumulativeRotation) { layer.push() }
     // Polar to cartesian coordinate conversion
-    p5.translate(radius * p5.cos(theta), radius * p5.sin(theta))
-    p5.rotate(theta + p5.PI / 2 + p5.radians(params.rotation))
-    p5.text(currentchar, 0, 0)
-    if (!params.cumulativeRotation) { p5.pop() }
+    layer.translate(radius * layer.cos(theta), radius * layer.sin(theta))
+    layer.rotate(theta + Math.PI / 2 + layer.radians(params.rotation))
+    layer.text(currentchar, 0, 0)
+    if (!params.cumulativeRotation) { layer.pop() }
   }
 
   const defaultGridParm = (xPos, height, width) => {
@@ -295,25 +250,25 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // alternatively http://happycoding.io/examples/processing/for-loops/letters
   // cleaner?
-  const drawGrid = (xPos, yPos, params, width = p5.width, height = p5.height) => {
+  const drawGrid = (xPos, yPos, params, width, height, layer = p5) => {
     // negatives are possible, it seems....
     xPos = xPos < 5 ? 5 : xPos
     // yPos = yPos < 5 ? 5 : yPos
 
     // THIS SHOULD ALL BE DEFAULT STUFF DONE COMONLY
     const gridParams = params.invert ? invertGridParm(xPos, height, width) : defaultGridParm(xPos, height, width)
-    p5.textSize(gridParams.step)
+    layer.textSize(gridParams.step)
     const sw = params.useOutline
       ? params.outline_strokeWeight
         ? params.outline_strokeWeight
         : (gridParams.step / 5)
       : 0
-    p5.strokeWeight(sw / 4)
-    p5.strokeJoin(params.outline_strokeJoin)
+    layer.strokeWeight(sw / 4)
+    layer.strokeJoin(params.outline_strokeJoin)
     if (params.fixedWidth) {
-      p5.textAlign(p5.CENTER, p5.CENTER)
+      layer.textAlign(layer.CENTER, layer.CENTER)
     } else {
-      p5.textAlign(p5.LEFT, p5.BOTTOM)
+      layer.textAlign(layer.LEFT, layer.BOTTOM)
     }
 
     const nextText = textGetter(params.nextCharMode, textManager)
@@ -321,7 +276,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const outline = params.useOutline ? bloc => setOutlineMode(bloc.x, bloc.y, params) : () => { }
     const step = (params.fixedWidth) ? gridParams.step : 0
     const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, p5, params)
-    const yOffset = getYoffset(p5.textAscent(), 0) // only used for TextWidth
+    const yOffset = getYoffset(layer.textAscent(), 0) // only used for TextWidth
     // TODO: also the alignments above. ugh
     let blocGen = (params.fixedWidth)
       ? blocGeneratorFixedWidth(gridParams, nextText)
@@ -373,19 +328,19 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
     return nc
   }
-  // TODO: make all params explicit
-  // break down more granularly
-  const paintActions = (gridX, gridY, step, layer, params, currentText) => {
-    if (params.cumulativeRotation) {
-      layer.rotate(layer.radians(params.rotation))
-      layer.text(currentText, gridX, gridY)
-    } else {
-      layer.push()
-      layer.translate(gridX + step / 4, gridY + step / 5)
-      layer.rotate(layer.radians(params.rotation))
-      layer.text(currentText, 0, 0)
-      layer.pop()
-    }
+
+  // translate, rotate, text
+  const trText = (layer) => (x, y, tx, ty, txt) => () => {
+    layer.translate(tx, ty)
+    layer.rotate(layer.radians(params.rotation))
+    layer.text(txt, x, y)
+  }
+
+  // hrm. still seems like this could be simpler
+  const paintActions = (gridX, gridY, step, layer, params, txt) => {
+    const cum = trText(layer)(gridX, gridY, 0, 0, txt)
+    const norm = pushpop(layer)(trText(layer)(0, 0, gridX + step / 4, gridY + step / 5, txt))
+    params.cumulativeRotation ? cum() : norm()
   }
 
   this.clearCanvas = ((layer) => () => {
@@ -671,7 +626,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
       case 'w':
       case 'W':
-        textManager.setText(getBodyCopy())
+        textManager.setText(guiControl.getBodyCopy())
         break
 
       case 'x':
@@ -717,20 +672,20 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // but that's a hoped-for goal
   // in the meantime, they can be fun to use
   this.macro1 = macroWrapper((params) => {
-    drawGrid(20, 10, params)
+    drawGrid(20, 10, params, p5.width, p5.height)
   })
 
   this.macro2 = macroWrapper((params) => {
-    drawCircle(89, 89, params)
-    drawCircle(50, 50, params)
-    drawCircle(40, 40, params)
-    drawCircle(30, 30, params)
-    drawCircle(100, 100, params)
+    drawCircle(89, 89, params, p5.width, p5.height, p5)
+    drawCircle(50, 50, params, p5.width, p5.height, p5)
+    drawCircle(40, 40, params, p5.width, p5.height, p5)
+    drawCircle(30, 30, params, p5.width, p5.height, p5)
+    drawCircle(100, 100, params, p5.width, p5.height, p5)
   })
 
   this.macro3 = macroWrapper((params) => {
     for (var i = 1; i < p5.width; i += 10) {
-      drawCircle(i, i, params)
+      drawCircle(i, i, params, p5.width, p5.height, p5)
     }
   })
 
@@ -739,17 +694,17 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.macro4 = macroWrapper((params) => {
     for (var i = p5.width; i > p5.width / 2; i -= 80) {
       if (i < ((p5.width / 3) * 2)) params.rotation = 90
-      drawGrid(i, i, params)
+      drawGrid(i, i, params, p5.width, p5.height)
     }
   })
 
   this.macro5 = macroWrapper((params) => {
-    drawGrid(4, 4, params)
+    drawGrid(4, 4, params, p5.width, p5.height)
   })
 
   this.macro6 = macroWrapper((params) => {
     for (var i = 1; i < p5.width; i += 5) {
-      drawGrid(i, p5.mouseY, params)
+      drawGrid(i, p5.mouseY, params, p5.width, p5.height)
     }
   })
 
@@ -763,7 +718,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params = { ...params, ...overrides }
     const x = p5.mouseX
     const y = p5.mouseY
-    drawGrid(x, y, params)
+    drawGrid(x, y, params, p5.width, p5.height)
   })
 
   this.macro7 = macroWrapper((params) => {
@@ -775,7 +730,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.nextCharMode = 0
     const x = p5.mouseX
     const y = p5.mouseY
-    drawGrid(x, y, params)
+    drawGrid(x, y, params, p5.width, p5.height)
   })
 
   this.macro8 = macroWrapper((params) => {
@@ -787,6 +742,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     drawGrid(x, y, params, width, height)
   })
 
+  // works GREAT with cumulativeRotation
+  // only problem is the colors are identical no matter where
   this.macro9 = macroWrapper((params) => {
     params.invert = true
     const width = p5.width / 2
