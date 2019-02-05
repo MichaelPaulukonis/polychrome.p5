@@ -743,10 +743,34 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.invert = true
     const width = p5.width / 2
     const height = p5.height / 2
-    p5.translate(p5.mouseX, p5.mouseY)
+    // p5.translate(p5.mouseX, p5.mouseY)
+    p5.push()
+    p5.translate(0, 0)
     for (var i = width; i > width / 2; i -= 40) {
       if (i < ((width / 3) * 2)) params.rotation = 90
       drawGrid(i, i, params, width, height)
     }
+    p5.pop()
+    p5.push()
+    p5.translate(width, 0)
+    for (var i = width; i > width / 2; i -= 40) {
+      if (i < ((width / 3) * 2)) params.rotation = 90
+      drawGrid(i, i, params, width, height)
+    }
+    p5.pop()
+    p5.push()
+    p5.translate(0, height)
+    for (var i = width; i > width / 2; i -= 40) {
+      if (i < ((width / 3) * 2)) params.rotation = 90
+      drawGrid(i, i, params, width, height)
+    }
+    p5.pop()
+    p5.push()
+    p5.translate(width, height)
+    for (var i = width; i > width / 2; i -= 40) {
+      if (i < ((width / 3) * 2)) params.rotation = 90
+      drawGrid(i, i, params, width, height)
+    }
+    p5.pop()
   })
 }
