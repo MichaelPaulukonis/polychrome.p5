@@ -14,11 +14,19 @@ export default class GuiControl {
       setfocus()
       this.params.save = sketch.save_sketch
       this.params.clear = sketch.clearCanvas
-      sketch.defaultParams = { ...(this.params) }
+      sketch.defaultParams = { ...(paramsInitial) }
+
       setBodyCopy(randElem(corpus))
+
+      document.getElementById('applytext')
+        .addEventListener('click', () => {
+          sketch.textManager.setText(getBodyCopy())
+        })
     }
 
     var corpus = ['An sketch a day keeps the doctor away........*****xxx                                 ',
+      `xXyYvV`,
+      `*`,
       `riverrun, past Eve and Adam's, from swerve of shore to bend 
   of bay, brings us by a commodius vicus of recirculation back to 
   Howth Castle and Environs. 

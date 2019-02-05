@@ -10,6 +10,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   let sketch = this
 
   var undo // hunh
+  this.textManager = textManager
 
   p5.setup = () => {
     p5.pixelDensity(2)
@@ -18,14 +19,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     p5.textAlign(p5.CENTER, p5.CENTER)
     p5.colorMode(p5.HSB, p5.width, p5.height, 100, 1)
     sketch.clearCanvas()
-    textManager.setText(guiControl.getBodyCopy())
-    // TODO: THIS IS ALSO GUI STUFF
-    const textButton = document.getElementById('applytext')
-    // TODO: need to handle this better
-    textButton.addEventListener('click', () => {
-      textManager.setText(guiControl.getBodyCopy())
-    })
     guiControl.setupGui(this)
+    textManager.setText(guiControl.getBodyCopy())
     undo = new Undo(p5, 10)
   }
 
