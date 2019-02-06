@@ -54,15 +54,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
     undo.takeSnapshot()
   }
 
-  const DRAWING_MODE = {
-    GRID: '0',
-    CIRCLE: '1',
-    ROWCOL: '2'
-  }
+  let apx = (...fns) => list => [...list].map(b => fns.forEach(f => f(b)))
 
   const paint = (xPos, yPos, params) => {
-    const draw = params.drawMode === DRAWING_MODE.GRID ? drawGrid
-      : params.drawMode === DRAWING_MODE.CIRCLE ? drawCircle
+    const mode = parseInt(params.drawMode, 10)
+    const draw = mode === params.drawModes.Grid ? drawGrid
+      : mode === params.drawModes.Circle ? drawCircle
         : drawRowCol
     draw(xPos, yPos, params, p5.width, p5.height, p5)
     params.fill_donePainting = true
@@ -172,7 +169,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const radius = getRadius(params, width, xPos)
     const paint = bloc => circlePaintAction(layer)(radius, params)(bloc.theta, bloc.text)
     const blocGen = gimmeCircleGenerator(radius, nextText, layer)
-    let apx = (...fns) => gen => [...gen].map(b => fns.forEach(f => f(b)))
     apx(paint)(blocGen)
   }
 
@@ -276,7 +272,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
     let blocGen = (params.fixedWidth)
       ? blocGeneratorFixedWidth(gridParams, nextText)
       : blocGeneratorTextWidth(nextText, whOnly(p5), yOffset, p5) // whonly needs to be reworked
-    let apx = (...fns) => gen => [...gen].map(b => fns.forEach(f => f(b)))
     apx(fill, outline, paint)(blocGen)
   }
 
@@ -541,7 +536,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     } else if (keyCode === p5.LEFT_ARROW || keyCode === p5.RIGHT_ARROW) {
       handled = true
       const vector = (keyCode === p5.RIGHT_ARROW) ? 1 : -1
-      const func = (params.drawMode === DRAWING_MODE.ROWCOL) ? nextRow : nextRotation
+      const func = (parseInt(params.drawMode, 10) === params.drawModes.Grid2) ? nextRow : nextRotation
       func(vector, params)
     } else if (keyCode === p5.BACKSPACE || keyCode === p5.DELETE) {
       handled = true
@@ -743,34 +738,19 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.invert = true
     const width = p5.width / 2
     const height = p5.height / 2
-    // p5.translate(p5.mouseX, p5.mouseY)
-    p5.push()
-    p5.translate(0, 0)
-    for (var i = width; i > width / 2; i -= 40) {
-      if (i < ((width / 3) * 2)) params.rotation = 90
-      drawGrid(i, i, params, width, height)
-    }
-    p5.pop()
-    p5.push()
-    p5.translate(width, 0)
-    for (var i = width; i > width / 2; i -= 40) {
-      if (i < ((width / 3) * 2)) params.rotation = 90
-      drawGrid(i, i, params, width, height)
-    }
-    p5.pop()
-    p5.push()
-    p5.translate(0, height)
-    for (var i = width; i > width / 2; i -= 40) {
-      if (i < ((width / 3) * 2)) params.rotation = 90
-      drawGrid(i, i, params, width, height)
-    }
-    p5.pop()
-    p5.push()
-    p5.translate(width, height)
-    for (var i = width; i > width / 2; i -= 40) {
-      if (i < ((width / 3) * 2)) params.rotation = 90
-      drawGrid(i, i, params, width, height)
-    }
-    p5.pop()
+    const txs = [{ x: 0, y: 0 }, { x: width, y: 0 }, { x: 0, y: height }, { x: width, y: height }]
+    const gridder = (width, height, params, l) => (grid) => subGrid(grid.x, grid.y, width, height, params, l)
+    apx(gridder(width, height, params, p5))(txs)
   })
+
+  function subGrid (tx, ty, width, height, params, l) {
+    console.log(`width ${width} height: ${height}`)
+    l.push()
+    l.translate(tx, ty)
+    for (var i = width; i > width / 2; i -= 40) {
+      if (i < ((width / 3) * 2)) { params.rotation = 90 }
+      drawGrid(i, i, params, width, height)
+    }
+    l.pop()
+  }
 }

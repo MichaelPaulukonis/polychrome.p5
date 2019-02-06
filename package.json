@@ -5,8 +5,8 @@
   "main_orig": "index.html/sketch.js",
   "main": "src/index.js",
   "scripts": {
-    "start": "webpack-dev-server",
-    "build": "npm run clean && webpack -p",
+    "start": "webpack-dev-server --mode development",
+    "build": "npm run clean && webpack -p --mode production",
     "clean": "rm -rf dist",
     "deploy": "gh-pages -d dist",
     "bump": "npm version patch",

@@ -5,7 +5,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
-  mode: 'development',
   entry: {
     bundle: path.resolve(__dirname, 'src', 'index.js')
   },
@@ -26,12 +25,6 @@ module.exports = {
     ]
   },
   module: {
-    // loaders: [
-    //   {
-    //     loader: 'babel-loader',
-    //     test: /\.js$/
-    //   }
-    // ]
   },
   plugins: [
     new webpack.DefinePlugin({
