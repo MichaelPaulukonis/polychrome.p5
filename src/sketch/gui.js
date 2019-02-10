@@ -200,7 +200,6 @@ export default class GuiControl {
       cumulativeRotation: false,
       drawModes: { 'Grid': 0, 'Circle': 1, 'Grid2': 2 },
       drawMode: 0,
-      fadeBackground: false,
       invert: false,
       useOutline: true,
       nextCharMode: 0,
@@ -219,7 +218,11 @@ export default class GuiControl {
         'Gray1': 6,
         'Gray2': 7,
         'cycle': 8,
-        'solid': 9
+        'solid': 9,
+        'lerp': 10,
+        'lerp2': 11,
+        'lerp3': 12,
+        'c-lerp': 13
       },
       nextCharModes: {
         'Sequential': 0,
@@ -232,26 +235,32 @@ export default class GuiControl {
 
     var gui = new dat.GUI()
     gui.remember(allParams)
-    gui.add(allParams, 'name')
-    gui.add(allParams, 'open')
-    gui.add(allParams, 'save')
-    gui.add(allParams, 'clear')
-    gui.add(allParams, 'swap')
-    gui.add(allParams, 'fixedWidth')
-    gui.add(allParams, 'fadeBackground').listen()
+
+    const f1 = gui.addFolder('stuff')
+    f1.add(allParams, 'name')
+    f1.add(allParams, 'open')
+    f1.add(allParams, 'save')
+    f1.add(allParams, 'clear')
+    f1.add(allParams, 'swap')
+    f1.add(allParams, 'fixedWidth')
+
     gui.add(allParams, 'invert').listen()
     gui.add(allParams, 'nextCharMode', allParams.nextCharModes).listen()
     gui.add(allParams, 'rotation').min(-360).max(360).step(1).listen()
     gui.add(allParams, 'cumulativeRotation').listen()
     gui.add(allParams, 'drawMode', allParams.drawModes).listen()
-    gui.add(allParams, 'rows').min(1).max(allParams.rowmax).step(1).listen()
-    gui.add(allParams, 'columns').min(1).max(allParams.colmax).step(1).listen()
+
+    const rowColFolder = gui.addFolder('RowCol Settings')
+    // TODO: hide unless we're in row-col mode
+    rowColFolder.add(allParams, 'rows').min(1).max(allParams.rowmax).step(1).listen()
+    rowColFolder.add(allParams, 'columns').min(1).max(allParams.colmax).step(1).listen()
+    rowColFolder.close()
 
     const addFlatParams = (gui, params, prefix) => {
       gui.add(params, `${prefix}_paintMode`, allParams.paintModes).listen() // work in-progress....
       gui.add(params, `${prefix}_transparent`).listen()
       gui.add(params, `${prefix}_transparency`).min(0).max(100).step(1)
-      gui.addColor(params, `${prefix}_color`).listen()
+      gui.addColor(params, `${prefix}_color`)
       // NOTE: creating a "new" setting triggers this. hunh.
       // cm.onChange((m) => { params[`${prefix}_paintMode`] = 9 }) // auto-set to solid color mode
       const ccm = gui.add(params, `${prefix}_scheme`, schemeList).name(prefix)

@@ -1,8 +1,3 @@
-/* Traditionally, text and image are segregated in Western Art.
-   This sketch plays with those boundaries, providing an polychromatic
-   text painting environment.
-*/
-
 import Undo from './undo.js'
 
 export default function Sketch (p5, guiControl, textManager, params) {
@@ -38,23 +33,17 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
   }
 
-  p5.mousePressed = () => {
-    if (!mouseInCanvas()) return
-
-    if (params.fadeBackground) {
-      p5.push()
-      p5.fill(colorAlpha('#FFFFFF', 0.5))
-      p5.noStroke()
-      p5.rect(0, 0, p5.width, p5.height)
-      p5.pop()
-    }
-  }
-
   p5.mouseReleased = () => {
     undo.takeSnapshot()
   }
 
   let apx = (...fns) => list => [...list].map(b => fns.forEach(f => f(b)))
+
+  const pushpop = l => f => () => {
+    l.push()
+    f()
+    l.pop()
+  }
 
   const paint = (xPos, yPos, params) => {
     const mode = parseInt(params.drawMode, 10)
@@ -135,12 +124,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
         // pushpop(p5)(doit)()
       }
     }
-  }
-
-  const pushpop = l => f => () => {
-    l.push()
-    f()
-    l.pop()
   }
 
   const drawCircle = (xPos, yPos, params, width, height, layer) => {
@@ -370,20 +353,20 @@ export default function Sketch (p5, guiControl, textManager, params) {
     return p5.color('rgba(' + [p5.red(c), p5.green(c), p5.blue(c), alpha].join(',') + ')')
   }
 
-  const setFillMode = ((prefix, func, r) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, r))('fill', p5.fill, p5)
-  const setOutlineMode = ((prefix, func, r) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, r))('outline', p5.stroke, p5)
+  const setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', p5.fill, p5)
+  const setOutlineMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('outline', p5.stroke, p5)
 
   // TODO: if these were.... functions, we could have an array, and not have to worry about counting the mode
   // also, functions could take params that could change them up a bit.....
   // like the grays - sideways, or something. angles....
-  const setPaintMode = (gridX, gridY, params, prefix, func, p5) => {
-    func = func.bind(p5)
+  const setPaintMode = (gridX, gridY, params, prefix, func, layer) => {
+    func = func.bind(layer)
     // TODO: I don't understand the third-parameter here, in HSB mode.
     const transparency = params[`${prefix}_transparent`] ? parseInt(params[`${prefix}_transparency`], 10) / 100 : 100
     var mode = parseInt(params[`${prefix}_paintMode`], 10)
     switch (mode) {
       case 1:
-        func(p5.width - gridX, gridY, 100, transparency)
+        func(layer.width - gridX, gridY, 100, transparency)
         break
 
       case 2:
@@ -391,8 +374,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
         break
 
       case 3: // offset from default
-        var x = (gridX + p5.width / 2) % p5.width
-        var y = (p5.height - gridY + p5.height / 2) % p5.height
+        var x = (gridX + layer.width / 2) % layer.width
+        var y = (layer.height - gridY + layer.height / 2) % layer.height
         func(x, y, 100, transparency)
         break
 
@@ -406,14 +389,14 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
       case 6:
         {
-          const grayScaled = (gridY * 255) / p5.height
+          const grayScaled = (gridY * 255) / layer.height
           func(grayScaled, transparency)
         }
         break
 
       case 7:
         {
-          const grayScaled = (gridY * 255) / p5.height
+          const grayScaled = (gridY * 255) / layer.height
           func(255 - grayScaled, transparency)
         }
         break
@@ -434,9 +417,104 @@ export default function Sketch (p5, guiControl, textManager, params) {
         func(colorAlpha(params[`${prefix}_color`], transparency))
         break
 
+      case 10:
+        {
+          // lerp something
+          const color1 = layer.color('yellow')
+          const color2 = layer.color('magenta')
+
+          const amount = (gridX / layer.width)
+          layer.push()
+          layer.colorMode(layer.RGB)
+          let lerpColor = layer.lerpColor(color1, color2, amount)
+          const alpha = (transparency * 255)
+          lerpColor.setAlpha(alpha)
+          layer.pop()
+          func(lerpColor) // uh, no. not transparent. UGH
+        }
+        break
+
+      case 11:
+        {
+          // lerp something
+          const color1 = layer.color('purple')
+          const color2 = layer.color('hsl(160, 100%, 50%)')
+
+          const amount = (gridX / layer.width)
+          layer.push()
+          layer.colorMode(layer.RGB)
+          let lerpColor = layer.lerpColor(color1, color2, amount)
+          const alpha = (transparency * 255)
+          lerpColor.setAlpha(alpha)
+          layer.pop()
+          func(lerpColor, transparency)
+        }
+        break
+
+      case 12:
+        {
+          // lerp 4 something
+          // not quite right - the idea is one color in each corner
+          const color1 = layer.color('yellow')
+          const color2 = layer.color('magenta')
+          const color3 = layer.color('purple')
+          const color4 = layer.color('hsl(160, 100%, 50%)')
+          const amountX = (gridX / layer.width)
+          const amountY = (gridY / layer.height)
+
+          layer.push()
+          layer.colorMode(layer.RGB)
+
+          const l1 = layer.lerpColor(color1, color2, amountX)
+          const l2 = layer.lerpColor(color3, color4, amountX)
+          let l3 = layer.lerpColor(l1, l2, amountY)
+          const alpha = (transparency * 255)
+          l3.setAlpha(alpha)
+          layer.pop()
+          func(l3, transparency)
+        }
+        break
+
+      // switches to next color in set with next character
+      case 13:
+        {
+          const colors = guiControl.urlToColors(params[`${prefix}_scheme`])
+          // colors: Array(5)
+          // 0: "#1a535c"
+          // 1: "#4ecdc4"
+          // 2: "#f7fff7"
+          // 3: "#ff6b6b"
+          // 4: "#ffe66d"
+
+          const color1 = layer.color(colors[0])
+          const color2 = layer.color(colors[1])
+          const color3 = layer.color(colors[2])
+          const color4 = layer.color(colors[3])
+          const amountX = (gridX / layer.width)
+          const amountY = (gridY / layer.height)
+
+          layer.push()
+          layer.colorMode(layer.RGB)
+
+          const l1 = layer.lerpColor(color1, color2, amountX)
+          const l2 = layer.lerpColor(color3, color4, amountX)
+          let l3 = layer.lerpColor(l1, l2, amountY)
+          const alpha = (transparency * 255)
+          l3.setAlpha(alpha)
+          layer.pop()
+          func(l3, transparency)
+
+          // if (params[`${prefix}_donePainting`]) {
+          //   params[`${prefix}_curCycle`] = (params[`${prefix}_curCycle`] + 1) % colors.length
+          //   params[`${prefix}_donePainting`] = false
+          // }
+          // func(colorAlpha(colors[params[`${prefix}_curCycle`]], transparency))
+        }
+        break
+
       case 0:
       default:
-        func(gridX, p5.height - gridY, 100, transparency)
+        func(gridX, layer.height - gridY, 100, transparency)
         break
     }
   }
@@ -738,19 +816,18 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.invert = true
     const width = p5.width / 2
     const height = p5.height / 2
-    const txs = [{ x: 0, y: 0 }, { x: width, y: 0 }, { x: 0, y: height }, { x: width, y: height }]
-    const gridder = (width, height, params, l) => (grid) => subGrid(grid.x, grid.y, width, height, params, l)
-    apx(gridder(width, height, params, p5))(txs)
+    const txls = [{ x: 0, y: 0 }, { x: width, y: 0 }, { x: 0, y: height }, { x: width, y: height }]
+    const gridder = (width, height, params, layer) => (grid) => subGrid(grid.x, grid.y, width, height, params, layer)
+    apx(gridder(width, height, params, p5))(txls)
   })
 
-  function subGrid (tx, ty, width, height, params, l) {
-    console.log(`width ${width} height: ${height}`)
-    l.push()
-    l.translate(tx, ty)
-    for (var i = width; i > width / 2; i -= 40) {
-      if (i < ((width / 3) * 2)) { params.rotation = 90 }
-      drawGrid(i, i, params, width, height)
-    }
-    l.pop()
+  function subGrid (tx, ty, width, height, params, layer) {
+    pushpop(layer)(() => {
+      layer.translate(tx, ty)
+      for (var i = width; i > width / 2; i -= 40) {
+        if (i < ((width / 3) * 2)) { params.rotation = 90 }
+        drawGrid(i, i, params, width, height)
+      }
+    })()
   }
 }
