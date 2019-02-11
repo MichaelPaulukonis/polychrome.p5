@@ -401,25 +401,13 @@ export default function Sketch (p5, guiControl, textManager, params) {
         }
         break
 
-      // switches to next color in set with next character
-      case 8:
-        {
-          const colors = guiControl.urlToColors(params[`${prefix}_scheme`])
-          if (params[`${prefix}_donePainting`]) {
-            params[`${prefix}_curCycle`] = (params[`${prefix}_curCycle`] + 1) % colors.length
-            params[`${prefix}_donePainting`] = false
-          }
-          func(colorAlpha(colors[params[`${prefix}_curCycle`]], transparency))
-        }
-        break
-
       case 9:
         func(colorAlpha(params[`${prefix}_color`], transparency))
         break
 
       case 10:
         {
-          // lerp something
+          // this is a great contrast
           const color1 = layer.color('yellow')
           const color2 = layer.color('magenta')
 
@@ -455,15 +443,15 @@ export default function Sketch (p5, guiControl, textManager, params) {
         {
           // lerp 4 something
           // not quite right - the idea is one color in each corner
+          layer.push()
+          layer.colorMode(layer.RGB)
+
           const color1 = layer.color('yellow')
           const color2 = layer.color('magenta')
           const color3 = layer.color('purple')
           const color4 = layer.color('hsl(160, 100%, 50%)')
           const amountX = (gridX / layer.width)
           const amountY = (gridY / layer.height)
-
-          layer.push()
-          layer.colorMode(layer.RGB)
 
           const l1 = layer.lerpColor(color1, color2, amountX)
           const l2 = layer.lerpColor(color3, color4, amountX)
@@ -475,21 +463,15 @@ export default function Sketch (p5, guiControl, textManager, params) {
         }
         break
 
-      // switches to next color in set with next character
       case 13:
         {
-          const colors = guiControl.urlToColors(params[`${prefix}_scheme`])
-          // colors: Array(5)
-          // 0: "#1a535c"
-          // 1: "#4ecdc4"
-          // 2: "#f7fff7"
-          // 3: "#ff6b6b"
-          // 4: "#ffe66d"
+          const colors = guiControl.hexStringToColors(params[`${prefix}_scheme`])
+          // TODO: work with number of colors provided
 
           const color1 = layer.color(colors[0])
           const color2 = layer.color(colors[1])
-          const color3 = layer.color(colors[2])
-          const color4 = layer.color(colors[3])
+          const color3 = colors[2] ? layer.color(colors[2]) : color1
+          const color4 = colors[3] ? layer.color(colors[3]) : color2
           const amountX = (gridX / layer.width)
           const amountY = (gridY / layer.height)
 
@@ -503,12 +485,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
           l3.setAlpha(alpha)
           layer.pop()
           func(l3, transparency)
-
-          // if (params[`${prefix}_donePainting`]) {
-          //   params[`${prefix}_curCycle`] = (params[`${prefix}_curCycle`] + 1) % colors.length
-          //   params[`${prefix}_donePainting`] = false
-          // }
-          // func(colorAlpha(colors[params[`${prefix}_curCycle`]], transparency))
         }
         break
 

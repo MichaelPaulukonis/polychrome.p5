@@ -81,9 +81,10 @@ export default class GuiControl {
     this.getBodyCopy = getBodyCopy
     this.setBodyCopy = setBodyCopy
 
-    this.urlToColors = (url) => {
+    // eh, maybe some other way of doing/naming this
+    this.hexStringToColors = (lerp) => {
       // based on https://bl.ocks.org/mootari/bfbf01320da6c14f9cba186c581d507d
-      return url.split('/').pop().split('-').map((c) => '#' + c)
+      return lerp.split('-').map((c) => '#' + c)
     }
 
     const colorLabel = (label) => {
@@ -98,7 +99,7 @@ export default class GuiControl {
       var radio = label.children[0]
       radio.nextSibling.remove()
       var span = document.createElement('span')
-      span.style.background = gradient(this.urlToColors(radio.value))
+      span.style.background = gradient(this.hexStringToColors(radio.value))
       span.style.paddingRight = '4em'
       span.style.marginRight = '.5em'
       label.appendChild(span)
@@ -132,19 +133,28 @@ export default class GuiControl {
       wrapper.removeChild(select)
       return controller
     }
-    // Only the part after the last slash will be parsed. Slash is optional.
-    const schemeList = [
+
+    // developed with the help of https://coolors.co/
+    // we only process 2..4 of the colors, so we can dispose of some
+    // NOTE: some of these combos are awful
+    const lerpList = [
       'ffffff-000000',
-      'https://coolors.co/002626-0e4749-95c623-e55812-efe7da',
-      'https://coolors.co/003049-d62828-f77f00-fcbf49-eae2b7',
-      'https://coolors.co/20bf55-0b4f6c-01baef-fbfbff-757575',
-      'https://coolors.co/1a535c-4ecdc4-f7fff7-ff6b6b-ffe66d',
-      'https://coolors.co/cc211a-234ec3-f6dc28-e8ebf7-acbed8',
-      'https://coolors.co/5d737e-64b6ac-c0fdfb-daffef-fcfffd',
-      'https://coolors.co/ff9f1c-ffbf69-ffffff-cbf3f0-2ec4b6',
-      'https://coolors.co/50514f-f25f5c-ffe066-247ba0-70c1b3',
-      'https://coolors.co/edadc7-643173-7d5ba6-86a59c-89ce94'
+      '002626-0e4749-95c623-e55812-efe7da',
+      '003049-d62828-f77f00-fcbf49-eae2b7',
+      '20bf55-0b4f6c-01baef-fbfbff-757575',
+      '1a535c-4ecdc4-f7fff7-ff6b6b-ffe66d',
+      'cc211a-234ec3-f6dc28-e8ebf7-acbed8',
+      'cc211a-234ec3-f6dc28-e8ebf7',
+      '5d737e-64b6ac-c0fdfb-daffef',
+      'ff9f1c-ffbf69-ffffff-cbf3f0-2ec4b6',
+      '50514f-f25f5c-ffe066-247ba0-70c1b3',
+      'edadc7-643173-7d5ba6-89ce94',
+      '74b3ce-f18805-0e1428-ef3054',
+      'ffff00-ff00ff-800080-00ffaa',
+      'ffff00-ff00ff',
+      '800080-00ffaa'
     ]
+
     let colorParams = () => ({
       paintMode: 0,
       transparency: 50,
@@ -217,12 +227,8 @@ export default class GuiControl {
         'White': 5,
         'Gray1': 6,
         'Gray2': 7,
-        'cycle': 8,
         'solid': 9,
-        'lerp': 10,
-        'lerp2': 11,
-        'lerp3': 12,
-        'c-lerp': 13
+        'lerp-scheme': 13
       },
       nextCharModes: {
         'Sequential': 0,
@@ -263,7 +269,7 @@ export default class GuiControl {
       gui.addColor(params, `${prefix}_color`)
       // NOTE: creating a "new" setting triggers this. hunh.
       // cm.onChange((m) => { params[`${prefix}_paintMode`] = 9 }) // auto-set to solid color mode
-      const ccm = gui.add(params, `${prefix}_scheme`, schemeList).name(prefix)
+      const ccm = gui.add(params, `${prefix}_scheme`, lerpList).name(prefix)
       // NOTE: creating a "new" setting triggers this. hunh.
       // ccm.onChange((m) => { params[`${prefix}_paintMode`] = 8 }) // auto-set to cycle-mode
       let c = selectToRadios(ccm)
