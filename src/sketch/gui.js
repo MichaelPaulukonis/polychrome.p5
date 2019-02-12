@@ -1,4 +1,5 @@
 import * as dat from './dat.gui.js'
+import corpus from './corpus.js'
 
 export default class GuiControl {
   constructor () {
@@ -6,14 +7,14 @@ export default class GuiControl {
 
     var randElem = (arr) => arr[Math.floor(Math.random() * arr.length)]
 
-    this.setupGui = function (sketch) {
+    const setupGui = function (sketch) {
       cnvs = document.getElementsByTagName('canvas')
       if (cnvs && cnvs[0]) {
         cnvs = cnvs[0]
       }
       setfocus()
-      this.params.save = sketch.save_sketch
-      this.params.clear = sketch.clearCanvas
+      allParams.save = sketch.save_sketch
+      allParams.clear = sketch.clearCanvas
       sketch.defaultParams = { ...(paramsInitial) }
 
       setBodyCopy(randElem(corpus))
@@ -24,41 +25,11 @@ export default class GuiControl {
         })
     }
 
-    var corpus = ['An sketch a day keeps the doctor away........*****xxx                                 ',
-      `xXyYvV`,
-      `*`,
-      `riverrun, past Eve and Adam's, from swerve of shore to bend 
-  of bay, brings us by a commodius vicus of recirculation back to 
-  Howth Castle and Environs. 
-  
-  Sir Tristram, violer d'amores, fr'over the short sea, had passen- 
-  core rearrived from North Armorica on this side the scraggy 
-  isthmus of Europe Minor to wielderfight his penisolate war: nor 
-  had topsawyer's rocks by the stream Oconee exaggerated themselse 
-  to Laurens County's gorgios while they went doublin their mumper 
-  all the time: nor avoice from afire bellowsed mishe mishe to 
-  tauftauf thuartpeatrick: not yet, though venissoon after, had a 
-  kidscad buttended a bland old isaac: not yet, though all's fair in 
-  vanessy, were sosie sesthers wroth with twone nathandjoe. Rot a 
-  peck of pa's malt had Jhem or Shen brewed by arclight and rory 
-  end to the regginbrow was to be seen ringsome on the aquaface. 
-  
-  The fall (bababadalgharaghtakamminarronnkonnbronntqnner- 
-  ronntuonnthunntrovarrhounawnskawntoohoohoordenenthur- 
-  nuk!) of a once wallstrait oldparr is retaled early in bed and later 
-  on life down through all christian minstrelsy. The great fall of the 
-  offwall entailed at such short notice the pftjschute of Finnegan, 
-  erse solid man, that the humptyhillhead of humself prumptly sends 
-  an unquiring one well to the west in quest of his tumptytumtoes: 
-  and their upturapikepointandplace is at the knock out in the park 
-  where oranges have been laid to rust upon the green since dev- 
-  linsfirst loved livvy. `]
-
     var setfocus = function () {
       cnvs.focus()
     }
 
-    this.openCanvasInNewTab = function () {
+    const openCanvasInNewTab = function () {
       if (cnvs) {
         const img = cnvs.toDataURL('image/jpg')
         // https://ourcodeworld.com/articles/read/682/what-does-the-not-allowed-to-navigate-top-frame-to-data-url-javascript-exception-means-in-google-chrome
@@ -78,11 +49,9 @@ export default class GuiControl {
     const setBodyCopy = (text) => {
       textInputBox.value = text
     }
-    this.getBodyCopy = getBodyCopy
-    this.setBodyCopy = setBodyCopy
 
     // eh, maybe some other way of doing/naming this
-    this.hexStringToColors = (lerp) => {
+    const hexStringToColors = (lerp) => {
       // based on https://bl.ocks.org/mootari/bfbf01320da6c14f9cba186c581d507d
       return lerp.split('-').map((c) => '#' + c)
     }
@@ -99,7 +68,7 @@ export default class GuiControl {
       var radio = label.children[0]
       radio.nextSibling.remove()
       var span = document.createElement('span')
-      span.style.background = gradient(this.hexStringToColors(radio.value))
+      span.style.background = gradient(hexStringToColors(radio.value))
       span.style.paddingRight = '4em'
       span.style.marginRight = '.5em'
       label.appendChild(span)
@@ -164,7 +133,8 @@ export default class GuiControl {
       curCycle: 0,
       donePainting: false
     })
-    this.swapParams = () => {
+
+    const swapParams = () => {
       let swapped = swapPrefixParams(allParams, 'outline', 'fill')
       Object.keys(swapped).map((key) => (allParams[key] = swapped[key]))
     }
@@ -200,11 +170,11 @@ export default class GuiControl {
     let outlineParams = Object.assign({}, colorParams(), { strokeWeight: 1, strokeJoin: 'round', paintMode: 4 })
     let paramsInitial = {
       name: 'polychrome.text',
-      open: this.openCanvasInNewTab,
+      open: openCanvasInNewTab,
       // bind after defined in sketch
       save: () => { },
       clear: () => { },
-      swap: this.swapParams,
+      swap: swapParams,
       fixedWidth: true,
       rotation: 0,
       cumulativeRotation: false,
@@ -254,13 +224,18 @@ export default class GuiControl {
     gui.add(allParams, 'nextCharMode', allParams.nextCharModes).listen()
     gui.add(allParams, 'rotation').min(-360).max(360).step(1).listen()
     gui.add(allParams, 'cumulativeRotation').listen()
-    gui.add(allParams, 'drawMode', allParams.drawModes).listen()
+    const dm = gui.add(allParams, 'drawMode', allParams.drawModes).listen()
 
     const rowColFolder = gui.addFolder('RowCol Settings')
-    // TODO: hide unless we're in row-col mode
     rowColFolder.add(allParams, 'rows').min(1).max(allParams.rowmax).step(1).listen()
     rowColFolder.add(allParams, 'columns').min(1).max(allParams.colmax).step(1).listen()
     rowColFolder.close()
+
+    dm.onChange((m) => {
+      (parseInt(m, 10) === paramsInitial.drawModes['Grid2'])
+        ? rowColFolder.open()
+        : rowColFolder.close()
+    })
 
     const addFlatParams = (gui, params, prefix) => {
       gui.add(params, `${prefix}_paintMode`, allParams.paintModes).listen() // work in-progress....
@@ -270,8 +245,6 @@ export default class GuiControl {
       // NOTE: creating a "new" setting triggers this. hunh.
       // cm.onChange((m) => { params[`${prefix}_paintMode`] = 9 }) // auto-set to solid color mode
       const ccm = gui.add(params, `${prefix}_scheme`, lerpList).name(prefix)
-      // NOTE: creating a "new" setting triggers this. hunh.
-      // ccm.onChange((m) => { params[`${prefix}_paintMode`] = 8 }) // auto-set to cycle-mode
       let c = selectToRadios(ccm)
       c.__radios.map(colorLabel)
     }
@@ -283,6 +256,15 @@ export default class GuiControl {
     olGui.add(allParams, 'outline_strokeWeight').min(1).max(800).step(1)
     olGui.add(allParams, 'outline_strokeJoin', { 'MITER': 'miter', 'BEVEL': 'bevel', 'ROUND': 'round' })
     addFlatParams(olGui, allParams, 'outline')
-    this.params = allParams
+
+    return {
+      setupGui,
+      params: allParams,
+      openCanvasInNewTab,
+      getBodyCopy,
+      setBodyCopy,
+      hexStringToColors,
+      swapParams
+    }
   }
 }

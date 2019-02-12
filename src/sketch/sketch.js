@@ -790,9 +790,17 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // only problem is the colors are identical no matter where
   this.macro9 = macroWrapper((params) => {
     params.invert = true
-    const width = p5.width / 2
-    const height = p5.height / 2
-    const txls = [{ x: 0, y: 0 }, { x: width, y: 0 }, { x: 0, y: height }, { x: width, y: height }]
+    const width = p5.width / 3
+    const height = p5.height / 4
+    const txls = []
+    // TODO: make this into a generator ?
+    for (let i = 0; i < p5.width / width; i++) {
+      for (let j = 0; j < p5.height / height; j++) {
+        // TODO: concat
+        txls.push({x: width * i, y: height * j})
+      }
+    }
+    // const txls = [{ x: 0, y: 0 }, { x: width, y: 0 }, { x: 0, y: height }, { x: width, y: height }]
     const gridder = (width, height, params, layer) => (grid) => subGrid(grid.x, grid.y, width, height, params, layer)
     apx(gridder(width, height, params, p5))(txls)
   })
