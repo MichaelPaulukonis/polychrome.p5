@@ -791,27 +791,41 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.macro9 = macroWrapper((params) => {
     params.invert = true
     const width = p5.width / 3
-    const height = p5.height / 4
-    const txls = []
-    // TODO: make this into a generator ?
-    for (let i = 0; i < p5.width / width; i++) {
-      for (let j = 0; j < p5.height / height; j++) {
-        // TODO: concat
-        txls.push({x: width * i, y: height * j})
+    const height = p5.height / 8
+
+    function * txg (width, height) {
+      for (let i = 0; i < p5.width / width; i++) {
+        for (let j = 0; j < p5.height / height; j++) {
+          yield { x: width * i, y: height * j }
+        }
       }
+      return 'done'
     }
-    // const txls = [{ x: 0, y: 0 }, { x: width, y: 0 }, { x: 0, y: height }, { x: width, y: height }]
+    const txls = txg(width, height)
+    // TODO: uh..... can we do a circle in here?
+    // gridder/subGrid paints a given region
     const gridder = (width, height, params, layer) => (grid) => subGrid(grid.x, grid.y, width, height, params, layer)
-    apx(gridder(width, height, params, p5))(txls)
+    const paint = gridder(width, height, params, p5)
+    apx(paint)(txls)
   })
 
+  // TODO: subgrid should be a generator that we compose with dawgrid
+  // because the generator (coupled with the xforms or size, above are the key elems)
   function subGrid (tx, ty, width, height, params, layer) {
     pushpop(layer)(() => {
       layer.translate(tx, ty)
-      for (var i = width; i > width / 2; i -= 40) {
-        if (i < ((width / 3) * 2)) { params.rotation = 90 }
-        drawGrid(i, i, params, width, height)
+
+      // the weird thing here is the rotation
+      function * gen () {
+        for (var i = width; i > width / 2; i -= 40) {
+          const stats = {x: i, y: i, rotation: 0}
+          if (i < ((width / 3) * 2)) { stats.rotation = 90 } // TODO: rotation isn't working. WAT?????
+          yield stats
+        }
       }
+
+      const dg = (stats) => drawGrid(stats.x, stats.y, {...params, ...stats.rotation}, width, height)
+      apx(dg)(gen())
     })()
   }
 }
