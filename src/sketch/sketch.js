@@ -144,7 +144,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     setOutlineMode(xPos, yPos, params)
 
     const nextText = textGetter(params.nextCharMode, textManager)
-    circlePainter(params, p5, xPos, nextText)
+    circlePainter(params, layer, xPos, nextText, width)
     layer.pop()
   }
 
@@ -303,16 +303,16 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   // translate, rotate, text
-  const trText = (layer) => (x, y, tx, ty, txt) => () => {
+  const trText = (layer, rotation) => (x, y, tx, ty, txt) => () => {
     layer.translate(tx, ty)
-    layer.rotate(layer.radians(params.rotation))
+    layer.rotate(layer.radians(rotation))
     layer.text(txt, x, y)
   }
 
   // hrm. still seems like this could be simpler
   const paintActions = (gridX, gridY, step, layer, params, txt) => {
     const cum = trText(layer)(gridX, gridY, 0, 0, txt)
-    const norm = pushpop(layer)(trText(layer)(0, 0, gridX + step / 4, gridY + step / 5, txt))
+    const norm = pushpop(layer)(trText(layer, params.rotation)(0, 0, gridX + step / 4, gridY + step / 5, txt))
     params.cumulativeRotation ? cum() : norm()
   }
 
@@ -700,26 +700,26 @@ export default function Sketch (p5, guiControl, textManager, params) {
       case '7':
       case '8':
       case '9':
-        this[`macro${char}`](params)
+        this[`macro${char}`](params, p5)
         break
     }
   }
 
-  const macroWrapper = (f) => (params) => {
+  const macroWrapper = (f) => (params, layer) => {
     p5.push()
     undo.takeSnapshot()
-    f({ ...params })
+    f({ ...params }, layer)
     p5.pop()
   }
 
   // these aren't "macros" as in recorded
   // but that's a hoped-for goal
   // in the meantime, they can be fun to use
-  this.macro1 = macroWrapper((params) => {
-    drawGrid(20, 10, params, p5.width, p5.height)
+  this.macro1 = macroWrapper((params, layer) => {
+    drawGrid(20, 10, params, layer.width, layer.height, layer)
   })
 
-  this.macro2 = macroWrapper((params) => {
+  this.macro2 = macroWrapper((params, layer) => {
     drawCircle(89, 89, params, p5.width, p5.height, p5)
     drawCircle(50, 50, params, p5.width, p5.height, p5)
     drawCircle(40, 40, params, p5.width, p5.height, p5)
@@ -788,14 +788,19 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // works GREAT with cumulativeRotation
   // only problem is the colors are identical no matter where
-  this.macro9 = macroWrapper((params) => {
+  this.macro9 = macroWrapper((params, layer = p5) => {
+    // take these out of HERE
+    // and macro9 then passes in params and width/height
+    // but it should also indicate WHERE it should start
+    // the below assumes subdivision of the entire surfae
+
     params.invert = true
-    const width = p5.width / 3
-    const height = p5.height / 8
+    const width = layer.width / 3
+    const height = layer.height / 8
 
     function * txg (width, height) {
-      for (let i = 0; i < p5.width / width; i++) {
-        for (let j = 0; j < p5.height / height; j++) {
+      for (let i = 0; i < layer.width / width; i++) {
+        for (let j = 0; j < layer.height / height; j++) {
           yield { x: width * i, y: height * j }
         }
       }
@@ -803,11 +808,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
     const txls = txg(width, height)
     // TODO: uh..... can we do a circle in here?
-    // gridder/subGrid paints a given region
-    const gridder = (width, height, params, layer) => (grid) => subGrid(grid.x, grid.y, width, height, params, layer)
-    const paint = gridder(width, height, params, p5)
+    const paint = gridder(width, height, params, layer)
     apx(paint)(txls)
   })
+
+  // gridder/subGrid paints a given region
+  const gridder = (width, height, params, layer) => (grid) => subGrid(grid.x, grid.y, width, height, params, layer)
 
   // TODO: subgrid should be a generator that we compose with dawgrid
   // because the generator (coupled with the xforms or size, above are the key elems)
@@ -818,13 +824,18 @@ export default function Sketch (p5, guiControl, textManager, params) {
       // the weird thing here is the rotation
       function * gen () {
         for (var i = width; i > width / 2; i -= 40) {
-          const stats = {x: i, y: i, rotation: 0}
-          if (i < ((width / 3) * 2)) { stats.rotation = 90 } // TODO: rotation isn't working. WAT?????
+          const stats = { x: i, y: i, rotation: 0 }
+          if (i < ((width / 3) * 2)) stats.rotation = 90
           yield stats
         }
       }
 
-      const dg = (stats) => drawGrid(stats.x, stats.y, {...params, ...stats.rotation}, width, height)
+      // TODO: we're also adding in x,y to params, but they are ignored
+      // STILL: pollution
+      // const dg = (stats) => drawGrid(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
+      const dg = (stats) => drawCircle(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
+      // drawCirle doesn't quite work (the inversion? something - every radius is negative, so goes to 0.1)
+      // turn off inversion, it works better, but size is still too large. fiddle around.
       apx(dg)(gen())
     })()
   }
