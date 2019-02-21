@@ -1,5 +1,6 @@
 import * as dat from './dat.gui.js'
 import corpus from './corpus.js'
+import fonts from './fonts'
 
 export default class GuiControl {
   constructor () {
@@ -176,6 +177,7 @@ export default class GuiControl {
       clear: () => { },
       swap: swapParams,
       fixedWidth: true,
+      font: fonts[0],
       rotation: 0,
       cumulativeRotation: false,
       drawModes: { 'Grid': 0, 'Circle': 1, 'Grid2': 2 },
@@ -219,6 +221,7 @@ export default class GuiControl {
     f1.add(allParams, 'clear')
     f1.add(allParams, 'swap')
     f1.add(allParams, 'fixedWidth')
+    f1.add(allParams, 'font', fonts).listen()
 
     gui.add(allParams, 'invert').listen()
     gui.add(allParams, 'nextCharMode', allParams.nextCharModes).listen()

@@ -46,6 +46,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const paint = (xPos, yPos, params) => {
+    p5.textFont(params.font)
     const mode = parseInt(params.drawMode, 10)
     const draw = mode === params.drawModes.Grid ? drawGrid
       : mode === params.drawModes.Circle ? drawCircle
@@ -797,10 +798,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.invert = true
     const width = layer.width / 3
     const height = layer.height / 8
+    const startX = 0
+    const startY = 0
 
     function * txg (width, height) {
-      for (let i = 0; i < layer.width / width; i++) {
-        for (let j = 0; j < layer.height / height; j++) {
+      for (let i = startX; i < layer.width / width; i++) {
+        for (let j = startY; j < layer.height / height; j++) {
           yield { x: width * i, y: height * j }
         }
       }
@@ -832,8 +835,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
       // TODO: we're also adding in x,y to params, but they are ignored
       // STILL: pollution
-      // const dg = (stats) => drawGrid(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
-      const dg = (stats) => drawCircle(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
+      const dg = (stats) => drawGrid(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
+      // const dg = (stats) => drawCircle(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
       // drawCirle doesn't quite work (the inversion? something - every radius is negative, so goes to 0.1)
       // turn off inversion, it works better, but size is still too large. fiddle around.
       apx(dg)(gen())
