@@ -172,6 +172,8 @@ export default class GuiControl {
     let paramsInitial = {
       name: 'polychrome.text',
       open: openCanvasInNewTab,
+      width: 900,
+      height: 600,
       // bind after defined in sketch
       save: () => { },
       clear: () => { },
@@ -215,6 +217,8 @@ export default class GuiControl {
     gui.remember(allParams)
 
     const f1 = gui.addFolder('stuff')
+    f1.add(allParams, 'width')
+    f1.add(allParams, 'height')
     f1.add(allParams, 'name')
     f1.add(allParams, 'open')
     f1.add(allParams, 'save')

@@ -9,7 +9,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   p5.setup = () => {
     p5.pixelDensity(2)
-    const canvas = p5.createCanvas(900, 600)
+    const canvas = p5.createCanvas(params.width, params.height)
     canvas.parent('sketch-holder')
     p5.textAlign(p5.CENTER, p5.CENTER)
     p5.colorMode(p5.HSB, p5.width, p5.height, 100, 1)
@@ -128,10 +128,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const drawCircle = (xPos, yPos, params, width, height, layer) => {
+    console.log(xPos, yPos, width, height)
     var tx = xPos / 2
     if (tx < 1) tx = 1
     layer.textSize(tx) // what if it was based on the yPos, which we are ignoring otherwise?
     // well, it's somewhat used for color - fade, in some cases
+    console.log(`text: ${tx}`)
 
     layer.push()
     layer.translate(width / 2, height / 2)
@@ -317,10 +319,11 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.cumulativeRotation ? cum() : norm()
   }
 
-  this.clearCanvas = ((layer) => () => {
+  this.clearCanvas = ((layer, params) => () => {
+    layer.resizeCanvas(params.width, params.height)
     layer.pixelDensity(2)
     layer.background(0, 0, 100)
-  })(p5)
+  })(p5, params)
 
   const nextDrawMode = (direction, params) => {
     let drawMode = params.drawMode
@@ -721,39 +724,42 @@ export default function Sketch (p5, guiControl, textManager, params) {
   })
 
   this.macro2 = macroWrapper((params, layer) => {
-    drawCircle(89, 89, params, p5.width, p5.height, p5)
-    drawCircle(50, 50, params, p5.width, p5.height, p5)
-    drawCircle(40, 40, params, p5.width, p5.height, p5)
-    drawCircle(30, 30, params, p5.width, p5.height, p5)
-    drawCircle(100, 100, params, p5.width, p5.height, p5)
+    drawCircle(89, 89, params, layer.width, layer.height, layer)
+    drawCircle(50, 50, params, layer.width, layer.height, layer)
+    drawCircle(40, 40, params, layer.width, layer.height, layer)
+    drawCircle(30, 30, params, layer.width, layer.height, layer)
+    drawCircle(100, 100, params, layer.width, layer.height, layer)
   })
 
-  this.macro3 = macroWrapper((params) => {
-    for (var i = 1; i < p5.width; i += 10) {
-      drawCircle(i, i, params, p5.width, p5.height, p5)
+  this.macro3 = macroWrapper((params, layer) => {
+    for (var i = 1; i < layer.width; i += 10) {
+      drawCircle(i, i, params, layer.width, layer.height, layer)
     }
   })
 
   // when INVERT is on THIS IS AMAZING
   // which suggests........
-  this.macro4 = macroWrapper((params) => {
-    for (var i = p5.width; i > p5.width / 2; i -= 80) {
-      if (i < ((p5.width / 3) * 2)) params.rotation = 90
-      drawGrid(i, i, params, p5.width, p5.height)
+  this.macro4 = macroWrapper((params, layer) => {
+    for (var i = layer.width; i > layer.width / 2; i -= 80) {
+      if (i < ((layer.width / 3) * 2)) params.rotation = 90
+      drawGrid(i, i, params, layer.width, layer.height)
     }
   })
 
-  this.macro5 = macroWrapper((params) => {
-    drawGrid(4, 4, params, p5.width, p5.height)
+  this.macro5 = macroWrapper((params, layer) => {
+    drawGrid(4, 4, params, layer.width, layer.height)
   })
 
-  this.macro6 = macroWrapper((params) => {
-    for (var i = 1; i < p5.width; i += 5) {
-      drawGrid(i, p5.mouseY, params, p5.width, p5.height)
+  this.macro6 = macroWrapper((params, layer) => {
+    for (var i = 1; i < layer.width; i += 5) {
+      drawGrid(i, layer.mouseY, params, layer.width, layer.height)
     }
   })
 
-  this.macro7 = macroWrapper((params, overrides) => {
+  // overrides. interesting. WHA???
+  // and we overwrite this definition immedately, anyway
+  // I recall _something_ about this. but do not recall now
+  this.macro7 = macroWrapper((params, layer, overrides) => {
     params = this.defaultParams
     params.drawMode = 1 // grid
     params.fill_paintMode = 4
@@ -761,43 +767,43 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.useOutline = false
     params.nextCharMode = 0
     params = { ...params, ...overrides }
-    const x = p5.mouseX
-    const y = p5.mouseY
-    drawGrid(x, y, params, p5.width, p5.height)
+    const x = layer.mouseX
+    const y = layer.mouseY
+    drawGrid(x, y, params, layer.width, layer.height)
   })
 
-  this.macro7 = macroWrapper((params) => {
+  this.macro7 = macroWrapper((params, layer) => {
     params = this.defaultParams
     params.drawMode = 1 // grid
     params.fill_paintMode = 4
     params.fill_transparent = false
     params.useOutline = false
     params.nextCharMode = 0
-    const x = p5.mouseX
-    const y = p5.mouseY
-    drawGrid(x, y, params, p5.width, p5.height)
+    const x = layer.mouseX
+    const y = layer.mouseY
+    drawGrid(x, y, params, layer.width, layer.height)
   })
 
-  this.macro8 = macroWrapper((params) => {
-    const width = p5.width / 2
-    const height = p5.height / 2
-    const x = p5.mouseX
-    const y = p5.mouseY
-    p5.translate(x, y)
+  this.macro8 = macroWrapper((params, layer) => {
+    const width = layer.width / 2
+    const height = layer.height / 2
+    const x = layer.mouseX
+    const y = layer.mouseY
+    layer.translate(x, y)
     drawGrid(x, y, params, width, height)
   })
 
   // works GREAT with cumulativeRotation
   // only problem is the colors are identical no matter where
-  this.macro9 = macroWrapper((params, layer = p5) => {
+  this.macro9 = macroWrapper((params, layer) => {
     // take these out of HERE
     // and macro9 then passes in params and width/height
     // but it should also indicate WHERE it should start
     // the below assumes subdivision of the entire surfae
 
     params.invert = true
-    const width = layer.width / 3
-    const height = layer.height / 8
+    const width = layer.width / 4
+    const height = layer.height / 4
     const startX = 0
     const startY = 0
 
@@ -836,7 +842,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
       // TODO: we're also adding in x,y to params, but they are ignored
       // STILL: pollution
       const dg = (stats) => drawGrid(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
-      // const dg = (stats) => drawCircle(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
+      // const dg = (stats) => drawCircle(width - stats.x, height - stats.y, { ...params, ...stats }, width, height, layer)
       // drawCirle doesn't quite work (the inversion? something - every radius is negative, so goes to 0.1)
       // turn off inversion, it works better, but size is still too large. fiddle around.
       apx(dg)(gen())

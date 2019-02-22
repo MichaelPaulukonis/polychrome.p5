@@ -39,7 +39,8 @@ canvas {
 #content {
     margin: 50px auto 0px auto;
     padding: 25px 25px 15px 25px;
-    width: 900px;
+    /* width: 900px; */
+    width: auto;
     min-width: 300px;
     overflow: auto;
     border-left: 1px solid #444;
