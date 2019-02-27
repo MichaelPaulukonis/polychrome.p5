@@ -180,6 +180,7 @@ export default class GuiControl {
       swap: swapParams,
       fixedWidth: true,
       font: fonts[0],
+      scale: 1.0,
       rotation: 0,
       cumulativeRotation: false,
       drawModes: { 'Grid': 0, 'Circle': 1, 'Grid2': 2 },
@@ -226,6 +227,14 @@ export default class GuiControl {
     f1.add(allParams, 'swap')
     f1.add(allParams, 'fixedWidth')
     f1.add(allParams, 'font', fonts).listen()
+    const sc = f1.add(allParams, 'scale').min(0.1).max(3).step(0.1).listen()
+
+    sc.onChange((m) => {
+      const scale = parseFloat(m, 10)
+      // TODO: set scale on item. ugh.
+      cnvs = document.getElementsByTagName('canvas')[0]
+      cnvs.style.transform = `scale(${scale})`
+    })
 
     gui.add(allParams, 'invert').listen()
     gui.add(allParams, 'nextCharMode', allParams.nextCharModes).listen()

@@ -804,22 +804,28 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.invert = true
     const width = layer.width / 4
     const height = layer.height / 4
-    const startX = 0
-    const startY = 0
+    const startX = 0 // mis-named
+    const startY = 0 // mis-named - these are the indexes of the grids
 
-    function * txg (width, height) {
-      for (let i = startX; i < layer.width / width; i++) {
-        for (let j = startY; j < layer.height / height; j++) {
-          yield { x: width * i, y: height * j }
-        }
-      }
-      return 'done'
-    }
-    const txls = txg(width, height)
-    // TODO: uh..... can we do a circle in here?
+    const txls = subGrids(layer.width, layer.height, width, height, startX, startY)
+
+    // an interesting standalone blob
+    // const txls = [{x: 100, y: 100}]
+    // const width = 400
+    // const height = 400
+
     const paint = gridder(width, height, params, layer)
     apx(paint)(txls)
   })
+
+  function * subGrids (sourceWidth, sourceHeight, targetWidth, targetHeight, startX, startY) {
+    for (let i = startX; i < sourceWidth / targetWidth; i++) {
+      for (let j = startY; j < sourceHeight / targetHeight; j++) {
+        yield { x: targetWidth * i, y: targetHeight * j }
+      }
+    }
+    return 'done'
+  }
 
   // gridder/subGrid paints a given region
   const gridder = (width, height, params, layer) => (grid) => subGrid(grid.x, grid.y, width, height, params, layer)
