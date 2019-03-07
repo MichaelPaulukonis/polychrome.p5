@@ -128,12 +128,10 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const drawCircle = (xPos, yPos, params, width, height, layer) => {
-    console.log(xPos, yPos, width, height)
     var tx = xPos / 2
     if (tx < 1) tx = 1
     layer.textSize(tx) // what if it was based on the yPos, which we are ignoring otherwise?
     // well, it's somewhat used for color - fade, in some cases
-    console.log(`text: ${tx}`)
 
     layer.push()
     layer.translate(width / 2, height / 2)
@@ -492,6 +490,28 @@ export default function Sketch (p5, guiControl, textManager, params) {
         }
         break
 
+      case 14:
+        {
+          const color1 = layer.color(params[`${prefix}_lq1`])
+          const color2 = layer.color(params[`${prefix}_lq2`])
+          const color3 = layer.color(params[`${prefix}_lq3`])
+          const color4 = layer.color(params[`${prefix}_lq4`])
+          const amountX = (gridX / layer.width)
+          const amountY = (gridY / layer.height)
+
+          layer.push()
+          layer.colorMode(layer.RGB)
+
+          const l1 = layer.lerpColor(color1, color2, amountX)
+          const l2 = layer.lerpColor(color3, color4, amountX)
+          let l3 = layer.lerpColor(l1, l2, amountY)
+          const alpha = (transparency * 255)
+          l3.setAlpha(alpha)
+          layer.pop()
+          func(l3, transparency)
+        }
+        break
+
       case 0:
       default:
         func(gridX, layer.height - gridY, 100, transparency)
@@ -814,7 +834,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     // const width = 400
     // const height = 400
 
-    const paint = gridder(width, height, params, layer)
+    const paint = gridder(width, height, params, layer, gridConditionalRotationGen)
     apx(paint)(txls)
   })
 
@@ -827,23 +847,23 @@ export default function Sketch (p5, guiControl, textManager, params) {
     return 'done'
   }
 
+  // the weird thing here is the rotation
+  function * gridConditionalRotationGen (width) {
+    for (var i = width; i > width / 2; i -= 40) {
+      const stats = { x: i, y: i, rotation: 0 }
+      if (i < ((width / 3) * 2)) stats.rotation = 90
+      yield stats
+    }
+  }
+
   // gridder/subGrid paints a given region
-  const gridder = (width, height, params, layer) => (grid) => subGrid(grid.x, grid.y, width, height, params, layer)
+  const gridder = (width, height, params, layer, gen) => (grid) => subGrid(grid.x, grid.y, width, height, params, layer, gen)
 
   // TODO: subgrid should be a generator that we compose with dawgrid
   // because the generator (coupled with the xforms or size, above are the key elems)
-  function subGrid (tx, ty, width, height, params, layer) {
+  function subGrid (tx, ty, width, height, params, layer, gen) {
     pushpop(layer)(() => {
       layer.translate(tx, ty)
-
-      // the weird thing here is the rotation
-      function * gen () {
-        for (var i = width; i > width / 2; i -= 40) {
-          const stats = { x: i, y: i, rotation: 0 }
-          if (i < ((width / 3) * 2)) stats.rotation = 90
-          yield stats
-        }
-      }
 
       // TODO: we're also adding in x,y to params, but they are ignored
       // STILL: pollution
@@ -851,7 +871,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
       // const dg = (stats) => drawCircle(width - stats.x, height - stats.y, { ...params, ...stats }, width, height, layer)
       // drawCirle doesn't quite work (the inversion? something - every radius is negative, so goes to 0.1)
       // turn off inversion, it works better, but size is still too large. fiddle around.
-      apx(dg)(gen())
+      apx(dg)(gen(width))
     })()
   }
 }

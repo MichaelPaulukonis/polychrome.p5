@@ -132,7 +132,11 @@ export default class GuiControl {
       color: '#fff000',
       scheme: 'ffffff-000000',
       curCycle: 0,
-      donePainting: false
+      donePainting: false,
+      lq1: '#fff000',
+      lq2: '#fff000',
+      lq3: '#fff000',
+      lq4: '#fff000'
     })
 
     const swapParams = () => {
@@ -203,7 +207,8 @@ export default class GuiControl {
         'Gray1': 6,
         'Gray2': 7,
         'solid': 9,
-        'lerp-scheme': 13
+        'lerp-scheme': 13,
+        'lerp-quad': 14
       },
       nextCharModes: {
         'Sequential': 0,
@@ -231,7 +236,7 @@ export default class GuiControl {
 
     sc.onChange((m) => {
       const scale = parseFloat(m, 10)
-      // TODO: set scale on item. ugh.
+      // this is... not quite right
       cnvs = document.getElementsByTagName('canvas')[0]
       cnvs.style.transform = `scale(${scale})`
     })
@@ -263,6 +268,10 @@ export default class GuiControl {
       const ccm = gui.add(params, `${prefix}_scheme`, lerpList).name(prefix)
       let c = selectToRadios(ccm)
       c.__radios.map(colorLabel)
+      gui.addColor(params, `${prefix}_lq1`)
+      gui.addColor(params, `${prefix}_lq2`)
+      gui.addColor(params, `${prefix}_lq3`)
+      gui.addColor(params, `${prefix}_lq4`)
     }
 
     const fpGui = gui.addFolder('fillControls')
