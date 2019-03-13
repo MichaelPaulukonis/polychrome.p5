@@ -177,7 +177,7 @@ export default class GuiControl {
       name: 'polychrome.text',
       open: openCanvasInNewTab,
       width: 900,
-      height: 600,
+      height: 900,
       // bind after defined in sketch
       save: () => { },
       clear: () => { },
@@ -265,7 +265,8 @@ export default class GuiControl {
       gui.addColor(params, `${prefix}_color`)
       // NOTE: creating a "new" setting triggers this. hunh.
       // cm.onChange((m) => { params[`${prefix}_paintMode`] = 9 }) // auto-set to solid color mode
-      const ccm = gui.add(params, `${prefix}_scheme`, lerpList).name(prefix)
+      const radioFolder = gui.addFolder('palettes')
+      const ccm = radioFolder.add(params, `${prefix}_scheme`, lerpList).name(prefix)
       let c = selectToRadios(ccm)
       c.__radios.map(colorLabel)
       gui.addColor(params, `${prefix}_lq1`)

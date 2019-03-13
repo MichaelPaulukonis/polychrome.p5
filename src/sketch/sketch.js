@@ -134,7 +134,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     // well, it's somewhat used for color - fade, in some cases
 
     layer.push()
-    layer.translate(width / 2, height / 2)
+    layer.translate(width / 2, height / 2) // centered
+    // layer.translate(0, 0) //  upper-left - we can change this around
     const sw = params.useOutline
       ? params.outline_strokeWeight
       : 0
@@ -405,64 +406,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
       case 9:
         func(colorAlpha(params[`${prefix}_color`], transparency))
-        break
-
-      case 10:
-        {
-          // this is a great contrast
-          const color1 = layer.color('yellow')
-          const color2 = layer.color('magenta')
-
-          const amount = (gridX / layer.width)
-          layer.push()
-          layer.colorMode(layer.RGB)
-          let lerpColor = layer.lerpColor(color1, color2, amount)
-          const alpha = (transparency * 255)
-          lerpColor.setAlpha(alpha)
-          layer.pop()
-          func(lerpColor) // uh, no. not transparent. UGH
-        }
-        break
-
-      case 11:
-        {
-          // lerp something
-          const color1 = layer.color('purple')
-          const color2 = layer.color('hsl(160, 100%, 50%)')
-
-          const amount = (gridX / layer.width)
-          layer.push()
-          layer.colorMode(layer.RGB)
-          let lerpColor = layer.lerpColor(color1, color2, amount)
-          const alpha = (transparency * 255)
-          lerpColor.setAlpha(alpha)
-          layer.pop()
-          func(lerpColor, transparency)
-        }
-        break
-
-      case 12:
-        {
-          // lerp 4 something
-          // not quite right - the idea is one color in each corner
-          layer.push()
-          layer.colorMode(layer.RGB)
-
-          const color1 = layer.color('yellow')
-          const color2 = layer.color('magenta')
-          const color3 = layer.color('purple')
-          const color4 = layer.color('hsl(160, 100%, 50%)')
-          const amountX = (gridX / layer.width)
-          const amountY = (gridY / layer.height)
-
-          const l1 = layer.lerpColor(color1, color2, amountX)
-          const l2 = layer.lerpColor(color3, color4, amountX)
-          let l3 = layer.lerpColor(l1, l2, amountY)
-          const alpha = (transparency * 255)
-          l3.setAlpha(alpha)
-          layer.pop()
-          func(l3, transparency)
-        }
         break
 
       case 13:
