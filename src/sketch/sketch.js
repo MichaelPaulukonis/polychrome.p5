@@ -629,9 +629,11 @@ export default function Sketch (p5, guiControl, textManager, params) {
         break
 
       case 'u':
+        undo.takeSnapshot()
         undo.undo()
         break
       case 'U':
+        undo.takeSnapshot()
         undo.redo()
         break
 
