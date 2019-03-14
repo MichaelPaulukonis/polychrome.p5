@@ -607,6 +607,10 @@ export default function Sketch (p5, guiControl, textManager, params) {
         params.useOutline = !params.useOutline
         break
 
+      case 'q':
+        rotateCanvas()
+        break
+
       case 'r':
       case 'R':
         reset(params)
@@ -817,5 +821,28 @@ export default function Sketch (p5, guiControl, textManager, params) {
       // turn off inversion, it works better, but size is still too large. fiddle around.
       apx(dg)(gen(width))
     })()
+  }
+
+  const rotateCanvas = () => {
+    const newHeight = p5.width
+    const newWidth = p5.height
+
+    // let context = p5.drawingContext
+    // context.save()
+    // let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
+
+    let img = p5.createImage(p5.width, p5.height)
+    img.loadPixels()
+    img.__pixelDensity = 2
+    img = p5.get()
+    p5.resizeCanvas(newWidth, newHeight)
+    p5.translate(p5.width / 2, p5.height / 2)
+    // p5.rotate(p5.radians(90))
+    p5.rotate(90 * Math.PI / 180)
+    // p5.rotate(0.5)
+
+    p5.image(img, -newWidth / 2, -newHeight / 2)
+    // p5.image(imageData, 0, 0)
+    // context.restore()
   }
 }
