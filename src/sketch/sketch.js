@@ -553,12 +553,11 @@ export default function Sketch (p5, guiControl, textManager, params) {
     if (keyCode === p5.UP_ARROW || keyCode === p5.DOWN_ARROW) {
       handled = true
       const vector = (keyCode === p5.UP_ARROW) ? 1 : -1
-      params.fill_paintMode = nextpaintMode(vector, params.fill_paintMode)
+      shift(vector * shiftAmount, 0)
     } else if (keyCode === p5.LEFT_ARROW || keyCode === p5.RIGHT_ARROW) {
       handled = true
       const vector = (keyCode === p5.RIGHT_ARROW) ? 1 : -1
-      const func = (parseInt(params.drawMode, 10) === params.drawModes.Grid2) ? nextRow : nextRotation
-      func(vector, params)
+      shift(0, vector * shiftAmount)
     } else if (keyCode === p5.BACKSPACE || keyCode === p5.DELETE) {
       handled = true
       sketch.clearCanvas()
