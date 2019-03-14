@@ -582,18 +582,18 @@ export default function Sketch (p5, guiControl, textManager, params) {
   const keyHandler = (char, params) => {
     switch (char) {
       case 'f':
-        undo.takeSnapshot()
         flip(HORIZONTAL)
+        undo.takeSnapshot()
         break
 
       case 'F':
-        undo.takeSnapshot()
         flip(VERTICAL)
+        undo.takeSnapshot()
         break
 
       case ' ':
-        undo.takeSnapshot()
         paint(p5.mouseX, p5.mouseY, params)
+        undo.takeSnapshot()
         break
 
       case 'm':
@@ -619,21 +619,21 @@ export default function Sketch (p5, guiControl, textManager, params) {
         break
 
       case 't':
-        undo.takeSnapshot()
         mirror(HORIZONTAL)
+        undo.takeSnapshot()
         break
 
       case 'T':
-        undo.takeSnapshot()
         mirror(VERTICAL)
+        undo.takeSnapshot()
         break
 
       case 'u':
-        undo.takeSnapshot()
+        // undo.takeSnapshot()
         undo.undo()
         break
       case 'U':
-        undo.takeSnapshot()
+        // undo.takeSnapshot()
         undo.redo()
         break
 
@@ -643,21 +643,21 @@ export default function Sketch (p5, guiControl, textManager, params) {
         break
 
       case 'x':
-        undo.takeSnapshot()
         shift(shiftAmount, shiftAmount)
+        undo.takeSnapshot()
         break
       case 'X':
-        undo.takeSnapshot()
         shift(-shiftAmount, -shiftAmount)
+        undo.takeSnapshot()
         break
 
       case 'z':
-        undo.takeSnapshot()
         shift(shiftAmount, -shiftAmount)
+        undo.takeSnapshot()
         break
       case 'Z':
-        undo.takeSnapshot()
         shift(-shiftAmount, shiftAmount)
+        undo.takeSnapshot()
         break
 
       case '1':
@@ -676,8 +676,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   const macroWrapper = (f) => (params, layer) => {
     p5.push()
-    undo.takeSnapshot()
     f({ ...params }, layer)
+    undo.takeSnapshot()
     p5.pop()
   }
 
