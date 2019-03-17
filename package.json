@@ -31,7 +31,8 @@
   "homepage": "https://github.com/MichaelPaulukonis/polychrome.p5#readme",
   "dependencies": {
     "dat.gui": "^0.7.3",
-    "p5": "^0.7.2"
+    "p5": "^0.7.2",
+    "ramda": "^0.26.1"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",

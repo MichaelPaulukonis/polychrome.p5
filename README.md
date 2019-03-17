@@ -75,17 +75,20 @@ http://repo.zebkit.org/latest/samples/uidemo.html#
 https://idmnyu.github.io/p5.js-func/ ???
 
 ## Things to implement
- - font picker
+ - ~~font picker~~
  - random sized?
  - pick circle center
  - draw into sub-section (click-n-drag to define)
- - change canvas size/shape
+ - ~~change canvas size/shape~~
  - more kalidoscopi features (eh, dunno)
+   - maybe just auto-quad with a "macro" ?
  - save/record animation
  - higher resolution
  - save all actions for replay (particularly for user when resize/up-resolution)
- - LERP color mode - expose 4 colors, choose model based on how many are actually selected
-  - 1 = solid color, 2 = only use those (but then, WHICH two/which corners?)
-  - could make one of them a transparency setting, or something....
+ - ~~LERP color mode - expose 4 colors, choose model based on how many are actually selected~~
  - pass color context separately from grid-paint context
- - so if we paint a sub-grid, we can use a completely separate color pattern (any given section of super-grid)
+   - so if we paint a sub-grid, we can use a completely separate color pattern (any given section of super-grid)
+ - LAYERS - paint directly into Graphis Object, render to canvas
+ - background color selection
+ - Randomize the 4 LERPs (a button)
+   - partially implemented for fill, not stroke. And clumsy IMHO

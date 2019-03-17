@@ -8,7 +8,7 @@ export default class GuiControl {
 
     var randElem = (arr) => arr[Math.floor(Math.random() * arr.length)]
 
-    const setupGui = function (sketch) {
+    const setupGui = (sketch) => {
       cnvs = document.getElementsByTagName('canvas')
       if (cnvs && cnvs[0]) {
         cnvs = cnvs[0]
@@ -17,6 +17,16 @@ export default class GuiControl {
       allParams.save = sketch.save_sketch
       allParams.clear = sketch.clearCanvas
       sketch.defaultParams = { ...(paramsInitial) }
+
+      allParams.randomizeQuads = () => {
+        // uh..... not quite what I wanted
+        // I've got some mental block on assigning references or something....
+        const qs = randomizeQuads(allParams, 'fill')
+        sketch.params.fill_lq1 = qs.fill_lq1
+        sketch.params.fill_lq2 = qs.fill_lq2
+        sketch.params.fill_lq3 = qs.fill_lq3
+        sketch.params.fill_lq4 = qs.fill_lq4
+      }
 
       setBodyCopy(randElem(corpus))
 
@@ -125,19 +135,40 @@ export default class GuiControl {
       '800080-00ffaa'
     ]
 
+    // TODO: sometimes this is short a character!!!
+    // const randomColor = () => '#' + Math.floor(Math.random() * 16777216).toString(16)
+    // const randomColor = () => '#'+(~~(Math.random()*(1<<24))).toString(16);
+    // see comments for variants; this one ends up with # + 6 chars ALWAYS
+    const randomColor = () => '#' + (Math.random().toString(16) + '0000000').slice(2, 8)
+
+    const fourRandoms = (prefix = '') => {
+      const pfx = prefix ? `${prefix}_` : ''
+      return {
+        [pfx + 'lq1']: randomColor(),
+        [pfx + 'lq2']: randomColor(),
+        [pfx + 'lq3']: randomColor(),
+        [pfx + 'lq4']: randomColor()
+      }
+    }
+
     let colorParams = () => ({
-      paintMode: 0,
-      transparency: 50,
-      transparent: false,
-      color: '#fff000',
-      scheme: 'ffffff-000000',
-      curCycle: 0,
-      donePainting: false,
-      lq1: '#fff000',
-      lq2: '#fff000',
-      lq3: '#fff000',
-      lq4: '#fff000'
+      ...{
+        paintMode: 0,
+        transparency: 50,
+        transparent: false,
+        color: '#fff000',
+        scheme: 'ffffff-000000',
+        curCycle: 0,
+        donePainting: false
+      },
+      ...fourRandoms()
     })
+
+    const randomizeQuads = (params, prefix) => {
+      const newQuad = fourRandoms(prefix)
+      const newParams = { ...params, ...newQuad }
+      return newParams
+    }
 
     const swapParams = () => {
       let swapped = swapPrefixParams(allParams, 'outline', 'fill')
@@ -182,6 +213,7 @@ export default class GuiControl {
       save: () => { },
       clear: () => { },
       swap: swapParams,
+      randomizeQuads: () => { },
       fixedWidth: true,
       font: fonts[0],
       scale: 1.0,
@@ -230,6 +262,7 @@ export default class GuiControl {
     f1.add(allParams, 'save')
     f1.add(allParams, 'clear')
     f1.add(allParams, 'swap')
+    f1.add(allParams, 'randomizeQuads')
     f1.add(allParams, 'fixedWidth')
     f1.add(allParams, 'font', fonts).listen()
     const sc = f1.add(allParams, 'scale').min(0.1).max(3).step(0.1).listen()
@@ -269,10 +302,10 @@ export default class GuiControl {
       const ccm = radioFolder.add(params, `${prefix}_scheme`, lerpList).name(prefix)
       let c = selectToRadios(ccm)
       c.__radios.map(colorLabel)
-      gui.addColor(params, `${prefix}_lq1`)
-      gui.addColor(params, `${prefix}_lq2`)
-      gui.addColor(params, `${prefix}_lq3`)
-      gui.addColor(params, `${prefix}_lq4`)
+      gui.addColor(params, `${prefix}_lq1`).listen()
+      gui.addColor(params, `${prefix}_lq2`).listen()
+      gui.addColor(params, `${prefix}_lq3`).listen()
+      gui.addColor(params, `${prefix}_lq4`).listen()
     }
 
     const fpGui = gui.addFolder('fillControls')
@@ -290,7 +323,8 @@ export default class GuiControl {
       getBodyCopy,
       setBodyCopy,
       hexStringToColors,
-      swapParams
+      swapParams,
+      randomizeQuads
     }
   }
 }

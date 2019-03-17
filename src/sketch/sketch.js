@@ -1,15 +1,30 @@
 import Undo from './undo.js'
+import UndoLayers from './undo.layers.js'
 
 export default function Sketch (p5, guiControl, textManager, params) {
   params = params || guiControl.params
+  this.params = params
   let sketch = this
 
   var undo // hunh
+  var undol
   this.textManager = textManager
+
+  let bypassRender = false
+
+  const blackfield = '#000000'
+  const whitefield = '#FFFFFF'
+  params.blackText = false
+  var drawingLayer // drawing layer
+  let layers = {
+    drawingLayer,
+    p5
+  }
 
   p5.setup = () => {
     p5.pixelDensity(2)
     const canvas = p5.createCanvas(params.width, params.height)
+    layers.drawingLayer = initializeDrawingLayer(params.width, params.height)
     canvas.parent('sketch-holder')
     p5.textAlign(p5.CENTER, p5.CENTER)
     p5.colorMode(p5.HSB, p5.width, p5.height, 100, 1)
@@ -17,6 +32,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     guiControl.setupGui(this)
     textManager.setText(guiControl.getBodyCopy())
     undo = new Undo(p5, 10)
+    undol = new UndoLayers(layers, renderLayers, 10)
   }
 
   const mouseInCanvas = () => {
@@ -43,6 +59,49 @@ export default function Sketch (p5, guiControl, textManager, params) {
     l.push()
     f()
     l.pop()
+  }
+
+  const renderLayers = () => {
+    if (bypassRender) return
+    clearLayer(layers.p5)
+    // once the param changes, we should NOT use the changed version
+    // UNTIL the drawing has been cleared
+    // not sure of the cleanest way to do it
+    // not a common thing, but.... UGH
+    p5.blendMode(params.blackText ? p5.DARKEST : p5.LIGHTEST)
+    if (params.showReference) {
+      p5.push()
+      p5.tint(255, (params.referenceTransparency / 100 * 255))
+      p5.image(img, 0, 0)
+      p5.pop()
+    }
+    renderTarget()
+  }
+
+  const renderTarget = () => {
+    p5.image(layers.drawingLayer, 0, 0)
+  }
+
+  const clearLayer = (r = p5) => {
+    r.blendMode(p5.NORMAL)
+    var field = params.blackText ? whitefield : blackfield
+    r.background(field)
+  }
+
+  const clearDrawing = () => {
+    clearLayer(layers.drawingLayer)
+    p5.blendMode(params.blackText ? p5.DARKEST : p5.LIGHTEST)
+    renderLayers()
+  }
+
+  const setFont = (font, layer = layers.drawingLayer) => {
+    layer.textFont(font)
+  }
+
+  const initializeDrawingLayer = (w, h) => {
+    let layer = p5.createGraphics(w, h)
+    setFont(params.font, layer)
+    return layer
   }
 
   const paint = (xPos, yPos, params) => {
@@ -823,25 +882,33 @@ export default function Sketch (p5, guiControl, textManager, params) {
     })()
   }
 
+  // I can't figure out how to clone the canvas
+  // but..... if I start out iwith a Graphics object
+  // I can write that to the new canvas, etc.
   const rotateCanvas = () => {
     const newHeight = p5.width
     const newWidth = p5.height
-
+    const d = p5.pixelDensity()
     // let context = p5.drawingContext
     // context.save()
     // let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
-    let img = p5.createImage(p5.width, p5.height)
-    img.loadPixels()
-    img.__pixelDensity = 2
-    img = p5.get()
+    var g = p5.createGraphics(p5.width * d, p5.height * d)
+    g.pixelDensity(d)
+
+    p5.loadPixels()
+    g.set()
+    g.updatePixels()
+    // var img = p5.createImage(p5.width * d, p5.height * d)
+    // img.loadPixels()
+    // img = p5.get(0, 0, p5.width * d, p5.height * d)
     p5.resizeCanvas(newWidth, newHeight)
     p5.translate(p5.width / 2, p5.height / 2)
     // p5.rotate(p5.radians(90))
     p5.rotate(90 * Math.PI / 180)
-    // p5.rotate(0.5)
+    // p5.rotate(0.5)p5
 
-    p5.image(img, -newWidth / 2, -newHeight / 2)
+    p5.image(g, -newWidth / 2, -newHeight / 2)
     // p5.image(imageData, 0, 0)
     // context.restore()
   }
