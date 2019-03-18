@@ -21,14 +21,20 @@ export default function Sketch (p5, guiControl, textManager, params) {
     p5
   }
 
+  var setFillMode
+  var setOutlineMode
+
   p5.setup = () => {
     p5.pixelDensity(2)
     const canvas = p5.createCanvas(params.width, params.height)
     layers.drawingLayer = initializeDrawingLayer(params.width, params.height)
+    setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layers.drawingLayer.fill, layers.drawingLayer)
+    setOutlineMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('outline', layers.drawingLayer.stroke, layers.drawingLayer)
     canvas.parent('sketch-holder')
-    p5.textAlign(p5.CENTER, p5.CENTER)
-    p5.colorMode(p5.HSB, p5.width, p5.height, 100, 1)
-    sketch.clearCanvas()
+    layers.drawingLayer.textAlign(p5.CENTER, p5.CENTER)
+    layers.drawingLayer.colorMode(p5.HSB, params.width, params.height, 100, 1)
+    // sketch.clearCanvas()
+    clearDrawing()
     guiControl.setupGui(this)
     textManager.setText(guiControl.getBodyCopy())
     undo = new Undo(p5, 10)
@@ -50,7 +56,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   p5.mouseReleased = () => {
-    undo.takeSnapshot()
+    undol.takeSnapshot()
   }
 
   let apx = (...fns) => list => [...list].map(b => fns.forEach(f => f(b)))
@@ -64,17 +70,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
   const renderLayers = () => {
     if (bypassRender) return
     clearLayer(layers.p5)
-    // once the param changes, we should NOT use the changed version
-    // UNTIL the drawing has been cleared
-    // not sure of the cleanest way to do it
-    // not a common thing, but.... UGH
-    p5.blendMode(params.blackText ? p5.DARKEST : p5.LIGHTEST)
-    if (params.showReference) {
-      p5.push()
-      p5.tint(255, (params.referenceTransparency / 100 * 255))
-      p5.image(img, 0, 0)
-      p5.pop()
-    }
     renderTarget()
   }
 
@@ -84,13 +79,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   const clearLayer = (r = p5) => {
     r.blendMode(p5.NORMAL)
-    var field = params.blackText ? whitefield : blackfield
-    r.background(field)
+    // var field = params.blackText ? whitefield : blackfield
+    r.background(blackfield)
   }
 
   const clearDrawing = () => {
     clearLayer(layers.drawingLayer)
-    p5.blendMode(params.blackText ? p5.DARKEST : p5.LIGHTEST)
     renderLayers()
   }
 
@@ -105,12 +99,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const paint = (xPos, yPos, params) => {
-    p5.textFont(params.font)
+    setFont(params.font, layers.drawingLayer)
     const mode = parseInt(params.drawMode, 10)
     const draw = mode === params.drawModes.Grid ? drawGrid
       : mode === params.drawModes.Circle ? drawCircle
         : drawRowCol
-    draw(xPos, yPos, params, p5.width, p5.height, p5)
+    draw(xPos, yPos, params, params.width, params.height, layers.drawingLayer)
     params.fill_donePainting = true
     params.outline_donePainting = true
   }
@@ -285,7 +279,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // alternatively http://happycoding.io/examples/processing/for-loops/letters
   // cleaner?
-  const drawGrid = (xPos, yPos, params, width, height, layer = p5) => {
+  const drawGrid = (xPos, yPos, params, width, height, layer) => {
     // negatives are possible, it seems....
     xPos = xPos < 5 ? 5 : xPos
     // yPos = yPos < 5 ? 5 : yPos
@@ -310,13 +304,14 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const fill = bloc => setFillMode(bloc.x, bloc.y, params)
     const outline = params.useOutline ? bloc => setOutlineMode(bloc.x, bloc.y, params) : () => { }
     const step = (params.fixedWidth) ? gridParams.step : 0
-    const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, p5, params)
+    const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, layer, params)
     const yOffset = getYoffset(layer.textAscent(), 0) // only used for TextWidth
     // TODO: also the alignments above. ugh
     let blocGen = (params.fixedWidth)
       ? blocGeneratorFixedWidth(gridParams, nextText)
-      : blocGeneratorTextWidth(nextText, whOnly(p5), yOffset, p5) // whonly needs to be reworked
+      : blocGeneratorTextWidth(nextText, whOnly(layer), yOffset, layer) // whonly needs to be reworked
     apx(fill, outline, paint)(blocGen)
+    renderLayers(params)
   }
 
   function * blocGeneratorFixedWidth (gridParams, nextText) {
@@ -414,9 +409,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
     var c = p5.color(aColor)
     return p5.color('rgba(' + [p5.red(c), p5.green(c), p5.blue(c), alpha].join(',') + ')')
   }
-
-  const setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', p5.fill, p5)
-  const setOutlineMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('outline', p5.stroke, p5)
 
   // TODO: if these were.... functions, we could have an array, and not have to worry about counting the mode
   // also, functions could take params that could change them up a bit.....
@@ -528,50 +520,52 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   const HORIZONTAL = 0
   const VERTICAL = 1
-  const flip = (axis) => {
+  const flip = (axis, layer) => {
     // NOTE: get() is soooooo much quicker!
     // but since it only works in RGBA, it creates problems for HSB canvases like ours
     // or, it creates problems, possibly for a different reason
-    const d = p5.pixelDensity()
-    var tmp = p5.createImage(p5.width * d, p5.height * d)
+    const d = layer.pixelDensity()
+    var tmp = layer.createImage(layer.width * d, layer.height * d)
     tmp.loadPixels()
-    p5.loadPixels()
-    for (let i = 0; i < p5.pixels.length; i++) {
-      tmp.pixels[i] = p5.pixels[i]
+    layer.loadPixels()
+    for (let i = 0; i < layer.pixels.length; i++) {
+      tmp.pixels[i] = layer.pixels[i]
     }
     tmp.updatePixels()
-    p5.push()
+    layer.push()
     if (axis === HORIZONTAL) {
-      p5.translate(0, p5.height)
-      p5.scale(1, -1)
+      layer.translate(0, layer.height)
+      layer.scale(1, -1)
     } else {
-      p5.translate(p5.width, 0)
-      p5.scale(-1, 1)
+      layer.translate(layer.width, 0)
+      layer.scale(-1, 1)
     }
-    p5.image(tmp, 0, 0, p5.width, p5.height)
-    p5.pop()
+    layer.image(tmp, 0, 0, layer.width, layer.height)
+    layer.pop()
+    renderLayers(params)
   }
 
-  const mirror = (axis = VERTICAL) => {
-    const d = p5.pixelDensity()
-    var tmp = p5.createImage(p5.width * d, p5.height * d)
+  const mirror = (axis = VERTICAL, layer) => {
+    const d = layer.pixelDensity()
+    var tmp = layer.createImage(layer.width * d, layer.height * d)
     tmp.loadPixels()
-    p5.loadPixels()
-    for (let i = 0; i < p5.pixels.length; i++) {
-      tmp.pixels[i] = p5.pixels[i]
+    layer.loadPixels()
+    for (let i = 0; i < layer.pixels.length; i++) {
+      tmp.pixels[i] = layer.pixels[i]
     }
     tmp.updatePixels()
-    p5.push()
+    layer.push()
     if (axis === HORIZONTAL) {
-      p5.translate(p5.width, 0)
-      p5.scale(-1, 1)
-      p5.image(tmp, 0, 0, p5.width / 2, p5.height, 0, 0, p5.width, p5.height * 2)
+      layer.translate(layer.width, 0)
+      layer.scale(-1, 1)
+      layer.image(tmp, 0, 0, layer.width / 2, layer.height, 0, 0, layer.width, layer.height * 2)
     } else {
-      p5.translate(0, p5.height)
-      p5.scale(1, -1)
-      p5.image(tmp, 0, 0, p5.width, p5.height / 2, 0, 0, p5.width * 2, p5.height)
+      layer.translate(0, layer.height)
+      layer.scale(1, -1)
+      layer.image(tmp, 0, 0, layer.width, layer.height / 2, 0, 0, layer.width * 2, layer.height)
     }
-    p5.pop()
+    layer.pop()
+    renderLayers(params)
   }
 
   // shift pixels in image
@@ -619,7 +613,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
       shift(0, vector * shiftAmount)
     } else if (keyCode === p5.BACKSPACE || keyCode === p5.DELETE) {
       handled = true
-      sketch.clearCanvas()
+      // sketch.clearCanvas()
+      clearDrawing()
     }
     return handled
   }
@@ -640,18 +635,18 @@ export default function Sketch (p5, guiControl, textManager, params) {
   const keyHandler = (char, params) => {
     switch (char) {
       case 'f':
-        flip(HORIZONTAL)
-        undo.takeSnapshot()
+        flip(HORIZONTAL, layers.drawingLayer)
+        undol.takeSnapshot()
         break
 
       case 'F':
-        flip(VERTICAL)
-        undo.takeSnapshot()
+        flip(VERTICAL, layers.drawingLayer)
+        undol.takeSnapshot()
         break
 
       case ' ':
         paint(p5.mouseX, p5.mouseY, params)
-        undo.takeSnapshot()
+        undol.takeSnapshot()
         break
 
       case 'm':
@@ -681,22 +676,22 @@ export default function Sketch (p5, guiControl, textManager, params) {
         break
 
       case 't':
-        mirror(HORIZONTAL)
-        undo.takeSnapshot()
+        mirror(HORIZONTAL, layers.drawingLayer)
+        undol.takeSnapshot()
         break
 
       case 'T':
-        mirror(VERTICAL)
-        undo.takeSnapshot()
+        mirror(VERTICAL, layers.drawingLayer)
+        undol.takeSnapshot()
         break
 
       case 'u':
-        // undo.takeSnapshot()
-        undo.undo()
+        // undol.takeSnapshot()
+        undol.undo()
         break
       case 'U':
-        // undo.takeSnapshot()
-        undo.redo()
+        // undol.takeSnapshot()
+        undol.redo()
         break
 
       case 'w':
@@ -706,20 +701,20 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
       case 'x':
         shift(shiftAmount, shiftAmount)
-        undo.takeSnapshot()
+        undol.takeSnapshot()
         break
       case 'X':
         shift(-shiftAmount, -shiftAmount)
-        undo.takeSnapshot()
+        undol.takeSnapshot()
         break
 
       case 'z':
         shift(shiftAmount, -shiftAmount)
-        undo.takeSnapshot()
+        undol.takeSnapshot()
         break
       case 'Z':
         shift(-shiftAmount, shiftAmount)
-        undo.takeSnapshot()
+        undol.takeSnapshot()
         break
 
       case '1':
@@ -731,16 +726,16 @@ export default function Sketch (p5, guiControl, textManager, params) {
       case '7':
       case '8':
       case '9':
-        this[`macro${char}`](params, p5)
+        this[`macro${char}`](params, layers.drawingLayer)
         break
     }
   }
 
   const macroWrapper = (f) => (params, layer) => {
-    p5.push()
+    layer.push()
     f({ ...params }, layer)
-    undo.takeSnapshot()
-    p5.pop()
+    undol.takeSnapshot()
+    layer.pop()
   }
 
   // these aren't "macros" as in recorded
@@ -769,17 +764,17 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.macro4 = macroWrapper((params, layer) => {
     for (var i = layer.width; i > layer.width / 2; i -= 80) {
       if (i < ((layer.width / 3) * 2)) params.rotation = 90
-      drawGrid(i, i, params, layer.width, layer.height)
+      drawGrid(i, i, params, layer.width, layer.height, layer)
     }
   })
 
   this.macro5 = macroWrapper((params, layer) => {
-    drawGrid(4, 4, params, layer.width, layer.height)
+    drawGrid(4, 4, params, layer.width, layer.height, layer)
   })
 
   this.macro6 = macroWrapper((params, layer) => {
     for (var i = 1; i < layer.width; i += 5) {
-      drawGrid(i, layer.mouseY, params, layer.width, layer.height)
+      drawGrid(i, layer.mouseY, params, layer.width, layer.height, layer)
     }
   })
 
@@ -796,7 +791,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params = { ...params, ...overrides }
     const x = layer.mouseX
     const y = layer.mouseY
-    drawGrid(x, y, params, layer.width, layer.height)
+    drawGrid(x, y, params, layer.width, layer.height, layer)
   })
 
   this.macro7 = macroWrapper((params, layer) => {
@@ -808,7 +803,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.nextCharMode = 0
     const x = layer.mouseX
     const y = layer.mouseY
-    drawGrid(x, y, params, layer.width, layer.height)
+    drawGrid(x, y, params, layer.width, layer.height, layer)
   })
 
   this.macro8 = macroWrapper((params, layer) => {
@@ -817,7 +812,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const x = layer.mouseX
     const y = layer.mouseY
     layer.translate(x, y)
-    drawGrid(x, y, params, width, height)
+    drawGrid(x, y, params, width, height, layer)
   })
 
   // works GREAT with cumulativeRotation
