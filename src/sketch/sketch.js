@@ -1,4 +1,3 @@
-import Undo from './undo.js'
 import UndoLayers from './undo.layers.js'
 
 export default function Sketch (p5, guiControl, textManager, params) {
@@ -6,8 +5,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.params = params
   let sketch = this
 
-  var undo // hunh
-  var undol
+  var undo
   this.textManager = textManager
 
   let bypassRender = false
@@ -33,12 +31,10 @@ export default function Sketch (p5, guiControl, textManager, params) {
     canvas.parent('sketch-holder')
     layers.drawingLayer.textAlign(p5.CENTER, p5.CENTER)
     layers.drawingLayer.colorMode(p5.HSB, params.width, params.height, 100, 1)
-    // sketch.clearCanvas()
     clearDrawing()
     guiControl.setupGui(this)
     textManager.setText(guiControl.getBodyCopy())
-    undo = new Undo(p5, 10)
-    undol = new UndoLayers(layers, renderLayers, 10)
+    undo = new UndoLayers(layers, renderLayers, 10)
   }
 
   const mouseInCanvas = () => {
@@ -56,7 +52,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   p5.mouseReleased = () => {
-    undol.takeSnapshot()
+    undo.takeSnapshot()
   }
 
   let apx = (...fns) => list => [...list].map(b => fns.forEach(f => f(b)))
@@ -88,7 +84,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     renderLayers()
   }
 
-  const setFont = (font, layer = layers.drawingLayer) => {
+  const setFont = (font, layer) => {
     layer.textFont(font)
   }
 
@@ -178,6 +174,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
         // pushpop(p5)(doit)()
       }
     }
+    renderLayers(params)
   }
 
   const drawCircle = (xPos, yPos, params, width, height, layer) => {
@@ -201,6 +198,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const nextText = textGetter(params.nextCharMode, textManager)
     circlePainter(params, layer, xPos, nextText, width)
     layer.pop()
+    renderLayers(params)
   }
 
   const circlePainter = (params, layer, xPos, nextText, width) => {
@@ -571,7 +569,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // shift pixels in image
   // I'd love to be able to drag the image around, but I think that will require something else, but related
   const shift = (verticalOffset, horizontalOffset) => {
-    let context = p5.drawingContext
+    // TODO: has to be pointing to the drawingLayer
+    let context = layers.drawingLayer.drawingContext
     let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
     let cw = (horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
@@ -585,6 +584,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
       context.putImageData(imageData, 0 + horizontalOffset, 0 + verticalOffset - ch)
     }
     context.putImageData(imageData, 0 - cw + horizontalOffset, 0 - ch + verticalOffset)
+    renderLayers(params)
   }
 
   this.save_sketch = () => {
@@ -636,17 +636,17 @@ export default function Sketch (p5, guiControl, textManager, params) {
     switch (char) {
       case 'f':
         flip(HORIZONTAL, layers.drawingLayer)
-        undol.takeSnapshot()
+        undo.takeSnapshot()
         break
 
       case 'F':
         flip(VERTICAL, layers.drawingLayer)
-        undol.takeSnapshot()
+        undo.takeSnapshot()
         break
 
       case ' ':
         paint(p5.mouseX, p5.mouseY, params)
-        undol.takeSnapshot()
+        undo.takeSnapshot()
         break
 
       case 'm':
@@ -677,21 +677,21 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
       case 't':
         mirror(HORIZONTAL, layers.drawingLayer)
-        undol.takeSnapshot()
+        undo.takeSnapshot()
         break
 
       case 'T':
         mirror(VERTICAL, layers.drawingLayer)
-        undol.takeSnapshot()
+        undo.takeSnapshot()
         break
 
       case 'u':
         // undol.takeSnapshot()
-        undol.undo()
+        undo.undo()
         break
       case 'U':
         // undol.takeSnapshot()
-        undol.redo()
+        undo.redo()
         break
 
       case 'w':
@@ -701,20 +701,20 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
       case 'x':
         shift(shiftAmount, shiftAmount)
-        undol.takeSnapshot()
+        undo.takeSnapshot()
         break
       case 'X':
         shift(-shiftAmount, -shiftAmount)
-        undol.takeSnapshot()
+        undo.takeSnapshot()
         break
 
       case 'z':
         shift(shiftAmount, -shiftAmount)
-        undol.takeSnapshot()
+        undo.takeSnapshot()
         break
       case 'Z':
         shift(-shiftAmount, shiftAmount)
-        undol.takeSnapshot()
+        undo.takeSnapshot()
         break
 
       case '1':
@@ -727,6 +727,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
       case '8':
       case '9':
         this[`macro${char}`](params, layers.drawingLayer)
+        undo.takeSnapshot()
         break
     }
   }
@@ -734,7 +735,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   const macroWrapper = (f) => (params, layer) => {
     layer.push()
     f({ ...params }, layer)
-    undol.takeSnapshot()
+    undo.takeSnapshot()
     layer.pop()
   }
 
@@ -781,18 +782,18 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // overrides. interesting. WHA???
   // and we overwrite this definition immedately, anyway
   // I recall _something_ about this. but do not recall now
-  this.macro7 = macroWrapper((params, layer, overrides) => {
-    params = this.defaultParams
-    params.drawMode = 1 // grid
-    params.fill_paintMode = 4
-    params.fill_transparent = false
-    params.useOutline = false
-    params.nextCharMode = 0
-    params = { ...params, ...overrides }
-    const x = layer.mouseX
-    const y = layer.mouseY
-    drawGrid(x, y, params, layer.width, layer.height, layer)
-  })
+  // this.macro7 = macroWrapper((params, layer, overrides) => {
+  //   params = this.defaultParams
+  //   params.drawMode = 1 // grid
+  //   params.fill_paintMode = 4
+  //   params.fill_transparent = false
+  //   params.useOutline = false
+  //   params.nextCharMode = 0
+  //   params = { ...params, ...overrides }
+  //   const x = layer.mouseX
+  //   const y = layer.mouseY
+  //   drawGrid(x, y, params, layer.width, layer.height, layer)
+  // })
 
   this.macro7 = macroWrapper((params, layer) => {
     params = this.defaultParams
@@ -801,8 +802,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.fill_transparent = false
     params.useOutline = false
     params.nextCharMode = 0
-    const x = layer.mouseX
-    const y = layer.mouseY
+    const x = p5.mouseX // ugh, global
+    const y = p5.mouseY
     drawGrid(x, y, params, layer.width, layer.height, layer)
   })
 

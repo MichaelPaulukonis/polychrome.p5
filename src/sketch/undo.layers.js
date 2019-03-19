@@ -61,7 +61,6 @@ class CircImgCollection {
       // this is not our only problem
       // we need to replace the drawing layer
       // and re-render the layers
-      // p5.blendMode(p5.NORMAL)
       // p5.image(img[current], 0, 0)
       // drawingLayer = img[current]
       layers.drawingLayer.set(0, 0, img[current])
