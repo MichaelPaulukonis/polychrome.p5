@@ -38,13 +38,14 @@ class CircImgCollection {
   constructor (layers, renderFunc, amountOfImages) {
     let current = 0
     let img = []
+    const d = layers.drawingLayer.pixelDensity()
 
     let amount = amountOfImages
     this.amount = amount
 
     // Initialize all images as copies of the current display
     for (let i = 0; i < amount; i++) {
-      img[i] = layers.p5.createImage(layers.drawingLayer.width, layers.drawingLayer.height)
+      img[i] = layers.p5.createImage(layers.drawingLayer.width * d, layers.drawingLayer.height * d)
       img[i] = layers.drawingLayer.get()
     }
 

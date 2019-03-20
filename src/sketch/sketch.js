@@ -90,6 +90,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   const initializeDrawingLayer = (w, h) => {
     let layer = p5.createGraphics(w, h)
+    layer.pixelDensity(2)
     setFont(params.font, layer)
     return layer
   }
@@ -885,27 +886,34 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const newHeight = p5.width
     const newWidth = p5.height
     const d = p5.pixelDensity()
-    // let context = p5.drawingContext
-    // context.save()
-    // let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
+    params.height = newHeight
+    params.width = newWidth
 
-    var g = p5.createGraphics(p5.width * d, p5.height * d)
-    g.pixelDensity(d)
+    // var g = p5.createGraphics(p5.width * d, p5.height * d)
+    // g.pixelDensity(d)
+    // g.image(p5)
+    // p5.resizeCanvas(newWidth, newHeight)
 
-    p5.loadPixels()
-    g.set()
-    g.updatePixels()
-    // var img = p5.createImage(p5.width * d, p5.height * d)
-    // img.loadPixels()
-    // img = p5.get(0, 0, p5.width * d, p5.height * d)
-    p5.resizeCanvas(newWidth, newHeight)
-    p5.translate(p5.width / 2, p5.height / 2)
+    // UGH UGH UGH !!!!!
+    // not quite working
+    // I got it working ONCE - but it was rendered directly to p5, and would get wiped out.
+    // I didn't save that version, so it is lost!!!!
+
+    // now, what is HERE - changes the origin point to different corners
+    // WITHOUT ERASING THE UNDERLYING STUFF
+    // which is pretty cool
+    // maybe even cooler!!!
+
+    // not _quite_ what I wanted, but....
+
+    // layers.drawingLayer.resizeCanvas(newHeight, newWidth)
+    // layers.drawingLayer.push()
+    layers.drawingLayer.translate(newWidth, 0)
     // p5.rotate(p5.radians(90))
-    p5.rotate(90 * Math.PI / 180)
-    // p5.rotate(0.5)p5
+    layers.drawingLayer.rotate(90 * Math.PI / 180)
+    // layers.drawingLayer.image(g, 100, 100)
+    // layers.drawingLayer.pop()
 
-    p5.image(g, -newWidth / 2, -newHeight / 2)
-    // p5.image(imageData, 0, 0)
-    // context.restore()
+    // renderLayers(params)
   }
 }
