@@ -76,6 +76,9 @@ https://idmnyu.github.io/p5.js-func/ ???
 
 ## Things to implement
  - ~~font picker~~
+   - web-fonts in project (not all in dropdown "really" exist)
+   - one of those old OCR-B fonts?
+   - dingbats
  - random sized?
  - pick circle center
  - draw into sub-section (click-n-drag to define)

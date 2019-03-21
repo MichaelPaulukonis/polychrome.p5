@@ -3,7 +3,6 @@ import UndoLayers from './undo.layers.js'
 export default function Sketch (p5, guiControl, textManager, params) {
   params = params || guiControl.params
   this.params = params
-  let sketch = this
 
   var undo
   this.textManager = textManager
@@ -879,9 +878,15 @@ export default function Sketch (p5, guiControl, textManager, params) {
     })()
   }
 
-  // I can't figure out how to clone the canvas
-  // but..... if I start out iwith a Graphics object
-  // I can write that to the new canvas, etc.
+  // TODO: use this somehow.
+  // but make mouse start from regular place?
+  const newCorner = () => {
+    layers.drawingLayer.translate(newWidth, 0)
+    // p5.rotate(p5.radians(90))
+    layers.drawingLayer.rotate(90 * Math.PI / 180)
+  }
+
+  // this works for squares. but not rectangles???
   const rotateCanvas = () => {
     const newHeight = p5.width
     const newWidth = p5.height
@@ -889,31 +894,22 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.height = newHeight
     params.width = newWidth
 
-    // var g = p5.createGraphics(p5.width * d, p5.height * d)
-    // g.pixelDensity(d)
-    // g.image(p5)
-    // p5.resizeCanvas(newWidth, newHeight)
+    var g = p5.createGraphics(p5.width * d, p5.height * d)
+    g.pixelDensity(d)
+    g.loadPixels()
+    p5.loadPixels()
+    for (let i = 0; i < p5.pixels.length; i++) {
+      g.pixels[i] = p5.pixels[i]
+    }
+    g.updatePixels()
+    p5.resizeCanvas(newWidth, newHeight)
 
-    // UGH UGH UGH !!!!!
-    // not quite working
-    // I got it working ONCE - but it was rendered directly to p5, and would get wiped out.
-    // I didn't save that version, so it is lost!!!!
-
-    // now, what is HERE - changes the origin point to different corners
-    // WITHOUT ERASING THE UNDERLYING STUFF
-    // which is pretty cool
-    // maybe even cooler!!!
-
-    // not _quite_ what I wanted, but....
-
-    // layers.drawingLayer.resizeCanvas(newHeight, newWidth)
-    // layers.drawingLayer.push()
+    layers.drawingLayer.push()
     layers.drawingLayer.translate(newWidth, 0)
     // p5.rotate(p5.radians(90))
     layers.drawingLayer.rotate(90 * Math.PI / 180)
-    // layers.drawingLayer.image(g, 100, 100)
-    // layers.drawingLayer.pop()
-
-    // renderLayers(params)
+    layers.drawingLayer.image(g, 0, 0, newWidth * d, newHeight * d * 2) // I DO NOT UNDERSTAND WHY THIS
+    layers.drawingLayer.pop()
+    renderLayers(params)
   }
 }

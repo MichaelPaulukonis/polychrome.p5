@@ -46,7 +46,7 @@ class CircImgCollection {
     // Initialize all images as copies of the current display
     for (let i = 0; i < amount; i++) {
       img[i] = layers.p5.createImage(layers.drawingLayer.width * d, layers.drawingLayer.height * d)
-      img[i] = layers.drawingLayer.get()
+      // img[i] = layers.drawingLayer.get()
     }
 
     this.next = () => {
