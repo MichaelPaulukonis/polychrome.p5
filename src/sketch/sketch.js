@@ -8,6 +8,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.textManager = textManager
 
   let bypassRender = false
+  const density = 1
 
   const blackfield = '#000000'
   const whitefield = '#FFFFFF'
@@ -22,7 +23,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   var setOutlineMode
 
   p5.setup = () => {
-    p5.pixelDensity(2)
+    p5.pixelDensity(density)
     const canvas = p5.createCanvas(params.width, params.height)
     layers.drawingLayer = initializeDrawingLayer(params.width, params.height)
     setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layers.drawingLayer.fill, layers.drawingLayer)
@@ -89,7 +90,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   const initializeDrawingLayer = (w, h) => {
     let layer = p5.createGraphics(w, h)
-    layer.pixelDensity(2)
+    layer.pixelDensity(density)
     setFont(params.font, layer)
     return layer
   }
@@ -372,8 +373,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   this.clearCanvas = ((layer, params) => () => {
     layer.resizeCanvas(params.width, params.height)
-    layer.pixelDensity(2)
-    layer.background(0, 0, 100)
+    layer.pixelDensity(density)
+    layer.background(blackfield)
   })(p5, params)
 
   const nextDrawMode = (direction, params) => {
@@ -904,12 +905,16 @@ export default function Sketch (p5, guiControl, textManager, params) {
     g.updatePixels()
     p5.resizeCanvas(newWidth, newHeight)
 
+    layers.drawingLayer.width = newWidth
+    layers.drawingLayer.height = newHeight
+
     layers.drawingLayer.push()
     layers.drawingLayer.translate(newWidth, 0)
     // p5.rotate(p5.radians(90))
     layers.drawingLayer.rotate(90 * Math.PI / 180)
-    layers.drawingLayer.image(g, 0, 0, newWidth * d, newHeight * d * 2) // I DO NOT UNDERSTAND WHY THIS
+    layers.drawingLayer.image(g, 0, 0, newWidth * d, newHeight * d) // I DO NOT UNDERSTAND WHY THIS
     layers.drawingLayer.pop()
+
     renderLayers(params)
   }
 }
