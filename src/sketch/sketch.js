@@ -8,7 +8,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.textManager = textManager
 
   let bypassRender = false
-  const density = 1
+  const density = 2
 
   const blackfield = '#000000'
   const whitefield = '#FFFFFF'
@@ -25,12 +25,13 @@ export default function Sketch (p5, guiControl, textManager, params) {
   p5.setup = () => {
     p5.pixelDensity(density)
     const canvas = p5.createCanvas(params.width, params.height)
-    layers.drawingLayer = initializeDrawingLayer(params.width, params.height)
-    setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layers.drawingLayer.fill, layers.drawingLayer)
-    setOutlineMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('outline', layers.drawingLayer.stroke, layers.drawingLayer)
+    layers.drawingLayer = initDrawingLayer(params.width, params.height)
+    // tODO: these are now set as side-effects in initializeDrawingLayer
+    // setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layers.drawingLayer.fill, layers.drawingLayer)
+    // setOutlineMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('outline', layers.drawingLayer.stroke, layers.drawingLayer)
+
     canvas.parent('sketch-holder')
-    layers.drawingLayer.textAlign(p5.CENTER, p5.CENTER)
-    layers.drawingLayer.colorMode(p5.HSB, params.width, params.height, 100, 1)
+
     clearDrawing()
     guiControl.setupGui(this)
     textManager.setText(guiControl.getBodyCopy())
@@ -88,10 +89,17 @@ export default function Sketch (p5, guiControl, textManager, params) {
     layer.textFont(font)
   }
 
-  const initializeDrawingLayer = (w, h) => {
+  const initDrawingLayer = (w, h) => {
     let layer = p5.createGraphics(w, h)
     layer.pixelDensity(density)
     setFont(params.font, layer)
+    layer.textAlign(p5.CENTER, p5.CENTER)
+    layer.colorMode(p5.HSB, params.width, params.height, 100, 1)
+
+    // SIDE EFFECTS! UGH
+    setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layer.fill, layer)
+    setOutlineMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('outline', layer.stroke, layer)
+
     return layer
   }
 
@@ -887,7 +895,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
     layers.drawingLayer.rotate(90 * Math.PI / 180)
   }
 
-  // this works for squares. but not rectangles???
   const rotateCanvas = () => {
     const newHeight = p5.width
     const newWidth = p5.height
@@ -905,15 +912,16 @@ export default function Sketch (p5, guiControl, textManager, params) {
     g.updatePixels()
     p5.resizeCanvas(newWidth, newHeight)
 
-    layers.drawingLayer.width = newWidth
-    layers.drawingLayer.height = newHeight
+    let newPG = initDrawingLayer(newWidth, newHeight)
+    newPG.push()
+    newPG.translate(newWidth, 0)
+    newPG.rotate(p5.radians(90))
+    newPG.image(layers.drawingLayer, 0, 0)
+    newPG.pop()
 
-    layers.drawingLayer.push()
-    layers.drawingLayer.translate(newWidth, 0)
-    // p5.rotate(p5.radians(90))
-    layers.drawingLayer.rotate(90 * Math.PI / 180)
-    layers.drawingLayer.image(g, 0, 0, newWidth * d, newHeight * d) // I DO NOT UNDERSTAND WHY THIS
-    layers.drawingLayer.pop()
+    layers.drawingLayer = newPG
+
+    // TODO: undo doesn't know anything about rotation......
 
     renderLayers(params)
   }
