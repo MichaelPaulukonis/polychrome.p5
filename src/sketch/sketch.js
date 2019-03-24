@@ -379,11 +379,19 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.cumulativeRotation ? cum() : norm()
   }
 
-  this.clearCanvas = ((layer, params) => () => {
+  // pass in p5 and params because it's bound in gui.js
+  // but, this binds the current values in params, apparently
+  // UGH UGH UGH
+  this.clearCanvas = () => {
+    clear(layers.drawingLayer)
+    clear(layers.p5)
+  }
+
+  const clear = (layer) => {
     layer.resizeCanvas(params.width, params.height)
     layer.pixelDensity(density)
     layer.background(blackfield)
-  })(p5, params)
+  }
 
   const nextDrawMode = (direction, params) => {
     let drawMode = params.drawMode
@@ -643,6 +651,11 @@ export default function Sketch (p5, guiControl, textManager, params) {
   const shiftAmount = 50
   const keyHandler = (char, params) => {
     switch (char) {
+      case 'a':
+        newCorner(layers.drawingLayer)
+        undo.takeSnapshot()
+        break
+
       case 'f':
         flip(HORIZONTAL, layers.drawingLayer)
         undo.takeSnapshot()
@@ -695,11 +708,9 @@ export default function Sketch (p5, guiControl, textManager, params) {
         break
 
       case 'u':
-        // undol.takeSnapshot()
         undo.undo()
         break
       case 'U':
-        // undol.takeSnapshot()
         undo.redo()
         break
 
@@ -889,27 +900,15 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // TODO: use this somehow.
   // but make mouse start from regular place?
-  const newCorner = () => {
-    layers.drawingLayer.translate(newWidth, 0)
-    // p5.rotate(p5.radians(90))
-    layers.drawingLayer.rotate(90 * Math.PI / 180)
+  const newCorner = (layer) => {
+    layer.translate(layer.width, 0)
+    layer.rotate(layer.radians(90))
   }
 
   const rotateCanvas = () => {
-    const newHeight = p5.width
-    const newWidth = p5.height
-    const d = p5.pixelDensity()
-    params.height = newHeight
-    params.width = newWidth
+    const newHeight = params.height = p5.width
+    const newWidth = params.width = p5.height
 
-    var g = p5.createGraphics(p5.width * d, p5.height * d)
-    g.pixelDensity(d)
-    g.loadPixels()
-    p5.loadPixels()
-    for (let i = 0; i < p5.pixels.length; i++) {
-      g.pixels[i] = p5.pixels[i]
-    }
-    g.updatePixels()
     p5.resizeCanvas(newWidth, newHeight)
 
     let newPG = initDrawingLayer(newWidth, newHeight)

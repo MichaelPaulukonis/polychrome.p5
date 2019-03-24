@@ -46,7 +46,6 @@ class CircImgCollection {
     // Initialize all images as copies of the current display
     for (let i = 0; i < amount; i++) {
       img[i] = layers.p5.createImage(layers.drawingLayer.width * d, layers.drawingLayer.height * d)
-      // img[i] = layers.drawingLayer.get()
     }
 
     this.next = () => {
@@ -59,11 +58,6 @@ class CircImgCollection {
       img[current] = layers.drawingLayer.get()
     }
     this.show = () => {
-      // this is not our only problem
-      // we need to replace the drawing layer
-      // and re-render the layers
-      // p5.image(img[current], 0, 0)
-      // drawingLayer = img[current]
       layers.drawingLayer.set(0, 0, img[current])
       layers.drawingLayer.updatePixels()
       renderFunc()

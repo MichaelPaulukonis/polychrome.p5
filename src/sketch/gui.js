@@ -18,14 +18,16 @@ export default class GuiControl {
       allParams.clear = sketch.clearCanvas
       sketch.defaultParams = { ...(paramsInitial) }
 
-      allParams.randomizeQuads = () => {
-        // uh..... not quite what I wanted
-        // I've got some mental block on assigning references or something....
-        const qs = randomizeQuads(allParams, 'fill')
-        sketch.params.fill_lq1 = qs.fill_lq1
-        sketch.params.fill_lq2 = qs.fill_lq2
-        sketch.params.fill_lq3 = qs.fill_lq3
-        sketch.params.fill_lq4 = qs.fill_lq4
+      // TODO: uh.... need both fill and stroke. so... hrmph. stupid flat params and prefixes
+      allParams.fill_randomizeQuads = () => rqPrefix('fill')
+      allParams.stroke_randomizeQuads = () => rqPrefix('stroke')
+
+      const rqPrefix = (prefix) => {
+        const qs = fourRandoms(prefix)
+        sketch.params[prefix + '_lq1'] = qs[prefix + '_lq1']
+        sketch.params[prefix + '_lq2'] = qs[prefix + '_lq2']
+        sketch.params[prefix + '_lq3'] = qs[prefix + '_lq3']
+        sketch.params[prefix + '_lq4'] = qs[prefix + '_lq4']
       }
 
       setBodyCopy(randElem(corpus))
@@ -159,16 +161,11 @@ export default class GuiControl {
         color: '#fff000',
         scheme: 'ffffff-000000',
         curCycle: 0,
-        donePainting: false
+        donePainting: false,
+        randomizeQuads: () => { }
       },
       ...fourRandoms()
     })
-
-    const randomizeQuads = (params, prefix) => {
-      const newQuad = fourRandoms(prefix)
-      const newParams = { ...params, ...newQuad }
-      return newParams
-    }
 
     const swapParams = () => {
       let swapped = swapPrefixParams(allParams, 'outline', 'fill')
@@ -195,15 +192,15 @@ export default class GuiControl {
       })
       return newParams
     }
-    // it doesn't actually flatten, it fake-name-spaces
+    // fake-name-spaces
     // so it can be flat. ugh. naming things.
-    const flattenObj = (obj, prefix) => {
+    const prefixObj = (obj, prefix) => {
       let flatObj = {}
       Object.keys(obj).forEach((key) => (flatObj[`${prefix}_${key}`] = obj[key]))
       return flatObj
     }
-    let fillParams = colorParams()
-    let outlineParams = Object.assign({}, colorParams(), { strokeWeight: 1, strokeJoin: 'round', paintMode: 4 })
+    let fillParams = { ...colorParams() }
+    let outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: 'round', paintMode: 4 } }
     let paramsInitial = {
       name: 'polychrome.text',
       open: openCanvasInNewTab,
@@ -213,7 +210,6 @@ export default class GuiControl {
       save: () => { },
       clear: () => { },
       swap: swapParams,
-      randomizeQuads: () => { },
       fixedWidth: true,
       font: fonts[0],
       scale: 1.0,
@@ -249,7 +245,7 @@ export default class GuiControl {
       }
     }
 
-    let allParams = Object.assign({}, paramsInitial, flattenObj(fillParams, 'fill'), flattenObj(outlineParams, 'outline'))
+    let allParams = Object.assign({}, paramsInitial, prefixObj(fillParams, 'fill'), prefixObj(outlineParams, 'outline'))
 
     var gui = new dat.GUI()
     gui.remember(allParams)
@@ -262,7 +258,6 @@ export default class GuiControl {
     f1.add(allParams, 'save')
     f1.add(allParams, 'clear')
     f1.add(allParams, 'swap')
-    f1.add(allParams, 'randomizeQuads')
     f1.add(allParams, 'fixedWidth')
     f1.add(allParams, 'font', fonts).listen()
     const sc = f1.add(allParams, 'scale').min(0.1).max(3).step(0.1).listen()
@@ -302,6 +297,7 @@ export default class GuiControl {
       const ccm = radioFolder.add(params, `${prefix}_scheme`, lerpList).name(prefix)
       let c = selectToRadios(ccm)
       c.__radios.map(colorLabel)
+      gui.add(params, `${prefix}_randomizeQuads`) // TODO: needs to take a params
       gui.addColor(params, `${prefix}_lq1`).listen()
       gui.addColor(params, `${prefix}_lq2`).listen()
       gui.addColor(params, `${prefix}_lq3`).listen()
@@ -323,8 +319,7 @@ export default class GuiControl {
       getBodyCopy,
       setBodyCopy,
       hexStringToColors,
-      swapParams,
-      randomizeQuads
+      swapParams
     }
   }
 }
