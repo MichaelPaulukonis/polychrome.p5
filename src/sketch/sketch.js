@@ -623,11 +623,11 @@ export default function Sketch (p5, guiControl, textManager, params) {
     if (keyCode === p5.UP_ARROW || keyCode === p5.DOWN_ARROW) {
       handled = true
       const vector = (keyCode === p5.UP_ARROW) ? 1 : -1
-      shift(vector * shiftAmount, 0)
+      shift(vector * extraShift, 0)
     } else if (keyCode === p5.LEFT_ARROW || keyCode === p5.RIGHT_ARROW) {
       handled = true
       const vector = (keyCode === p5.RIGHT_ARROW) ? 1 : -1
-      shift(0, vector * shiftAmount)
+      shift(0, vector * extraShift)
     } else if (keyCode === p5.BACKSPACE || keyCode === p5.DELETE) {
       handled = true
       // sketch.clearCanvas()
@@ -648,7 +648,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     return false
   }
 
-  const shiftAmount = 50
+  const extraShift = 10
   const keyHandler = (char, params) => {
     switch (char) {
       case 'a':
@@ -720,20 +720,21 @@ export default function Sketch (p5, guiControl, textManager, params) {
         break
 
       case 'x':
-        shift(shiftAmount, shiftAmount)
+        shift(extraShift, 0)
+        shift(shiftAmt, 0)
         undo.takeSnapshot()
         break
       case 'X':
-        shift(-shiftAmount, -shiftAmount)
+        shift(-extraShift, 0)
         undo.takeSnapshot()
         break
 
       case 'z':
-        shift(shiftAmount, -shiftAmount)
+        shift(0, -extraShift)
         undo.takeSnapshot()
         break
       case 'Z':
-        shift(-shiftAmount, shiftAmount)
+        shift(0, extraShift)
         undo.takeSnapshot()
         break
 

@@ -2,7 +2,7 @@ export default class TextManager {
   constructor (text) {
     var defaultText = 'These are the pearls that were his eyes'
     // var randomText = defaultText + '...........---___*****xxx                                            '
-    var SPLIT_TOKENS = '[ ?.,;:<>()"]'
+    var SPLIT_TOKENS = '[ ?.,;:<>()"!\n]'
     var words = []
     var charIndex = 0
     var wordIndex = 0
@@ -25,6 +25,9 @@ export default class TextManager {
     }
     self.setText = function (text) {
       self.w = text
+      // words loses the split chars
+      // thus, word mode (with same-color for whole word) has no spaces
+      // uh..... neat, but would prefer that as an option?
       words = self.w.split(new RegExp(SPLIT_TOKENS, 'g'))
       wordIndex = 0
       charIndex = 0
