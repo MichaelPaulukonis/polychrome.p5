@@ -324,7 +324,9 @@ export default function Sketch (p5, guiControl, textManager, params) {
   function * blocGeneratorFixedWidth (gridParams, nextText) {
     for (var gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
       for (var gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
-        yield { x: gridX, y: gridY, text: nextText() }
+        const t = nextText()
+        console.log(gridX, gridY, t)
+        yield { x: gridX, y: gridY, text: t }
       }
     }
     return 'done'
@@ -667,6 +669,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
         break
 
       case ' ':
+        console.log(p5.mouseX, p5.mouseY)
         paint(p5.mouseX, p5.mouseY, params)
         undo.takeSnapshot()
         break
@@ -721,7 +724,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
       case 'x':
         shift(extraShift, 0)
-        shift(shiftAmt, 0)
         undo.takeSnapshot()
         break
       case 'X':
@@ -829,13 +831,17 @@ export default function Sketch (p5, guiControl, textManager, params) {
   })
 
   this.macro8 = macroWrapper((params, layer) => {
-    const width = layer.width / 2
-    const height = layer.height / 2
-    const x = layer.mouseX
-    const y = layer.mouseY
-    layer.translate(x, y)
-    drawGrid(x, y, params, width, height, layer)
+    paint(36, 23, params)
   })
+
+  // this.macro8 = macroWrapper((params, layer) => {
+  //   const width = layer.width / 2
+  //   const height = layer.height / 2
+  //   const x = layer.mouseX
+  //   const y = layer.mouseY
+  //   layer.translate(x, y)
+  //   drawGrid(x, y, params, width, height, layer)
+  // })
 
   // works GREAT with cumulativeRotation
   // only problem is the colors are identical no matter where
