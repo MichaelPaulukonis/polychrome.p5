@@ -55,11 +55,18 @@ class CircImgCollection {
       current = (current - 1 + amount) % amount
     }
     this.capture = () => {
-      img[current] = layers.drawingLayer.get()
+      // this is copying, somewhat, the initLayer code
+      // but whatevs.....
+      let layer = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
+      layer.pixelDensity(layers.p5.pixelDensity())
+      layer.image(layers.drawingLayer, 0, 0)
+      img[current] = layer
     }
     this.show = () => {
-      layers.drawingLayer.set(0, 0, img[current])
-      layers.drawingLayer.updatePixels()
+      // TODO: if w/h does NOT match current, then should rotate canvas
+      // ouch. this is a heavy undo layer
+      // maybe just store images - leave the rendering and rotating to something in the sketch
+      layers.drawingLayer.image(img[current], 0, 0)
       renderFunc()
     }
   }

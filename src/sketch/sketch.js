@@ -178,7 +178,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
         // const doit = () => {
         //   p5.rotate(p5.radians(params.rotation))
         //   p5.text(fetchText(), pixelX, pixelY)
-        //   console.log(`x: ${pixelX} y: ${pixelY}`)
         // }
         // pushpop(p5)(doit)()
       }
@@ -325,7 +324,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
     for (var gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
       for (var gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
         const t = nextText()
-        console.log(gridX, gridY, t)
         yield { x: gridX, y: gridY, text: t }
       }
     }
@@ -669,7 +667,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
         break
 
       case ' ':
-        console.log(p5.mouseX, p5.mouseY)
         paint(p5.mouseX, p5.mouseY, params)
         undo.takeSnapshot()
         break
