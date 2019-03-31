@@ -339,6 +339,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
       offsets.x = r.textWidth(t)
       coords = nextCoord(coords, offsets, gridSize.width)
       t = nextText()
+      if (t === ' ' && coords.x === 0) t = nextText()
     }
     return 'done'
   }
