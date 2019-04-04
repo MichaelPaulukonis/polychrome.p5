@@ -116,6 +116,13 @@ export default class GuiControl {
       return controller
     }
 
+    const fontList = fonts.concat(['ATARCC__', 'ATARCE__', 'ATARCS__', 'AtariClassic-Regular',
+      'BlackCasper', 'BMREA___', 'CableDingbats', 'carbontype', 'clothing logos', 'Credit Cards',
+      'D3Digitalism', 'D3DigitalismI', 'D3DigitalismR', 'edunline', 'enhanced_dot_digital-7', 'Fast Food logos',
+      'Harting_plain', 'illustrate-it', 'openlogos', 'RecycleIt', 'retro_computer_personal_use', 'SEGA',
+      'Smartphone Color Pro', 'Social Icons Pro Set 1 - Rounded', 'social_shapes', 'TRENU___',
+      'Type Icons Color', 'Type Icons', 'VT323-Regular', 'Youkairo'])
+
     // developed with the help of https://coolors.co/
     // we only process 2..4 of the colors, so we can dispose of some
     // NOTE: some of these combos are awful
@@ -211,7 +218,7 @@ export default class GuiControl {
       clear: () => { },
       swap: swapParams,
       fixedWidth: true,
-      font: fonts[0],
+      font: fontList[0],
       scale: 1.0,
       rotation: 0,
       cumulativeRotation: false,
@@ -259,7 +266,7 @@ export default class GuiControl {
     f1.add(allParams, 'clear')
     f1.add(allParams, 'swap')
     f1.add(allParams, 'fixedWidth')
-    f1.add(allParams, 'font', fonts).listen()
+    f1.add(allParams, 'font', fontList).listen()
     const sc = f1.add(allParams, 'scale').min(0.1).max(3).step(0.1).listen()
 
     sc.onChange((m) => {

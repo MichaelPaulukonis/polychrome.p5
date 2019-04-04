@@ -4,7 +4,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   params = params || guiControl.params
   this.params = params
 
-  var undo
+  let undo
   this.textManager = textManager
 
   let bypassRender = false
@@ -13,14 +13,28 @@ export default function Sketch (p5, guiControl, textManager, params) {
   const blackfield = '#000000'
   const whitefield = '#FFFFFF'
   params.blackText = false
-  var drawingLayer // drawing layer
+  let drawingLayer // drawing layer
   let layers = {
     drawingLayer,
     p5
   }
 
-  var setFillMode
-  var setOutlineMode
+  let setFillMode
+  let setOutlineMode
+
+  let fontList = {}
+  const loadedFonts = ['ATARCC__', 'ATARCE__', 'ATARCS__', 'AtariClassic-Regular',
+    'BlackCasper', 'BMREA___', 'CableDingbats', 'carbontype', 'clothing logos', 'Credit Cards',
+    'D3Digitalism', 'D3DigitalismI', 'D3DigitalismR', 'edunline', 'enhanced_dot_digital-7', 'Fast Food logos',
+    'Harting_plain', 'illustrate-it', 'openlogos', 'RecycleIt', 'retro_computer_personal_use', 'SEGA',
+    'Smartphone Color Pro', 'Social Icons Pro Set 1 - Rounded', 'social_shapes', 'TRENU___',
+    'Type Icons Color', 'Type Icons', 'VT323-Regular', 'Youkairo']
+
+  p5.preload = () => {
+    loadedFonts.forEach(font => {
+      fontList[font] = p5.loadFont(`assets/fonts/${font}.ttf`)
+    })
+  }
 
   p5.setup = () => {
     p5.pixelDensity(density)
@@ -86,7 +100,9 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const setFont = (font, layer) => {
-    layer.textFont(font)
+    // how clumsy! but as a POC it works
+    let tf = (loadedFonts.indexOf(font) > -1) ? fontList[font] : font
+    layer.textFont(tf)
   }
 
   const initDrawingLayer = (w, h) => {

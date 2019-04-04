@@ -81,6 +81,7 @@ https://idmnyu.github.io/p5.js-func/ ???
    - dingbats
  - random sized?
  - pick circle center
+ - drag-n-zoom image (related code to pick center?)
  - draw into sub-section (click-n-drag to define)
  - ~~change canvas size/shape~~
  - more kalidoscopi features (eh, dunno)
@@ -91,7 +92,9 @@ https://idmnyu.github.io/p5.js-func/ ???
  - ~~LERP color mode - expose 4 colors, choose model based on how many are actually selected~~
  - pass color context separately from grid-paint context
    - so if we paint a sub-grid, we can use a completely separate color pattern (any given section of super-grid)
- - LAYERS - paint directly into Graphis Object, render to canvas
+ - ~~LAYERS - paint directly into Graphis Object, render to canvas~~
  - background color selection
- - Randomize the 4 LERPs (a button)
-   - partially implemented for fill, not stroke. And clumsy IMHO
+ - ~~Randomize the 4 LERPs (a button)~~
+   - ~~partially implemented for fill, not stroke. And clumsy IMHO~~
+   - shuffle the four
+   - store a nice palette locally
