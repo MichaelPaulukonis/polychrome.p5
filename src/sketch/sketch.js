@@ -309,6 +309,9 @@ export default function Sketch (p5, guiControl, textManager, params) {
     // THIS SHOULD ALL BE DEFAULT STUFF DONE COMONLY
     const gridParams = params.invert ? invertGridParm(xPos, height, width) : defaultGridParm(xPos, height, width)
     layer.textSize(gridParams.step)
+    // layer.textSize(18)
+    layers.p5.textSize(gridParams.step) // this is .... weird. Look at the p5js code. Something funky with textAscent going to the parent, which is set to 12
+
     const sw = params.useOutline
       ? params.outline_strokeWeight
         ? params.outline_strokeWeight
