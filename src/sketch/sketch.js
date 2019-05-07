@@ -1,4 +1,5 @@
 import UndoLayers from './undo.layers.js'
+import Layers from './layers.js'
 
 export default function Sketch (p5, guiControl, textManager, params) {
   params = params || guiControl.params
@@ -14,10 +15,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
   const whitefield = '#FFFFFF'
   params.blackText = false
   let drawingLayer // drawing layer
-  let layers = {
+  let layersOld = {
     drawingLayer,
     p5
   }
+
+  let layersNew
 
   let setFillMode
   let setOutlineMode
@@ -39,7 +42,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
   p5.setup = () => {
     p5.pixelDensity(density)
     const canvas = p5.createCanvas(params.width, params.height)
-    layers.drawingLayer = initDrawingLayer(params.width, params.height)
+    layersOld.drawingLayer = initDrawingLayer(params.width, params.height)
+    layersNew = new Layers(p5, layersOld.drawingLayer)
     // tODO: these are now set as side-effects in initializeDrawingLayer
     // setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layers.drawingLayer.fill, layers.drawingLayer)
     // setOutlineMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('outline', layers.drawingLayer.stroke, layers.drawingLayer)
@@ -49,7 +53,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     clearDrawing()
     guiControl.setupGui(this)
     textManager.setText(guiControl.getBodyCopy())
-    undo = new UndoLayers(layers, renderLayers, 10)
+    undo = new UndoLayers(layersOld, renderLayers, 10)
   }
 
   const mouseInCanvas = () => {
@@ -80,12 +84,14 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   const renderLayers = () => {
     if (bypassRender) return
-    clearLayer(layers.p5)
+    clearLayer(layersOld.p5)
+    // clearLayer(layersNew.p5)
     renderTarget()
   }
 
   const renderTarget = () => {
-    p5.image(layers.drawingLayer, 0, 0)
+    p5.image(layersOld.drawingLayer, 0, 0)
+    // p5.image(layersNew.drawingLayer, 0, 0)
   }
 
   const clearLayer = (r = p5) => {
@@ -95,7 +101,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const clearDrawing = () => {
-    clearLayer(layers.drawingLayer)
+    clearLayer(layersOld.drawingLayer)
+    // clearLayer(layersNew.drawingLayer)
     renderLayers()
   }
 
@@ -120,12 +127,13 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const paint = (xPos, yPos, params) => {
-    setFont(params.font, layers.drawingLayer)
+    setFont(params.font, layersOld.drawingLayer)
+    // layersNew.setFont(params.font)
     const mode = parseInt(params.drawMode, 10)
     const draw = mode === params.drawModes.Grid ? drawGrid
       : mode === params.drawModes.Circle ? drawCircle
         : drawRowCol
-    draw(xPos, yPos, params, params.width, params.height, layers.drawingLayer)
+    draw(xPos, yPos, params, params.width, params.height, layersOld.drawingLayer)
     params.fill_donePainting = true
     params.outline_donePainting = true
   }
@@ -310,7 +318,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const gridParams = params.invert ? invertGridParm(xPos, height, width) : defaultGridParm(xPos, height, width)
     layer.textSize(gridParams.step)
     // layer.textSize(18)
-    layers.p5.textSize(gridParams.step) // this is .... weird. Look at the p5js code. Something funky with textAscent going to the parent, which is set to 12
+    layersOld.p5.textSize(gridParams.step) // this is .... weird. Look at the p5js code. Something funky with textAscent going to the parent, which is set to 12
+    // layersNew.textSize(gridParams.step)
 
     const sw = params.useOutline
       ? params.outline_strokeWeight
@@ -403,8 +412,10 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // but, this binds the current values in params, apparently
   // UGH UGH UGH
   this.clearCanvas = () => {
-    clear(layers.drawingLayer)
-    clear(layers.p5)
+    clear(layersOld.drawingLayer)
+    clear(layersOld.p5)
+    // tODO: equivalent for new layers object?
+    // the trick is the clearance color
   }
 
   const clear = (layer) => {
@@ -607,7 +618,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // I'd love to be able to drag the image around, but I think that will require something else, but related
   const shift = (verticalOffset, horizontalOffset) => {
     // TODO: has to be pointing to the drawingLayer
-    let context = layers.drawingLayer.drawingContext
+    let context = layersOld.drawingLayer.drawingContext
     let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
     let cw = (horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
@@ -672,17 +683,17 @@ export default function Sketch (p5, guiControl, textManager, params) {
   const keyHandler = (char, params) => {
     switch (char) {
       case 'a':
-        newCorner(layers.drawingLayer)
+        newCorner(layersOld.drawingLayer)
         undo.takeSnapshot()
         break
 
       case 'f':
-        flip(HORIZONTAL, layers.drawingLayer)
+        flip(HORIZONTAL, layersOld.drawingLayer)
         undo.takeSnapshot()
         break
 
       case 'F':
-        flip(VERTICAL, layers.drawingLayer)
+        flip(VERTICAL, layersOld.drawingLayer)
         undo.takeSnapshot()
         break
 
@@ -718,12 +729,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
         break
 
       case 't':
-        mirror(HORIZONTAL, layers.drawingLayer)
+        mirror(HORIZONTAL, layersOld.drawingLayer)
         undo.takeSnapshot()
         break
 
       case 'T':
-        mirror(VERTICAL, layers.drawingLayer)
+        mirror(VERTICAL, layersOld.drawingLayer)
         undo.takeSnapshot()
         break
 
@@ -757,6 +768,9 @@ export default function Sketch (p5, guiControl, textManager, params) {
         undo.takeSnapshot()
         break
 
+      // TODO: how about push onto a time-expiring queue?
+      // or something, so we can have 00..99 macros, instead
+      // or something else. maybe real control keys.
       case '1':
       case '2':
       case '3':
@@ -766,7 +780,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
       case '7':
       case '8':
       case '9':
-        this[`macro${char}`](params, layers.drawingLayer)
+        this[`macro${char}`](params, layersOld.drawingLayer)
         undo.takeSnapshot()
         break
     }
@@ -836,12 +850,17 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // })
 
   this.macro7 = macroWrapper((params, layer) => {
-    params = this.defaultParams
+    const currParamsToKeep = {
+      fixedWidth: params.fixedWidth,
+      font: params.font
+    }
+    params = {...this.defaultParams, ...currParamsToKeep}
     params.drawMode = 1 // grid
     params.fill_paintMode = 4
     params.fill_transparent = false
     params.useOutline = false
     params.nextCharMode = 0
+    params.fixedWidth = false
     const x = p5.mouseX // ugh, global
     const y = p5.mouseY
     drawGrid(x, y, params, layer.width, layer.height, layer)
@@ -939,10 +958,10 @@ export default function Sketch (p5, guiControl, textManager, params) {
     newPG.push()
     newPG.translate(newWidth, 0)
     newPG.rotate(p5.radians(90))
-    newPG.image(layers.drawingLayer, 0, 0)
+    newPG.image(layersOld.drawingLayer, 0, 0)
     newPG.pop()
 
-    layers.drawingLayer = newPG
+    layersOld.drawingLayer = newPG
 
     // TODO: undo doesn't know anything about rotation......
 
