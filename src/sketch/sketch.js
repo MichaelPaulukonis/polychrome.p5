@@ -96,7 +96,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   const clearLayer = (r = p5) => {
     r.blendMode(p5.NORMAL)
-    // var field = params.blackText ? whitefield : blackfield
+    // const field = params.blackText ? whitefield : blackfield
     r.background(blackfield)
   }
 
@@ -139,31 +139,23 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const textGetter = (textMode, t) => {
-    var tfunc
-    switch (parseInt(textMode, 10)) {
-      case 0:
-      default:
-        tfunc = t.getchar
-        break
-
-      case 1:
-        tfunc = t.getcharRandom
-        break
-
-      case 2:
-        tfunc = t.getWord
-    }
+    const tm = parseInt(textMode, 10)
+    const tfunc = tm === 0
+      ? t.getchar
+      : tm === 1
+        ? t.getcharRandom
+        : t.getWord
     return tfunc
   }
 
   // originally from http://happycoding.io/examples/processing/for-loops/letters
   // a reminder of something simpler
   const drawRowCol = (xPos, yPos, params, width, height, layer) => {
-    var rows = params.rows
+    const rows = params.rows
     let cols = rows // tidally lock them together for the time being.
 
-    var cellHeight = height / rows
-    var cellWidth = width / cols
+    const cellHeight = height / rows
+    const cellWidth = width / cols
 
     layer.textAlign(layer.CENTER, layer.CENTER)
 
@@ -179,11 +171,11 @@ export default function Sketch (p5, guiControl, textManager, params) {
     layer.strokeJoin(params.outline_strokeJoin)
     const fetchText = textGetter(params.nextCharMode, textManager)
 
-    for (var y = 0; y < rows; y++) {
-      for (var x = 0; x < cols; x++) {
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
         // calculate cell position
-        var pixelX = cellWidth * x
-        var pixelY = cellHeight * y
+        let pixelX = cellWidth * x
+        let pixelY = cellHeight * y
 
         // add half to center letters
         pixelX += cellWidth / 2
@@ -210,7 +202,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const drawCircle = (xPos, yPos, params, width, height, layer) => {
-    var tx = xPos / 2
+    let tx = xPos / 2
     if (tx < 1) tx = 1
     layer.textSize(tx) // what if it was based on the yPos, which we are ignoring otherwise?
     // well, it's somewhat used for color - fade, in some cases
@@ -349,8 +341,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   function * blocGeneratorFixedWidth (gridParams, nextText) {
-    for (var gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
-      for (var gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
+    for (let gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
+      for (let gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
         const t = nextText()
         yield { x: gridX, y: gridY, text: t }
       }
@@ -375,7 +367,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   const whOnly = obj => ({ width: obj.width, height: obj.height })
 
   const getYoffset = (textAscent, heightOffset) => {
-    var yOffset = textAscent + heightOffset
+    let yOffset = textAscent + heightOffset
     yOffset = (yOffset > 2) ? yOffset : 3
     return yOffset
   }
@@ -439,7 +431,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const nextRotation = (direction, params) => {
-    var step = 5
+    const step = 5
     params.rotation = (params.rotation + step * direction) % 360
     if (params.rotation > 360) params.rotation = 360
     if (params.rotation < -360) params.rotation = -360
@@ -452,18 +444,19 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const colorAlpha = (aColor, alpha) => {
-    var c = p5.color(aColor)
+    const c = p5.color(aColor)
     return p5.color('rgba(' + [p5.red(c), p5.green(c), p5.blue(c), alpha].join(',') + ')')
   }
 
   // TODO: if these were.... functions, we could have an array, and not have to worry about counting the mode
   // also, functions could take params that could change them up a bit.....
   // like the grays - sideways, or something. angles....
+  // prefix will be (almost?) same as func name - fill or stroke
   const setPaintMode = (gridX, gridY, params, prefix, func, layer) => {
     func = func.bind(layer)
     // TODO: I don't understand the third-parameter here, in HSB mode.
     const transparency = params[`${prefix}_transparent`] ? parseInt(params[`${prefix}_transparency`], 10) / 100 : 100
-    var mode = parseInt(params[`${prefix}_paintMode`], 10)
+    const mode = parseInt(params[`${prefix}_paintMode`], 10)
     switch (mode) {
       case 1:
         func(layer.width - gridX, gridY, 100, transparency)
@@ -474,8 +467,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
         break
 
       case 3: // offset from default
-        var x = (gridX + layer.width / 2) % layer.width
-        var y = (layer.height - gridY + layer.height / 2) % layer.height
+        const x = (gridX + layer.width / 2) % layer.width
+        const y = (layer.height - gridY + layer.height / 2) % layer.height
         func(x, y, 100, transparency)
         break
 
@@ -571,7 +564,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     // but since it only works in RGBA, it creates problems for HSB canvases like ours
     // or, it creates problems, possibly for a different reason
     const d = layer.pixelDensity()
-    var tmp = layer.createImage(layer.width * d, layer.height * d)
+    const tmp = layer.createImage(layer.width * d, layer.height * d)
     tmp.loadPixels()
     layer.loadPixels()
     for (let i = 0; i < layer.pixels.length; i++) {
@@ -593,7 +586,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   const mirror = (axis = VERTICAL, layer) => {
     const d = layer.pixelDensity()
-    var tmp = layer.createImage(layer.width * d, layer.height * d)
+    const tmp = layer.createImage(layer.width * d, layer.height * d)
     tmp.loadPixels()
     layer.loadPixels()
     for (let i = 0; i < layer.pixels.length; i++) {
@@ -637,8 +630,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   this.save_sketch = () => {
     const getDateFormatted = () => {
-      var d = new Date()
-      var df = `${d.getFullYear()}${pad((d.getMonth() + 1), 2)}${pad(d.getDate(), 2)}.${pad(d.getHours(), 2)}${pad(d.getMinutes(), 2)}${pad(d.getSeconds(), 2)}`
+      const d = new Date()
+      const df = `${d.getFullYear()}${pad((d.getMonth() + 1), 2)}${pad(d.getDate(), 2)}.${pad(d.getHours(), 2)}${pad(d.getMinutes(), 2)}${pad(d.getSeconds(), 2)}`
       return df
     }
 
@@ -809,7 +802,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   })
 
   this.macro3 = macroWrapper((params, layer) => {
-    for (var i = 1; i < layer.width; i += 10) {
+    for (let i = 1; i < layer.width; i += 10) {
       drawCircle(i, i, params, layer.width, layer.height, layer)
     }
   })
@@ -817,7 +810,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // when INVERT is on THIS IS AMAZING
   // which suggests........
   this.macro4 = macroWrapper((params, layer) => {
-    for (var i = layer.width; i > layer.width / 2; i -= 80) {
+    for (let i = layer.width; i > layer.width / 2; i -= 80) {
       if (i < ((layer.width / 3) * 2)) params.rotation = 90
       drawGrid(i, i, params, layer.width, layer.height, layer)
     }
@@ -828,7 +821,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   })
 
   this.macro6 = macroWrapper((params, layer) => {
-    for (var i = 1; i < layer.width; i += 5) {
+    for (let i = 1; i < layer.width; i += 5) {
       drawGrid(i, layer.mouseY, params, layer.width, layer.height, layer)
     }
   })
@@ -915,7 +908,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // the weird thing here is the rotation
   function * gridConditionalRotationGen (width) {
-    for (var i = width; i > width / 2; i -= 40) {
+    for (let i = width; i > width / 2; i -= 40) {
       const stats = { x: i, y: i, rotation: 0 }
       if (i < ((width / 3) * 2)) stats.rotation = 90
       yield stats
