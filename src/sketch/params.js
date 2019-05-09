@@ -28,23 +28,25 @@ let colorParams = () => ({
   ...fourRandoms()
 })
 
+const drawModes = { 'Grid': 0, 'Circle': 1, 'Grid2': 2 }
+const bindFunctionLater = () => {}
 let fillParams = { ...colorParams() }
 let outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: 'round', paintMode: 4 } }
 let paramsInitial = {
   name: 'polychrome.text',
-  open: () => {}, // openCanvasInNewTab,
+  open: bindFunctionLater,
   width: 900,
   height: 900,
   // bind after defined in sketch
-  save: () => { },
-  clear: () => { },
-  swap: () => {}, // swapParams,
+  save: bindFunctionLater,
+  clear: bindFunctionLater,
+  swap: bindFunctionLater,
   fixedWidth: true,
   font: 'Copperplate', // fontList[0],
   scale: 1.0,
   rotation: 0,
   cumulativeRotation: false,
-  drawModes: { 'Grid': 0, 'Circle': 1, 'Grid2': 2 },
+  drawModes: drawModes,
   drawMode: 0,
   invert: false,
   useOutline: true,
@@ -84,4 +86,4 @@ const prefixObj = (obj, prefix) => {
 
 let allParams = Object.assign({}, paramsInitial, prefixObj(fillParams, 'fill'), prefixObj(outlineParams, 'outline'))
 
-export { allParams, paramsInitial, fourRandoms }
+export { allParams, paramsInitial, fourRandoms, drawModes }

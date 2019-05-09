@@ -1,7 +1,7 @@
 import * as dat from './dat.gui.js'
 import corpus from './corpus.js'
-import fonts from './fonts'
-import { allParams, paramsInitial, fourRandoms } from './params'
+import fontList from './fonts'
+import { allParams, paramsInitial, fourRandoms, drawModes } from './params'
 export default class GuiControl {
   constructor () {
     var cnvs
@@ -14,20 +14,22 @@ export default class GuiControl {
         cnvs = cnvs[0]
       }
       setfocus()
+      allParams.open = openCanvasInNewTab
       allParams.save = sketch.save_sketch
       allParams.clear = sketch.clearCanvas
+      allParams.swap = swapParams
       sketch.defaultParams = { ...(paramsInitial) }
 
       // TODO: uh.... need both fill and stroke. so... hrmph. stupid flat params and prefixes
       allParams.fill_randomizeQuads = () => rqPrefix('fill')
-      allParams.stroke_randomizeQuads = () => rqPrefix('stroke')
+      allParams.outline_randomizeQuads = () => rqPrefix('outline')
 
       const rqPrefix = (prefix) => {
         const qs = fourRandoms(prefix)
-        sketch.params[prefix + '_lq1'] = qs[prefix + '_lq1']
-        sketch.params[prefix + '_lq2'] = qs[prefix + '_lq2']
-        sketch.params[prefix + '_lq3'] = qs[prefix + '_lq3']
-        sketch.params[prefix + '_lq4'] = qs[prefix + '_lq4']
+        allParams[prefix + '_lq1'] = qs[prefix + '_lq1']
+        allParams[prefix + '_lq2'] = qs[prefix + '_lq2']
+        allParams[prefix + '_lq3'] = qs[prefix + '_lq3']
+        allParams[prefix + '_lq4'] = qs[prefix + '_lq4']
       }
 
       setBodyCopy(randElem(corpus))
@@ -38,11 +40,9 @@ export default class GuiControl {
         })
     }
 
-    var setfocus = function () {
-      cnvs.focus()
-    }
+    var setfocus = () => cnvs.focus()
 
-    const openCanvasInNewTab = function () {
+    const openCanvasInNewTab = () => {
       if (cnvs) {
         const img = cnvs.toDataURL('image/jpg')
         // https://ourcodeworld.com/articles/read/682/what-does-the-not-allowed-to-navigate-top-frame-to-data-url-javascript-exception-means-in-google-chrome
@@ -56,9 +56,7 @@ export default class GuiControl {
     if (fc) fc.onclick = setfocus
 
     const textInputBox = document.getElementById('bodycopy')
-    const getBodyCopy = () => {
-      return textInputBox.value
-    }
+    const getBodyCopy = () => textInputBox.value
     const setBodyCopy = (text) => {
       textInputBox.value = text
     }
@@ -70,13 +68,12 @@ export default class GuiControl {
     }
 
     const colorLabel = (label) => {
-      function gradient (colors) {
-        function stops (color, i, colors) {
-          return color + ' ' + (i * 100 / colors.length) + '%' +
-            ',' + color + ' ' + ((i + 1) * 100 / colors.length) + '%'
-        }
-        return 'linear-gradient(90deg,' + colors.map(stops) + ')'
+      const stops = (color, i, colors) => {
+        return color + ' ' + (i * 100 / colors.length) + '%' +
+          ',' + color + ' ' + ((i + 1) * 100 / colors.length) + '%'
       }
+      const gradient = (colors) => 'linear-gradient(90deg,' + colors.map(stops) + ')'
+
       label.style.display = 'inline-block'
       var radio = label.children[0]
       radio.nextSibling.remove()
@@ -89,7 +86,7 @@ export default class GuiControl {
 
     // Adds and links labeled radios to select controller, hides select.
     // Radios are wrapped inside labels and stored in controller.__radios.
-    function selectToRadios (controller) {
+    const selectToRadios = (controller) => {
       var wrapper = controller.domElement
       var select = wrapper.children[0]
       // TODO: needs to be 0 when hidden; auto if not
@@ -115,13 +112,6 @@ export default class GuiControl {
       wrapper.removeChild(select)
       return controller
     }
-
-    const fontList = fonts.concat(['ATARCC__', 'ATARCE__', 'ATARCS__', 'AtariClassic-Regular',
-      'BlackCasper', 'BMREA___', 'CableDingbats', 'carbontype', 'clothing logos', 'Credit Cards',
-      'D3Digitalism', 'D3DigitalismI', 'D3DigitalismR', 'edunline', 'enhanced_dot_digital-7', 'Fast Food logos',
-      'Harting_plain', 'illustrate-it', 'openlogos', 'RecycleIt', 'retro_computer_personal_use', 'SEGA',
-      'Smartphone Color Pro', 'Social Icons Pro Set 1 - Rounded', 'social_shapes', 'TRENU___',
-      'Type Icons Color', 'Type Icons', 'VT323-Regular', 'Youkairo'])
 
     // developed with the help of https://coolors.co/
     // we only process 2..4 of the colors, so we can dispose of some
@@ -204,7 +194,7 @@ export default class GuiControl {
     rowColFolder.close()
 
     dm.onChange((m) => {
-      (parseInt(m, 10) === 2) // paramsInitial.drawModes['Grid2'])
+      (parseInt(m, 10) === drawModes['Grid2'])
         ? rowColFolder.open()
         : rowColFolder.close()
     })
