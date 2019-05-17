@@ -388,14 +388,16 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // translate, rotate, text
   const trText = (layer, rotation) => (x, y, tx, ty, txt) => () => {
-    layer.translate(tx, ty)
+    // think I'm over-thinking this. Original version was easier to understand
+    if (tx !== 0 || ty !== 0) {
+      layer.translate(tx, ty)
+    }
     layer.rotate(layer.radians(rotation))
     layer.text(txt, x, y)
   }
 
   // hrm. still seems like this could be simpler
   const paintActions = (gridX, gridY, step, layer, params, txt) => {
-    // TODO: THIS IS NOT CORRECT
     const cum = trText(layer, params.rotation)(gridX, gridY, 0, 0, txt)
     const norm = pushpop(layer)(trText(layer, params.rotation)(0, 0, gridX + step / 4, gridY + step / 5, txt))
     params.cumulativeRotation ? cum() : norm()
