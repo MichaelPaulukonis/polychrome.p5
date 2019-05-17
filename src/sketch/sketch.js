@@ -395,7 +395,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // hrm. still seems like this could be simpler
   const paintActions = (gridX, gridY, step, layer, params, txt) => {
-    const cum = trText(layer)(gridX, gridY, 0, 0, txt)
+    // TODO: THIS IS NOT CORRECT
+    const cum = trText(layer, params.rotation)(gridX, gridY, 0, 0, txt)
     const norm = pushpop(layer)(trText(layer, params.rotation)(0, 0, gridX + step / 4, gridY + step / 5, txt))
     params.cumulativeRotation ? cum() : norm()
   }
