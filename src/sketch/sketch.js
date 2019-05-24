@@ -569,6 +569,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
     tmp.updatePixels()
     layer.push()
+    layer.translate(0, 0)
+    layer.resetMatrix()
     if (axis === HORIZONTAL) {
       layer.translate(0, layer.height)
       layer.scale(1, -1)
@@ -591,6 +593,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
     tmp.updatePixels()
     layer.push()
+    layer.translate(0, 0)
+    layer.resetMatrix()
     if (axis === HORIZONTAL) {
       layer.translate(layer.width, 0)
       layer.scale(-1, 1)
@@ -706,6 +710,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
       case 'q':
         rotateCanvas()
+        // TODO: if not square, undo gets weird, here.....
+        undo.takeSnapshot()
         break
 
       case 'r':

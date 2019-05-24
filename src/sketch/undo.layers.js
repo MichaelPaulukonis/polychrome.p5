@@ -66,8 +66,13 @@ class CircImgCollection {
       // TODO: if w/h does NOT match current, then should rotate canvas
       // ouch. this is a heavy undo layer
       // maybe just store images - leave the rendering and rotating to something in the sketch
+
+      layers.drawingLayer.push()
+      layers.drawingLayer.translate(0, 0)
+      layers.drawingLayer.resetMatrix()
       layers.drawingLayer.image(img[current], 0, 0)
       renderFunc()
+      layers.drawingLayer.pop()
     }
   }
 }

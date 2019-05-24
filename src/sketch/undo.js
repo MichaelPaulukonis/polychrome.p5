@@ -60,8 +60,12 @@ class CircImgCollection {
       img[current] = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
     }
     this.show = () => {
-      // UGH - not nesc captured by p5...
+      // UGH - things can be rotated! we need to reset???
+      context.push()
+      context.translate(0, 0)
+      context.resetMatrix()
       context.putImageData(img[current], 0, 0)
+      context.pop()
     }
   }
 }
