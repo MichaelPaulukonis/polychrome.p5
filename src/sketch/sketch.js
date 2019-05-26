@@ -550,8 +550,10 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   // only resets the angle, for now...
-  const reset = (params) => {
+  const reset = (params, layer) => {
     params.rotation = 0
+    layer.translate(0, 0)
+    layer.resetMatrix()
   }
 
   const HORIZONTAL = 0
@@ -716,7 +718,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
       case 'r':
       case 'R':
-        reset(params)
+        reset(params, layersOld.drawingLayer)
         break
 
       case 's':
@@ -776,9 +778,24 @@ export default function Sketch (p5, guiControl, textManager, params) {
       case '7':
       case '8':
       case '9':
-        macros[`macro${char}`](params, layersOld.drawingLayer)
+        macros[`macro${char}`](params, layersOld.drawingLayer, layersOld.p5)
         undo.takeSnapshot()
         break
+
+      case 'g': {
+        // put a random image from the undo history into a random spot at a random rotation
+        // play with this, and figure out what's most pleasing
+        // maybe even have some transparency?
+        const img = undo.random()
+        layersOld.drawingLayer.push()
+        layersOld.drawingLayer.resetMatrix()
+        layersOld.drawingLayer.translate(p5.random(p5.width), p5.random(p5.height))
+        layersOld.drawingLayer.rotate(p5.radians(p5.random(360)))
+        layersOld.drawingLayer.image(img, 0, 0)
+        renderLayers(params)
+        layersOld.drawingLayer.pop()
+        // undo.takeSnapshot() // eh. not so sure about this.....
+      }
     }
   }
 

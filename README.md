@@ -98,3 +98,6 @@ https://idmnyu.github.io/p5.js-func/ ???
    - ~~partially implemented for fill, not stroke. And clumsy IMHO~~
    - shuffle the four
    - store a nice palette locally
+
+ - random angular (triangle, realy) from history
+   - was happeneing on undo w/ cumulative rotation, until I did a push/pop w/ matrixReset

@@ -31,6 +31,10 @@ export default class UndoLayers {
         images.show()
       }
     }
+    this.random = () => {
+      const is = images.all()
+      return is[Math.floor(Math.random() * is.length)]
+    }
   }
 }
 
@@ -47,6 +51,7 @@ class CircImgCollection {
     for (let i = 0; i < amount; i++) {
       img[i] = layers.p5.createImage(layers.drawingLayer.width * d, layers.drawingLayer.height * d)
     }
+    this.all = () => img
 
     this.next = () => {
       current = (current + 1) % amount

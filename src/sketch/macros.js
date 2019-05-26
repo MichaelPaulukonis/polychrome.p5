@@ -2,9 +2,9 @@
 export default function Macros (sketch) {
   const { drawGrid, drawCircle, pushpop, paint, apx } = sketch
 
-  const macroWrapper = (f) => (params, layer) => {
+  const macroWrapper = (f) => (params, layer, p5) => {
     layer.push()
-    f({ ...params }, layer)
+    f({ ...params }, layer, p5)
     layer.pop()
   }
 
@@ -64,7 +64,7 @@ export default function Macros (sketch) {
   //   drawGrid(x, y, params, layer.width, layer.height, layer)
   // })
 
-  const macro7 = macroWrapper((params, layer) => {
+  const macro7 = macroWrapper((params, layer, p5) => {
     const currParamsToKeep = {
       fixedWidth: params.fixedWidth,
       font: params.font
@@ -78,6 +78,8 @@ export default function Macros (sketch) {
     params.fixedWidth = false
     const x = p5.mouseX // ugh, global
     const y = p5.mouseY
+    layer.translate(0, 0)
+    layer.resetMatrix()
     drawGrid(x, y, params, layer.width, layer.height, layer)
   })
 
