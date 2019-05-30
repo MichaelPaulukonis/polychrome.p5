@@ -136,7 +136,9 @@ export default class GuiControl {
 
     const swapParams = () => {
       let swapped = swapPrefixParams(allParams, 'outline', 'fill')
-      Object.keys(swapped).map((key) => (allParams[key] = swapped[key]))
+      Object.keys(swapped)
+        .filter(key => !key.includes('randomize'))
+        .forEach(key => (allParams[key] = swapped[key]))
     }
     // http://www.jstips.co/en/javascript/picking-and-rejecting-object-properties/
     function pick (obj, keys) {

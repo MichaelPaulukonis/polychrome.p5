@@ -451,7 +451,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // prefix will be (almost?) same as func name - fill or stroke
   const setPaintMode = (gridX, gridY, params, prefix, func, layer) => {
     func = func.bind(layer)
-    // TODO: I don't understand the third-parameter here, in HSB mode.
     const transparency = params[`${prefix}_transparent`] ? parseInt(params[`${prefix}_transparency`], 10) / 100 : 100
     const mode = parseInt(params[`${prefix}_paintMode`], 10)
     switch (mode) {
@@ -801,6 +800,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // TODO: use this somehow.
   // but make mouse start from regular place?
+  // NOTE: doesn't work all that well if canvas is not square....
   const newCorner = (layer) => {
     layer.translate(layer.width, 0)
     layer.rotate(layer.radians(90))
