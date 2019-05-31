@@ -2,6 +2,8 @@ import * as dat from './dat.gui.js'
 import corpus from './corpus.js'
 import fontList from './fonts'
 import { allParams, paramsInitial, fourRandoms, drawModes } from './params'
+import { pickBy, contains } from 'ramda'
+
 export default class GuiControl {
   constructor () {
     var cnvs
@@ -17,7 +19,7 @@ export default class GuiControl {
       allParams.open = openCanvasInNewTab
       allParams.save = sketch.save_sketch
       allParams.clear = sketch.clearCanvas
-      allParams.swap = swapParams
+      allParams.swap = () => swapParams(allParams)
       sketch.defaultParams = { ...(paramsInitial) }
 
       // TODO: uh.... need both fill and stroke. so... hrmph. stupid flat params and prefixes
@@ -134,11 +136,13 @@ export default class GuiControl {
       '800080-00ffaa'
     ]
 
-    const swapParams = () => {
-      let swapped = swapPrefixParams(allParams, 'outline', 'fill')
+    const swapParams = (params) => {
+      let swapped = swapPrefixParams(params, 'outline', 'fill')
       Object.keys(swapped)
-        .filter(key => !key.includes('randomize'))
-        .forEach(key => (allParams[key] = swapped[key]))
+        .forEach(key => (params[key] = swapped[key]))
+      // const getProps = pickBy((val, key) => !contains('randomize', key))
+      // const somerKeys = getProps(swapped)
+      // params = {...somerKeys}
     }
     // http://www.jstips.co/en/javascript/picking-and-rejecting-object-properties/
     function pick (obj, keys) {
@@ -148,12 +152,17 @@ export default class GuiControl {
     // this seems overly complicated
     const swapPrefixParams = (params, prefix1, prefix2) => {
       let newParams = Object.assign({}, params)
-      let p1keys = Object.keys(newParams).filter((k) => k.startsWith(prefix1))
-      let p2keys = Object.keys(newParams).filter((k) => k.startsWith(prefix2))
+      // const getProps = prefix => pickBy((val, key) => key.startsWith(prefix) && !contains('randomize', key))
+      // let p1keys = getProps(prefix1)(newParams)
+      // let p2keys = getProps(prefix2)(newParams)
+      // let p2bak = {...p2keys}
+
+      let p1keys = Object.keys(newParams).filter((k) => k.startsWith(prefix1) && !contains('randomize', k))
+      let p2keys = Object.keys(newParams).filter((k) => k.startsWith(prefix2) && !contains('randomize', k))
       let p2bak = pick(newParams, p2keys)
-      p1keys.forEach((p1key) => {
-        let p2key = p1key.replace(prefix1, prefix2)
-        newParams[p2key] = newParams.hasOwnProperty(p1key) ? newParams[p1key] : newParams[p2key]
+      p1keys.forEach((key) => {
+        let p2key = key.replace(prefix1, prefix2)
+        newParams[p2key] = newParams.hasOwnProperty(key) ? newParams[key] : newParams[p2key]
       })
       p1keys.forEach((p1key) => {
         let p2key = p1key.replace(prefix1, prefix2)

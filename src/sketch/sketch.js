@@ -51,7 +51,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
     canvas.parent('sketch-holder')
 
-    clearDrawing()
+    // clearDrawing()
+    this.clearCanvas()
     guiControl.setupGui(this)
     textManager.setText(guiControl.getBodyCopy())
     undo = new UndoLayers(layersOld, renderLayers, 10)
@@ -105,6 +106,23 @@ export default function Sketch (p5, guiControl, textManager, params) {
     clearLayer(layersOld.drawingLayer)
     // clearLayer(layersNew.drawingLayer)
     renderLayers()
+  }
+
+  // pass in p5 and params because it's bound in gui.js
+  // but, this binds the current values in params, apparently
+  // UGH UGH UGH
+  this.clearCanvas = () => {
+    const color = params.fill_color
+    clear(layersOld.drawingLayer, color)
+    clear(layersOld.p5, color)
+    // tODO: equivalent for new layers object?
+    // the trick is the clearance color
+  }
+
+  const clear = (layer, color) => {
+    layer.resizeCanvas(params.width, params.height)
+    layer.pixelDensity(density)
+    layer.background(color)
   }
 
   const setFont = (font, layer) => {
@@ -404,22 +422,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.cumulativeRotation ? cum() : norm()
   }
 
-  // pass in p5 and params because it's bound in gui.js
-  // but, this binds the current values in params, apparently
-  // UGH UGH UGH
-  this.clearCanvas = () => {
-    clear(layersOld.drawingLayer)
-    clear(layersOld.p5)
-    // tODO: equivalent for new layers object?
-    // the trick is the clearance color
-  }
-
-  const clear = (layer) => {
-    layer.resizeCanvas(params.width, params.height)
-    layer.pixelDensity(density)
-    layer.background(blackfield)
-  }
-
   const nextDrawMode = (direction, params) => {
     let drawMode = params.drawMode
     drawMode = (drawMode + direction) % params.drawModes.length
@@ -656,7 +658,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
       shift(0, vector * extraShift)
     } else if (keyCode === p5.BACKSPACE || keyCode === p5.DELETE) {
       handled = true
-      clearDrawing()
+      // clearDrawing()
+      this.clearCanvas()
       undo.takeSnapshot()
     }
     return handled
