@@ -53,7 +53,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
     // clearDrawing()
     this.clearCanvas()
-    guiControl.setupGui(this)
+    guiControl.setupGui(this, guiControl.fontPicker)
     textManager.setText(guiControl.getBodyCopy())
     undo = new UndoLayers(layersOld, renderLayers, 10)
   }
@@ -111,7 +111,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // pass in p5 and params because it's bound in gui.js
   // but, this binds the current values in params, apparently
   // UGH UGH UGH
-  this.clearCanvas = () => {
+  const clearCanvas = () => {
     const color = params.fill_color
     clear(layersOld.drawingLayer, color)
     clear(layersOld.p5, color)
@@ -125,7 +125,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     layer.background(color)
   }
 
-  const setFont = (font, layer) => {
+  const setFont = (font, layer = layersOld.drawingLayer) => {
     // how clumsy! but as a POC it works
     let tf = (loadedFonts.indexOf(font) > -1) ? fontList[font] : font
     layer.textFont(tf)
@@ -835,6 +835,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.pushpop = pushpop
   this.paint = paint
   this.apx = apx
+  this.clearCanvas = clearCanvas
+  this.setFont = setFont
 
   const macros = new Macros(this)
 }

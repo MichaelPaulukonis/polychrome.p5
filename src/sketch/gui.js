@@ -21,6 +21,7 @@ export default class GuiControl {
       allParams.clear = sketch.clearCanvas
       allParams.swap = () => swapParams(allParams)
       sketch.defaultParams = { ...(paramsInitial) }
+      fontPicker.onFinishChange(font => sketch.setFont(font))
 
       // TODO: uh.... need both fill and stroke. so... hrmph. stupid flat params and prefixes
       allParams.fill_randomizeQuads = () => rqPrefix('fill')
@@ -42,19 +43,19 @@ export default class GuiControl {
         })
     }
 
-    var setfocus = () => cnvs.focus()
+    const setfocus = () => cnvs.focus()
 
     const openCanvasInNewTab = () => {
       if (cnvs) {
         const img = cnvs.toDataURL('image/jpg')
         // https://ourcodeworld.com/articles/read/682/what-does-the-not-allowed-to-navigate-top-frame-to-data-url-javascript-exception-means-in-google-chrome
-        var win = window.open()
+        const win = window.open()
         win.document.write('<iframe src="' + img +
           '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>')
       }
     }
 
-    let fc = document.getElementById('focus')
+    const fc = document.getElementById('focus')
     if (fc) fc.onclick = setfocus
 
     const textInputBox = document.getElementById('bodycopy')
@@ -183,7 +184,7 @@ export default class GuiControl {
     f1.add(allParams, 'clear')
     f1.add(allParams, 'swap')
     f1.add(allParams, 'fixedWidth')
-    f1.add(allParams, 'font', fontList).listen()
+    const fontPicker = f1.add(allParams, 'font', fontList).listen()
     const sc = f1.add(allParams, 'scale').min(0.1).max(3).step(0.1).listen()
 
     sc.onChange((m) => {
@@ -243,7 +244,8 @@ export default class GuiControl {
       getBodyCopy,
       setBodyCopy,
       hexStringToColors,
-      swapParams
+      swapParams,
+      fontPicker
     }
   }
 }
