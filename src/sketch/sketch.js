@@ -1,13 +1,10 @@
 import UndoLayers from './undo.layers.js'
 import Layers from './layers.js'
 import Macros from './macros.js'
+import { keyPresser, keyHandler } from './keys.js'
 
 export default function Sketch (p5, guiControl, textManager, params) {
   params = params || guiControl.params
-  this.params = params
-
-  let undo
-  this.textManager = textManager
 
   let bypassRender = false
   const density = 2
@@ -55,7 +52,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     this.clearCanvas()
     guiControl.setupGui(this, guiControl.fontPicker)
     textManager.setText(guiControl.getBodyCopy())
-    undo = new UndoLayers(layersOld, renderLayers, 10)
+    this.undo = new UndoLayers(layersOld, renderLayers, 10)
   }
 
   const mouseInCanvas = () => {
@@ -73,7 +70,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   p5.mouseReleased = () => {
-    undo.takeSnapshot()
+    this.undo.takeSnapshot()
   }
 
   const apx = (...fns) => list => [...list].map(b => fns.forEach(f => f(b)))
@@ -646,159 +643,16 @@ export default function Sketch (p5, guiControl, textManager, params) {
     p5.saveCanvas(`${params.name}.${getDateFormatted()}.png`)
   }
 
-  const keyPresser = (keyCode) => {
-    let handled = false
-    if (keyCode === p5.UP_ARROW || keyCode === p5.DOWN_ARROW) {
-      handled = true
-      const vector = (keyCode === p5.UP_ARROW) ? 1 : -1
-      shift(vector * extraShift, 0)
-    } else if (keyCode === p5.LEFT_ARROW || keyCode === p5.RIGHT_ARROW) {
-      handled = true
-      const vector = (keyCode === p5.RIGHT_ARROW) ? 1 : -1
-      shift(0, vector * extraShift)
-    } else if (keyCode === p5.BACKSPACE || keyCode === p5.DELETE) {
-      handled = true
-      // clearDrawing()
-      this.clearCanvas()
-      undo.takeSnapshot()
-    }
-    return handled
-  }
-
   p5.keyPressed = () => {
     if (!mouseInCanvas()) return
-    let handled = keyPresser(p5.keyCode)
+    let handled = keyPresser(p5.keyCode, this)
     return !handled
   }
 
   p5.keyTyped = () => {
     if (!mouseInCanvas()) return
-    keyHandler(p5.key, params)
+    keyHandler(p5.key, params, layersOld, this)
     return false
-  }
-
-  const extraShift = 10
-  const keyHandler = (char, params) => {
-    switch (char) {
-      case 'a':
-        newCorner(layersOld.drawingLayer)
-        undo.takeSnapshot()
-        break
-
-      case 'f':
-        flip(HORIZONTAL, layersOld.drawingLayer)
-        undo.takeSnapshot()
-        break
-
-      case 'F':
-        flip(VERTICAL, layersOld.drawingLayer)
-        undo.takeSnapshot()
-        break
-
-      case ' ':
-        paint(p5.mouseX, p5.mouseY, params)
-        undo.takeSnapshot()
-        break
-
-      case 'm':
-        nextDrawMode(1, params)
-        break
-      case 'M':
-        nextDrawMode(-1, params)
-        break
-
-      case 'o':
-      case 'O':
-        params.useOutline = !params.useOutline
-        break
-
-      case 'q':
-        rotateCanvas()
-        // TODO: if not square, undo gets weird, here.....
-        undo.takeSnapshot()
-        break
-
-      case 'r':
-      case 'R':
-        reset(params, layersOld.drawingLayer)
-        break
-
-      case 's':
-      case 'S':
-        guiControl.swapParams()
-        break
-
-      case 't':
-        mirror(HORIZONTAL, layersOld.drawingLayer)
-        undo.takeSnapshot()
-        break
-
-      case 'T':
-        mirror(VERTICAL, layersOld.drawingLayer)
-        undo.takeSnapshot()
-        break
-
-      case 'u':
-        undo.undo()
-        break
-      case 'U':
-        undo.redo()
-        break
-
-      case 'w':
-      case 'W':
-        textManager.setText(guiControl.getBodyCopy())
-        break
-
-      case 'x':
-        shift(extraShift, 0)
-        undo.takeSnapshot()
-        break
-      case 'X':
-        shift(-extraShift, 0)
-        undo.takeSnapshot()
-        break
-
-      case 'z':
-        shift(0, -extraShift)
-        undo.takeSnapshot()
-        break
-      case 'Z':
-        shift(0, extraShift)
-        undo.takeSnapshot()
-        break
-
-      // TODO: how about push onto a time-expiring queue?
-      // or something, so we can have 00..99 macros, instead
-      // or something else. maybe real control keys.
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-        macros[`macro${char}`](params, layersOld.drawingLayer, layersOld.p5)
-        undo.takeSnapshot()
-        break
-
-      case 'g': {
-        // put a random image from the undo history into a random spot at a random rotation
-        // play with this, and figure out what's most pleasing
-        // maybe even have some transparency?
-        const img = undo.random()
-        layersOld.drawingLayer.push()
-        layersOld.drawingLayer.resetMatrix()
-        layersOld.drawingLayer.translate(p5.random(p5.width), p5.random(p5.height))
-        layersOld.drawingLayer.rotate(p5.radians(p5.random(360)))
-        layersOld.drawingLayer.image(img, 0, 0)
-        renderLayers(params)
-        layersOld.drawingLayer.pop()
-        // undo.takeSnapshot() // eh. not so sure about this.....
-      }
-    }
   }
 
   // TODO: use this somehow.
@@ -830,13 +684,30 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   // this smells, but is a start of separation
-  this.drawGrid = drawGrid
-  this.drawCircle = drawCircle
-  this.pushpop = pushpop
-  this.paint = paint
   this.apx = apx
   this.clearCanvas = clearCanvas
+  this.drawCircle = drawCircle
+  this.drawGrid = drawGrid
+  this.flip = flip
+  this.guiControl = guiControl
+  this.layersNew = layersNew
+  this.layersOld = layersOld
+  this.mirror = mirror
+  this.newCorner = newCorner
+  this.nextDrawMode = nextDrawMode
+  this.nextRotation = nextRotation
+  this.p5 = p5
+  this.paint = paint
+  this.paint = paint
+  this.params = params
+  this.pushpop = pushpop
+  this.renderLayers = renderLayers
+  this.reset = reset
+  this.rotateCanvas = rotateCanvas
   this.setFont = setFont
+  this.shift = shift
+  this.textManager = textManager
 
   const macros = new Macros(this)
+  this.macros = macros
 }
