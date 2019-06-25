@@ -48,7 +48,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
     canvas.parent('sketch-holder')
 
-    // clearDrawing()
     this.clearCanvas()
     guiControl.setupGui(this, guiControl.fontPicker)
     textManager.setText(guiControl.getBodyCopy())
@@ -88,21 +87,14 @@ export default function Sketch (p5, guiControl, textManager, params) {
     renderTarget()
   }
 
+  const clearLayer = (l) => {
+    l.blendMode(l.NORMAL)
+    // const field = params.blackText ? whitefield : blackfield
+    l.background(blackfield)
+  }
   const renderTarget = () => {
     p5.image(layersOld.drawingLayer, 0, 0)
     // p5.image(layersNew.drawingLayer, 0, 0)
-  }
-
-  const clearLayer = (r = p5) => {
-    r.blendMode(p5.NORMAL)
-    // const field = params.blackText ? whitefield : blackfield
-    r.background(blackfield)
-  }
-
-  const clearDrawing = () => {
-    clearLayer(layersOld.drawingLayer)
-    // clearLayer(layersNew.drawingLayer)
-    renderLayers()
   }
 
   // pass in p5 and params because it's bound in gui.js
@@ -643,6 +635,9 @@ export default function Sketch (p5, guiControl, textManager, params) {
     p5.saveCanvas(`${params.name}.${getDateFormatted()}.png`)
   }
 
+  // TODO: would like to use shift, etc. with chars
+  // also, some sort of key-sequence entry mode
+  // so macros can be 0..99 (for example)
   p5.keyPressed = () => {
     if (!mouseInCanvas()) return
     let handled = keyPresser(p5.keyCode, this)
@@ -683,6 +678,25 @@ export default function Sketch (p5, guiControl, textManager, params) {
     renderLayers(params)
   }
 
+  const randomLayer = () => {
+    // put a random image from the undo history into a random spot at a random rotation
+    // play with this, and figure out what's most pleasing
+    // maybe even have some transparency?
+    const img = this.undo.random()
+    layersOld.drawingLayer.push()
+    layersOld.drawingLayer.resetMatrix()
+    layersOld.drawingLayer.translate(this.p5.random(this.p5.width), this.p5.random(this.p5.height))
+    layersOld.drawingLayer.rotate(this.p5.radians(this.p5.random(360)))
+    // this is a POC
+    // I'd like to explore gradients or other masks for transparency
+    const alpha = (this.p5.random(255))
+    this.p5.tint(255, alpha)
+    layersOld.drawingLayer.image(img, 0, 0)
+    renderTarget() // not all layers - skip clearing and background, thus allowing an overlay
+    this.p5.tint(255, 255) // reset to 100%
+    layersOld.drawingLayer.pop()
+  }
+
   // this smells, but is a start of separation
   this.apx = apx
   this.clearCanvas = clearCanvas
@@ -701,6 +715,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.paint = paint
   this.params = params
   this.pushpop = pushpop
+  this.randomLayer = randomLayer
   this.renderLayers = renderLayers
   this.reset = reset
   this.rotateCanvas = rotateCanvas

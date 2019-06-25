@@ -130,18 +130,7 @@ const keyHandler = (char, params, layersOld, sketch) => {
       break
 
     case 'g': {
-      // put a random image from the undo history into a random spot at a random rotation
-      // play with this, and figure out what's most pleasing
-      // maybe even have some transparency?
-      const img = sketch.undo.random()
-      layersOld.drawingLayer.push()
-      layersOld.drawingLayer.resetMatrix()
-      layersOld.drawingLayer.translate(sketch.p5.random(sketch.p5.width), sketch.p5.random(sketch.p5.height))
-      layersOld.drawingLayer.rotate(sketch.p5.radians(sketch.p5.random(360)))
-      layersOld.drawingLayer.image(img, 0, 0)
-      sketch.renderLayers(params)
-      layersOld.drawingLayer.pop()
-      // undo.takeSnapshot() // eh. not so sure about this.....
+      sketch.randomLayer()
     }
   }
 }
