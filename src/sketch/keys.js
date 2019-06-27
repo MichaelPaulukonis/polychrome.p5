@@ -29,12 +29,12 @@ const keyHandler = (char, params, layersOld, sketch) => {
       break
 
     case 'f':
-      sketch.flip(HORIZONTAL, layersOld.drawingLayer)
+      sketch.flip(HORIZONTAL, layersOld.p5)
       sketch.undo.takeSnapshot()
       break
 
     case 'F':
-      sketch.flip(VERTICAL, layersOld.drawingLayer)
+      sketch.flip(VERTICAL, layersOld.p5)
       sketch.undo.takeSnapshot()
       break
 
@@ -74,12 +74,12 @@ const keyHandler = (char, params, layersOld, sketch) => {
       break
 
     case 't':
-      sketch.mirror(HORIZONTAL, layersOld.drawingLayer)
+      sketch.mirror(HORIZONTAL, layersOld.p5)
       sketch.undo.takeSnapshot()
       break
 
     case 'T':
-      sketch.mirror(VERTICAL, layersOld.drawingLayer)
+      sketch.mirror(VERTICAL, layersOld.p5)
       sketch.undo.takeSnapshot()
       break
 

@@ -64,7 +64,7 @@ class CircImgCollection {
       // but whatevs.....
       let layer = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
       layer.pixelDensity(layers.p5.pixelDensity())
-      layer.image(layers.drawingLayer, 0, 0)
+      layer.image(layers.p5, 0, 0)
       img[current] = layer
     }
     this.show = () => {

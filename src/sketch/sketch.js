@@ -81,8 +81,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const renderLayers = () => {
-    if (bypassRender) return
-    clearLayer(layersOld.p5)
+    // clearLayer(layersOld.p5)
     // clearLayer(layersNew.p5)
     renderTarget()
   }
@@ -93,7 +92,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     l.background(blackfield)
   }
   const renderTarget = () => {
-    p5.image(layersOld.drawingLayer, 0, 0)
+    layersOld.p5.image(layersOld.drawingLayer, 0, 0)
+    layersOld.drawingLayer.clear()
     // p5.image(layersNew.drawingLayer, 0, 0)
   }
 
@@ -604,7 +604,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // I'd love to be able to drag the image around, but I think that will require something else, but related
   const shift = (verticalOffset, horizontalOffset) => {
     // TODO: has to be pointing to the drawingLayer
-    let context = layersOld.drawingLayer.drawingContext
+    let context = layersOld.p5.drawingContext
     let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
     let cw = (horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
@@ -662,7 +662,10 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const newHeight = params.height = p5.width
     const newWidth = params.width = p5.height
 
-    p5.resizeCanvas(newWidth, newHeight)
+    layersOld.drawingLayer.resetMatrix()
+    layersOld.drawingLayer.image(layersOld.p5, 0, 0)
+
+    p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
 
     let newPG = initDrawingLayer(newWidth, newHeight)
     newPG.push()
@@ -690,10 +693,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
     // this is a POC
     // I'd like to explore gradients or other masks for transparency
     const alpha = (this.p5.random(255))
+    this.p5.push()
     this.p5.tint(255, alpha)
     layersOld.drawingLayer.image(img, 0, 0)
     renderTarget() // not all layers - skip clearing and background, thus allowing an overlay
-    this.p5.tint(255, 255) // reset to 100%
+    this.p5.pop()
+
     layersOld.drawingLayer.pop()
   }
 
