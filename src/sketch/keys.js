@@ -129,8 +129,14 @@ const keyHandler = (char, params, layersOld, sketch) => {
       sketch.undo.takeSnapshot()
       break
 
-    case 'g': {
+    case 'h': {
       sketch.randomLayer()
+      break
+    }
+
+    case 'H': {
+      sketch.undo.takeSnapshot()
+      break
     }
   }
 }
