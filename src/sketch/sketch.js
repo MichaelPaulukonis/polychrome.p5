@@ -3,10 +3,9 @@ import Layers from './layers.js'
 import Macros from './macros.js'
 import { keyPresser, keyHandler } from './keys.js'
 
-export default function Sketch (p5, guiControl, textManager, params) {
+export default function Sketch(p5, guiControl, textManager, params) {
   params = params || guiControl.params
 
-  let bypassRender = false
   const density = 2
 
   const blackfield = '#000000'
@@ -18,8 +17,18 @@ export default function Sketch (p5, guiControl, textManager, params) {
     p5
   }
 
-  let layersNew
+  var listener = new window.keypress.Listener()
 
+  for (let i = 0; i <= 10; i++) {
+    const m = `macro${i}`
+    const digits = String(i).split('')
+    listener.sequence_combo(`alt x ${digits.join(' ')} alt`, () => {
+      macros[m](params, layersOld.drawingLayer, layersOld.p5)
+      this.undo.takeSnapshot()
+    }, true)
+  }
+
+  let layersNew
   let setFillMode
   let setOutlineMode
 
@@ -256,7 +265,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   // generator will return { theta, text }
   const blocGeneratorCircle = (radius, circumference) => {
-    return function * (nextText, l) {
+    return function* (nextText, l) {
       let arclength = 0
       while (arclength < circumference) {
         const t = nextText()
@@ -348,7 +357,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     renderLayers(params)
   }
 
-  function * blocGeneratorFixedWidth (gridParams, nextText) {
+  function* blocGeneratorFixedWidth(gridParams, nextText) {
     for (let gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
       for (let gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
         const t = nextText()
@@ -358,7 +367,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     return 'done'
   }
 
-  function * blocGeneratorTextWidth (nextText, gridSize, yOffset, r) {
+  const blocGeneratorTextWidth = function* (nextText, gridSize, yOffset, r) {
     let t = nextText()
     let coords = { x: 0, y: yOffset }
     let offsets = { x: 0, y: yOffset }
@@ -658,7 +667,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     layer.rotate(layer.radians(90))
   }
 
-  const rotateCanvas = () => {
+  const rotateCanvas = (direction = 1) => {
     const newHeight = params.height = p5.width
     const newWidth = params.width = p5.height
 
@@ -669,8 +678,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
     let newPG = initDrawingLayer(newWidth, newHeight)
     newPG.push()
-    newPG.translate(newWidth, 0)
-    newPG.rotate(p5.radians(90))
+    if (direction === -1) {
+      newPG.translate(0, newHeight)
+    } else {
+      newPG.translate(newWidth, 0)
+    }
+    newPG.rotate(p5.radians(90 * direction))
     newPG.image(layersOld.drawingLayer, 0, 0)
     newPG.pop()
 

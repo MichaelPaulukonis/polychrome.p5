@@ -1,5 +1,7 @@
 const keyPresser = (keyCode, sketch) => {
-  const extraShift = 10
+  // BACKSPACE, DELETE, ENTER, RETURN, TAB, ESCAPE, SHIFT, CONTROL, OPTION, ALT, UP_ARROW, DOWN_ARROW, LEFT_ARROW, RIGHT_ARROW
+  const extraShift = event.shiftKey ? 100 : 10
+  // also: altKey ctrlKey, metaKey
   let handled = false
   if (keyCode === sketch.p5.UP_ARROW || keyCode === sketch.p5.DOWN_ARROW) {
     handled = true
@@ -56,8 +58,13 @@ const keyHandler = (char, params, layersOld, sketch) => {
       break
 
     case 'q':
-      sketch.rotateCanvas()
+      sketch.rotateCanvas(1)
       // TODO: if not square, undo gets weird, here.....
+      sketch.undo.takeSnapshot()
+      break
+
+    case 'Q':
+      sketch.rotateCanvas(-1)
       sketch.undo.takeSnapshot()
       break
 
@@ -113,31 +120,16 @@ const keyHandler = (char, params, layersOld, sketch) => {
       sketch.undo.takeSnapshot()
       break
 
-    // TODO: how about push onto a time-expiring queue?
-    // or something, so we can have 00..99 macros, instead
-    // or something else. maybe real control keys.
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-      sketch.macros[`macro${char}`](params, layersOld.drawingLayer, layersOld.p5)
-      sketch.undo.takeSnapshot()
-      break
-
-    case 'h': {
+    case 'g': {
       sketch.randomLayer()
       break
     }
 
-    case 'H': {
+    case 'G': {
       sketch.undo.takeSnapshot()
       break
     }
   }
 }
+
 export { keyPresser, keyHandler }

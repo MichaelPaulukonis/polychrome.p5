@@ -74,30 +74,29 @@ http://repo.zebkit.org/latest/samples/uidemo.html#
 ## code stuff
 https://idmnyu.github.io/p5.js-func/ ???
 
+keypress handler - https://dmauro.github.io/Keypress/
+
 ## Things to implement
  - ~~font picker~~
    - web-fonts in project (not all in dropdown "really" exist)
-   - one of those old OCR-B fonts?
-   - dingbats
  - random sized?
  - pick circle center
  - drag-n-zoom image (related code to pick center?)
  - draw into sub-section (click-n-drag to define)
- - ~~change canvas size/shape~~
  - more kalidoscopi features (eh, dunno)
    - maybe just auto-quad with a "macro" ?
  - save/record animation
  - higher resolution
  - save all actions for replay (particularly for user when resize/up-resolution)
- - ~~LERP color mode - expose 4 colors, choose model based on how many are actually selected~~
  - pass color context separately from grid-paint context
    - so if we paint a sub-grid, we can use a completely separate color pattern (any given section of super-grid)
- - ~~LAYERS - paint directly into Graphis Object, render to canvas~~
  - background color selection
- - ~~Randomize the 4 LERPs (a button)~~
-   - ~~partially implemented for fill, not stroke. And clumsy IMHO~~
+ - 4 LERPs
    - shuffle the four
    - store a nice palette locally
 
- - random angular (triangle, realy) from history
-   - was happeneing on undo w/ cumulative rotation, until I did a push/pop w/ matrixReset
+ - better keyhandling
+    - ~ separate out from main sketch file
+    - consolidate keyhandling, so special keys can be modifiers (ctrl-x, or someting)
+    - multi-key input, so "1" or "11" or "111" with some key to start entry, time it out, or manually accept or cancel
+    - then multi-circles and all sorts of one-off experiments can have a move semi-permanent home

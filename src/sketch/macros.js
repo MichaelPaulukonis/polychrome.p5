@@ -48,22 +48,6 @@ export default function Macros (sketch) {
     }
   })
 
-  // overrides. interesting. WHA???
-  // and we overwrite this definition immedately, anyway
-  // I recall _something_ about this. but do not recall now
-  // const macro7 = macroWrapper((params, layer, overrides) => {
-  //   params = this.defaultParams
-  //   params.drawMode = 1 // grid
-  //   params.fill_paintMode = 4
-  //   params.fill_transparent = false
-  //   params.useOutline = false
-  //   params.nextCharMode = 0
-  //   params = { ...params, ...overrides }
-  //   const x = layer.mouseX
-  //   const y = layer.mouseY
-  //   drawGrid(x, y, params, layer.width, layer.height, layer)
-  // })
-
   const macro7 = macroWrapper((params, layer, p5) => {
     const currParamsToKeep = {
       fixedWidth: params.fixedWidth,
@@ -87,14 +71,14 @@ export default function Macros (sketch) {
     paint(36, 23, params)
   })
 
-  // const macro8 = macroWrapper((params, layer) => {
-  //   const width = layer.width / 2
-  //   const height = layer.height / 2
-  //   const x = layer.mouseX
-  //   const y = layer.mouseY
-  //   layer.translate(x, y)
-  //   drawGrid(x, y, params, width, height, layer)
-  // })
+  const macro10 = macroWrapper((params, layer, p5) => {
+    const width = layer.width / 2
+    const height = layer.height / 2
+    const x = p5.mouseX
+    const y = p5.mouseY
+    layer.translate(x, y)
+    drawGrid(x, y, params, width, height, layer)
+  })
 
   // works GREAT with cumulativeRotation
   // only problem is the colors are identical no matter where
@@ -117,7 +101,10 @@ export default function Macros (sketch) {
     // const width = 400
     // const height = 400
 
-    const paint = gridder(width, height, params, layer, gridConditionalRotationGen)
+    // if drawCircle is used, there is paramteter twiddling involced deep-down
+    // that twiddling should be higher up somehow....
+
+    const paint = gridder(width, height, params, layer, gridConditionalRotationGen, drawGrid)
     apx(paint)(txls)
   })
 
@@ -140,17 +127,17 @@ export default function Macros (sketch) {
   }
 
   // gridder/subGrid paints a given region
-  const gridder = (width, height, params, layer, gen) => (grid) => subGrid(grid.x, grid.y, width, height, params, layer, gen)
+  const gridder = (width, height, params, layer, gen, gridFunc) => (grid) => subGrid(grid.x, grid.y, width, height, params, layer, gen, gridFunc)
 
   // TODO: subgrid should be a generator that we compose with dawgrid
   // because the generator (coupled with the xforms or size, above are the key elems)
-  function subGrid (tx, ty, width, height, params, layer, gen) {
+  function subGrid (tx, ty, width, height, params, layer, gen, gridFunc) {
     pushpop(layer)(() => {
       layer.translate(tx, ty)
 
       // TODO: we're also adding in x,y to params, but they are ignored
       // STILL: pollution
-      const dg = (stats) => drawGrid(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
+      const dg = (stats) => gridFunc(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
       // const dg = (stats) => drawCircle(width - stats.x, height - stats.y, { ...params, ...stats }, width, height, layer)
       // drawCirle doesn't quite work (the inversion? something - every radius is negative, so goes to 0.1)
       // turn off inversion, it works better, but size is still too large. fiddle around.
@@ -167,6 +154,7 @@ export default function Macros (sketch) {
     macro6,
     macro7,
     macro8,
-    macro9
+    macro9,
+    macro10
   }
 }
