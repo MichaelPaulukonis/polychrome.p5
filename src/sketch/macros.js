@@ -1,6 +1,6 @@
 
 export default function Macros (sketch) {
-  const { drawGrid, drawCircle, pushpop, paint, apx } = sketch
+  const { drawGrid, drawCircle, drawRowCol, pushpop, paint, apx } = sketch
 
   const macroWrapper = (f) => (params, layer, p5) => {
     layer.push()
@@ -53,7 +53,7 @@ export default function Macros (sketch) {
       fixedWidth: params.fixedWidth,
       font: params.font
     }
-    params = {...this.defaultParams, ...currParamsToKeep}
+    params = { ...this.defaultParams, ...currParamsToKeep }
     params.drawMode = 1 // grid
     params.fill_paintMode = 4
     params.fill_transparent = false
@@ -83,10 +83,10 @@ export default function Macros (sketch) {
   // works GREAT with cumulativeRotation
   // only problem is the colors are identical no matter where
   const macro9 = macroWrapper((params, layer) => {
-  // take these out of HERE
-  // and macro9 then passes in params and width/height
-  // but it should also indicate WHERE it should start
-  // the below assumes subdivision of the entire surfae
+    // take these out of HERE
+    // and macro9 then passes in params and width/height
+    // but it should also indicate WHERE it should start
+    // the below assumes subdivision of the entire surfae
 
     params.invert = true
     const width = layer.width / 4
@@ -145,6 +145,15 @@ export default function Macros (sketch) {
     })()
   }
 
+  const macro11 = macroWrapper((params, layer) => {
+    // const drawRowCol = (xPos, yPos, params, width, height, layer) => {
+    //   const rows = params.rows
+    params.rows = 1
+    // TODO: fittext needs to be implemented - there's nothing in rowcol for words
+    // which can be ugly, but.. .well, you know, so what!
+    drawRowCol(0, 0, params, layer.width, layer.height, layer)
+  })
+
   return {
     macro1,
     macro2,
@@ -155,6 +164,7 @@ export default function Macros (sketch) {
     macro7,
     macro8,
     macro9,
-    macro10
+    macro10,
+    macro11
   }
 }

@@ -2,14 +2,14 @@ import UndoLayers from './undo.layers.js'
 import Layers from './layers.js'
 import Macros from './macros.js'
 import { keyPresser, keyHandler } from './keys.js'
+import { fitTextOnCanvas } from './fit.text'
 
-export default function Sketch(p5, guiControl, textManager, params) {
+export default function Sketch (p5, guiControl, textManager, params) {
   params = params || guiControl.params
 
   const density = 2
 
   const blackfield = '#000000'
-  const whitefield = '#FFFFFF'
   params.blackText = false
   let drawingLayer // drawing layer
   let layersOld = {
@@ -19,7 +19,7 @@ export default function Sketch(p5, guiControl, textManager, params) {
 
   var listener = new window.keypress.Listener()
 
-  for (let i = 0; i <= 10; i++) {
+  for (let i = 0; i <= 11; i++) {
     const m = `macro${i}`
     const digits = String(i).split('')
     listener.sequence_combo(`alt x ${digits.join(' ')} alt`, () => {
@@ -178,9 +178,10 @@ export default function Sketch(p5, guiControl, textManager, params) {
 
     // this kept ending up being almost the same as cellWidth everytime
     // so I just went with the fudge factor. :::sigh:::
-    // let fontsize = fitTextOnCanvas('.', 'Arial', cellWidth)
-    // textSize(fontsize)
-    layer.textSize(cellWidth * 1.5)
+    // doh! if it's a single thing, we need a word. ugh. not now...
+    // let fontSize = fitTextOnCanvas('.', params.font, cellWidth, layer)
+    // // layer.textSize(cellWidth * 1.5)
+    // layer.textSize(fontSize)
     const sw = params.useOutline
       ? params.outline_strokeWeight
       : 0
@@ -202,6 +203,11 @@ export default function Sketch(p5, guiControl, textManager, params) {
         setOutlineMode(pixelX, pixelY, params)
 
         const txt = fetchText()
+
+        let fontSize = fitTextOnCanvas(txt, params.font, cellWidth, layer)
+        // layer.textSize(cellWidth * 1.5)
+        layer.textSize(fontSize)
+
         const cum = trText(layer)(pixelX, pixelY, 0, 0, txt)
         const norm = pushpop(layer)(trText(layer)(0, 0, pixelX, pixelY, txt))
         params.cumulativeRotation ? cum() : norm()
@@ -265,7 +271,7 @@ export default function Sketch(p5, guiControl, textManager, params) {
 
   // generator will return { theta, text }
   const blocGeneratorCircle = (radius, circumference) => {
-    return function* (nextText, l) {
+    return function * (nextText, l) {
       let arclength = 0
       while (arclength < circumference) {
         const t = nextText()
@@ -357,7 +363,7 @@ export default function Sketch(p5, guiControl, textManager, params) {
     renderLayers(params)
   }
 
-  function* blocGeneratorFixedWidth(gridParams, nextText) {
+  function * blocGeneratorFixedWidth (gridParams, nextText) {
     for (let gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
       for (let gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
         const t = nextText()
@@ -367,7 +373,7 @@ export default function Sketch(p5, guiControl, textManager, params) {
     return 'done'
   }
 
-  const blocGeneratorTextWidth = function* (nextText, gridSize, yOffset, r) {
+  const blocGeneratorTextWidth = function * (nextText, gridSize, yOffset, r) {
     let t = nextText()
     let coords = { x: 0, y: yOffset }
     let offsets = { x: 0, y: yOffset }
@@ -720,6 +726,7 @@ export default function Sketch(p5, guiControl, textManager, params) {
   this.clearCanvas = clearCanvas
   this.drawCircle = drawCircle
   this.drawGrid = drawGrid
+  this.drawRowCol = drawRowCol
   this.flip = flip
   this.guiControl = guiControl
   this.layersNew = layersNew
