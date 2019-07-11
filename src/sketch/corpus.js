@@ -1,4 +1,4 @@
-module.exports = [
+const texts = [
   `What
 Might
 Be
@@ -50,3 +50,5 @@ next to nothing and celescalating the himals and all, hierarchitec-
 titiptitoploftical, with a burning bush abob off its baubletop and
 with larrons o'toolers clittering up and tombles a'buckets clotter-
 ing down.`]
+
+module.exports = texts

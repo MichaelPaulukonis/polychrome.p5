@@ -10,7 +10,7 @@ const measureTextBinaryMethod = (txt, fontface, min, max, desiredWidth, layer) =
   }
   var test = min + ((max - min) / 2) // Find half interval
   layer.textFont(fontface, test)
-  let measureTest = layer.textWidth(txt)
+  let measureTest = layer.textWidth(txt) // doesn't fit height. ok? hrm.....
   var found
   if (measureTest > desiredWidth) {
     found = measureTextBinaryMethod(txt, fontface, min, test, desiredWidth, layer)

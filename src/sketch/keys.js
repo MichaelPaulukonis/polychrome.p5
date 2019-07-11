@@ -19,24 +19,24 @@ const keyPresser = (keyCode, sketch) => {
   return handled
 }
 
-const keyHandler = (char, params, layersOld, sketch) => {
+const keyHandler = (char, params, layers, sketch) => {
   const EXTRASHIFT = 10
   const HORIZONTAL = 0
   const VERTICAL = 1
 
   switch (char) {
     case 'a':
-      sketch.newCorner(layersOld.drawingLayer)
+      sketch.newCorner(layers.drawingLayer)
       sketch.undo.takeSnapshot()
       break
 
     case 'f':
-      sketch.flip(HORIZONTAL, layersOld.p5)
+      sketch.flip(HORIZONTAL, layers.p5)
       sketch.undo.takeSnapshot()
       break
 
     case 'F':
-      sketch.flip(VERTICAL, layersOld.p5)
+      sketch.flip(VERTICAL, layers.p5)
       sketch.undo.takeSnapshot()
       break
 
@@ -70,7 +70,7 @@ const keyHandler = (char, params, layersOld, sketch) => {
 
     case 'r':
     case 'R':
-      sketch.reset(params, layersOld.drawingLayer)
+      sketch.reset(params, layers.drawingLayer)
       break
 
     case 's':
@@ -81,12 +81,12 @@ const keyHandler = (char, params, layersOld, sketch) => {
       break
 
     case 't':
-      sketch.mirror(HORIZONTAL, layersOld.p5)
+      sketch.mirror(HORIZONTAL, layers.p5)
       sketch.undo.takeSnapshot()
       break
 
     case 'T':
-      sketch.mirror(VERTICAL, layersOld.p5)
+      sketch.mirror(VERTICAL, layers.p5)
       sketch.undo.takeSnapshot()
       break
 

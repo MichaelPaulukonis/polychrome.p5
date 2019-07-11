@@ -12,7 +12,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   const blackfield = '#000000'
   params.blackText = false
   let drawingLayer // drawing layer
-  let layersOld = {
+  let layers = {
     drawingLayer,
     p5
   }
@@ -23,12 +23,11 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const m = `macro${i}`
     const digits = String(i).split('')
     listener.sequence_combo(`alt x ${digits.join(' ')} alt`, () => {
-      macros[m](params, layersOld.drawingLayer, layersOld.p5)
+      macros[m](params, layers.drawingLayer, layers.p5)
       this.undo.takeSnapshot()
     }, true)
   }
 
-  let layersNew
   let setFillMode
   let setOutlineMode
 
@@ -49,8 +48,9 @@ export default function Sketch (p5, guiControl, textManager, params) {
   p5.setup = () => {
     p5.pixelDensity(density)
     const canvas = p5.createCanvas(params.width, params.height)
-    layersOld.drawingLayer = initDrawingLayer(params.width, params.height)
-    layersNew = new Layers(p5, layersOld.drawingLayer)
+    const drawingLayer = initDrawingLayer(params.width, params.height)
+    layers = new Layers(p5, drawingLayer)
+
     // tODO: these are now set as side-effects in initializeDrawingLayer
     // setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layers.drawingLayer.fill, layers.drawingLayer)
     // setOutlineMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('outline', layers.drawingLayer.stroke, layers.drawingLayer)
@@ -60,7 +60,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     this.clearCanvas()
     guiControl.setupGui(this, guiControl.fontPicker)
     textManager.setText(guiControl.getBodyCopy())
-    this.undo = new UndoLayers(layersOld, renderLayers, 10)
+    this.undo = new UndoLayers(layers, renderLayers, 10)
   }
 
   const mouseInCanvas = () => {
@@ -90,8 +90,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const renderLayers = () => {
-    // clearLayer(layersOld.p5)
-    // clearLayer(layersNew.p5)
     renderTarget()
   }
 
@@ -101,9 +99,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     l.background(blackfield)
   }
   const renderTarget = () => {
-    layersOld.p5.image(layersOld.drawingLayer, 0, 0)
-    layersOld.drawingLayer.clear()
-    // p5.image(layersNew.drawingLayer, 0, 0)
+    layers.p5.image(layers.drawingLayer, 0, 0)
+    layers.drawingLayer.clear()
   }
 
   // pass in p5 and params because it's bound in gui.js
@@ -111,8 +108,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // UGH UGH UGH
   const clearCanvas = () => {
     const color = params.fill_color
-    clear(layersOld.drawingLayer, color)
-    clear(layersOld.p5, color)
+    clear(layers.drawingLayer, color)
+    clear(layers.p5, color)
     // tODO: equivalent for new layers object?
     // the trick is the clearance color
   }
@@ -123,7 +120,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     layer.background(color)
   }
 
-  const setFont = (font, layer = layersOld.drawingLayer) => {
+  const setFont = (font, layer = layers.drawingLayer) => {
     // how clumsy! but as a POC it works
     let tf = (loadedFonts.indexOf(font) > -1) ? fontList[font] : font
     layer.textFont(tf)
@@ -144,13 +141,13 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const paint = (xPos, yPos, params) => {
-    setFont(params.font, layersOld.drawingLayer)
+    setFont(params.font, layers.drawingLayer)
     // layersNew.setFont(params.font)
     const mode = parseInt(params.drawMode, 10)
     const draw = mode === params.drawModes.Grid ? drawGrid
       : mode === params.drawModes.Circle ? drawCircle
         : drawRowCol
-    draw(xPos, yPos, params, params.width, params.height, layersOld.drawingLayer)
+    draw(xPos, yPos, params, params.width, params.height, layers.drawingLayer)
     params.fill_donePainting = true
     params.outline_donePainting = true
   }
@@ -196,6 +193,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
         let pixelY = cellHeight * y
 
         // add half to center letters
+        // TODO: eh, doesn't work. figure out something better
         pixelX += cellWidth / 2
         pixelY += cellHeight / 2
 
@@ -333,8 +331,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const gridParams = params.invert ? invertGridParm(xPos, height, width) : defaultGridParm(xPos, height, width)
     layer.textSize(gridParams.step)
     // layer.textSize(18)
-    layersOld.p5.textSize(gridParams.step) // this is .... weird. Look at the p5js code. Something funky with textAscent going to the parent, which is set to 12
-    // layersNew.textSize(gridParams.step)
+    layers.p5.textSize(gridParams.step) // this is .... weird. Look at the p5js code. Something funky with textAscent going to the parent, which is set to 12
+    // layers.textSize(gridParams.step)
 
     const sw = params.useOutline
       ? params.outline_strokeWeight
@@ -619,7 +617,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // I'd love to be able to drag the image around, but I think that will require something else, but related
   const shift = (verticalOffset, horizontalOffset) => {
     // TODO: has to be pointing to the drawingLayer
-    let context = layersOld.p5.drawingContext
+    let context = layers.p5.drawingContext
     let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
     let cw = (horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
@@ -661,7 +659,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   p5.keyTyped = () => {
     if (!mouseInCanvas()) return
-    keyHandler(p5.key, params, layersOld, this)
+    keyHandler(p5.key, params, layers, this)
     return false
   }
 
@@ -677,8 +675,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const newHeight = params.height = p5.width
     const newWidth = params.width = p5.height
 
-    layersOld.drawingLayer.resetMatrix()
-    layersOld.drawingLayer.image(layersOld.p5, 0, 0)
+    layers.drawingLayer.resetMatrix()
+    layers.drawingLayer.image(layers.p5, 0, 0)
 
     p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
 
@@ -690,10 +688,10 @@ export default function Sketch (p5, guiControl, textManager, params) {
       newPG.translate(newWidth, 0)
     }
     newPG.rotate(p5.radians(90 * direction))
-    newPG.image(layersOld.drawingLayer, 0, 0)
+    newPG.image(layers.drawingLayer, 0, 0)
     newPG.pop()
 
-    layersOld.drawingLayer = newPG
+    layers.drawingLayer = newPG
 
     // TODO: undo doesn't know anything about rotation......
 
@@ -705,20 +703,20 @@ export default function Sketch (p5, guiControl, textManager, params) {
     // play with this, and figure out what's most pleasing
     // maybe even have some transparency?
     const img = this.undo.random()
-    layersOld.drawingLayer.push()
-    layersOld.drawingLayer.resetMatrix()
-    layersOld.drawingLayer.translate(this.p5.random(this.p5.width), this.p5.random(this.p5.height))
-    layersOld.drawingLayer.rotate(this.p5.radians(this.p5.random(360)))
+    layers.drawingLayer.push()
+    layers.drawingLayer.resetMatrix()
+    layers.drawingLayer.translate(this.p5.random(this.p5.width), this.p5.random(this.p5.height))
+    layers.drawingLayer.rotate(this.p5.radians(this.p5.random(360)))
     // this is a POC
     // I'd like to explore gradients or other masks for transparency
     const alpha = (this.p5.random(255))
     this.p5.push()
     this.p5.tint(255, alpha)
-    layersOld.drawingLayer.image(img, 0, 0)
+    layers.drawingLayer.image(img, 0, 0)
     renderTarget() // not all layers - skip clearing and background, thus allowing an overlay
     this.p5.pop()
 
-    layersOld.drawingLayer.pop()
+    layers.drawingLayer.pop()
   }
 
   // this smells, but is a start of separation
@@ -729,8 +727,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.drawRowCol = drawRowCol
   this.flip = flip
   this.guiControl = guiControl
-  this.layersNew = layersNew
-  this.layersOld = layersOld
+  this.layers = layers
   this.mirror = mirror
   this.newCorner = newCorner
   this.nextDrawMode = nextDrawMode
