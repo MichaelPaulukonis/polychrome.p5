@@ -7,9 +7,6 @@ Friend
 Queequeg,
 Standing
 Thus cannibally`,
-  `xXyYvV`,
-  `*`,
-  `><`,
   `What clashes here of wills gen wonts, oystrygods gaggin fishy-
 gods! Brékkek Kékkek Kékkek Kékkek! Kóax Kóax Kóax! Ualu
 Ualu Ualu! Quaouauh! Where the Baddelaries partisans are still
@@ -49,6 +46,39 @@ of a skyerscape of most eyeful hoyth entowerly, erigenating from
 next to nothing and celescalating the himals and all, hierarchitec-
 titiptitoploftical, with a burning bush abob off its baubletop and
 with larrons o'toolers clittering up and tombles a'buckets clotter-
-ing down.`]
+ing down.`,
+  `I have eaten
+the plums
+that were in
+the icebox
+
+and which
+you were probably
+saving
+for breakfast
+
+Forgive me
+they were delicious
+so sweet
+and so cold`,
+  `TRENTINO With Mrs. Teasdale as my wife and Freedonia under my control -(He rubs his hands significantly) VERA Maybe it’s not going to be so easy.
+Is not that also social, and determined by the social conditions under which you educate, by the intervention, direct or indirect, of society by means of schools, etc.?
+MRS. TEASDALE Well no – not exactly – but TRENTINO (Impatiently) Gloria – I’ve waited for years.
+The bigger the betta you’ve got on a horse, the more you lose, and speaking about horses, why don’t you marry me.
+FIRST CABINET MEMBER (Protestingly) Mrs. Teasdale, as members of Freedonia’s cabinet, we do not approve of your choice.
+He has not even a suspicion that the real point aimed at is to do away with the status of women as mere instruments of production.
+TRENTINO (With a puzzled look at Groucho) Your Excellency, haven’t we met before?
+He becomes an appendage of the machine, and it is only the most simple, most monotonous, and most easily acquired knack, that is required of him.
+The proletarians have nothing to lose but their chains.
+CHICO It’s not-a your fault.
+We cannot take from them what they have not got.
+No wonder, then, that the social consciousness of past ages, despite all the multiplicity and variety it displays, moves within certain common forms, or general ideas, which cannot completely vanish except with the total disappearance of class antagonisms.
+TRENTINO Fine nothing!
+If we don’t watch ourselves, we’ll come down with a crash.
+At this stage, therefore, the proletarians do not fight their enemies, but the enemies of their enemies, the remnants of absolute monarchy, and land owners, the non-industrial bourgeois, the petty bourgeoisie.
+HERO (Continuing singing) Fetch my boots -(Harpo throws boots on stage Hero continues) Bring me my sword -(Harpo throws a sword on stage –) Hero continues his song while Harpo litters the stage with various articles - a saddle - a chair, etc… CUT TO box below - Chico is trying to reach for pocketbook on ledge but can’t get it.
+TRENTINO With Mrs. Teasdale as my wife and Freedonia under my control -(He rubs his hands significantly) VERA Maybe it’s not going to be so easy.`
+
+]
 
 module.exports = texts

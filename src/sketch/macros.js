@@ -1,6 +1,6 @@
 
 export default function Macros (sketch) {
-  const { drawGrid, drawCircle, drawRowCol, pushpop, paint, apx } = sketch
+  const { drawGrid, drawCircle, drawRowCol, pushpop, paint, shift, apx, mirror, HORIZONTAL, VERTICAL } = sketch
 
   const macroWrapper = (f) => (params, layer, p5) => {
     layer.push()
@@ -89,20 +89,24 @@ export default function Macros (sketch) {
     // the below assumes subdivision of the entire surfae
 
     params.invert = true
-    const width = layer.width / 4
-    const height = layer.height / 4
+    let width = layer.width / 4
+    let height = layer.height / 4
     const startX = 0 // mis-named
     const startY = 0 // mis-named - these are the indexes of the grids
 
-    const txls = subGrids(layer.width, layer.height, width, height, startX, startY)
+    let txls = subGrids(layer.width, layer.height, width, height, startX, startY)
 
     // an interesting standalone blob
-    // const txls = [{x: 100, y: 100}]
-    // const width = 400
-    // const height = 400
+    // txls = [{x: 100, y: 100}]
+    // width = 400
+    // height = 400
 
     // if drawCircle is used, there is paramteter twiddling involced deep-down
     // that twiddling should be higher up somehow....
+
+    // theres an inversion, not sure how to do it otherwise. AAARGH
+    // gridFunc(stats.x, stats.y,
+    // drawCircle(width - stats.x, height - stats.y,
 
     const paint = gridder(width, height, params, layer, gridConditionalRotationGen, drawGrid)
     apx(paint)(txls)
@@ -127,7 +131,8 @@ export default function Macros (sketch) {
   }
 
   // gridder/subGrid paints a given region
-  const gridder = (width, height, params, layer, gen, gridFunc) => (grid) => subGrid(grid.x, grid.y, width, height, params, layer, gen, gridFunc)
+  const gridder = (width, height, params, layer, gen, gridFunc) =>
+    (grid) => subGrid(grid.x, grid.y, width, height, params, layer, gen, gridFunc)
 
   // TODO: subgrid should be a generator that we compose with dawgrid
   // because the generator (coupled with the xforms or size, above are the key elems)
@@ -154,6 +159,73 @@ export default function Macros (sketch) {
     drawRowCol(0, 0, params, layer.width, layer.height, layer)
   })
 
+  const macro12 = macroWrapper((params, layer, p5) => {
+    mirror(HORIZONTAL, p5)
+    mirror(VERTICAL, p5)
+  })
+
+  const macro13 = macroWrapper((params, layer, p5) => {
+    // because density is 2, this is shifting by half
+    const x = layer.width
+    const y = layer.height
+    shift(y, x)
+  })
+
+  const macro14 = macroWrapper((params, layer, p5) => {
+    // because density is 2, this is shifting by half
+    const x = layer.width
+    const y = 0
+    shift(y, x)
+  })
+
+  const macro15 = macroWrapper((params, layer, p5) => {
+    layer.translate(200, 100)
+    // paint(36, 23, params)
+    params.rows = 3
+    params.columns = 15
+    params.nextCharMode = 0 // char
+    // TODO: fittext needs to be implemented - there's nothing in rowcol for words
+    // which can be ugly, but.. .well, you know, so what!
+    drawRowCol(0, 0, params, layer.width, layer.height, layer)
+  })
+
+  const largestCircle = macroWrapper((params, layer) => {
+    params.invert = true
+    let exp = 1
+    for (let radius = 0; radius < layer.width / 2; radius += 10 * exp) {
+      exp = exp * 1.2
+      drawCircle(radius, radius, params, layer.width, layer.height, layer)
+    }
+  })
+
+  const thoseCircles = macroWrapper((params, layer, p5) => {
+    params.invert = true
+    let exp = 1
+    for (let radius = 0; radius < layer.width / 2; radius += 10 * exp) {
+      exp = exp * 1.2
+      if (p5.random() > 0.5) {
+        const yPos = layer.width - (radius * 2) || 1 // for color
+        drawCircle(radius, yPos, params, layer.width, layer.height, layer)
+      }
+    }
+  })
+
+  const thoseCirclesBig = macroWrapper((params, layer, p5) => {
+    params.invert = true
+    let textSize = p5.random([5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 200, 300, 400])
+    // NOTE: while this is roughly accurate at low sizes, it fails at larger sizes
+    for (let radius = 0; radius < layer.width; radius += textSize) {
+      if (p5.random() > 0.5) {
+        const yPos = layer.width - (radius * 2) || 1 // for color
+        drawCircle(radius, yPos, params, layer.width * 1.5, layer.height * 1.5, layer, textSize)
+      }
+    }
+  })
+
+  const manyRandoms = macroWrapper((params, layer, p5) => {
+    for (let i = 0; i < 10; i++) sketch.randomLayer()
+  })
+
   return {
     macro1,
     macro2,
@@ -165,6 +237,14 @@ export default function Macros (sketch) {
     macro8,
     macro9,
     macro10,
-    macro11
+    macro11,
+    macro12,
+    macro13,
+    macro14,
+    macro15,
+    macro16: largestCircle,
+    macro17: thoseCircles,
+    macro18: thoseCirclesBig,
+    macro19: manyRandoms
   }
 }

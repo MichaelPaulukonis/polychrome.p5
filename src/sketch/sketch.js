@@ -1,7 +1,7 @@
 import UndoLayers from './undo.layers.js'
 import Layers from './layers.js'
 import Macros from './macros.js'
-import { keyPresser, keyHandler } from './keys.js'
+import { keyPresser, keyHandler, setupHotkeys } from './keys.js'
 import { fitTextOnCanvas } from './fit.text'
 
 export default function Sketch (p5, guiControl, textManager, params) {
@@ -9,23 +9,11 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   const density = 2
 
-  const blackfield = '#000000'
   params.blackText = false
   let drawingLayer // drawing layer
   let layers = {
     drawingLayer,
     p5
-  }
-
-  var listener = new window.keypress.Listener()
-
-  for (let i = 0; i <= 11; i++) {
-    const m = `macro${i}`
-    const digits = String(i).split('')
-    listener.sequence_combo(`alt x ${digits.join(' ')} alt`, () => {
-      macros[m](params, layers.drawingLayer, layers.p5)
-      this.undo.takeSnapshot()
-    }, true)
   }
 
   let setFillMode
@@ -39,13 +27,24 @@ export default function Sketch (p5, guiControl, textManager, params) {
     'Smartphone Color Pro', 'Social Icons Pro Set 1 - Rounded', 'social_shapes', 'TRENU___',
     'Type Icons Color', 'Type Icons', 'VT323-Regular', 'Youkairo']
 
+  let imgMask
   p5.preload = () => {
     loadedFonts.forEach(font => {
       fontList[font] = p5.loadFont(`assets/fonts/${font}.ttf`)
     })
+    imgMask = p5.loadImage('assets/9-96398_http-landrich-black-gradient-border-transparent.png')
+  }
+
+  const invertMask = () => {
+    imgMask.loadPixels()
+    for (var i = 3; i < imgMask.pixels.length; i += 4) {
+      imgMask.pixels[i] = 255 - imgMask.pixels[i]
+    }
+    imgMask.updatePixels()
   }
 
   p5.setup = () => {
+    invertMask()
     p5.pixelDensity(density)
     const canvas = p5.createCanvas(params.width, params.height)
     const drawingLayer = initDrawingLayer(params.width, params.height)
@@ -73,6 +72,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     if (p5.mouseIsPressed && mouseInCanvas()) {
       // TODO: if some modifier, drag the image around the screen
       // first call, save image, and keep it around for drag-drawing?
+      // layers.drawingLayer.blendMode(p5.DIFFERENCE)
       paint(p5.mouseX, p5.mouseY, params)
     }
   }
@@ -93,11 +93,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
     renderTarget()
   }
 
-  const clearLayer = (l) => {
-    l.blendMode(l.NORMAL)
-    // const field = params.blackText ? whitefield : blackfield
-    l.background(blackfield)
-  }
   const renderTarget = () => {
     layers.p5.image(layers.drawingLayer, 0, 0)
     layers.drawingLayer.clear()
@@ -166,7 +161,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   // a reminder of something simpler
   const drawRowCol = (xPos, yPos, params, width, height, layer) => {
     const rows = params.rows
-    let cols = rows // tidally lock them together for the time being.
+    let cols = params.columns // tidally lock them together for the time being.
 
     const cellHeight = height / rows
     const cellWidth = width / cols
@@ -222,14 +217,20 @@ export default function Sketch (p5, guiControl, textManager, params) {
     renderLayers(params)
   }
 
-  const drawCircle = (xPos, yPos, params, width, height, layer) => {
+  const maxUnlessLessThan = (val, min) => val < min ? min : val
+
+  const textSizeCircle = (xPos) => {
     let tx = xPos / 2
-    if (tx < 1) tx = 1
-    layer.textSize(tx) // what if it was based on the yPos, which we are ignoring otherwise?
-    // well, it's somewhat used for color - fade, in some cases
+    return maxUnlessLessThan(tx, 1)
+  }
+
+  // NOTE: yPos is only used for color context....
+  const drawCircle = (xPos, yPos, params, width, height, layer, textSize) => {
+    const ts = textSize || textSizeCircle(xPos)
+    layer.textSize(ts)
 
     layer.push()
-    layer.translate(width / 2, height / 2) // centered
+    layer.translate(layer.width / 2, layer.height / 2) // centered
     // layer.translate(0, 0) //  upper-left - we can change this around
     const sw = params.useOutline
       ? params.outline_strokeWeight
@@ -254,8 +255,9 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const getRadius = (params, width, xPos) => {
-    const radius = params.invert ? (width * 1.2 / 2) - xPos : xPos
-    return radius < 0 ? 0.1 : radius
+    // const radius = params.invert ? (width * 1.2 / 2) - xPos : xPos
+    const radius = params.invert ? (width / 2) - xPos : xPos
+    return radius < 0.1 ? 0.1 : radius
   }
 
   // generator returns { theta, text }
@@ -436,12 +438,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
     params.rotation = (params.rotation + step * direction) % 360
     if (params.rotation > 360) params.rotation = 360
     if (params.rotation < -360) params.rotation = -360
-  }
-
-  const nextRow = (direction, params) => {
-    params.rows = params.rows + direction
-    if (params.rows > params.maxrow) params.rows = params.maxrow
-    if (params.rows < 1) params.rows = 1
   }
 
   const colorAlpha = (aColor, alpha) => {
@@ -698,25 +694,45 @@ export default function Sketch (p5, guiControl, textManager, params) {
     renderLayers(params)
   }
 
+  const coinflip = () => this.p5.random() > 0.5
+
+  // place image from history into location in current image
+  // with (optional) rotation, transparency, mask and size
   const randomLayer = () => {
-    // put a random image from the undo history into a random spot at a random rotation
-    // play with this, and figure out what's most pleasing
-    // maybe even have some transparency?
-    const img = this.undo.random()
+    const img = this.p5.random(this.undo.history())
     layers.drawingLayer.push()
     layers.drawingLayer.resetMatrix()
-    layers.drawingLayer.translate(this.p5.random(this.p5.width), this.p5.random(this.p5.height))
-    layers.drawingLayer.rotate(this.p5.radians(this.p5.random(360)))
+
+    const originX = this.p5.random(this.p5.width) // should be able to go BACK and UP as well
+    const originY = this.p5.random(this.p5.height)
+    layers.drawingLayer.translate(originX, originY)
+    // TODO: hrm. maybe there could be some more options, here?
+    if (coinflip()) layers.drawingLayer.rotate(this.p5.radians(this.p5.random(360)))
     // this is a POC
     // I'd like to explore gradients or other masks for transparency
     const alpha = (this.p5.random(255))
     this.p5.push()
+
+    var img2 = layers.p5.createImage(img.width, img.height)
+    // TODO: what about changing the size, as well?
+    // var srcImage, sx, sy, sw, sh, dx, dy, dw, dh;
+    const size = percentSize()
+    img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * size, img.height * size)
+    img2.mask(imgMask) // TODO: need to modify by size, as well
+
     this.p5.tint(255, alpha)
-    layers.drawingLayer.image(img, 0, 0)
+
+    layers.drawingLayer.image(img2, 0, 0)
     renderTarget() // not all layers - skip clearing and background, thus allowing an overlay
     this.p5.pop()
 
     layers.drawingLayer.pop()
+  }
+
+  const percentSize = () => {
+    const sizes = [0.25, 0.5, 0.75, 1.0]
+    const size = this.p5.random(sizes)
+    return size
   }
 
   // this smells, but is a start of separation
@@ -745,6 +761,20 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.shift = shift
   this.textManager = textManager
 
+  this.HORIZONTAL = HORIZONTAL
+  this.VERTICAL = VERTICAL
+
+  var listener = new window.keypress.Listener()
   const macros = new Macros(this)
+  for (let i = 1; i <= Object.keys(macros).length + 1; i++) {
+    const m = `macro${i}`
+    const digits = String(i).split('')
+    listener.sequence_combo(`alt x ${digits.join(' ')} alt`, () => {
+      macros[m](params, layers.drawingLayer, layers.p5)
+      this.undo.takeSnapshot()
+    }, true)
+  }
+
   this.macros = macros
+  setupHotkeys(this)
 }

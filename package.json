@@ -31,6 +31,7 @@
   "homepage": "https://github.com/MichaelPaulukonis/polychrome.p5#readme",
   "dependencies": {
     "dat.gui": "^0.7.3",
+    "hotkeys-js": "^3.6.12",
     "p5": "^0.7.2",
     "ramda": "^0.26.1"
   },

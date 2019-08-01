@@ -1,13 +1,40 @@
+import hotkeys from 'hotkeys-js'
+
+const setupHotkeys = (sketch) => {
+  const EXTRASHIFT = 10
+  hotkeys('up,down,shift+up,shift+down', (_, handler) => {
+    switch (handler.key) {
+      case 'down': {
+        sketch.shift(EXTRASHIFT, 0)
+        sketch.undo.takeSnapshot()
+        break
+      }
+      case 'up': {
+        sketch.shift(-EXTRASHIFT, 0)
+        sketch.undo.takeSnapshot()
+        break
+      }
+      case 'shift+down': {
+        sketch.shift(EXTRASHIFT * 10, 0)
+        sketch.undo.takeSnapshot()
+        break
+      }
+      case 'shift+up': {
+        sketch.shift(-EXTRASHIFT * 10, 0)
+        sketch.undo.takeSnapshot()
+        break
+      }
+    }
+  })
+}
+
 const keyPresser = (keyCode, sketch) => {
   // BACKSPACE, DELETE, ENTER, RETURN, TAB, ESCAPE, SHIFT, CONTROL, OPTION, ALT, UP_ARROW, DOWN_ARROW, LEFT_ARROW, RIGHT_ARROW
   const extraShift = event.shiftKey ? 100 : 10
   // also: altKey ctrlKey, metaKey
   let handled = false
-  if (keyCode === sketch.p5.UP_ARROW || keyCode === sketch.p5.DOWN_ARROW) {
-    handled = true
-    const vector = (keyCode === sketch.p5.UP_ARROW) ? 1 : -1
-    sketch.shift(vector * extraShift, 0)
-  } else if (keyCode === sketch.p5.LEFT_ARROW || keyCode === sketch.p5.RIGHT_ARROW) {
+  // TODO: move into hotkeys
+  if (keyCode === sketch.p5.LEFT_ARROW || keyCode === sketch.p5.RIGHT_ARROW) {
     handled = true
     const vector = (keyCode === sketch.p5.RIGHT_ARROW) ? 1 : -1
     sketch.shift(0, vector * extraShift)
@@ -102,14 +129,14 @@ const keyHandler = (char, params, layers, sketch) => {
       sketch.textManager.setText(sketch.guiControl.getBodyCopy())
       break
 
-    case 'x':
-      sketch.shift(EXTRASHIFT, 0)
-      sketch.undo.takeSnapshot()
-      break
-    case 'X':
-      sketch.shift(-EXTRASHIFT, 0)
-      sketch.undo.takeSnapshot()
-      break
+    // case 'x':
+    //   sketch.shift(EXTRASHIFT, 0)
+    //   sketch.undo.takeSnapshot()
+    //   break
+    // case 'X':
+    //   sketch.shift(-EXTRASHIFT, 0)
+    //   sketch.undo.takeSnapshot()
+    //   break
 
     case 'z':
       sketch.shift(0, -EXTRASHIFT)
@@ -132,4 +159,4 @@ const keyHandler = (char, params, layers, sketch) => {
   }
 }
 
-export { keyPresser, keyHandler }
+export { keyPresser, keyHandler, setupHotkeys }

@@ -31,10 +31,7 @@ export default class UndoLayers {
         images.show()
       }
     }
-    this.random = () => {
-      const is = images.all()
-      return is[Math.floor(Math.random() * is.length)]
-    }
+    this.history = () => images.all().slice(0, undoSteps)
   }
 }
 

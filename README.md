@@ -74,7 +74,16 @@ http://repo.zebkit.org/latest/samples/uidemo.html#
 ## code stuff
 https://idmnyu.github.io/p5.js-func/ ???
 
-keypress handler - https://dmauro.github.io/Keypress/
+### better keyhandling
+  - ~~separate out from main sketch file~~
+  - consolidate keyhandling, so special keys can be modifiers (ctrl-x, or someting)
+  - ~~multi-key input, so "1" or "11" or "111" with some key to start entry, time it out, or manually accept or cancel~~
+  - ~~then multi-circles and all sorts of one-off experiments can have a move semi-permanent home~~
+  - making use of Keypress (includes as script, ouch): https://github.com/dmauro/Keypress
+  - also look at:
+    - https://www.npmjs.com/package/stack-shortcuts
+    - https://www.npmjs.com/package/@f/keychord
+    - https://www.npmjs.com/package/hotkeys-js
 
 ## Things to implement
  - ~~font picker~~
@@ -84,7 +93,7 @@ keypress handler - https://dmauro.github.io/Keypress/
  - drag-n-zoom image (related code to pick center?)
  - draw into sub-section (click-n-drag to define)
  - more kalidoscopi features (eh, dunno)
-   - maybe just auto-quad with a "macro" ?
+   - ~~maybe just auto-quad with a "macro" ?~~
  - save/record animation
  - higher resolution
  - save all actions for replay (particularly for user when resize/up-resolution)
@@ -94,9 +103,3 @@ keypress handler - https://dmauro.github.io/Keypress/
  - 4 LERPs
    - shuffle the four
    - store a nice palette locally
-
- - better keyhandling
-    - ~ separate out from main sketch file
-    - consolidate keyhandling, so special keys can be modifiers (ctrl-x, or someting)
-    - multi-key input, so "1" or "11" or "111" with some key to start entry, time it out, or manually accept or cancel
-    - then multi-circles and all sorts of one-off experiments can have a move semi-permanent home
