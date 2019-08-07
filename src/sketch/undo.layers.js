@@ -15,6 +15,13 @@ export default class UndoLayers {
       images.capture()
     }
 
+    this.temp = () => {
+      const temp = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
+      temp.pixelDensity(layers.p5.pixelDensity())
+      temp.image(layers.p5, 0, 0)
+      return temp
+    }
+
     this.undo = () => {
       if (undoSteps > 0) {
         undoSteps--
@@ -39,15 +46,11 @@ class CircImgCollection {
   constructor (layers, renderFunc, amountOfImages) {
     let current = 0
     let img = []
-    const d = layers.drawingLayer.pixelDensity()
+    const density = layers.drawingLayer.pixelDensity()
 
     let amount = amountOfImages
     this.amount = amount
 
-    // Initialize all images as copies of the current display
-    for (let i = 0; i < amount; i++) {
-      img[i] = layers.p5.createImage(layers.drawingLayer.width * d, layers.drawingLayer.height * d)
-    }
     this.all = () => img
 
     this.next = () => {
@@ -60,7 +63,7 @@ class CircImgCollection {
       // this is copying, somewhat, the initLayer code
       // but whatevs.....
       let layer = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
-      layer.pixelDensity(layers.p5.pixelDensity())
+      layer.pixelDensity(density)
       layer.image(layers.p5, 0, 0)
       img[current] = layer
     }

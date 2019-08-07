@@ -84,6 +84,10 @@ const keyHandler = (char, params, layers, sketch) => {
       params.useOutline = !params.useOutline
       break
 
+    case 'p':
+      params.target = !params.target
+      break
+
     case 'q':
       sketch.rotateCanvas(1)
       // TODO: if not square, undo gets weird, here.....
@@ -128,15 +132,6 @@ const keyHandler = (char, params, layers, sketch) => {
     case 'W':
       sketch.textManager.setText(sketch.guiControl.getBodyCopy())
       break
-
-    // case 'x':
-    //   sketch.shift(EXTRASHIFT, 0)
-    //   sketch.undo.takeSnapshot()
-    //   break
-    // case 'X':
-    //   sketch.shift(-EXTRASHIFT, 0)
-    //   sketch.undo.takeSnapshot()
-    //   break
 
     case 'z':
       sketch.shift(0, -EXTRASHIFT)

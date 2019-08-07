@@ -1,7 +1,8 @@
 export default class Layers {
-  constructor (p5, dl) {
+  constructor (p5, dl, temp) {
     this.p5 = p5 // TODO: rename
     this.drawingLayer = dl
+    this.tempLayer = temp
   }
 
   setFont (font) {

@@ -48,7 +48,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     p5.pixelDensity(density)
     const canvas = p5.createCanvas(params.width, params.height)
     const drawingLayer = initDrawingLayer(params.width, params.height)
-    layers = new Layers(p5, drawingLayer)
+    const tempLayer = initDefaultLayer(params.width, params.height)
+    layers = new Layers(p5, drawingLayer, tempLayer)
 
     // tODO: these are now set as side-effects in initializeDrawingLayer
     // setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layers.drawingLayer.fill, layers.drawingLayer)
@@ -60,16 +61,61 @@ export default function Sketch (p5, guiControl, textManager, params) {
     guiControl.setupGui(this, guiControl.fontPicker)
     textManager.setText(guiControl.getBodyCopy())
     this.undo = new UndoLayers(layers, renderLayers, 10)
+    // p5.noLoop()
   }
 
   const mouseInCanvas = () => {
     return p5.mouseY > 0 && p5.mouseY < p5.height && p5.mouseX > 0 && p5.mouseX < p5.width
   }
 
-  p5.draw = () => {
+  // p5.draw = () => {
+  //   // or you'll crash the app! or something....
+  //   // ignore mouse outside confines of window.
+  //   if (p5.mouseIsPressed && mouseInCanvas()) {
+  //     // cross-hair target
+  //     if (params.target) {
+  //       let layer = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
+  //       layer.pixelDensity(layers.drawingLayer.pixelDensity())
+  //       layer.image(layers.p5, 0, 0)
+
+  //       p5.image(layer)
+  //       // layers.tempLayer.clear()
+  //       const x = p5.mouseX
+  //       const y = p5.mouseY
+  //       p5.line(0, y, p5.width, y) // line(0, y, width, y);
+  //       p5.line(x, 0, x, p5.height) // line(0, y, width, y);
+
+  //       return
+  //     }
+
+  //     // TODO: if some modifier, drag the image around the screen
+  //     // first call, save image, and keep it around for drag-drawing?
+  //     // layers.drawingLayer.blendMode(p5.DIFFERENCE)
+  //     paint(p5.mouseX, p5.mouseY, params)
+  //   }
+  // }
+
+  p5.mouseDragged = () => {
     // or you'll crash the app! or something....
     // ignore mouse outside confines of window.
-    if (p5.mouseIsPressed && mouseInCanvas()) {
+    if (mouseInCanvas()) {
+      // take out, part of the key handler
+      // cross-hair target
+      if (params.target) {
+        let layer = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
+        layer.pixelDensity(layers.drawingLayer.pixelDensity())
+        layer.image(layers.p5, 0, 0)
+
+        p5.image(layer)
+        // layers.tempLayer.clear()
+        const x = p5.mouseX
+        const y = p5.mouseY
+        p5.line(0, y, p5.width, y) // line(0, y, width, y);
+        p5.line(x, 0, x, p5.height) // line(0, y, width, y);
+
+        return
+      }
+
       // TODO: if some modifier, drag the image around the screen
       // first call, save image, and keep it around for drag-drawing?
       // layers.drawingLayer.blendMode(p5.DIFFERENCE)
@@ -98,6 +144,11 @@ export default function Sketch (p5, guiControl, textManager, params) {
     layers.drawingLayer.clear()
   }
 
+  const renderTemp = () => {
+    layers.p5.image(layers.tempLayer, 0, 0)
+    layers.tempLayer.clear()
+  }
+
   // pass in p5 and params because it's bound in gui.js
   // but, this binds the current values in params, apparently
   // UGH UGH UGH
@@ -121,9 +172,14 @@ export default function Sketch (p5, guiControl, textManager, params) {
     layer.textFont(tf)
   }
 
-  const initDrawingLayer = (w, h) => {
+  const initDefaultLayer = (w, h) => {
     let layer = p5.createGraphics(w, h)
     layer.pixelDensity(density)
+    return layer
+  }
+
+  const initDrawingLayer = (w, h) => {
+    let layer = initDefaultLayer(w, h)
     setFont(params.font, layer)
     layer.textAlign(p5.CENTER, p5.CENTER)
     layer.colorMode(p5.HSB, params.width, params.height, 100, 1)
@@ -143,8 +199,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
       : mode === params.drawModes.Circle ? drawCircle
         : drawRowCol
     draw(xPos, yPos, params, params.width, params.height, layers.drawingLayer)
-    params.fill_donePainting = true
-    params.outline_donePainting = true
   }
 
   const textGetter = (textMode, t) => {
@@ -703,6 +757,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     layers.drawingLayer.push()
     layers.drawingLayer.resetMatrix()
 
+    // can be negative, but to appear it depends on the size percentage
+    const size = percentSize()
     const originX = this.p5.random(this.p5.width) // should be able to go BACK and UP as well
     const originY = this.p5.random(this.p5.height)
     layers.drawingLayer.translate(originX, originY)
@@ -713,12 +769,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const alpha = (this.p5.random(255))
     this.p5.push()
 
+    // hey! the density is all off, here
     var img2 = layers.p5.createImage(img.width, img.height)
-    // TODO: what about changing the size, as well?
-    // var srcImage, sx, sy, sw, sh, dx, dy, dw, dh;
-    const size = percentSize()
     img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * size, img.height * size)
-    img2.mask(imgMask) // TODO: need to modify by size, as well
+    const mask2 = layers.p5.createImage(img.width, img.height)
+    mask2.copy(imgMask, 0, 0, img.width, img.height, 0, 0, img.width * size, img.height * size)
+    img2.mask(mask2) // TODO: need to modify by size, as well
 
     this.p5.tint(255, alpha)
 
@@ -730,7 +786,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const percentSize = () => {
-    const sizes = [0.25, 0.5, 0.75, 1.0]
+    const sizes = [0.25, 0.5, 0.75, 1.0, 1.5, 2]
     const size = this.p5.random(sizes)
     return size
   }

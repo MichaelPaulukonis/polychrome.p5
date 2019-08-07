@@ -64,6 +64,13 @@ Everything is flat. No shadows, no dimensions, no pretend angles.
 
 But.... someday? Who knows.
 
+## spirals
+https://www.openprocessing.org/sketch/168364/
+https://www.openprocessing.org/sketch/129166/ - I think this was the basis of my circle code
+
+## other drawing options
+http://genekogan.com/code/p5js-transformations/ - some of the combined transforms are interesting
+
 ## UI
 https://github.com/bit101/quicksettings => the raw, unwrapped version looks like it should work better than the p5 gui wrapper
 The "wrapper" requires the variables to be globals. UGH.
