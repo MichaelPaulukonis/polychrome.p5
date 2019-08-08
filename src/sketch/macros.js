@@ -1,6 +1,6 @@
 
 export default function Macros (sketch) {
-  const { drawGrid, drawCircle, drawRowCol, pushpop, paint, shift, apx, mirror, HORIZONTAL, VERTICAL } = sketch
+  const { drawGrid, drawCircle, drawRowCol, pushpop, paint, shift, apx, mirror, renderLayers, undo, HORIZONTAL, VERTICAL } = sketch
 
   const macroWrapper = (f) => (params, layer, p5) => {
     layer.push()
@@ -71,7 +71,7 @@ export default function Macros (sketch) {
     paint(36, 23, params)
   })
 
-  const macro10 = macroWrapper((params, layer, p5) => {
+  const halfHeightGridAtMousePos = macroWrapper((params, layer, p5) => {
     const width = layer.width / 2
     const height = layer.height / 2
     const x = p5.mouseX
@@ -150,35 +150,36 @@ export default function Macros (sketch) {
     })()
   }
 
-  const macro11 = macroWrapper((params, layer) => {
+  const singleRow = macroWrapper((params, layer) => {
     // const drawRowCol = (xPos, yPos, params, width, height, layer) => {
     //   const rows = params.rows
     params.rows = 1
+    params.columns = 1
     // TODO: fittext needs to be implemented - there's nothing in rowcol for words
     // which can be ugly, but.. .well, you know, so what!
     drawRowCol(0, 0, params, layer.width, layer.height, layer)
   })
 
-  const macro12 = macroWrapper((params, layer, p5) => {
+  const doubleMirror = macroWrapper((params, layer, p5) => {
     mirror(HORIZONTAL, p5)
     mirror(VERTICAL, p5)
   })
 
-  const macro13 = macroWrapper((params, layer, p5) => {
+  const shiftToCenter = macroWrapper((params, layer, p5) => {
     // because density is 2, this is shifting by half
     const x = layer.width
     const y = layer.height
     shift(y, x)
   })
 
-  const macro14 = macroWrapper((params, layer, p5) => {
+  const shiftRightHalfway = macroWrapper((params, layer, p5) => {
     // because density is 2, this is shifting by half
     const x = layer.width
     const y = 0
     shift(y, x)
   })
 
-  const macro15 = macroWrapper((params, layer, p5) => {
+  const aRowColJoint = macroWrapper((params, layer, p5) => {
     layer.translate(200, 100)
     // paint(36, 23, params)
     params.rows = 3
@@ -226,6 +227,24 @@ export default function Macros (sketch) {
     for (let i = 0; i < 10; i++) sketch.randomLayer()
   })
 
+  const smallRandomAtSomePlace = macroWrapper((_, layer, p5) => {
+    const img = p5.random(undo.history())
+    layer.push()
+    layer.resetMatrix()
+
+    const originX = 100
+    const originY = 100
+    layer.translate(originX, originY)
+
+    var img2 = p5.createImage(img.width, img.height)
+    img2.copy(img, 0, 0, img.width, img.height, 0, 0, 200, 200)
+
+    layer.image(img2, 0, 0)
+
+    layer.pop()
+    renderLayers()
+  })
+
   return {
     macro1,
     macro2,
@@ -236,15 +255,16 @@ export default function Macros (sketch) {
     macro7,
     macro8,
     macro9,
-    macro10,
-    macro11,
-    macro12,
-    macro13,
-    macro14,
-    macro15,
+    macro10: halfHeightGridAtMousePos,
+    macro11: singleRow,
+    macro12: doubleMirror,
+    macro13: shiftToCenter,
+    macro14: shiftRightHalfway,
+    macro15: aRowColJoint,
     macro16: largestCircle,
     macro17: thoseCircles,
     macro18: thoseCirclesBig,
-    macro19: manyRandoms
+    macro19: manyRandoms,
+    macro20: smallRandomAtSomePlace
   }
 }

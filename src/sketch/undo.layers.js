@@ -12,14 +12,11 @@ export default class UndoLayers {
       // each time we draw we disable redo
       redoSteps = 0
       images.next()
-      images.capture()
+      images.store(images.copy())
     }
 
-    this.temp = () => {
-      const temp = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
-      temp.pixelDensity(layers.p5.pixelDensity())
-      temp.image(layers.p5, 0, 0)
-      return temp
+    this.copy = () => {
+      return images.copy()
     }
 
     this.undo = () => {
@@ -59,13 +56,16 @@ class CircImgCollection {
     this.prev = () => {
       current = (current - 1 + amount) % amount
     }
-    this.capture = () => {
+    this.store = (layer) => {
+      img[current] = layer
+    }
+    this.copy = () => {
       // this is copying, somewhat, the initLayer code
       // but whatevs.....
       let layer = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
       layer.pixelDensity(density)
       layer.image(layers.p5, 0, 0)
-      img[current] = layer
+      return layer
     }
     this.show = () => {
       // TODO: if w/h does NOT match current, then should rotate canvas

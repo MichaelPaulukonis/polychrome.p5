@@ -18,6 +18,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   let setFillMode
   let setOutlineMode
+  let undo
 
   let fontList = {}
   const loadedFonts = ['ATARCC__', 'ATARCE__', 'ATARCS__', 'AtariClassic-Regular',
@@ -60,62 +61,20 @@ export default function Sketch (p5, guiControl, textManager, params) {
     this.clearCanvas()
     guiControl.setupGui(this, guiControl.fontPicker)
     textManager.setText(guiControl.getBodyCopy())
-    this.undo = new UndoLayers(layers, renderLayers, 10)
-    // p5.noLoop()
+    undo = new UndoLayers(layers, renderLayers, 10)
+    this.undo = undo
+    setup2()
+    p5.noLoop()
   }
 
   const mouseInCanvas = () => {
     return p5.mouseY > 0 && p5.mouseY < p5.height && p5.mouseX > 0 && p5.mouseX < p5.width
   }
 
-  // p5.draw = () => {
-  //   // or you'll crash the app! or something....
-  //   // ignore mouse outside confines of window.
-  //   if (p5.mouseIsPressed && mouseInCanvas()) {
-  //     // cross-hair target
-  //     if (params.target) {
-  //       let layer = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
-  //       layer.pixelDensity(layers.drawingLayer.pixelDensity())
-  //       layer.image(layers.p5, 0, 0)
-
-  //       p5.image(layer)
-  //       // layers.tempLayer.clear()
-  //       const x = p5.mouseX
-  //       const y = p5.mouseY
-  //       p5.line(0, y, p5.width, y) // line(0, y, width, y);
-  //       p5.line(x, 0, x, p5.height) // line(0, y, width, y);
-
-  //       return
-  //     }
-
-  //     // TODO: if some modifier, drag the image around the screen
-  //     // first call, save image, and keep it around for drag-drawing?
-  //     // layers.drawingLayer.blendMode(p5.DIFFERENCE)
-  //     paint(p5.mouseX, p5.mouseY, params)
-  //   }
-  // }
-
   p5.mouseDragged = () => {
     // or you'll crash the app! or something....
     // ignore mouse outside confines of window.
     if (mouseInCanvas()) {
-      // take out, part of the key handler
-      // cross-hair target
-      if (params.target) {
-        let layer = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
-        layer.pixelDensity(layers.drawingLayer.pixelDensity())
-        layer.image(layers.p5, 0, 0)
-
-        p5.image(layer)
-        // layers.tempLayer.clear()
-        const x = p5.mouseX
-        const y = p5.mouseY
-        p5.line(0, y, p5.width, y) // line(0, y, width, y);
-        p5.line(x, 0, x, p5.height) // line(0, y, width, y);
-
-        return
-      }
-
       // TODO: if some modifier, drag the image around the screen
       // first call, save image, and keep it around for drag-drawing?
       // layers.drawingLayer.blendMode(p5.DIFFERENCE)
@@ -125,6 +84,19 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
   p5.mouseReleased = () => {
     this.undo.takeSnapshot()
+  }
+
+  const target = () => {
+    let layer = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
+    layer.pixelDensity(layers.drawingLayer.pixelDensity())
+    layer.image(layers.p5, 0, 0)
+
+    p5.image(layer)
+    // layers.tempLayer.clear()
+    const x = p5.mouseX
+    const y = p5.mouseY
+    p5.line(0, y, p5.width, y) // line(0, y, width, y);
+    p5.line(x, 0, x, p5.height) // line(0, y, width, y);
   }
 
   const apx = (...fns) => list => [...list].map(b => fns.forEach(f => f(b)))
@@ -815,22 +787,25 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.rotateCanvas = rotateCanvas
   this.setFont = setFont
   this.shift = shift
+  this.target = target
   this.textManager = textManager
 
   this.HORIZONTAL = HORIZONTAL
   this.VERTICAL = VERTICAL
 
-  var listener = new window.keypress.Listener()
-  const macros = new Macros(this)
-  for (let i = 1; i <= Object.keys(macros).length + 1; i++) {
-    const m = `macro${i}`
-    const digits = String(i).split('')
-    listener.sequence_combo(`alt x ${digits.join(' ')} alt`, () => {
-      macros[m](params, layers.drawingLayer, layers.p5)
-      this.undo.takeSnapshot()
-    }, true)
-  }
+  const setup2 = () => {
+    var listener = new window.keypress.Listener()
+    const macros = new Macros(this)
+    for (let i = 1; i <= Object.keys(macros).length + 1; i++) {
+      const m = `macro${i}`
+      const digits = String(i).split('')
+      listener.sequence_combo(`alt x ${digits.join(' ')} alt`, () => {
+        macros[m](params, layers.drawingLayer, layers.p5)
+        this.undo.takeSnapshot()
+      }, true)
+    }
 
-  this.macros = macros
-  setupHotkeys(this)
+    this.macros = macros
+    setupHotkeys(this)
+  }
 }
