@@ -36,6 +36,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     imgMask = p5.loadImage('assets/9-96398_http-landrich-black-gradient-border-transparent.png')
   }
 
+  // because the image I got was inverted from what I need.
   const invertMask = () => {
     imgMask.loadPixels()
     for (var i = 3; i < imgMask.pixels.length; i += 4) {
@@ -63,22 +64,33 @@ export default function Sketch (p5, guiControl, textManager, params) {
     textManager.setText(guiControl.getBodyCopy())
     undo = new UndoLayers(layers, renderLayers, 10)
     this.undo = undo
+    this.appMode = APP_MODES.STANDARD_DRAW
     setup2()
-    p5.noLoop()
   }
 
   const mouseInCanvas = () => {
     return p5.mouseY > 0 && p5.mouseY < p5.height && p5.mouseX > 0 && p5.mouseX < p5.width
   }
 
-  p5.mouseDragged = () => {
-    // or you'll crash the app! or something....
+  const APP_MODES = {
+    STANDARD_DRAW: 'standard drawing mode',
+    TARGET: 'select a point on canvas'
+  }
+
+  const standardDraw = () => {
     // ignore mouse outside confines of window.
-    if (mouseInCanvas()) {
-      // TODO: if some modifier, drag the image around the screen
-      // first call, save image, and keep it around for drag-drawing?
-      // layers.drawingLayer.blendMode(p5.DIFFERENCE)
+    // or you'll crash the app! or something....
+    if (p5.mouseIsPressed && mouseInCanvas()) {
       paint(p5.mouseX, p5.mouseY, params)
+    }
+  }
+
+  p5.draw = () => {
+    switch (this.appMode) {
+      case APP_MODES.STANDARD_DRAW:
+      default:
+        standardDraw()
+        break
     }
   }
 
@@ -87,9 +99,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const target = () => {
-    let layer = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
-    layer.pixelDensity(layers.drawingLayer.pixelDensity())
-    layer.image(layers.p5, 0, 0)
+    let layer = undo.copy()
 
     p5.image(layer)
     // layers.tempLayer.clear()

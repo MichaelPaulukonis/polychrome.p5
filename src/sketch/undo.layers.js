@@ -6,7 +6,7 @@ export default class UndoLayers {
     let undoSteps = 0
     let redoSteps = 0
     let images = new CircImgCollection(layers, renderFunc, levels)
-
+    let temp
     this.takeSnapshot = () => {
       undoSteps = Math.min(undoSteps + 1, images.amount - 1)
       // each time we draw we disable redo
@@ -17,6 +17,15 @@ export default class UndoLayers {
 
     this.copy = () => {
       return images.copy()
+    }
+
+    this.storeTemp = () => {
+      temp = this.copy()
+      return temp
+    }
+
+    this.getTemp = () => {
+      return temp || this.storeTemp()
     }
 
     this.undo = () => {

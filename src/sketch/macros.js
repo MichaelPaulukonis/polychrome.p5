@@ -234,16 +234,25 @@ export default function Macros (sketch) {
 
     const originX = 100
     const originY = 100
-    layer.translate(originX, originY)
+    const targetWidth = 200
+    const targetHeight = 400
 
-    var img2 = p5.createImage(img.width, img.height)
-    img2.copy(img, 0, 0, img.width, img.height, 0, 0, 200, 200)
+    var img2 = p5.createGraphics(targetWidth, targetHeight)
+    img2.pixelDensity(layer.pixelDensity())
+    const zone = randomSection(targetWidth, targetHeight, img.width, img.height, p5)
+    img2.copy(img, zone.sx, zone.sy, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight)
 
-    layer.image(img2, 0, 0)
-
+    layer.image(img2, originX, originY)
     layer.pop()
     renderLayers()
   })
+
+  const randomSection = (targetWidth, targetHeight, imgWidth, imgHeight, p5) => {
+    const fr = (min, max) => Math.floor(p5.random(min, max))
+    let sx = fr(0, imgWidth - targetWidth)
+    let sy = fr(0, imgHeight - targetHeight)
+    return { sx, sy }
+  }
 
   return {
     macro1,
