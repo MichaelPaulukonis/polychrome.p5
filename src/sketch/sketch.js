@@ -620,29 +620,33 @@ export default function Sketch (p5, guiControl, textManager, params) {
     renderLayers(params)
   }
 
+  // TODO: take in image, return image
+  // rendering is something else
   const mirror = (axis = VERTICAL, layer) => {
-    const d = layer.pixelDensity()
-    const tmp = layer.createImage(layer.width * d, layer.height * d)
-    tmp.loadPixels()
-    layer.loadPixels()
-    for (let i = 0; i < layer.pixels.length; i++) {
-      tmp.pixels[i] = layer.pixels[i]
-    }
-    tmp.updatePixels()
-    layer.push()
-    layer.translate(0, 0)
-    layer.resetMatrix()
-    if (axis === HORIZONTAL) {
-      layer.translate(layer.width, 0)
-      layer.scale(-1, 1)
-      layer.image(tmp, 0, 0, layer.width / 2, layer.height, 0, 0, layer.width, layer.height * 2)
-    } else {
-      layer.translate(0, layer.height)
-      layer.scale(1, -1)
-      layer.image(tmp, 0, 0, layer.width, layer.height / 2, 0, 0, layer.width * 2, layer.height)
-    }
-    layer.pop()
+    const newLayer = coreMirror(axis, this.undo.copy())
+    layer.image(newLayer, 0, 0)
     renderLayers(params)
+  }
+
+  // TODO: function to return the reversed image, not fused together
+  // that way, we could replace with reversed - for other purposed
+  // another func that merges them
+  const coreMirror = (axis = VERTICAL, g) => {
+    const tmp = undo.clone(g)
+    g.push()
+    g.translate(0, 0)
+    g.resetMatrix()
+    if (axis === HORIZONTAL) {
+      g.translate(g.width, 0)
+      g.scale(-1, 1)
+      g.image(tmp, 0, 0, g.width / 2, g.height, 0, 0, g.width / 2, g.height * 2)
+    } else {
+      g.translate(0, g.height)
+      g.scale(1, -1)
+      g.image(tmp, 0, 0, g.width, g.height / 2, 0, 0, g.width * 2, g.height / 2)
+    }
+    g.pop()
+    return g
   }
 
   // shift pixels in image

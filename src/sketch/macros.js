@@ -254,6 +254,14 @@ export default function Macros (sketch) {
     return { sx, sy }
   }
 
+  const randomCornerQuads = macroWrapper((_, layer, p5) => {
+    // TODO: one square, reflected at, or offset from, the corners
+  })
+
+  const randomSquaresOrSummat = macroWrapper((_, layer, p5) => {
+    // TODO: random quadritlateral with no fade (maybe)
+  })
+
   return {
     macro1,
     macro2,

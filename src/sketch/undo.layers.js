@@ -7,16 +7,38 @@ export default class UndoLayers {
     let redoSteps = 0
     let images = new CircImgCollection(layers, renderFunc, levels)
     let temp
+    const density = layers.drawingLayer.pixelDensity()
+
     this.takeSnapshot = () => {
       undoSteps = Math.min(undoSteps + 1, images.amount - 1)
       // each time we draw we disable redo
       redoSteps = 0
       images.next()
-      images.store(images.copy())
+      images.store(this.copy())
     }
 
+    // this is more of a layers, thing
+    /**
+     * Returns a p5.Graphics object that is a copy of the current drawing
+     */
     this.copy = () => {
-      return images.copy()
+      // this is copying, somewhat, the initLayer code
+      // but whatevs.....
+      let layer = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
+      layer.pixelDensity(density)
+      layer.image(layers.p5, 0, 0)
+      return layer
+    }
+
+    // this is more of a layers, thing
+    /**
+     * Returns a p5.Graphics object that is a copy of the image passed in
+     */
+    this.clone = (img) => {
+      let g = layers.p5.createGraphics(img.width, img.height)
+      g.pixelDensity(density)
+      g.image(img, 0, 0)
+      return g
     }
 
     this.storeTemp = () => {
@@ -52,8 +74,6 @@ class CircImgCollection {
   constructor (layers, renderFunc, amountOfImages) {
     let current = 0
     let img = []
-    const density = layers.drawingLayer.pixelDensity()
-
     let amount = amountOfImages
     this.amount = amount
 
@@ -67,14 +87,6 @@ class CircImgCollection {
     }
     this.store = (layer) => {
       img[current] = layer
-    }
-    this.copy = () => {
-      // this is copying, somewhat, the initLayer code
-      // but whatevs.....
-      let layer = layers.p5.createGraphics(layers.p5.width, layers.p5.height)
-      layer.pixelDensity(density)
-      layer.image(layers.p5, 0, 0)
-      return layer
     }
     this.show = () => {
       // TODO: if w/h does NOT match current, then should rotate canvas
