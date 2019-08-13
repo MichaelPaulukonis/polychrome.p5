@@ -116,12 +116,12 @@ const keyHandler = (char, params, layers, sketch) => {
       break
 
     case 't':
-      sketch.mirror(HORIZONTAL, layers.p5)
+      sketch.mirror(VERTICAL, layers.p5)
       sketch.undo.takeSnapshot()
       break
 
     case 'T':
-      sketch.mirror(VERTICAL, layers.p5)
+      sketch.mirror(HORIZONTAL, layers.p5)
       sketch.undo.takeSnapshot()
       break
 

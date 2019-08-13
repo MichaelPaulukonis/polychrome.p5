@@ -99,7 +99,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const target = () => {
-    let layer = undo.copy()
+    let layer = layers.copy()
 
     p5.image(layer)
     // layers.tempLayer.clear()
@@ -594,58 +594,41 @@ export default function Sketch (p5, guiControl, textManager, params) {
   const HORIZONTAL = 0
   const VERTICAL = 1
   const flip = (axis, layer) => {
-    // NOTE: get() is soooooo much quicker!
-    // but since it only works in RGBA, it creates problems for HSB canvases like ours
-    // or, it creates problems, possibly for a different reason
-    const d = layer.pixelDensity()
-    const tmp = layer.createImage(layer.width * d, layer.height * d)
-    tmp.loadPixels()
-    layer.loadPixels()
-    for (let i = 0; i < layer.pixels.length; i++) {
-      tmp.pixels[i] = layer.pixels[i]
-    }
-    tmp.updatePixels()
-    layer.push()
-    layer.translate(0, 0)
-    layer.resetMatrix()
-    if (axis === HORIZONTAL) {
-      layer.translate(0, layer.height)
-      layer.scale(1, -1)
-    } else {
-      layer.translate(layer.width, 0)
-      layer.scale(-1, 1)
-    }
-    layer.image(tmp, 0, 0, layer.width, layer.height)
-    layer.pop()
-    renderLayers(params)
-  }
-
-  // TODO: take in image, return image
-  // rendering is something else
-  const mirror = (axis = VERTICAL, layer) => {
-    const newLayer = coreMirror(axis, this.undo.copy())
+    const newLayer = flipCore(axis, layers.copy())
     layer.image(newLayer, 0, 0)
     renderLayers(params)
   }
 
-  // TODO: function to return the reversed image, not fused together
-  // that way, we could replace with reversed - for other purposed
-  // another func that merges them
-  const coreMirror = (axis = VERTICAL, g) => {
-    const tmp = undo.clone(g)
-    g.push()
-    g.translate(0, 0)
-    g.resetMatrix()
+  const flipCore = (axis = VERTICAL, g) => {
+    const tmp = layers.clone(g)
+    tmp.push()
+    tmp.translate(0, 0)
+    tmp.resetMatrix()
     if (axis === HORIZONTAL) {
-      g.translate(g.width, 0)
-      g.scale(-1, 1)
-      g.image(tmp, 0, 0, g.width / 2, g.height, 0, 0, g.width / 2, g.height * 2)
+      tmp.translate(0, tmp.height)
+      tmp.scale(1, -1)
     } else {
-      g.translate(0, g.height)
-      g.scale(1, -1)
-      g.image(tmp, 0, 0, g.width, g.height / 2, 0, 0, g.width * 2, g.height / 2)
+      tmp.translate(tmp.width, 0)
+      tmp.scale(-1, 1)
     }
-    g.pop()
+    tmp.image(g, 0, 0, tmp.width, tmp.height)
+    tmp.pop()
+    return tmp
+  }
+
+  const mirror = (axis = VERTICAL, layer) => {
+    const newLayer = mirrorCore(axis, layers.copy())
+    layer.image(newLayer, 0, 0)
+    renderLayers(params)
+  }
+
+  const mirrorCore = (axis = VERTICAL, g) => {
+    const tmp = flipCore(axis, g)
+    if (axis === HORIZONTAL) {
+      g.image(tmp, 0, g.height / 2, g.width, g.height / 2, 0, g.height / 2, g.width, g.height / 2)
+    } else {
+      g.image(tmp, g.width / 2, 0, g.width / 2, g.height, g.width / 2, 0, g.width / 2)
+    }
     return g
   }
 
