@@ -10,12 +10,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   const density = 2
 
   params.blackText = false
-  let drawingLayer // drawing layer
-  let layers = {
-    drawingLayer,
-    p5
-  }
-
+  let layers
   let setFillMode
   let setOutlineMode
   let undo
@@ -51,7 +46,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const canvas = p5.createCanvas(params.width, params.height)
     const drawingLayer = initDrawingLayer(params.width, params.height)
     const tempLayer = initDefaultLayer(params.width, params.height)
-    layers = new Layers(p5, drawingLayer, tempLayer)
+    this.layers = layers = new Layers(p5, drawingLayer, tempLayer)
 
     // tODO: these are now set as side-effects in initializeDrawingLayer
     // setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layers.drawingLayer.fill, layers.drawingLayer)
@@ -65,7 +60,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     undo = new UndoLayers(layers, renderLayers, 10)
     this.undo = undo
     this.appMode = APP_MODES.STANDARD_DRAW
-    setup2()
+    setup2(this)
   }
 
   const mouseInCanvas = () => {
@@ -358,12 +353,30 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
   }
 
+  const shadowDefault = {
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
+    shadowBlur: 0,
+    shadowColor: p5.color('transparent')
+  }
+
+  const setShadows = (layer, inParams) => {
+    const params = inParams.useShadow ? {...{}, ...inParams} : {...{}, ...shadowDefault}
+
+    layer.drawingContext.shadowOffsetX = params.shadowOffsetX
+    layer.drawingContext.shadowOffsetY = params.shadowOffsetY
+    layer.drawingContext.shadowBlur = params.shadowBlur
+    layer.drawingContext.shadowColor = params.shadowColor
+  }
+
   // alternatively http://happycoding.io/examples/processing/for-loops/letters
   // cleaner?
   const drawGrid = (xPos, yPos, params, width, height, layer) => {
-    // negatives are possible, it seems....
+    // negatives are possible, it seems...
     xPos = xPos < 5 ? 5 : xPos
     // yPos = yPos < 5 ? 5 : yPos
+
+    setShadows(layer, params)
 
     // THIS SHOULD ALL BE DEFAULT STUFF DONE COMONLY
     const gridParams = params.invert ? invertGridParm(xPos, height, width) : defaultGridParm(xPos, height, width)
@@ -591,8 +604,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     layer.resetMatrix()
   }
 
-  const HORIZONTAL = 0
-  const VERTICAL = 1
+  const HORIZONTAL = 0 // up=>down
+  const VERTICAL = 1 // left=>right
   const flip = (axis, layer) => {
     const newLayer = flipCore(axis, layers.copy())
     layer.image(newLayer, 0, 0)
@@ -727,9 +740,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
     layers.drawingLayer.resetMatrix()
 
     // can be negative, but to appear it depends on the size percentage
-    const size = percentSize()
-    const originX = this.p5.random(this.p5.width) // should be able to go BACK and UP as well
-    const originY = this.p5.random(this.p5.height)
+    const pctSize = percentSize()
+    // this is an approximation, an does not take rotation into account
+    const size = { width: this.p5.width * pctSize, height: this.p5.height * pctSize }
+    const offsetSize = { width: size.width * 0.75, height: size.height * 0.75 }
+    const originX = this.p5.random(-offsetSize.width, this.p5.width + offsetSize.width) // should be able to go BACK and UP as well
+    const originY = this.p5.random(-offsetSize.height, this.p5.height + offsetSize.height)
     layers.drawingLayer.translate(originX, originY)
     // TODO: hrm. maybe there could be some more options, here?
     if (coinflip()) layers.drawingLayer.rotate(this.p5.radians(this.p5.random(360)))
@@ -740,12 +756,15 @@ export default function Sketch (p5, guiControl, textManager, params) {
 
     // hey! the density is all off, here
     var img2 = layers.p5.createImage(img.width, img.height)
-    img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * size, img.height * size)
-    const mask2 = layers.p5.createImage(img.width, img.height)
-    mask2.copy(imgMask, 0, 0, img.width, img.height, 0, 0, img.width * size, img.height * size)
-    img2.mask(mask2) // TODO: need to modify by size, as well
+    img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
+    if (!params.hardEdge) {
+      const mask2 = layers.p5.createImage(img.width, img.height)
+      mask2.copy(imgMask, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
+      img2.mask(mask2) // TODO: need to modify by size, as well
+    }
 
     this.p5.tint(255, alpha)
+    console.log(`alpha: ${alpha}`)
 
     layers.drawingLayer.image(img2, 0, 0)
     renderTarget() // not all layers - skip clearing and background, thus allowing an overlay
@@ -767,6 +786,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.drawGrid = drawGrid
   this.drawRowCol = drawRowCol
   this.flip = flip
+  this.flipCore = flipCore
   this.guiControl = guiControl
   this.layers = layers
   this.mirror = mirror
@@ -790,19 +810,19 @@ export default function Sketch (p5, guiControl, textManager, params) {
   this.HORIZONTAL = HORIZONTAL
   this.VERTICAL = VERTICAL
 
-  const setup2 = () => {
+  const setup2 = (sketch) => {
     var listener = new window.keypress.Listener()
-    const macros = new Macros(this)
+    const macros = new Macros(sketch)
     for (let i = 1; i <= Object.keys(macros).length + 1; i++) {
       const m = `macro${i}`
       const digits = String(i).split('')
       listener.sequence_combo(`alt x ${digits.join(' ')} alt`, () => {
         macros[m](params, layers.drawingLayer, layers.p5)
-        this.undo.takeSnapshot()
+        undo.takeSnapshot()
       }, true)
     }
 
-    this.macros = macros
-    setupHotkeys(this)
+    sketch.macros = macros
+    setupHotkeys(sketch)
   }
 }

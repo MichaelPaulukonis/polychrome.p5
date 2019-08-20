@@ -1,6 +1,8 @@
 
 export default function Macros (sketch) {
-  const { drawGrid, drawCircle, drawRowCol, pushpop, paint, shift, apx, mirror, renderLayers, undo, HORIZONTAL, VERTICAL } = sketch
+  const { drawGrid, drawCircle, drawRowCol,
+    flipCore, layers, pushpop, paint, shift,
+    apx, mirror, renderLayers, undo, HORIZONTAL, VERTICAL } = sketch
 
   const macroWrapper = (f) => (params, layer, p5) => {
     layer.push()
@@ -262,6 +264,16 @@ export default function Macros (sketch) {
     // TODO: random quadritlateral with no fade (maybe)
   })
 
+  const flipOverlay = macroWrapper((_, layer, p5) => {
+    p5.push()
+    const newLayer = flipCore(VERTICAL, layers.copy())
+    const alpha = (0.5 * 255)
+    p5.tint(255, alpha)
+    layer.image(newLayer, 0, 0)
+    renderLayers()
+    p5.pop()
+  })
+
   return {
     macro1,
     macro2,
@@ -282,6 +294,7 @@ export default function Macros (sketch) {
     macro17: thoseCircles,
     macro18: thoseCirclesBig,
     macro19: manyRandoms,
-    macro20: smallRandomAtSomePlace
+    macro20: smallRandomAtSomePlace,
+    macro21: flipOverlay
   }
 }

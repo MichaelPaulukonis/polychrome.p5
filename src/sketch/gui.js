@@ -187,6 +187,14 @@ export default class GuiControl {
     const fontPicker = f1.add(allParams, 'font', fontList).listen()
     const sc = f1.add(allParams, 'scale').min(0.1).max(3).step(0.1).listen()
 
+    const f2 = gui.addFolder('misc')
+    f2.add(allParams, 'hardEdge').listen()
+    f2.add(allParams, 'useShadow').listen()
+    f2.add(allParams, 'shadowOffsetX').min(-100).max(100).step(1)
+    f2.add(allParams, 'shadowOffsetY').min(-100).max(100).step(1)
+    f2.add(allParams, 'shadowBlur').min(1).max(100).step(1)
+    f2.addColor(allParams, 'shadowColor').listen()
+
     sc.onChange((m) => {
       const scale = parseFloat(m, 10)
       // this is... not quite right

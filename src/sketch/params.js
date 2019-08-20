@@ -1,7 +1,3 @@
-// TODO: sometimes this is short a character!!!
-// const randomColor = () => '#' + Math.floor(Math.random() * 16777216).toString(16)
-// const randomColor = () => '#'+(~~(Math.random()*(1<<24))).toString(16);
-// see comments for variants; this one ends up with # + 6 chars ALWAYS
 const randomColor = () => '#' + (Math.random().toString(16) + '0000000').slice(2, 8)
 
 const fourRandoms = (prefix = '') => {
@@ -73,7 +69,13 @@ let paramsInitial = {
     'Sequential': 0,
     'Random': 1,
     'Word': 2
-  }
+  },
+  hardEdge: true,
+  useShadow: false,
+  shadowOffsetX: 0,
+  shadowOffsetY: 0,
+  shadowBlur: 0,
+  shadowColor: '#000000'
 }
 
 // fake-name-spaces

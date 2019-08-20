@@ -2,7 +2,8 @@ import hotkeys from 'hotkeys-js'
 
 const setupHotkeys = (sketch) => {
   const EXTRASHIFT = 10
-  hotkeys('up,down,shift+up,shift+down,alt+t', (_, handler) => {
+  hotkeys('up,down,shift+up,shift+down,alt+e,command+s,alt+t', (event, handler) => {
+    event.preventDefault()
     switch (handler.key) {
       case 'down': {
         sketch.shift(EXTRASHIFT, 0)
@@ -22,6 +23,14 @@ const setupHotkeys = (sketch) => {
       case 'shift+up': {
         sketch.shift(-EXTRASHIFT * 10, 0)
         sketch.undo.takeSnapshot()
+        break
+      }
+      case 'alt+e': {
+        sketch.params.hardEdge = !sketch.params.hardEdge
+        break
+      }
+      case 'command+s': {
+        sketch.save_sketch()
         break
       }
       case 'alt+t': {
