@@ -194,6 +194,7 @@ export default class GuiControl {
     f2.add(allParams, 'shadowOffsetY').min(-100).max(100).step(1)
     f2.add(allParams, 'shadowBlur').min(1).max(100).step(1)
     f2.addColor(allParams, 'shadowColor').listen()
+    f2.add(allParams, 'gamma').min(0.01).max(9.99).step(0.01)
 
     sc.onChange((m) => {
       const scale = parseFloat(m, 10)

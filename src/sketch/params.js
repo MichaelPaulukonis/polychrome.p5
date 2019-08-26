@@ -75,7 +75,8 @@ let paramsInitial = {
   shadowOffsetX: 0,
   shadowOffsetY: 0,
   shadowBlur: 0,
-  shadowColor: '#000000'
+  shadowColor: '#000000',
+  gamma: 0.8
 }
 
 // fake-name-spaces

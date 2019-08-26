@@ -269,6 +269,7 @@ export default function Macros (sketch) {
     const newLayer = flipCore(VERTICAL, layers.copy())
     const alpha = (0.5 * 255)
     p5.tint(255, alpha)
+    // layer.blendMode(p5.MULTIPLY)
     layer.image(newLayer, 0, 0)
     renderLayers()
     p5.pop()

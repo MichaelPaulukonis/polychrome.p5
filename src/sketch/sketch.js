@@ -14,6 +14,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   let setFillMode
   let setOutlineMode
   let undo
+  let canvas
 
   let fontList = {}
   const loadedFonts = ['ATARCC__', 'ATARCE__', 'ATARCS__', 'AtariClassic-Regular',
@@ -43,7 +44,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   p5.setup = () => {
     invertMask()
     p5.pixelDensity(density)
-    const canvas = p5.createCanvas(params.width, params.height)
+    canvas = p5.createCanvas(params.width, params.height)
     const drawingLayer = initDrawingLayer(params.width, params.height)
     const tempLayer = initDefaultLayer(params.width, params.height)
     this.layers = layers = new Layers(p5, drawingLayer, tempLayer)
@@ -227,7 +228,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
         setOutlineMode(pixelX, pixelY, params)
 
         const txt = fetchText()
-
         let fontSize = fitTextOnCanvas(txt, params.font, cellWidth, layer)
         // layer.textSize(cellWidth * 1.5)
         layer.textSize(fontSize)
@@ -361,7 +361,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
   }
 
   const setShadows = (layer, inParams) => {
-    const params = inParams.useShadow ? {...{}, ...inParams} : {...{}, ...shadowDefault}
+    const params = inParams.useShadow ? { ...{}, ...inParams } : { ...{}, ...shadowDefault }
 
     layer.drawingContext.shadowOffsetX = params.shadowOffsetX
     layer.drawingContext.shadowOffsetY = params.shadowOffsetY
@@ -465,7 +465,12 @@ export default function Sketch (p5, guiControl, textManager, params) {
       layer.translate(tx, ty)
     }
     layer.rotate(layer.radians(rotation))
+    // layer.push()
+    // let mx = p5.map(tx, 0, p5.width, 0, 5)
+    // let my = p5.map(ty, 0, p5.height, 0, 5)
+    // layer.scale(mx, my)
     layer.text(txt, x, y)
+    // layer.pop()
   }
 
   // hrm. still seems like this could be simpler
@@ -764,8 +769,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
 
     this.p5.tint(255, alpha)
-    console.log(`alpha: ${alpha}`)
-
     layers.drawingLayer.image(img2, 0, 0)
     renderTarget() // not all layers - skip clearing and background, thus allowing an overlay
     this.p5.pop()
@@ -779,7 +782,23 @@ export default function Sketch (p5, guiControl, textManager, params) {
     return size
   }
 
+  const adjustGamma = (gamma = 0.8) => {
+    const gammaCorrection = 1 / gamma
+    let context = layers.p5.drawingContext
+    let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
+
+    var data = imageData.data
+    for (var i = 0; i < data.length; i += 4) {
+      data[i] = 255 * Math.pow((data[i] / 255), gammaCorrection)
+      data[i + 1] = 255 * Math.pow((data[i + 1] / 255), gammaCorrection)
+      data[i + 2] = 255 * Math.pow((data[i + 2] / 255), gammaCorrection)
+    }
+    context.putImageData(imageData, 0, 0)
+    renderLayers(params)
+  }
+
   // this smells, but is a start of separation
+  this.adjustGamma = adjustGamma
   this.apx = apx
   this.clearCanvas = clearCanvas
   this.drawCircle = drawCircle
