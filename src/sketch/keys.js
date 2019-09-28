@@ -2,7 +2,9 @@ import hotkeys from 'hotkeys-js'
 
 const setupHotkeys = (sketch) => {
   const EXTRASHIFT = 10
-  hotkeys('up,down,shift+up,shift+down,alt+e,command+s,alt+g,alt+t', (event, handler) => {
+  const hotkeystring = 'up,down,shift+up,shift+down,alt+e,command+s,alt+g,alt+t,' +
+    'alt+1,alt+2,alt+3,alt+4,alt+5,alt+6,alt+7,alt+8,alt+9,alt+0'
+  hotkeys(hotkeystring, (event, handler) => {
     event.preventDefault()
     switch (handler.key) {
       case 'down': {
@@ -40,6 +42,13 @@ const setupHotkeys = (sketch) => {
       }
       case 'alt+t': {
         sketch.target()
+        break
+      }
+      case 'alt+1': {
+        // TODO: we can build this programmatically
+        const m = `macro${1}`
+        sketch.macros[m](sketch.params, sketch.layers.drawingLayer, sketch.layers.p5)
+        sketch.undo.takeSnapshot()
         break
       }
     }

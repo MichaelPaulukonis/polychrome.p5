@@ -63,6 +63,7 @@ class CircImgCollection {
     }
     this.store = (layer) => {
       img[current] = layer
+      layer.remove()
     }
     this.show = () => {
       // TODO: if w/h does NOT match current, then should rotate canvas

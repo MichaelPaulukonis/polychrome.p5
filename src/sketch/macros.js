@@ -245,6 +245,7 @@ export default function Macros (sketch) {
     img2.copy(img, zone.sx, zone.sy, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight)
 
     layer.image(img2, originX, originY)
+    img2.remove()
     layer.pop()
     renderLayers()
   })

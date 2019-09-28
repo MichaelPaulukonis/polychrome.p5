@@ -103,6 +103,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const y = p5.mouseY
     p5.line(0, y, p5.width, y) // line(0, y, width, y);
     p5.line(x, 0, x, p5.height) // line(0, y, width, y);
+    layer.remove()
   }
 
   const apx = (...fns) => list => [...list].map(b => fns.forEach(f => f(b)))
@@ -615,6 +616,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const newLayer = flipCore(axis, layers.copy())
     layer.image(newLayer, 0, 0)
     renderLayers(params)
+    newLayer.remove()
   }
 
   const flipCore = (axis = VERTICAL, g) => {
@@ -630,6 +632,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
       tmp.scale(-1, 1)
     }
     tmp.image(g, 0, 0, tmp.width, tmp.height)
+    g.remove()
     tmp.pop()
     return tmp
   }
@@ -638,6 +641,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     const newLayer = mirrorCore(axis, layers.copy())
     layer.image(newLayer, 0, 0)
     renderLayers(params)
+    newLayer.remove()
   }
 
   const mirrorCore = (axis = VERTICAL, g) => {
@@ -647,6 +651,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     } else {
       g.image(tmp, g.width / 2, 0, g.width / 2, g.height, g.width / 2, 0, g.width / 2)
     }
+    tmp.remove()
     return g
   }
 
@@ -728,6 +733,7 @@ export default function Sketch (p5, guiControl, textManager, params) {
     newPG.image(layers.drawingLayer, 0, 0)
     newPG.pop()
 
+    layers.drawingLayer.remove()
     layers.drawingLayer = newPG
 
     // TODO: undo doesn't know anything about rotation......
@@ -769,6 +775,8 @@ export default function Sketch (p5, guiControl, textManager, params) {
     }
 
     this.p5.tint(255, alpha)
+    setShadows(layers.drawingLayer, params)
+
     layers.drawingLayer.image(img2, 0, 0)
     renderTarget() // not all layers - skip clearing and background, thus allowing an overlay
     this.p5.pop()

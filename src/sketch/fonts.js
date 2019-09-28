@@ -1,11 +1,8 @@
 // from https://github.com/bitshadow/slate
 
 let fonts = [
-  'Andale Mono',
   'Arial Black',
-  'Arial Narrow',
   'Arial Rounded MT Bold',
-  'Arial',
   'Avant Garde',
   'Baskerville',
   'Big Caslon',
@@ -31,10 +28,6 @@ let fonts = [
   'Helvetica',
   'Hoefler Text',
   'Impact',
-  'Lucida Bright',
-  'Lucida Console',
-  'Lucida Grande',
-  'Lucida Sans Typewriter',
   'Monaco',
   'Optima',
   'Palatino',
@@ -45,7 +38,6 @@ let fonts = [
   'Segoe UI',
   'Tahoma',
   'Times New Roman',
-  'Trebuchet MS',
   'Verdana'
 ]
 
