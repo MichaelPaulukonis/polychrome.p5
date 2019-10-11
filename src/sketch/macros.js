@@ -267,6 +267,8 @@ export default function Macros (sketch) {
 
   const flipOverlay = macroWrapper((_, layer, p5) => {
     p5.push()
+    layer.translate(0, 0)
+    layer.resetMatrix()
     const newLayer = flipCore(VERTICAL, layers.copy())
     const alpha = (0.5 * 255)
     p5.tint(255, alpha)
