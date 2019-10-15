@@ -4,6 +4,7 @@ import Macros from './macros.js'
 import { keyPresser, keyHandler, setupHotkeys } from './keys.js'
 import { fitTextOnCanvas } from './fit.text'
 
+// params external to guiControl are a hoped-for headless use-case
 export default function Sketch (p5, guiControl, textManager, params) {
   params = params || guiControl.params
 

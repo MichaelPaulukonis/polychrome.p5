@@ -7,11 +7,11 @@ import Sketch from './sketch/sketch.js'
 
 console.log(`APP-VERSION: ${VERSION}`)
 
-let gc = new GuiControl()
-let t = new TextManager()
+let guiControl = new GuiControl()
+let textManager = new TextManager()
 
-const builder = (p) => {
-  new Sketch(p, gc, t) // eslint-disable-line no-new
+const builder = (p5Instance) => {
+  new Sketch(p5Instance, guiControl, textManager) // eslint-disable-line no-new
 }
 
 new P5(builder) // eslint-disable-line no-new
