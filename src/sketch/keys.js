@@ -1,29 +1,65 @@
 import hotkeys from 'hotkeys-js'
 
+// if (keyCode === sketch.p5.LEFT_ARROW || keyCode === sketch.p5.RIGHT_ARROW) {
+//   handled = true
+//   const vector = (keyCode === sketch.p5.RIGHT_ARROW) ? 1 : -1
+//   sketch.shift(0, vector * extraShift)
+// } else if (keyCode === sketch.p5.BACKSPACE || keyCode === sketch.p5.DELETE) {
+//   handled = true
+//   sketch.clearCanvas()
+//   sketch.undo.takeSnapshot()
+// }
+
 const setupHotkeys = (sketch) => {
   const EXTRASHIFT = 10
-  const hotkeystring = 'up,down,shift+up,shift+down,alt+e,command+s,alt+g,alt+t,' +
+  const hotkeystring = 'del,backspace,shift,shift+left,left,shift+right,right,up,down,shift+up,shift+down,alt+e,command+s,alt+g,alt+t,' +
     'alt+1,alt+2,alt+3,alt+4,alt+5,alt+6,alt+7,alt+8,alt+9,alt+0'
   hotkeys(hotkeystring, (event, handler) => {
+    console.log(hotkeys.getPressedKeyCodes())
     event.preventDefault()
+    const extraShift = (hotkeys.getPressedKeyCodes().includes(16)) ? 100 : 10
     switch (handler.key) {
-      case 'down': {
-        sketch.shift(EXTRASHIFT, 0)
+      case 'left':
+      case 'shift+left':
+      case 'right':
+      case 'shift+right': {
+        const vector = (handler.key.includes('right')) ? 1 : -1
+        sketch.shift(0, vector * extraShift)
         sketch.undo.takeSnapshot()
         break
       }
-      case 'up': {
-        sketch.shift(-EXTRASHIFT, 0)
-        sketch.undo.takeSnapshot()
-        break
-      }
-      case 'shift+down': {
-        sketch.shift(EXTRASHIFT * 10, 0)
-        sketch.undo.takeSnapshot()
-        break
-      }
+      case 'down':
+      case 'up':
+      case 'shift+down':
       case 'shift+up': {
-        sketch.shift(-EXTRASHIFT * 10, 0)
+        const vector = (handler.key.includes('down')) ? 1 : -1
+        sketch.shift(vector * extraShift, 0)
+        sketch.undo.takeSnapshot()
+        break
+      }
+      // case 'down': {
+      //   sketch.shift(EXTRASHIFT, 0)
+      //   sketch.undo.takeSnapshot()
+      //   break
+      // }
+      // case 'up': {
+      //   sketch.shift(-EXTRASHIFT, 0)
+      //   sketch.undo.takeSnapshot()
+      //   break
+      // }
+      // case 'shift+down': {
+      //   sketch.shift(EXTRASHIFT * 10, 0)
+      //   sketch.undo.takeSnapshot()
+      //   break
+      // }
+      // case 'shift+up': {
+      //   sketch.shift(-EXTRASHIFT * 10, 0)
+      //   sketch.undo.takeSnapshot()
+      //   break
+      // }
+      case 'del':
+      case 'backspace': {
+        sketch.clearCanvas()
         sketch.undo.takeSnapshot()
         break
       }
@@ -51,26 +87,43 @@ const setupHotkeys = (sketch) => {
         sketch.undo.takeSnapshot()
         break
       }
+      case 'alt+2': {
+        // TODO: we can build this programmatically
+        const m = `macro${19}`
+        sketch.macros[m](sketch.params, sketch.layers.drawingLayer, sketch.layers.p5)
+        sketch.undo.takeSnapshot()
+        break
+      }
+      case 'alt+3': {
+        // TODO: we can build this programmatically
+        const m = `macro${21}`
+        sketch.macros[m](sketch.params, sketch.layers.drawingLayer, sketch.layers.p5)
+        sketch.undo.takeSnapshot()
+        break
+      }
+      case 'alt+4': {
+        // TODO: we can build this programmatically
+        const m = `macro${16}`
+        sketch.macros[m](sketch.params, sketch.layers.drawingLayer, sketch.layers.p5)
+        sketch.undo.takeSnapshot()
+        break
+      }
+      case 'alt+5': {
+        // TODO: we can build this programmatically
+        const m = `macro${17}`
+        sketch.macros[m](sketch.params, sketch.layers.drawingLayer, sketch.layers.p5)
+        sketch.undo.takeSnapshot()
+        break
+      }
+      case 'alt+6': {
+        // TODO: we can build this programmatically
+        const m = `macro${18}`
+        sketch.macros[m](sketch.params, sketch.layers.drawingLayer, sketch.layers.p5)
+        sketch.undo.takeSnapshot()
+        break
+      }
     }
   })
-}
-
-const keyPresser = (keyCode, sketch) => {
-  // BACKSPACE, DELETE, ENTER, RETURN, TAB, ESCAPE, SHIFT, CONTROL, OPTION, ALT, UP_ARROW, DOWN_ARROW, LEFT_ARROW, RIGHT_ARROW
-  const extraShift = event.shiftKey ? 100 : 10
-  // also: altKey ctrlKey, metaKey
-  let handled = false
-  // TODO: move into hotkeys
-  if (keyCode === sketch.p5.LEFT_ARROW || keyCode === sketch.p5.RIGHT_ARROW) {
-    handled = true
-    const vector = (keyCode === sketch.p5.RIGHT_ARROW) ? 1 : -1
-    sketch.shift(0, vector * extraShift)
-  } else if (keyCode === sketch.p5.BACKSPACE || keyCode === sketch.p5.DELETE) {
-    handled = true
-    sketch.clearCanvas()
-    sketch.undo.takeSnapshot()
-  }
-  return handled
 }
 
 const keyHandler = (char, params, layers, sketch) => {
@@ -181,4 +234,4 @@ const keyHandler = (char, params, layers, sketch) => {
   }
 }
 
-export { keyPresser, keyHandler, setupHotkeys }
+export { keyHandler, setupHotkeys }

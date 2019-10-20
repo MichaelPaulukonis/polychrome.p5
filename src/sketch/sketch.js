@@ -1,11 +1,12 @@
 import UndoLayers from './undo.layers.js'
 import Layers from './layers.js'
 import Macros from './macros.js'
-import { keyPresser, keyHandler, setupHotkeys } from './keys.js'
+import { keyHandler, setupHotkeys } from './keys.js'
 import { fitTextOnCanvas } from './fit.text'
 
 // params external to guiControl are a hoped-for headless use-case
-export default function Sketch (p5, guiControl, textManager, params) {
+export default function Sketch (config) {
+  let { p5Instance: p5, guiControl, textManager, params } = config
   params = params || guiControl.params
 
   const density = 2
@@ -689,15 +690,6 @@ export default function Sketch (p5, guiControl, textManager, params) {
       return nbr.length >= width ? nbr : new Array(width - nbr.length + 1).join(fill) + nbr
     }
     p5.saveCanvas(`${params.name}.${getDateFormatted()}.png`)
-  }
-
-  // TODO: would like to use shift, etc. with chars
-  // also, some sort of key-sequence entry mode
-  // so macros can be 0..99 (for example)
-  p5.keyPressed = () => {
-    if (!mouseInCanvas()) return
-    let handled = keyPresser(p5.keyCode, this)
-    return !handled
   }
 
   p5.keyTyped = () => {

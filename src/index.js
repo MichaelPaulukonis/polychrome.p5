@@ -11,7 +11,7 @@ let guiControl = new GuiControl()
 let textManager = new TextManager()
 
 const builder = (p5Instance) => {
-  new Sketch(p5Instance, guiControl, textManager) // eslint-disable-line no-new
+  new Sketch({p5Instance, guiControl, textManager}) // eslint-disable-line no-new
 }
 
 new P5(builder) // eslint-disable-line no-new
