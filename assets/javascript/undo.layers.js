@@ -5,7 +5,7 @@ export default class UndoLayers {
     // Number of currently available undo and redo snapshots
     let undoSteps = 0
     let redoSteps = 0
-    let images = new CircImgCollection(layers, renderFunc, levels)
+    const images = new CircImgCollection(layers, renderFunc, levels)
     let temp
     // const density = layers.drawingLayer.pixelDensity()
 
@@ -49,8 +49,8 @@ export default class UndoLayers {
 class CircImgCollection {
   constructor (layers, renderFunc, amountOfImages) {
     let current = 0
-    let img = []
-    let amount = amountOfImages
+    const img = []
+    const amount = amountOfImages
     this.amount = amount
 
     this.all = () => img

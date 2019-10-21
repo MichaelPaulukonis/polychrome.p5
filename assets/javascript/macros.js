@@ -4,7 +4,7 @@ export default function Macros (sketch) {
     flipCore, layers, pushpop, paint, shift,
     apx, mirror, renderLayers, undo, HORIZONTAL, VERTICAL } = sketch
 
-  const macroWrapper = (f) => (params, layer, p5) => {
+  const macroWrapper = f => (params, layer, p5) => {
     layer.push()
     f({ ...params }, layer, p5)
     layer.pop()
@@ -35,7 +35,7 @@ export default function Macros (sketch) {
   // which suggests........
   const macro4 = macroWrapper((params, layer) => {
     for (let i = layer.width; i > layer.width / 2; i -= 80) {
-      if (i < ((layer.width / 3) * 2)) params.rotation = 90
+      if (i < ((layer.width / 3) * 2)) { params.rotation = 90 }
       drawGrid(i, i, params, layer.width, layer.height, layer)
     }
   })
@@ -91,12 +91,12 @@ export default function Macros (sketch) {
     // the below assumes subdivision of the entire surfae
 
     params.invert = true
-    let width = layer.width / 4
-    let height = layer.height / 4
+    const width = layer.width / 4
+    const height = layer.height / 4
     const startX = 0 // mis-named
     const startY = 0 // mis-named - these are the indexes of the grids
 
-    let txls = subGrids(layer.width, layer.height, width, height, startX, startY)
+    const txls = subGrids(layer.width, layer.height, width, height, startX, startY)
 
     // an interesting standalone blob
     // txls = [{x: 100, y: 100}]
@@ -127,14 +127,14 @@ export default function Macros (sketch) {
   function * gridConditionalRotationGen (width) {
     for (let i = width; i > width / 2; i -= 40) {
       const stats = { x: i, y: i, rotation: 0 }
-      if (i < ((width / 3) * 2)) stats.rotation = 90
+      if (i < ((width / 3) * 2)) { stats.rotation = 90 }
       yield stats
     }
   }
 
   // gridder/subGrid paints a given region
   const gridder = (width, height, params, layer, gen, gridFunc) =>
-    (grid) => subGrid(grid.x, grid.y, width, height, params, layer, gen, gridFunc)
+    grid => subGrid(grid.x, grid.y, width, height, params, layer, gen, gridFunc)
 
   // TODO: subgrid should be a generator that we compose with dawgrid
   // because the generator (coupled with the xforms or size, above are the key elems)
@@ -144,7 +144,7 @@ export default function Macros (sketch) {
 
       // TODO: we're also adding in x,y to params, but they are ignored
       // STILL: pollution
-      const dg = (stats) => gridFunc(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
+      const dg = stats => gridFunc(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
       // const dg = (stats) => drawCircle(width - stats.x, height - stats.y, { ...params, ...stats }, width, height, layer)
       // drawCirle doesn't quite work (the inversion? something - every radius is negative, so goes to 0.1)
       // turn off inversion, it works better, but size is still too large. fiddle around.
@@ -215,7 +215,7 @@ export default function Macros (sketch) {
 
   const thoseCirclesBig = macroWrapper((params, layer, p5) => {
     params.invert = true
-    let textSize = p5.random([5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 200, 300, 400])
+    const textSize = p5.random([5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 200, 300, 400])
     // NOTE: while this is roughly accurate at low sizes, it fails at larger sizes
     for (let radius = 0; radius < layer.width; radius += textSize) {
       if (p5.random() > 0.5) {
@@ -226,7 +226,7 @@ export default function Macros (sketch) {
   })
 
   const manyRandoms = macroWrapper((params, layer, p5) => {
-    for (let i = 0; i < 10; i++) sketch.randomLayer()
+    for (let i = 0; i < 10; i++) { sketch.randomLayer() }
   })
 
   const smallRandomAtSomePlace = macroWrapper((_, layer, p5) => {
@@ -239,7 +239,7 @@ export default function Macros (sketch) {
     const targetWidth = 200
     const targetHeight = 400
 
-    var img2 = p5.createGraphics(targetWidth, targetHeight)
+    const img2 = p5.createGraphics(targetWidth, targetHeight)
     img2.pixelDensity(layer.pixelDensity())
     const zone = randomSection(targetWidth, targetHeight, img.width, img.height, p5)
     img2.copy(img, zone.sx, zone.sy, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight)
@@ -252,18 +252,18 @@ export default function Macros (sketch) {
 
   const randomSection = (targetWidth, targetHeight, imgWidth, imgHeight, p5) => {
     const fr = (min, max) => Math.floor(p5.random(min, max))
-    let sx = fr(0, imgWidth - targetWidth)
-    let sy = fr(0, imgHeight - targetHeight)
+    const sx = fr(0, imgWidth - targetWidth)
+    const sy = fr(0, imgHeight - targetHeight)
     return { sx, sy }
   }
 
-  const randomCornerQuads = macroWrapper((_, layer, p5) => {
-    // TODO: one square, reflected at, or offset from, the corners
-  })
+  // const randomCornerQuads = macroWrapper((_, layer, p5) => {
+  //   // TODO: one square, reflected at, or offset from, the corners
+  // })
 
-  const randomSquaresOrSummat = macroWrapper((_, layer, p5) => {
-    // TODO: random quadritlateral with no fade (maybe)
-  })
+  // const randomSquaresOrSummat = macroWrapper((_, layer, p5) => {
+  //   // TODO: random quadritlateral with no fade (maybe)
+  // })
 
   const flipOverlay = macroWrapper((_, layer, p5) => {
     p5.push()

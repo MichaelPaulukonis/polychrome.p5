@@ -1,14 +1,14 @@
-import * as dat from './dat.gui.js'
+import { contains } from 'ramda'
+import * as dat from 'dat.gui'
+import { allParams, paramsInitial, fourRandoms, drawModes } from '../params'
 import corpus from './corpus.js'
 import fontList from './fonts'
-import { allParams, paramsInitial, fourRandoms, drawModes } from './params'
-import { pickBy, contains } from 'ramda'
 
 export default class GuiControl {
   constructor () {
-    var cnvs
+    let cnvs
 
-    var randElem = (arr) => arr[Math.floor(Math.random() * arr.length)]
+    const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
     const setupGui = (sketch) => {
       cnvs = document.getElementsByTagName('canvas')
@@ -56,7 +56,7 @@ export default class GuiControl {
     }
 
     const fc = document.getElementById('focus')
-    if (fc) fc.onclick = setfocus
+    if (fc) { fc.onclick = setfocus }
 
     const textInputBox = document.getElementById('bodycopy')
     const getBodyCopy = () => textInputBox.value
@@ -67,7 +67,7 @@ export default class GuiControl {
     // eh, maybe some other way of doing/naming this
     const hexStringToColors = (lerp) => {
       // based on https://bl.ocks.org/mootari/bfbf01320da6c14f9cba186c581d507d
-      return lerp.split('-').map((c) => '#' + c)
+      return lerp.split('-').map(c => '#' + c)
     }
 
     const colorLabel = (label) => {
@@ -75,12 +75,12 @@ export default class GuiControl {
         return color + ' ' + (i * 100 / colors.length) + '%' +
           ',' + color + ' ' + ((i + 1) * 100 / colors.length) + '%'
       }
-      const gradient = (colors) => 'linear-gradient(90deg,' + colors.map(stops) + ')'
+      const gradient = colors => 'linear-gradient(90deg,' + colors.map(stops) + ')'
 
       label.style.display = 'inline-block'
-      var radio = label.children[0]
+      const radio = label.children[0]
       radio.nextSibling.remove()
-      var span = document.createElement('span')
+      const span = document.createElement('span')
       span.style.background = gradient(hexStringToColors(radio.value))
       span.style.paddingRight = '4em'
       span.style.marginRight = '.5em'
@@ -90,13 +90,13 @@ export default class GuiControl {
     // Adds and links labeled radios to select controller, hides select.
     // Radios are wrapped inside labels and stored in controller.__radios.
     const selectToRadios = (controller) => {
-      var wrapper = controller.domElement
-      var select = wrapper.children[0]
+      const wrapper = controller.domElement
+      const select = wrapper.children[0]
       // TODO: needs to be 0 when hidden; auto if not
       // wrapper.parentNode.parentNode.style.height = 'auto'
       wrapper.parentNode.parentNode.classList.add('radio-select')
       controller.__radios = Array.prototype.map.call(select.children, function (option, i) {
-        var radio = document.createElement('input')
+        const radio = document.createElement('input')
         radio.type = 'radio'
         radio.name = option.name
         radio.value = option.value
@@ -106,9 +106,9 @@ export default class GuiControl {
           // ouch! a reference that doesn't exist yet!
           controller.__select.dispatchEvent(new e.constructor(e.type, e))
         })
-        var label = document.createElement('label')
+        const label = document.createElement('label')
         label.appendChild(radio)
-        label.appendChild(document.createTextNode(option.innerText))
+        label.appendChild(document.createTextNode(option.textContent))
         wrapper.appendChild(label)
         return label
       })
@@ -138,7 +138,7 @@ export default class GuiControl {
     ]
 
     const swapParams = (params) => {
-      let swapped = swapPrefixParams(params, 'outline', 'fill')
+      const swapped = swapPrefixParams(params, 'outline', 'fill')
       Object.keys(swapped)
         .forEach(key => (params[key] = swapped[key]))
       // const getProps = pickBy((val, key) => !contains('randomize', key))
@@ -152,27 +152,27 @@ export default class GuiControl {
     }
     // this seems overly complicated
     const swapPrefixParams = (params, prefix1, prefix2) => {
-      let newParams = Object.assign({}, params)
+      const newParams = Object.assign({}, params)
       // const getProps = prefix => pickBy((val, key) => key.startsWith(prefix) && !contains('randomize', key))
       // let p1keys = getProps(prefix1)(newParams)
       // let p2keys = getProps(prefix2)(newParams)
       // let p2bak = {...p2keys}
 
-      let p1keys = Object.keys(newParams).filter((k) => k.startsWith(prefix1) && !contains('randomize', k))
-      let p2keys = Object.keys(newParams).filter((k) => k.startsWith(prefix2) && !contains('randomize', k))
-      let p2bak = pick(newParams, p2keys)
+      const p1keys = Object.keys(newParams).filter(k => k.startsWith(prefix1) && !contains('randomize', k))
+      const p2keys = Object.keys(newParams).filter(k => k.startsWith(prefix2) && !contains('randomize', k))
+      const p2bak = pick(newParams, p2keys)
       p1keys.forEach((key) => {
-        let p2key = key.replace(prefix1, prefix2)
+        const p2key = key.replace(prefix1, prefix2)
         newParams[p2key] = newParams.hasOwnProperty(key) ? newParams[key] : newParams[p2key]
       })
       p1keys.forEach((p1key) => {
-        let p2key = p1key.replace(prefix1, prefix2)
+        const p2key = p1key.replace(prefix1, prefix2)
         newParams[p1key] = p2bak.hasOwnProperty(p2key) ? p2bak[p2key] : newParams[p1key]
       })
       return newParams
     }
 
-    var gui = new dat.GUI()
+    const gui = new dat.GUI()
     gui.remember(allParams)
 
     const f1 = gui.addFolder('stuff')
@@ -215,7 +215,7 @@ export default class GuiControl {
     rowColFolder.close()
 
     dm.onChange((m) => {
-      (parseInt(m, 10) === drawModes['Grid2'])
+      (parseInt(m, 10) === drawModes.Grid2)
         ? rowColFolder.open()
         : rowColFolder.close()
     })
@@ -229,7 +229,7 @@ export default class GuiControl {
       // cm.onChange((m) => { params[`${prefix}_paintMode`] = 9 }) // auto-set to solid color mode
       const radioFolder = gui.addFolder('palettes')
       const ccm = radioFolder.add(params, `${prefix}_scheme`, lerpList).name(prefix)
-      let c = selectToRadios(ccm)
+      const c = selectToRadios(ccm)
       c.__radios.map(colorLabel)
       gui.add(params, `${prefix}_randomizeQuads`) // TODO: needs to take a params
       gui.addColor(params, `${prefix}_lq1`).listen()
