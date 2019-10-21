@@ -1,17 +1,6 @@
 import hotkeys from 'hotkeys-js'
 
-// if (keyCode === sketch.p5.LEFT_ARROW || keyCode === sketch.p5.RIGHT_ARROW) {
-//   handled = true
-//   const vector = (keyCode === sketch.p5.RIGHT_ARROW) ? 1 : -1
-//   sketch.shift(0, vector * extraShift)
-// } else if (keyCode === sketch.p5.BACKSPACE || keyCode === sketch.p5.DELETE) {
-//   handled = true
-//   sketch.clearCanvas()
-//   sketch.undo.takeSnapshot()
-// }
-
 const setupHotkeys = (sketch) => {
-  const EXTRASHIFT = 10
   const hotkeystring = 'del,backspace,shift,shift+left,left,shift+right,right,up,down,shift+up,shift+down,alt+e,command+s,alt+g,alt+t,' +
     'alt+1,alt+2,alt+3,alt+4,alt+5,alt+6,alt+7,alt+8,alt+9,alt+0'
   hotkeys(hotkeystring, (event, handler) => {
@@ -37,26 +26,6 @@ const setupHotkeys = (sketch) => {
         sketch.undo.takeSnapshot()
         break
       }
-      // case 'down': {
-      //   sketch.shift(EXTRASHIFT, 0)
-      //   sketch.undo.takeSnapshot()
-      //   break
-      // }
-      // case 'up': {
-      //   sketch.shift(-EXTRASHIFT, 0)
-      //   sketch.undo.takeSnapshot()
-      //   break
-      // }
-      // case 'shift+down': {
-      //   sketch.shift(EXTRASHIFT * 10, 0)
-      //   sketch.undo.takeSnapshot()
-      //   break
-      // }
-      // case 'shift+up': {
-      //   sketch.shift(-EXTRASHIFT * 10, 0)
-      //   sketch.undo.takeSnapshot()
-      //   break
-      // }
       case 'del':
       case 'backspace': {
         sketch.clearCanvas()
