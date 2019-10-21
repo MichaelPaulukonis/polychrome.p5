@@ -11,7 +11,7 @@ export default class Layers {
   copy () {
     // this is copying, somewhat, the initLayer code
     // but whatevs.....
-    let layer = this.p5.createGraphics(this.p5.width, this.p5.height)
+    const layer = this.p5.createGraphics(this.p5.width, this.p5.height)
     layer.pixelDensity(this.p5.pixelDensity())
     layer.image(this.p5, 0, 0)
     return layer
@@ -21,7 +21,7 @@ export default class Layers {
    * Returns a p5.Graphics object that is a copy of the image passed in
    */
   clone (img) {
-    let g = this.p5.createGraphics(img.width, img.height)
+    const g = this.p5.createGraphics(img.width, img.height)
     g.pixelDensity(this.p5.pixelDensity())
     g.image(img, 0, 0)
     return g
