@@ -46,13 +46,13 @@ export default class GuiControl {
     const setfocus = () => cnvs.focus()
 
     const openCanvasInNewTab = () => {
-      if (cnvs) {
-        const img = cnvs.toDataURL('image/jpg')
-        // https://ourcodeworld.com/articles/read/682/what-does-the-not-allowed-to-navigate-top-frame-to-data-url-javascript-exception-means-in-google-chrome
-        const win = window.open()
-        win.document.write('<iframe src="' + img +
-          '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>')
-      }
+      // if (cnvs) {
+      //   const img = cnvs.toDataURL('image/jpg')
+      //   // https://ourcodeworld.com/articles/read/682/what-does-the-not-allowed-to-navigate-top-frame-to-data-url-javascript-exception-means-in-google-chrome
+      //   const win = window.open()
+      //   win.document.write('<iframe src="' + img +
+      //     '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>')
+      // }
     }
 
     const fc = document.getElementById('focus')
