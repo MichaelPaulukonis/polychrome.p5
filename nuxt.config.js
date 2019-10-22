@@ -1,7 +1,7 @@
 // only add `router.base = '/<repository-name>/'` if `DEPLOY_ENV` is `GH_PAGES`
 const routerBase = {
   router: {
-    base: process.env.DEPLOY_ENV === 'GH_PAGES' ? '/polychrometext.p5/' : ''
+    base: process.env.DEPLOY_ENV === 'GH_PAGES' ? '/polychrome.p5/' : ''
   }
 }
 
