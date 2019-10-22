@@ -12,7 +12,7 @@
     "clean": "rm -rf dist",
     "deploy": "gh-pages -t -d dist",
     "bump": "npm version patch",
-    "publish": "npm run bump && npm run generate && npm run deploy",
+    "publish": "npm run bump && DEPLOY_ENV=GH_PAGES npm run generate && npm run deploy",
     "lint": "standard --fix",
     "lint:report": "standard"
   },
