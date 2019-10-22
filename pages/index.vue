@@ -1,72 +1,66 @@
 <template>
-  <div class="container">
+  <div id="content">
     <div>
-      <logo />
-      <h1 class="title">
-        polychrometext
-      </h1>
-      <h2 class="subtitle">
-        My stunning Nuxt.js project
-      </h2>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          class="button--grey"
-        >
-          GitHub
-        </a>
+      <div id="sketch-holder">
+        <!-- Our sketch will go here! -->
       </div>
+      <noscript>
+        <p>JavaScript is required to view the contents of this page.</p>
+      </noscript>
     </div>
+    <h1>polychrome text</h1>
+    <p id="description" />
+    <p>
+      <a
+        id="focus"
+        href="#"
+        alt="set focus to canvas"
+      >focus on canvas</a>
+    </p>
+    <div>
+      <textarea id="bodycopy" />
+      <button id="applytext">
+        Apply text
+      </button>
+    </div>
+    <p>
+      Mouse click and drag to paint (previous paints will fade slightly).
+      <br> Color and size are based on mouse position.
+      <br>
+      <span class="keys">SPACE</span> - paint without fading previous actions
+    </p>
+    <p id="sources">
+      Source code:
+      <a href="https://github.com/MichaelPaulukonis/polychrome.p5">GitHub</a> - More
+      <a href="http://www.xradiograph.com/PrantedMutter/Sketch">Web Sketches</a> - Built with
+      <a href="https://p5js.org/">P5.js</a>
+    </p>
   </div>
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
+import P5 from 'p5/lib/p5.min'
+import GuiControl from '@/assets/javascript/gui.js'
+import TextManager from '@/assets/javascript/TextManager'
+import Sketch from '@/assets/javascript/sketch.js'
+const keypress = require('keypress.js')
 
 export default {
   components: {
-    Logo
+  },
+  mounted () {
+    const guiControl = new GuiControl()
+    const textManager = new TextManager()
+
+    const builder = (p5Instance) => {
+      new Sketch({ p5Instance, guiControl, textManager, keypress }) // eslint-disable-line no-new
+    }
+
+    new P5(builder) // eslint-disable-line no-new
   }
 }
 </script>
 
 <style>
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
-}
+@import "@/assets/css/core.css";
 </style>
