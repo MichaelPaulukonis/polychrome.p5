@@ -30,13 +30,10 @@
  */
 
 /*!
- * hotkeys-js v3.7.2
- * A simple micro-library for defining and dispatching keyboard shortcuts. It has no dependencies.
- * 
- * Copyright (c) 2019 kenny wong <wowohoo@qq.com>
- * http://jaywcjlove.github.io/hotkeys
- * 
- * Licensed under the MIT license.
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
  */
 
 /*!
@@ -57,3 +54,13 @@
 /*! @source http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js */
 
 /*! https://mths.be/codepointat v0.2.0 by @mathias */
+
+/*!
+ * hotkeys-js v3.7.2
+ * A simple micro-library for defining and dispatching keyboard shortcuts. It has no dependencies.
+ * 
+ * Copyright (c) 2019 kenny wong <wowohoo@qq.com>
+ * http://jaywcjlove.github.io/hotkeys
+ * 
+ * Licensed under the MIT license.
+ */
