@@ -22,6 +22,9 @@
       <button id="applytext">
         Apply text
       </button>
+      <button id="randomtext">
+        Random text
+      </button>
     </div>
     <p>
       Mouse click and drag to paint (previous paints will fade slightly).
@@ -39,19 +42,20 @@
 </template>
 
 <script>
-// import GuiControl from '@/assets/javascript/gui.js'
+import P5 from 'p5'
 import TextManager from '@/assets/javascript/TextManager'
 import Sketch from '@/assets/javascript/sketch.js'
 import GuiControl from '@/assets/javascript/gui.js'
+import randomPost from '@/assets/javascript/tumblr-random.js'
 
 export default {
   components: {
   },
   mounted () {
-    const P5 = require('p5')
     const keypress = require('keypress.js')
     const guiControl = new GuiControl()
     const textManager = new TextManager()
+    textManager.randomPost = randomPost
 
     const builder = (p5Instance) => {
       new Sketch({ p5Instance, guiControl, textManager, keypress }) // eslint-disable-line no-new

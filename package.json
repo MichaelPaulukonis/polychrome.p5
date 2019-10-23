@@ -41,6 +41,7 @@
   "homepage": "https://github.com/MichaelPaulukonis/polychrome.p5#readme",
   "dependencies": {
     "@nuxtjs/axios": "^5.6.0",
+    "cheerio": "^1.0.0-rc.3",
     "dat.gui": "^0.7.6",
     "hotkeys-js": "^3.7.2",
     "keypress.js": "^2.1.5",

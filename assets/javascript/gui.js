@@ -1,16 +1,12 @@
 import { contains } from 'ramda'
-// import * as dat from 'dat.gui'
+import * as dat from 'dat.gui'
 import { allParams, paramsInitial, fourRandoms, drawModes } from '../params'
 import corpus from './corpus.js'
-// import fontList from './fonts'
-let dat
-let fontList
+import fontList from './fonts'
 
 export default class GuiControl {
   constructor () {
     let cnvs
-    dat = require('dat.gui')
-    fontList = require('./fonts')
     const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
     const setupGui = (sketch) => {
@@ -40,9 +36,18 @@ export default class GuiControl {
 
       setBodyCopy(randElem(corpus))
 
+      // TODO: ugh no not in here
       document.getElementById('applytext')
         .addEventListener('click', () => {
           sketch.textManager.setText(getBodyCopy())
+        })
+      document.getElementById('randomtext')
+        .addEventListener('click', () => {
+          sketch.textManager.randomPost()
+            .then((poem) => {
+              setBodyCopy(poem)
+              sketch.textManager.setText(poem)
+            })
         })
     }
 
