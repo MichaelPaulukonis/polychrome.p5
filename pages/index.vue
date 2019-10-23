@@ -42,15 +42,13 @@
 // import GuiControl from '@/assets/javascript/gui.js'
 import TextManager from '@/assets/javascript/TextManager'
 import Sketch from '@/assets/javascript/sketch.js'
+import GuiControl from '@/assets/javascript/gui.js'
 
 export default {
   components: {
   },
   mounted () {
     const P5 = require('p5')
-    const GuiControl = require('@/assets/javascript/gui.js')
-
-    // if (process.client) {
     const keypress = require('keypress.js')
     const guiControl = new GuiControl()
     const textManager = new TextManager()
@@ -60,7 +58,6 @@ export default {
     }
 
     new P5(builder) // eslint-disable-line no-new
-    // }
   }
 }
 </script>

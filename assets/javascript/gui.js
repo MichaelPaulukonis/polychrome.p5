@@ -1,13 +1,16 @@
 import { contains } from 'ramda'
-import * as dat from 'dat.gui'
+// import * as dat from 'dat.gui'
 import { allParams, paramsInitial, fourRandoms, drawModes } from '../params'
 import corpus from './corpus.js'
-import fontList from './fonts'
+// import fontList from './fonts'
+let dat
+let fontList
 
 export default class GuiControl {
   constructor () {
     let cnvs
-
+    dat = require('dat.gui')
+    fontList = require('./fonts')
     const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
     const setupGui = (sketch) => {

@@ -103,4 +103,4 @@ const fontList = supportedFonts.concat(['ATARCC__', 'ATARCE__', 'ATARCS__', 'Ata
   'Smartphone Color Pro', 'Social Icons Pro Set 1 - Rounded', 'social_shapes', 'TRENU___',
   'Type Icons Color', 'Type Icons', 'VT323-Regular', 'Youkairo'])
 
-export default fontList
+module.exports = fontList
