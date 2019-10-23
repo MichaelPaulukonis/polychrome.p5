@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>HTML5 Canvas Gamma Adjust</title>
+    <meta name="og:title" content="HTML5 Canvas Gamma Adjust"/>
+    <meta name="author" content="Rijul Gupta">
+    <meta name="description" content="An implementation of Gamma filter in HTML5 Canvas"/>
+</head>
+
+<body>
+    <h2>HTML5 Canvas Gamma Adjust Filter</h2>
+    <h3>Motivation</h3>
+    <p>
+        This filter was built while trying to replicate the "levels" filter in Photoshop. Although that particular filter is not directly related to Gamma setting, gamma is in fact part of the settings used in that filter (based on experimentation)
+    </p>
+    <p>
+        At the moment this filter adjusts gamma on all 3 Channels, but that can be easily changed to adjust all 3 Channels (R, G, B) separately if needed.
+    </p>
+    <p>
+        The formula used for the implementation comes from this Article <a href="http://thecryptmag.com/Online/57/imgproc_6.html">http://thecryptmag.com/Online/57/imgproc_6.html</a> and was mentioned in a Stack Overflow Q&A <a href="https://stackoverflow.com/questions/14012221/gamma-adjustment-on-the-html5-canvas/54029690">(https://stackoverflow.com/questions/14012221/gamma-adjustment-on-the-html5-canvas/54029690)</a>
+    </p>
+    <h3>Instructions for use</h3>
+    <ol>
+        <li>Select an image you want to test</li>
+        <li>Use the slider below the image/canvas to adjust the gamma</li>
+    </ol>
+    
+    <div id="app" style="display:none">
+        <input type="file" onchange="app.filePicked(event);" />
+        <br />
+        <canvas id="canvas"></canvas>
+        <br />
+        <input type="range" min="0.01" max="9.99" step="0.01" value="1.00" oninput="app.updateGamma(event);" />
+        <div id="gamma">1.00</div>
+    </div>
+    <script>
+        class Gamma {
+            constructor() {
+                this.app = document.getElementById('app');
+                this.filePicker = document.getElementById('filepicker');
+                this.gammaFilter = new GammaFilter('canvas');
+                this.imageSet = false;
+            }
+
+            loaded() {
+                this.displayApp();
+            }
+
+            displayApp() {
+                this.app.style.display = '';
+            }
+
+            async filePicked(event) {
+                const file = event.target.files[0];
+                await this.gammaFilter.setImage(file);
+                this.imageSet = true;
+            }
+
+            async updateGamma(event) {
+                var gammaDisplay = document.getElementById('gamma');
+                const gamma = event.target.value;
+                gammaDisplay.innerText = gamma;
+                if (!this.imageSet) {
+                    return;
+                }
+                this.gammaFilter.adjustGamma(gamma);
+            }
+        }
+
+        class GammaFilter {
+            constructor(canvasId, canvasHeight, canvasWidth) {
+                this.canvasId = canvasId;
+                this.canvasHeight = canvasHeight || 300;
+                this.canvasWidth = canvasWidth || 300;
+            }
+
+            async loadImage(url) {
+                return await new Promise((resolve, reject) => {
+                    var image = new Image()
+                    image.src = url
+                    image.onload = () => resolve(image)
+                    image.onerror = () => reject(new Error('could not load image'))
+                })
+            }
+
+            async setImage(file) {
+                const url = URL.createObjectURL(file);
+                var img = await this.loadImage(url);
+                this.img = img;
+                await this.fillCanvas();
+            }
+
+            async fillCanvas() {
+                const canvas = document.getElementById(this.canvasId);
+                const ctx = canvas.getContext('2d');
+                canvas.width = this.canvasWidth;
+                canvas.height = this.canvasWidth;
+                ctx.drawImage(this.img, 0, 0, this.canvasWidth, this.canvasHeight);
+            }
+
+            async adjustGamma(gamma) {
+                await this.fillCanvas();
+                var gammaCorrection = 1 / gamma;
+                var ctx = canvas.getContext('2d');
+                var imageData = ctx.getImageData(0.0, 0.0, canvas.width, canvas.height);
+                var data = imageData.data;
+                for (var i = 0; i < data.length; i += 4) {
+                    data[i] = 255 * Math.pow((data[i] / 255), gammaCorrection);
+                    data[i + 1] = 255 * Math.pow((data[i + 1] / 255), gammaCorrection);
+                    data[i + 2] = 255 * Math.pow((data[i + 2] / 255), gammaCorrection);
+                }
+                ctx.putImageData(imageData, 0, 0);
+            }
+        }
+
+        var app = new Gamma();
+        app.loaded();
+    </script>
+</body>
+
+</html>
