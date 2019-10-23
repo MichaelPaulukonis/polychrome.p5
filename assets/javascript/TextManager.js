@@ -1,14 +1,12 @@
- export default class TextManager {
+export default class TextManager {
   constructor (text) {
-    var defaultText = 'These are the pearls that were his eyes'
-    // var randomText = defaultText + '...........---___*****xxx                                            '
-    var SPLIT_TOKENS = '[ ?.,;:<>()"!\n]'
-    var words = []
-    var charIndex = 0
-    var wordIndex = 0
-    let self = this
+    const defaultText = 'These are the pearls that were his eyes'
+    let words = []
+    let charIndex = 0
+    let wordIndex = 0
+    const self = this
     self.getchar = function () {
-      var c = self.w.charAt(charIndex)
+      const c = self.w.charAt(charIndex)
       charIndex = (charIndex + 1) % self.w.length
       return c
     }
@@ -16,7 +14,7 @@
       return self.w.charAt(Math.floor(Math.random() * self.w.length))
     }
     self.getWord = function () {
-      var word = words[wordIndex]
+      const word = words[wordIndex]
       wordIndex = (wordIndex + 1) % words.length
       return word
     }

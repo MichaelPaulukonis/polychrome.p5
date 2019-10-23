@@ -6,7 +6,9 @@ import { fitTextOnCanvas } from './fit.text'
 
 // params external to guiControl are a hoped-for headless use-case
 export default function Sketch (config) {
-  let { p5Instance: p5, guiControl, textManager, params } = config
+  const { p5Instance: p5, guiControl, textManager, keypress } = config
+  let { params } = config
+
   params = params || guiControl.params
 
   const density = 2
@@ -18,7 +20,7 @@ export default function Sketch (config) {
   let undo
   let canvas
 
-  let fontList = {}
+  const fontList = {}
   const loadedFonts = ['ATARCC__', 'ATARCE__', 'ATARCS__', 'AtariClassic-Regular',
     'BlackCasper', 'BMREA___', 'CableDingbats', 'carbontype', 'clothing logos', 'Credit Cards',
     'D3Digitalism', 'D3DigitalismI', 'D3DigitalismR', 'edunline', 'enhanced_dot_digital-7', 'Fast Food logos',
@@ -28,16 +30,16 @@ export default function Sketch (config) {
 
   let imgMask
   p5.preload = () => {
-    loadedFonts.forEach(font => {
-      fontList[font] = p5.loadFont(`assets/fonts/${font}.ttf`)
+    loadedFonts.forEach((font) => {
+      fontList[font] = p5.loadFont(require(`@/assets/fonts/${font}.ttf`))
     })
-    imgMask = p5.loadImage('assets/9-96398_http-landrich-black-gradient-border-transparent.png')
+    imgMask = p5.loadImage(require('~/assets/9-96398_http-landrich-black-gradient-border-transparent.png'))
   }
 
   // because the image I got was inverted from what I need.
   const invertMask = () => {
     imgMask.loadPixels()
-    for (var i = 3; i < imgMask.pixels.length; i += 4) {
+    for (let i = 3; i < imgMask.pixels.length; i += 4) {
       imgMask.pixels[i] = 255 - imgMask.pixels[i]
     }
     imgMask.updatePixels()
@@ -97,7 +99,7 @@ export default function Sketch (config) {
   }
 
   const target = () => {
-    let layer = layers.copy()
+    const layer = layers.copy()
 
     p5.image(layer)
     // layers.tempLayer.clear()
@@ -125,11 +127,6 @@ export default function Sketch (config) {
     layers.drawingLayer.clear()
   }
 
-  const renderTemp = () => {
-    layers.p5.image(layers.tempLayer, 0, 0)
-    layers.tempLayer.clear()
-  }
-
   // pass in p5 and params because it's bound in gui.js
   // but, this binds the current values in params, apparently
   // UGH UGH UGH
@@ -149,18 +146,18 @@ export default function Sketch (config) {
 
   const setFont = (font, layer = layers.drawingLayer) => {
     // how clumsy! but as a POC it works
-    let tf = (loadedFonts.indexOf(font) > -1) ? fontList[font] : font
+    const tf = (loadedFonts.includes(font)) ? fontList[font] : font
     layer.textFont(tf)
   }
 
   const initDefaultLayer = (w, h) => {
-    let layer = p5.createGraphics(w, h)
+    const layer = p5.createGraphics(w, h)
     layer.pixelDensity(density)
     return layer
   }
 
   const initDrawingLayer = (w, h) => {
-    let layer = initDefaultLayer(w, h)
+    const layer = initDefaultLayer(w, h)
     setFont(params.font, layer)
     layer.textAlign(p5.CENTER, p5.CENTER)
     layer.colorMode(p5.HSB, params.width, params.height, 100, 1)
@@ -196,7 +193,7 @@ export default function Sketch (config) {
   // a reminder of something simpler
   const drawRowCol = (xPos, yPos, params, width, height, layer) => {
     const rows = params.rows
-    let cols = params.columns // tidally lock them together for the time being.
+    const cols = params.columns // tidally lock them together for the time being.
 
     const cellHeight = height / rows
     const cellWidth = width / cols
@@ -231,7 +228,7 @@ export default function Sketch (config) {
         setOutlineMode(pixelX, pixelY, params)
 
         const txt = fetchText()
-        let fontSize = fitTextOnCanvas(txt, params.font, cellWidth, layer)
+        const fontSize = fitTextOnCanvas(txt, params.font, cellWidth, layer)
         // layer.textSize(cellWidth * 1.5)
         layer.textSize(fontSize)
 
@@ -254,7 +251,7 @@ export default function Sketch (config) {
   const maxUnlessLessThan = (val, min) => val < min ? min : val
 
   const textSizeCircle = (xPos) => {
-    let tx = xPos / 2
+    const tx = xPos / 2
     return maxUnlessLessThan(tx, 1)
   }
 
@@ -333,11 +330,11 @@ export default function Sketch (config) {
   const defaultGridParm = (xPos, height, width) => {
     const step = xPos + 5
     return {
-      step: step,
-      condy: (y) => y < height,
-      condx: (x) => x < width,
-      changey: (y) => y + step,
-      changex: (x) => x + step,
+      step,
+      condy: y => y < height,
+      condx: x => x < width,
+      changey: y => y + step,
+      changex: x => x + step,
       initY: 0,
       initX: 0
     }
@@ -346,11 +343,11 @@ export default function Sketch (config) {
   const invertGridParm = (xPos, height, width) => {
     const step = width - xPos + 5
     return {
-      step: step,
-      condy: (y) => y > 0,
-      condx: (x) => x > 0,
-      changey: (y) => y - step,
-      changex: (x) => x - step,
+      step,
+      condy: y => y > 0,
+      condx: x => x > 0,
+      changey: y => y - step,
+      changex: x => x - step,
       initY: height,
       initX: width
     }
@@ -405,10 +402,10 @@ export default function Sketch (config) {
     const fill = bloc => setFillMode(bloc.x, bloc.y, params)
     const outline = params.useOutline ? bloc => setOutlineMode(bloc.x, bloc.y, params) : () => { }
     const step = (params.fixedWidth) ? gridParams.step : 0
-    const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, layer, params)
+    const paint = ((step, layer, params) => bloc => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, layer, params)
     const yOffset = getYoffset(layer.textAscent(), 0) // only used for TextWidth
     // TODO: also the alignments above. ugh
-    let blocGen = (params.fixedWidth)
+    const blocGen = (params.fixedWidth)
       ? blocGeneratorFixedWidth(gridParams, nextText)
       : blocGeneratorTextWidth(nextText, whOnly(layer), yOffset, layer) // whonly needs to be reworked
     apx(fill, outline, paint)(blocGen)
@@ -428,13 +425,13 @@ export default function Sketch (config) {
   const blocGeneratorTextWidth = function * (nextText, gridSize, yOffset, r) {
     let t = nextText()
     let coords = { x: 0, y: yOffset }
-    let offsets = { x: 0, y: yOffset }
+    const offsets = { x: 0, y: yOffset }
     while (hasNextCoord(coords, gridSize, yOffset)) {
       yield { x: coords.x, y: coords.y, text: t }
       offsets.x = r.textWidth(t)
       coords = nextCoord(coords, offsets, gridSize.width)
       t = nextText()
-      if (t === ' ' && coords.x === 0) t = nextText()
+      if (t === ' ' && coords.x === 0) { t = nextText() }
     }
     return 'done'
   }
@@ -452,7 +449,7 @@ export default function Sketch (config) {
   }
 
   const nextCoord = (coords, offsets, gridWidth) => {
-    let nc = { ...coords }
+    const nc = { ...coords }
     nc.x = nc.x + offsets.x
     if (nc.x + (0.25 * offsets.x) > gridWidth) {
       nc.x = 0
@@ -486,15 +483,15 @@ export default function Sketch (config) {
   const nextDrawMode = (direction, params) => {
     let drawMode = params.drawMode
     drawMode = (drawMode + direction) % params.drawModes.length
-    if (drawMode < 0) drawMode = params.drawModes.length - 1
+    if (drawMode < 0) { drawMode = params.drawModes.length - 1 }
     params.drawMode = drawMode
   }
 
   const nextRotation = (direction, params) => {
     const step = 5
     params.rotation = (params.rotation + step * direction) % 360
-    if (params.rotation > 360) params.rotation = 360
-    if (params.rotation < -360) params.rotation = -360
+    if (params.rotation > 360) { params.rotation = 360 }
+    if (params.rotation < -360) { params.rotation = -360 }
   }
 
   const colorAlpha = (aColor, alpha) => {
@@ -568,7 +565,7 @@ export default function Sketch (config) {
 
           const l1 = layer.lerpColor(color1, color2, amountX)
           const l2 = layer.lerpColor(color3, color4, amountX)
-          let l3 = layer.lerpColor(l1, l2, amountY)
+          const l3 = layer.lerpColor(l1, l2, amountY)
           const alpha = (transparency * 255)
           l3.setAlpha(alpha)
           layer.pop()
@@ -590,7 +587,7 @@ export default function Sketch (config) {
 
           const l1 = layer.lerpColor(color1, color2, amountX)
           const l2 = layer.lerpColor(color3, color4, amountX)
-          let l3 = layer.lerpColor(l1, l2, amountY)
+          const l3 = layer.lerpColor(l1, l2, amountY)
           const alpha = (transparency * 255)
           l3.setAlpha(alpha)
           layer.pop()
@@ -661,11 +658,11 @@ export default function Sketch (config) {
   // I'd love to be able to drag the image around, but I think that will require something else, but related
   const shift = (verticalOffset, horizontalOffset) => {
     // TODO: has to be pointing to the drawingLayer
-    let context = layers.p5.drawingContext
-    let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
+    const context = layers.p5.drawingContext
+    const imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
-    let cw = (horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
-    let ch = (verticalOffset > 0 ? context.canvas.height : -context.canvas.height)
+    const cw = (horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
+    const ch = (verticalOffset > 0 ? context.canvas.height : -context.canvas.height)
 
     context.putImageData(imageData, 0 + horizontalOffset, 0 + verticalOffset)
     if (horizontalOffset !== 0) {
@@ -693,7 +690,7 @@ export default function Sketch (config) {
   }
 
   p5.keyTyped = () => {
-    if (!mouseInCanvas()) return
+    if (!mouseInCanvas()) { return }
     keyHandler(p5.key, params, layers, this)
     return false
   }
@@ -715,7 +712,7 @@ export default function Sketch (config) {
 
     p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
 
-    let newPG = initDrawingLayer(newWidth, newHeight)
+    const newPG = initDrawingLayer(newWidth, newHeight)
     newPG.push()
     if (direction === -1) {
       newPG.translate(0, newHeight)
@@ -752,14 +749,14 @@ export default function Sketch (config) {
     const originY = this.p5.random(-offsetSize.height, this.p5.height + offsetSize.height)
     layers.drawingLayer.translate(originX, originY)
     // TODO: hrm. maybe there could be some more options, here?
-    if (coinflip()) layers.drawingLayer.rotate(this.p5.radians(this.p5.random(360)))
+    if (coinflip()) { layers.drawingLayer.rotate(this.p5.radians(this.p5.random(360))) }
     // this is a POC
     // I'd like to explore gradients or other masks for transparency
     const alpha = (this.p5.random(255))
     this.p5.push()
 
     // hey! the density is all off, here
-    var img2 = layers.p5.createImage(img.width, img.height)
+    const img2 = layers.p5.createImage(img.width, img.height)
     img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
     if (!params.hardEdge) {
       const mask2 = layers.p5.createImage(img.width, img.height)
@@ -785,14 +782,14 @@ export default function Sketch (config) {
 
   const adjustGamma = (gamma = 0.8) => {
     const gammaCorrection = 1 / gamma
-    let context = layers.p5.drawingContext
-    let imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
+    const context = layers.p5.drawingContext
+    const imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
-    var data = imageData.data
-    for (var i = 0; i < data.length; i += 4) {
-      data[i] = 255 * Math.pow((data[i] / 255), gammaCorrection)
-      data[i + 1] = 255 * Math.pow((data[i + 1] / 255), gammaCorrection)
-      data[i + 2] = 255 * Math.pow((data[i + 2] / 255), gammaCorrection)
+    const data = imageData.data
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = 255 * (data[i] / 255) ** gammaCorrection
+      data[i + 1] = 255 * (data[i + 1] / 255) ** gammaCorrection
+      data[i + 2] = 255 * (data[i + 2] / 255) ** gammaCorrection
     }
     context.putImageData(imageData, 0, 0)
     renderLayers(params)
@@ -830,8 +827,10 @@ export default function Sketch (config) {
   this.HORIZONTAL = HORIZONTAL
   this.VERTICAL = VERTICAL
 
+  // TODO: replicate macro controls in the new key-handler
+  // I'm prettty sure we'll use sequential things for _something_
   const setup2 = (sketch) => {
-    var listener = new window.keypress.Listener()
+    const listener = new keypress.Listener()
     const macros = new Macros(sketch)
     for (let i = 1; i <= Object.keys(macros).length + 1; i++) {
       const m = `macro${i}`
