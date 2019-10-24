@@ -3,6 +3,7 @@ import * as dat from 'dat.gui'
 import { allParams, paramsInitial, fourRandoms, drawModes } from '../params'
 import corpus from './corpus.js'
 import fontList from './fonts'
+const presets = require('@/assets/default.gui.settings.json')
 
 export default class GuiControl {
   constructor () {
@@ -180,7 +181,10 @@ export default class GuiControl {
       return newParams
     }
 
-    const gui = new dat.GUI()
+    const gui = new dat.GUI({
+      load: presets,
+      preset: 'nice palette'
+    })
     gui.remember(allParams)
 
     const f1 = gui.addFolder('stuff')
@@ -262,7 +266,8 @@ export default class GuiControl {
       setBodyCopy,
       hexStringToColors,
       swapParams,
-      fontPicker
+      fontPicker,
+      gui
     }
   }
 }
