@@ -10,7 +10,7 @@ const fourRandoms = (prefix = '') => {
   }
 }
 
-let colorParams = () => ({
+const colorParams = () => ({
   ...{
     paintMode: 0,
     transparency: 50,
@@ -26,11 +26,10 @@ let colorParams = () => ({
 
 const drawModes = { 'Grid': 0, 'Circle': 1, 'Grid2': 2 }
 const bindFunctionLater = () => {}
-let fillParams = { ...colorParams() }
-let outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: 'round', paintMode: 4 } }
-let paramsInitial = {
+const fillParams = { ...colorParams() }
+const outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: 'round', paintMode: 4 } }
+const paramsInitial = {
   name: 'polychrome.text',
-  open: bindFunctionLater,
   width: 900,
   height: 900,
   // bind after defined in sketch
@@ -42,7 +41,7 @@ let paramsInitial = {
   scale: 1.0,
   rotation: 0,
   cumulativeRotation: false,
-  drawModes: drawModes,
+  drawModes,
   drawMode: 0,
   invert: false,
   useOutline: true,
@@ -82,11 +81,11 @@ let paramsInitial = {
 // fake-name-spaces
 // so it can be flat. ugh. naming things.
 const prefixObj = (obj, prefix) => {
-  let flatObj = {}
-  Object.keys(obj).forEach((key) => (flatObj[`${prefix}_${key}`] = obj[key]))
+  const flatObj = {}
+  Object.keys(obj).forEach(key => (flatObj[`${prefix}_${key}`] = obj[key]))
   return flatObj
 }
 
-let allParams = Object.assign({}, paramsInitial, prefixObj(fillParams, 'fill'), prefixObj(outlineParams, 'outline'))
+const allParams = Object.assign({}, paramsInitial, prefixObj(fillParams, 'fill'), prefixObj(outlineParams, 'outline'))
 
 export { allParams, paramsInitial, fourRandoms, drawModes }

@@ -178,7 +178,8 @@ const keyHandler = (char, params, layers, sketch) => {
 
     case 'w':
     case 'W':
-      sketch.textManager.setText(sketch.guiControl.getBodyCopy())
+      // TODO: hrm. how do I do this, now? !!!
+      // sketch.textManager.setText(sketch.guiControl.getBodyCopy())
       break
 
     case 'z':

@@ -1,22 +1,18 @@
 import { contains } from 'ramda'
 import * as dat from 'dat.gui'
-import { allParams, paramsInitial, fourRandoms, drawModes } from '../params'
-import corpus from './corpus.js'
-import fontList from './fonts'
+import { allParams, paramsInitial, fourRandoms, drawModes } from '~/assets/javascript/params.js'
+import fontList from '@/assets/javascript/fonts'
 const presets = require('@/assets/default.gui.settings.json')
 
 export default class GuiControl {
   constructor () {
     let cnvs
-    const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
     const setupGui = (sketch) => {
       cnvs = document.getElementsByTagName('canvas')
       if (cnvs && cnvs[0]) {
         cnvs = cnvs[0]
       }
-      setfocus()
-      allParams.open = openCanvasInNewTab
       allParams.save = sketch.save_sketch
       allParams.clear = sketch.clearCanvas
       allParams.swap = () => swapParams(allParams)
@@ -34,43 +30,6 @@ export default class GuiControl {
         allParams[prefix + '_lq3'] = qs[prefix + '_lq3']
         allParams[prefix + '_lq4'] = qs[prefix + '_lq4']
       }
-
-      setBodyCopy(randElem(corpus))
-
-      // TODO: ugh no not in here
-      document.getElementById('applytext')
-        .addEventListener('click', () => {
-          sketch.textManager.setText(getBodyCopy())
-        })
-      document.getElementById('randomtext')
-        .addEventListener('click', () => {
-          sketch.textManager.randomPost()
-            .then((poem) => {
-              setBodyCopy(poem)
-              sketch.textManager.setText(poem)
-            })
-        })
-    }
-
-    const setfocus = () => cnvs.focus()
-
-    const openCanvasInNewTab = () => {
-      // if (cnvs) {
-      //   const img = cnvs.toDataURL('image/jpg')
-      //   // https://ourcodeworld.com/articles/read/682/what-does-the-not-allowed-to-navigate-top-frame-to-data-url-javascript-exception-means-in-google-chrome
-      //   const win = window.open()
-      //   win.document.write('<iframe src="' + img +
-      //     '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>')
-      // }
-    }
-
-    const fc = document.getElementById('focus')
-    if (fc) { fc.onclick = setfocus }
-
-    const textInputBox = document.getElementById('bodycopy')
-    const getBodyCopy = () => textInputBox.value
-    const setBodyCopy = (text) => {
-      textInputBox.value = text
     }
 
     // eh, maybe some other way of doing/naming this
@@ -191,7 +150,6 @@ export default class GuiControl {
     f1.add(allParams, 'width')
     f1.add(allParams, 'height')
     f1.add(allParams, 'name')
-    f1.add(allParams, 'open')
     f1.add(allParams, 'save')
     f1.add(allParams, 'clear')
     f1.add(allParams, 'swap')
@@ -261,9 +219,6 @@ export default class GuiControl {
     return {
       setupGui,
       params: allParams,
-      openCanvasInNewTab,
-      getBodyCopy,
-      setBodyCopy,
       hexStringToColors,
       swapParams,
       fontPicker,

@@ -8,12 +8,12 @@
   h1 polychrome text
   p#description
   p
-    a#focus(href='#' alt='set focus to canvas') focus on canvas
+    button#focus(@click="setFocus") focus on canvas
   div
-    textarea#bodycopy
-    button#applytext
+    textarea#bodycopy(v-model="currentText")
+    button#applytext(@click="resetTextPosition")
       | Apply text
-    button#randomtext
+    button#randomtext(@click="randomText")
       | Random text
   p
     | Mouse click and drag to paint (previous paints will fade slightly).
@@ -37,12 +37,18 @@ import TextManager from '@/assets/javascript/TextManager'
 import Sketch from '@/assets/javascript/sketch.js'
 import GuiControl from '@/assets/javascript/gui.js'
 import randomPost from '@/assets/javascript/tumblr-random.js'
+import corpus from '@/assets/javascript/corpus.js'
+const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
 const textManager = new TextManager()
 textManager.randomPost = randomPost
 
 export default {
-  components: {
+  data () {
+    return {
+      currentText: 'placeholder',
+      corpus
+    }
   },
   mounted () {
     const keypress = require('keypress.js')
@@ -52,12 +58,29 @@ export default {
       new Sketch({ p5Instance, guiControl, textManager, keypress }) // eslint-disable-line no-new
     }
 
-    new P5(builder) // eslint-disable-line no-new
+    randomPost()
+      .then((texts) => {
+        this.corpus = this.corpus.concat(texts)
+        this.currentText = randElem(corpus)
+        this.resetTextPosition()
+        new P5(builder) // eslint-disable-line no-new
+      })
   },
   methods: {
-    // loadPreset () {
-    //   guiControl.gui.load(presets)
-    // }
+    randomText () {
+      const text = randElem(this.corpus)
+      textManager.setText(text)
+      this.currentText = text
+    },
+    resetTextPosition () {
+      textManager.setText(this.currentText)
+    },
+    setFocus () {
+      this.canvas().focus()
+    },
+    canvas () {
+      return document.getElementsByTagName('canvas')[0]
+    }
   }
 }
 </script>

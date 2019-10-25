@@ -61,7 +61,6 @@ export default function Sketch (config) {
 
     this.clearCanvas()
     guiControl.setupGui(this, guiControl.fontPicker)
-    textManager.setText(guiControl.getBodyCopy())
     undo = new UndoLayers(layers, renderLayers, 10)
     this.undo = undo
     this.appMode = APP_MODES.STANDARD_DRAW

@@ -1,6 +1,11 @@
 // based on https://github.com/razagill/tumblr-random-posts
 import axios from 'axios'
 import cheerio from 'cheerio'
+const postCount = 20
+
+const cleanup = text => text
+  .replace(/\s/g, ' ')
+  .replace(/–/g, '--')
 
 const tumblrRandomPost = () => {
   const settings = {
@@ -18,11 +23,16 @@ const tumblrRandomPost = () => {
         reject(err)
       })
       .then(postId =>
-        axios.get(apiUrl + `&offset=${postId}&limit=1`)
+        axios.get(apiUrl + `&offset=${postId}&limit=${postCount}`) // maybe get a bunch of stuff?
           .then((response) => {
-            const html = response.data.response.posts[0].body
-            const body = cheerio.load(html)
-            resolve(body.text())
+            const newCorpus = response.data.response.posts.map((post) => {
+              const body = cheerio.load(post.body)
+              return cleanup(body.text())
+            })
+            // const html = response.data.response.posts[0].body
+            // const body = cheerio.load(html)
+
+            resolve(newCorpus)
           }))
   })
 }
