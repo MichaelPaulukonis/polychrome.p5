@@ -1,18 +1,15 @@
 import { contains } from 'ramda'
 import * as dat from 'dat.gui'
+// TODO: pass in allParams, pre-defined ?
 import { allParams, paramsInitial, fourRandoms, drawModes } from '~/assets/javascript/params.js'
 import fontList from '@/assets/javascript/fonts'
+import { lerpList } from '@/assets/javascript/lerplist'
+import { hexStringToColors, colorLabel, selectToRadios } from '@/assets/javascript/gui.color.control.js'
 const presets = require('@/assets/default.gui.settings.json')
 
 export default class GuiControl {
   constructor () {
-    let cnvs
-
     const setupGui = (sketch) => {
-      cnvs = document.getElementsByTagName('canvas')
-      if (cnvs && cnvs[0]) {
-        cnvs = cnvs[0]
-      }
       allParams.save = sketch.save_sketch
       allParams.clear = sketch.clearCanvas
       allParams.swap = () => swapParams(allParams)
@@ -32,100 +29,22 @@ export default class GuiControl {
       }
     }
 
-    // eh, maybe some other way of doing/naming this
-    const hexStringToColors = (lerp) => {
-      // based on https://bl.ocks.org/mootari/bfbf01320da6c14f9cba186c581d507d
-      return lerp.split('-').map(c => '#' + c)
-    }
-
-    const colorLabel = (label) => {
-      const stops = (color, i, colors) => {
-        return color + ' ' + (i * 100 / colors.length) + '%' +
-          ',' + color + ' ' + ((i + 1) * 100 / colors.length) + '%'
-      }
-      const gradient = colors => 'linear-gradient(90deg,' + colors.map(stops) + ')'
-
-      label.style.display = 'inline-block'
-      const radio = label.children[0]
-      radio.nextSibling.remove()
-      const span = document.createElement('span')
-      span.style.background = gradient(hexStringToColors(radio.value))
-      span.style.paddingRight = '4em'
-      span.style.marginRight = '.5em'
-      label.appendChild(span)
-    }
-
-    // Adds and links labeled radios to select controller, hides select.
-    // Radios are wrapped inside labels and stored in controller.__radios.
-    const selectToRadios = (controller) => {
-      const wrapper = controller.domElement
-      const select = wrapper.children[0]
-      // TODO: needs to be 0 when hidden; auto if not
-      // wrapper.parentNode.parentNode.style.height = 'auto'
-      wrapper.parentNode.parentNode.classList.add('radio-select')
-      controller.__radios = Array.prototype.map.call(select.children, function (option, i) {
-        const radio = document.createElement('input')
-        radio.type = 'radio'
-        radio.name = option.name
-        radio.value = option.value
-        radio.checked = option.selected
-        radio.addEventListener('change', (e) => {
-          option.selected = true
-          // ouch! a reference that doesn't exist yet!
-          controller.__select.dispatchEvent(new e.constructor(e.type, e))
-        })
-        const label = document.createElement('label')
-        label.appendChild(radio)
-        label.appendChild(document.createTextNode(option.textContent))
-        wrapper.appendChild(label)
-        return label
-      })
-      wrapper.removeChild(select)
-      return controller
-    }
-
-    // developed with the help of https://coolors.co/
-    // we only process 2..4 of the colors, so we can dispose of some
-    // NOTE: some of these combos are awful
-    const lerpList = [
-      'ffffff-000000',
-      '002626-0e4749-95c623-e55812-efe7da',
-      '003049-d62828-f77f00-fcbf49-eae2b7',
-      '20bf55-0b4f6c-01baef-fbfbff-757575',
-      '1a535c-4ecdc4-f7fff7-ff6b6b-ffe66d',
-      'cc211a-234ec3-f6dc28-e8ebf7-acbed8',
-      'cc211a-234ec3-f6dc28-e8ebf7',
-      '5d737e-64b6ac-c0fdfb-daffef',
-      'ff9f1c-ffbf69-ffffff-cbf3f0-2ec4b6',
-      '50514f-f25f5c-ffe066-247ba0-70c1b3',
-      'edadc7-643173-7d5ba6-89ce94',
-      '74b3ce-f18805-0e1428-ef3054',
-      'ffff00-ff00ff-800080-00ffaa',
-      'ffff00-ff00ff',
-      '800080-00ffaa'
-    ]
-
+    // TODO: is this working for all things? like the nestd folders with action-buttons?
     const swapParams = (params) => {
       const swapped = swapPrefixParams(params, 'outline', 'fill')
       Object.keys(swapped)
         .forEach(key => (params[key] = swapped[key]))
-      // const getProps = pickBy((val, key) => !contains('randomize', key))
-      // const somerKeys = getProps(swapped)
-      // params = {...somerKeys}
     }
+
     // http://www.jstips.co/en/javascript/picking-and-rejecting-object-properties/
     function pick (obj, keys) {
       return keys.map(k => k in obj ? { [k]: obj[k] } : {})
         .reduce((res, o) => Object.assign(res, o), {})
     }
+
     // this seems overly complicated
     const swapPrefixParams = (params, prefix1, prefix2) => {
       const newParams = Object.assign({}, params)
-      // const getProps = prefix => pickBy((val, key) => key.startsWith(prefix) && !contains('randomize', key))
-      // let p1keys = getProps(prefix1)(newParams)
-      // let p2keys = getProps(prefix2)(newParams)
-      // let p2bak = {...p2keys}
-
       const p1keys = Object.keys(newParams).filter(k => k.startsWith(prefix1) && !contains('randomize', k))
       const p2keys = Object.keys(newParams).filter(k => k.startsWith(prefix2) && !contains('randomize', k))
       const p2bak = pick(newParams, p2keys)
@@ -155,8 +74,6 @@ export default class GuiControl {
     f1.add(allParams, 'swap')
     f1.add(allParams, 'fixedWidth')
     const fontPicker = f1.add(allParams, 'font', fontList).listen()
-    const sc = f1.add(allParams, 'scale').min(0.1).max(3).step(0.1).listen()
-
     const f2 = gui.addFolder('misc')
     f2.add(allParams, 'hardEdge').listen()
     f2.add(allParams, 'useShadow').listen()
@@ -165,13 +82,6 @@ export default class GuiControl {
     f2.add(allParams, 'shadowBlur').min(1).max(100).step(1)
     f2.addColor(allParams, 'shadowColor').listen()
     f2.add(allParams, 'gamma').min(0.01).max(9.99).step(0.01)
-
-    sc.onChange((m) => {
-      const scale = parseFloat(m, 10)
-      // this is... not quite right
-      cnvs = document.getElementsByTagName('canvas')[0]
-      cnvs.style.transform = `scale(${scale})`
-    })
 
     gui.add(allParams, 'invert').listen()
     gui.add(allParams, 'nextCharMode', allParams.nextCharModes).listen()

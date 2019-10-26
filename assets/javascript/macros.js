@@ -155,8 +155,11 @@ export default function Macros (sketch) {
   const singleRow = macroWrapper((params, layer) => {
     // const drawRowCol = (xPos, yPos, params, width, height, layer) => {
     //   const rows = params.rows
-    params.rows = 1
+    params.rows = 8
     params.columns = 1
+    params.nextCharMode = 'Word'
+    // TODO: first time this is called it used the wrong font. ?????
+    // NOTE: params are set correctly. But the layer hasn't had it set (makes no sense)
     // TODO: fittext needs to be implemented - there's nothing in rowcol for words
     // which can be ugly, but.. .well, you know, so what!
     drawRowCol(0, 0, params, layer.width, layer.height, layer)

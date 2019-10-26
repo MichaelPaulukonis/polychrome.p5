@@ -53,9 +53,10 @@ export default {
   mounted () {
     const keypress = require('keypress.js')
     const guiControl = new GuiControl()
+    let pchrome
 
     const builder = (p5Instance) => {
-      new Sketch({ p5Instance, guiControl, textManager, keypress }) // eslint-disable-line no-new
+      pchrome = new Sketch({ p5Instance, guiControl, textManager, keypress }) // eslint-disable-line no-new
     }
 
     randomPost()
@@ -63,7 +64,9 @@ export default {
         this.corpus = this.corpus.concat(texts)
         this.currentText = randElem(corpus)
         this.resetTextPosition()
-        new P5(builder) // eslint-disable-line no-new
+        new P5(builder, 'sketch-holder') // eslint-disable-line no-new
+        guiControl.setupGui(pchrome, guiControl.fontPicker)
+        console.log('here!', pchrome)
       })
   },
   methods: {

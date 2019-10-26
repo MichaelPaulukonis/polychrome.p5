@@ -1,6 +1,10 @@
 import hotkeys from 'hotkeys-js'
 
-const setupHotkeys = (sketch) => {
+// TODO: the check for "inside of canvas" is missing, need to use a wrapper for those that need it?
+const setupHotkeys = (config) => {
+  // const { sketch, guiControl } = config
+  const { sketch } = config
+
   const hotkeystring = 'del,backspace,shift,shift+left,left,shift+right,right,up,down,shift+up,shift+down,alt+e,command+s,alt+g,alt+t,' +
     'alt+1,alt+2,alt+3,alt+4,alt+5,alt+6,alt+7,alt+8,alt+9,alt+0'
   hotkeys(hotkeystring, (event, handler) => {
@@ -93,6 +97,8 @@ const setupHotkeys = (sketch) => {
     }
   })
 }
+
+// once all of these are moved into HotKeys, we can rid of the ref insie of sketch
 
 const keyHandler = (char, params, layers, sketch) => {
   const EXTRASHIFT = 10

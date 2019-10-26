@@ -3,6 +3,7 @@ import Layers from './layers.js'
 import Macros from './macros.js'
 import { keyHandler, setupHotkeys } from './keys.js'
 import { fitTextOnCanvas } from './fit.text'
+import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 
 // params external to guiControl are a hoped-for headless use-case
 export default function Sketch (config) {
@@ -18,7 +19,6 @@ export default function Sketch (config) {
   let setFillMode
   let setOutlineMode
   let undo
-  let canvas
 
   const fontList = {}
   const loadedFonts = ['ATARCC__', 'ATARCE__', 'ATARCS__', 'AtariClassic-Regular',
@@ -48,7 +48,7 @@ export default function Sketch (config) {
   p5.setup = () => {
     invertMask()
     p5.pixelDensity(density)
-    canvas = p5.createCanvas(params.width, params.height)
+    p5.createCanvas(params.width, params.height)
     const drawingLayer = initDrawingLayer(params.width, params.height)
     const tempLayer = initDefaultLayer(params.width, params.height)
     this.layers = layers = new Layers(p5, drawingLayer, tempLayer)
@@ -57,10 +57,7 @@ export default function Sketch (config) {
     // setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layers.drawingLayer.fill, layers.drawingLayer)
     // setOutlineMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('outline', layers.drawingLayer.stroke, layers.drawingLayer)
 
-    canvas.parent('sketch-holder')
-
     this.clearCanvas()
-    guiControl.setupGui(this, guiControl.fontPicker)
     undo = new UndoLayers(layers, renderLayers, 10)
     this.undo = undo
     this.appMode = APP_MODES.STANDARD_DRAW
@@ -549,7 +546,7 @@ export default function Sketch (config) {
 
       case 13:
         {
-          const colors = guiControl.hexStringToColors(params[`${prefix}_scheme`])
+          const colors = hexStringToColors(params[`${prefix}_scheme`])
           // TODO: work with number of colors provided
 
           const color1 = layer.color(colors[0])
@@ -841,6 +838,8 @@ export default function Sketch (config) {
     }
 
     sketch.macros = macros
-    setupHotkeys(sketch)
+    setupHotkeys({ sketch, guiControl })
   }
+
+  return this
 }

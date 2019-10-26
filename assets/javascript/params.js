@@ -38,7 +38,6 @@ const paramsInitial = {
   swap: bindFunctionLater,
   fixedWidth: true,
   font: 'Copperplate', // fontList[0],
-  scale: 1.0,
   rotation: 0,
   cumulativeRotation: false,
   drawModes,
