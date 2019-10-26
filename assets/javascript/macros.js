@@ -1,23 +1,25 @@
 
-export default function Macros (sketch) {
+export default function Macros (pchrome) {
   const { drawGrid, drawCircle, drawRowCol,
     flipCore, layers, pushpop, paint, shift,
-    apx, mirror, renderLayers, undo, HORIZONTAL, VERTICAL } = sketch
+    apx, mirror, renderLayers, undo, randomLayer,
+    HORIZONTAL, VERTICAL } = pchrome
 
-  const macroWrapper = f => (params, layer, p5) => {
+  const macroWrapper = f => (pchrome) => {
+    const { params, layers: { drawingLayer: layer }, p5 } = pchrome
     layer.push()
-    f({ ...params }, layer, p5)
+    f({ params: { ...params }, layer, p5 })
     layer.pop()
   }
 
   // these aren't "macros" as in recorded
   // but that's a hoped-for goal
   // in the meantime, they can be fun to use
-  const macro1 = macroWrapper((params, layer) => {
+  const macro1 = macroWrapper(({ params, layer }) => {
     drawGrid(20, 10, params, layer.width, layer.height, layer)
   })
 
-  const macro2 = macroWrapper((params, layer) => {
+  const macro2 = macroWrapper(({ params, layer }) => {
     drawCircle(89, 89, params, layer.width, layer.height, layer)
     drawCircle(50, 50, params, layer.width, layer.height, layer)
     drawCircle(40, 40, params, layer.width, layer.height, layer)
@@ -25,7 +27,7 @@ export default function Macros (sketch) {
     drawCircle(100, 100, params, layer.width, layer.height, layer)
   })
 
-  const macro3 = macroWrapper((params, layer) => {
+  const macro3 = macroWrapper(({ params, layer }) => {
     for (let i = 1; i < layer.width; i += 10) {
       drawCircle(i, i, params, layer.width, layer.height, layer)
     }
@@ -33,24 +35,24 @@ export default function Macros (sketch) {
 
   // when INVERT is on THIS IS AMAZING
   // which suggests........
-  const macro4 = macroWrapper((params, layer) => {
+  const macro4 = macroWrapper(({ params, layer }) => {
     for (let i = layer.width; i > layer.width / 2; i -= 80) {
       if (i < ((layer.width / 3) * 2)) { params.rotation = 90 }
       drawGrid(i, i, params, layer.width, layer.height, layer)
     }
   })
 
-  const macro5 = macroWrapper((params, layer) => {
+  const macro5 = macroWrapper(({ params, layer }) => {
     drawGrid(4, 4, params, layer.width, layer.height, layer)
   })
 
-  const macro6 = macroWrapper((params, layer) => {
+  const macro6 = macroWrapper(({ params, layer }) => {
     for (let i = 1; i < layer.width; i += 5) {
       drawGrid(i, layer.mouseY, params, layer.width, layer.height, layer)
     }
   })
 
-  const macro7 = macroWrapper((params, layer, p5) => {
+  const macro7 = macroWrapper(({ params, layer, p5 }) => {
     const currParamsToKeep = {
       fixedWidth: params.fixedWidth,
       font: params.font
@@ -69,11 +71,11 @@ export default function Macros (sketch) {
     drawGrid(x, y, params, layer.width, layer.height, layer)
   })
 
-  const macro8 = macroWrapper((params, layer) => {
+  const macro8 = macroWrapper(({ params }) => {
     paint(36, 23, params)
   })
 
-  const halfHeightGridAtMousePos = macroWrapper((params, layer, p5) => {
+  const halfHeightGridAtMousePos = macroWrapper(({ params, layer, p5 }) => {
     const width = layer.width / 2
     const height = layer.height / 2
     const x = p5.mouseX
@@ -84,7 +86,7 @@ export default function Macros (sketch) {
 
   // works GREAT with cumulativeRotation
   // only problem is the colors are identical no matter where
-  const macro9 = macroWrapper((params, layer) => {
+  const macro9 = macroWrapper(({ params, layer }) => {
     // take these out of HERE
     // and macro9 then passes in params and width/height
     // but it should also indicate WHERE it should start
@@ -152,7 +154,7 @@ export default function Macros (sketch) {
     })()
   }
 
-  const singleRow = macroWrapper((params, layer) => {
+  const singleRow = macroWrapper(({ params, layer }) => {
     // const drawRowCol = (xPos, yPos, params, width, height, layer) => {
     //   const rows = params.rows
     params.rows = 8
@@ -165,26 +167,26 @@ export default function Macros (sketch) {
     drawRowCol(0, 0, params, layer.width, layer.height, layer)
   })
 
-  const doubleMirror = macroWrapper((params, layer, p5) => {
+  const doubleMirror = macroWrapper(({ p5 }) => {
     mirror(HORIZONTAL, p5)
     mirror(VERTICAL, p5)
   })
 
-  const shiftToCenter = macroWrapper((params, layer, p5) => {
+  const shiftToCenter = macroWrapper(({ layer }) => {
     // because density is 2, this is shifting by half
     const x = layer.width
     const y = layer.height
     shift(y, x)
   })
 
-  const shiftRightHalfway = macroWrapper((params, layer, p5) => {
+  const shiftRightHalfway = macroWrapper(({ layer }) => {
     // because density is 2, this is shifting by half
     const x = layer.width
     const y = 0
     shift(y, x)
   })
 
-  const aRowColJoint = macroWrapper((params, layer, p5) => {
+  const aRowColJoint = macroWrapper(({ params, layer }) => {
     layer.translate(200, 100)
     // paint(36, 23, params)
     params.rows = 3
@@ -195,7 +197,7 @@ export default function Macros (sketch) {
     drawRowCol(0, 0, params, layer.width, layer.height, layer)
   })
 
-  const largestCircle = macroWrapper((params, layer) => {
+  const largestCircle = macroWrapper(({ params, layer }) => {
     params.invert = true
     let exp = 1
     for (let radius = 0; radius < layer.width / 2; radius += 10 * exp) {
@@ -204,7 +206,7 @@ export default function Macros (sketch) {
     }
   })
 
-  const thoseCircles = macroWrapper((params, layer, p5) => {
+  const thoseCircles = macroWrapper(({ params, layer, p5 }) => {
     params.invert = true
     let exp = 1
     for (let radius = 0; radius < layer.width / 2; radius += 10 * exp) {
@@ -216,7 +218,7 @@ export default function Macros (sketch) {
     }
   })
 
-  const thoseCirclesBig = macroWrapper((params, layer, p5) => {
+  const thoseCirclesBig = macroWrapper(({ params, layer, p5 }) => {
     params.invert = true
     const textSize = p5.random([5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 200, 300, 400])
     // NOTE: while this is roughly accurate at low sizes, it fails at larger sizes
@@ -228,11 +230,11 @@ export default function Macros (sketch) {
     }
   })
 
-  const manyRandoms = macroWrapper((params, layer, p5) => {
-    for (let i = 0; i < 10; i++) { sketch.randomLayer() }
+  const manyRandoms = macroWrapper(() => {
+    for (let i = 0; i < 10; i++) { randomLayer() }
   })
 
-  const smallRandomAtSomePlace = macroWrapper((_, layer, p5) => {
+  const smallRandomAtSomePlace = macroWrapper(({ layer, p5 }) => {
     const img = p5.random(undo.history())
     layer.push()
     layer.resetMatrix()
@@ -268,7 +270,7 @@ export default function Macros (sketch) {
   //   // TODO: random quadritlateral with no fade (maybe)
   // })
 
-  const flipOverlay = macroWrapper((_, layer, p5) => {
+  const flipOverlay = macroWrapper(({ layer, p5 }) => {
     p5.push()
     layer.translate(0, 0)
     layer.resetMatrix()

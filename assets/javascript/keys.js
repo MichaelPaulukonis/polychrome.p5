@@ -2,14 +2,14 @@ import hotkeys from 'hotkeys-js'
 
 // TODO: the check for "inside of canvas" is missing, need to use a wrapper for those that need it?
 const setupHotkeys = (config) => {
-  // const { sketch, guiControl } = config
   const { sketch } = config
-
+  const blob = { params: sketch.params, layers: sketch.layers, sketch }
   const hotkeystring = 'del,backspace,shift,shift+left,left,shift+right,right,up,down,shift+up,shift+down,alt+e,command+s,alt+g,alt+t,' +
-    'alt+1,alt+2,alt+3,alt+4,alt+5,alt+6,alt+7,alt+8,alt+9,alt+0'
+    'alt+1,alt+2,alt+3,alt+4,alt+5,alt+6,alt+7,alt+8,alt+9,alt+0,f,shift+f'
   hotkeys(hotkeystring, (event, handler) => {
     event.preventDefault()
-    const extraShift = (hotkeys.getPressedKeyCodes().includes(16)) ? 100 : 10
+    const shiftPressed = hotkeys.getPressedKeyCodes().includes(16)
+    const extraShift = (shiftPressed) ? 100 : 10
     switch (handler.key) {
       case 'left':
       case 'shift+left':
@@ -94,30 +94,31 @@ const setupHotkeys = (config) => {
         sketch.undo.takeSnapshot()
         break
       }
+      case 'f':
+      case 'shift+f': {
+        const vector = shiftPressed ? VERTICAL : HORIZONTAL
+        flip(blob)(vector)
+      }
     }
   })
 }
 
 // once all of these are moved into HotKeys, we can rid of the ref insie of sketch
+const EXTRASHIFT = 10
+const HORIZONTAL = 0
+const VERTICAL = 1
+
+const flip = ({ layers, sketch }) => (direction) => {
+  sketch.flip(direction, layers.p5)
+  sketch.undo.takeSnapshot()
+}
 
 const keyHandler = (char, params, layers, sketch) => {
-  const EXTRASHIFT = 10
-  const HORIZONTAL = 0
-  const VERTICAL = 1
+  // const blob = { char, params, layers, sketch }
 
   switch (char) {
     case 'a':
       sketch.newCorner(layers.drawingLayer)
-      sketch.undo.takeSnapshot()
-      break
-
-    case 'f':
-      sketch.flip(HORIZONTAL, layers.p5)
-      sketch.undo.takeSnapshot()
-      break
-
-    case 'F':
-      sketch.flip(VERTICAL, layers.p5)
       sketch.undo.takeSnapshot()
       break
 

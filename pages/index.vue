@@ -38,6 +38,9 @@ import Sketch from '@/assets/javascript/sketch.js'
 import GuiControl from '@/assets/javascript/gui.js'
 import randomPost from '@/assets/javascript/tumblr-random.js'
 import corpus from '@/assets/javascript/corpus.js'
+import Macros from '@/assets/javascript/macros.js'
+import { setupHotkeys } from '@/assets/javascript/keys.js'
+
 const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
 const textManager = new TextManager()
@@ -55,8 +58,33 @@ export default {
     const guiControl = new GuiControl()
     let pchrome
 
+    // TODO: replicate macro controls in the new key-handler
+    // I'm prettty sure we'll use sequential things for _something_
+    const setupMacros = (sketch) => {
+      const listener = new keypress.Listener()
+      const macros = new Macros(sketch)
+      const macroCount = Object.keys(macros).length + 1
+      for (let i = 1; i <= macroCount; i++) {
+        const m = `macro${i}`
+        const digits = String(i).split('')
+        listener.sequence_combo(`alt x ${digits.join(' ')} alt`, () => {
+          macros[m](sketch)
+          sketch.undo.takeSnapshot()
+        }, true)
+      }
+      return macros
+    }
+
+    // callback when setup is complete
+    // this might have obviated some of the maros setup. eh. whatevs.
+    const setupCallback = (sketch) => {
+      guiControl.setupGui(sketch, guiControl.fontPicker)
+      pchrome.macros = setupMacros(sketch)
+      setupHotkeys({ sketch, guiControl })
+    }
+
     const builder = (p5Instance) => {
-      pchrome = new Sketch({ p5Instance, guiControl, textManager, keypress }) // eslint-disable-line no-new
+      pchrome = new Sketch({ p5Instance, guiControl, textManager, keypress, setupCallback }) // eslint-disable-line no-new
     }
 
     randomPost()
@@ -65,8 +93,6 @@ export default {
         this.currentText = randElem(corpus)
         this.resetTextPosition()
         new P5(builder, 'sketch-holder') // eslint-disable-line no-new
-        guiControl.setupGui(pchrome, guiControl.fontPicker)
-        console.log('here!', pchrome)
       })
   },
   methods: {

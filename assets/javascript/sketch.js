@@ -1,13 +1,12 @@
 import UndoLayers from './undo.layers.js'
 import Layers from './layers.js'
-import Macros from './macros.js'
-import { keyHandler, setupHotkeys } from './keys.js'
+import { keyHandler } from './keys.js' // to remove, implement everything in hotkeys
 import { fitTextOnCanvas } from './fit.text'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 
 // params external to guiControl are a hoped-for headless use-case
 export default function Sketch (config) {
-  const { p5Instance: p5, guiControl, textManager, keypress } = config
+  const { p5Instance: p5, guiControl, textManager, setupCallback } = config
   let { params } = config
 
   params = params || guiControl.params
@@ -20,6 +19,9 @@ export default function Sketch (config) {
   let setOutlineMode
   let undo
 
+  // TODO: this is soooooo ugly!
+  // plus, it's the GUI that needs to know this stuff
+  // even though P5 has to load the fonts......
   const fontList = {}
   const loadedFonts = ['ATARCC__', 'ATARCE__', 'ATARCS__', 'AtariClassic-Regular',
     'BlackCasper', 'BMREA___', 'CableDingbats', 'carbontype', 'clothing logos', 'Credit Cards',
@@ -61,7 +63,8 @@ export default function Sketch (config) {
     undo = new UndoLayers(layers, renderLayers, 10)
     this.undo = undo
     this.appMode = APP_MODES.STANDARD_DRAW
-    setup2(this)
+
+    setupCallback(this)
   }
 
   const mouseInCanvas = () => {
@@ -819,27 +822,9 @@ export default function Sketch (config) {
   this.shift = shift
   this.target = target
   this.textManager = textManager
-
+  this.mouseInCanvas = mouseInCanvas
   this.HORIZONTAL = HORIZONTAL
   this.VERTICAL = VERTICAL
-
-  // TODO: replicate macro controls in the new key-handler
-  // I'm prettty sure we'll use sequential things for _something_
-  const setup2 = (sketch) => {
-    const listener = new keypress.Listener()
-    const macros = new Macros(sketch)
-    for (let i = 1; i <= Object.keys(macros).length + 1; i++) {
-      const m = `macro${i}`
-      const digits = String(i).split('')
-      listener.sequence_combo(`alt x ${digits.join(' ')} alt`, () => {
-        macros[m](params, layers.drawingLayer, layers.p5)
-        undo.takeSnapshot()
-      }, true)
-    }
-
-    sketch.macros = macros
-    setupHotkeys({ sketch, guiControl })
-  }
 
   return this
 }
