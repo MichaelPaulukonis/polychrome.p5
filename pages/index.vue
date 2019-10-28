@@ -90,7 +90,7 @@ export default {
     randomPost()
       .then((texts) => {
         this.corpus = this.corpus.concat(texts)
-        this.currentText = randElem(corpus)
+        this.currentText = randElem(this.corpus)
         this.resetTextPosition()
         new P5(builder, 'sketch-holder') // eslint-disable-line no-new
       })

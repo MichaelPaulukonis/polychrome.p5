@@ -1,6 +1,5 @@
 import UndoLayers from './undo.layers.js'
 import Layers from './layers.js'
-import { keyHandler } from './keys.js' // to remove, implement everything in hotkeys
 import { fitTextOnCanvas } from './fit.text'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 
@@ -62,6 +61,7 @@ export default function Sketch (config) {
     this.clearCanvas()
     undo = new UndoLayers(layers, renderLayers, 10)
     this.undo = undo
+    undo.takeSnapshot()
     this.appMode = APP_MODES.STANDARD_DRAW
 
     setupCallback(this)
@@ -690,7 +690,7 @@ export default function Sketch (config) {
 
   p5.keyTyped = () => {
     if (!mouseInCanvas()) { return }
-    keyHandler(p5.key, params, layers, this)
+    // keyHandler(p5.key, params, layers, this)
     return false
   }
 
