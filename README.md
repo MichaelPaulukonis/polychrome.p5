@@ -110,3 +110,19 @@ https://idmnyu.github.io/p5.js-func/ ???
  - 4 LERPs
    - shuffle the four
    - store a nice palette locally
+
+## in-prgress GUI redo
+still using DAT.GUI, but in a vue.js manner??
+
+think I need to use VUEX (sigh)
+it's sharing state amongst components, so... ????
+
+https://github.com/quasarframework/quasar/blob/dev/ui/src/components/editor/QEditor.js
+
+https://github.com/vuegg/vuegg/blob/master/client/src/components/editor/main/Stage.vue
+
+https://github.com/cyrilf/microbios/blob/f8577c75e4990e54f76168239522cee996721e0c/src/store.js
+
+https://github.com/vuejs/awesome-vue#components--libraries
+
+

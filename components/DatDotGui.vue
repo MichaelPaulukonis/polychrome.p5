@@ -1,5 +1,10 @@
 <template lang="pug">
-  dat-gui(closetext='Close controls' opentext='Open controls' closeposition='bottom')
+  dat-gui(
+    closetext='Close controls'
+    opentext='Open controls'
+    closeposition='bottom'
+    @onchange="$emit('paramChange', params)"
+  )
     dat-number(v-model='width' label='width')
     dat-number(v-model='height' label='height')
     dat-button(@click='save' label='save sketch')
@@ -31,14 +36,14 @@ import fontList from '@/assets/javascript/fonts'
 
 Vue.use(DatGui)
 
-// const bindFunctionLater = () => { }
-// const drawModes = { 'Grid': 0, 'Circle': 1, 'Grid2': 2 }
+const params = { ...paramsInitial }
 
 export default {
   data: () => ({
     ...paramsInitial,
     drawModes,
-    fontList
+    fontList,
+    params: paramsInitial
   }),
   computed: {
     fonts () {
@@ -53,14 +58,14 @@ export default {
   },
   methods: {
     triggerAlert () {
-      alert(JSON.stringify(fontList))
+      alert(JSON.stringify(params))
     }
   }
 }
 </script>
 
 <style>
-.vue-dat-gui .group.group--main>ul {
+.vue-dat-gui .group.group--main > ul {
   max-height: 75vh;
 }
 </style>

@@ -1,6 +1,6 @@
 <template lang="pug">
 #content
-  DatDotGui
+  DatDotGui(v-model="params")
   div
     #sketch-holder
       // Our sketch will go here!
@@ -30,6 +30,7 @@
     a(href='http://www.xradiograph.com/PrantedMutter/Sketch') Web Sketches
     |  - Built with
     a(href='https://p5js.org/') P5.js
+    | font: {{ params && params.font }}
 </template>
 
 <script>
@@ -55,7 +56,8 @@ export default {
   data () {
     return {
       currentText: 'placeholder',
-      corpus
+      corpus,
+      params: {}
     }
   },
   mounted () {
