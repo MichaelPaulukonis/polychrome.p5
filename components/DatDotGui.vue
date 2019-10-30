@@ -24,6 +24,13 @@
       dat-select(v-model='nextCharMode' :items='characterModes' label="charMode")
       dat-boolean(v-model='fixedWidth' label='fixedWidth')
       dat-select(v-model='font' :items='fonts' label="font")
+      dat-number(v-model='rotation' :min='-360' :max='360' :step='1' label='rotation')
+      dat-boolean(v-model="cumulativeRotation" label="cumulativeRotation")
+    dat-folder(label='RowCol')
+      dat-number(v-model='rows' :min='1' :max='rowmax' :step='1' label='rows')
+      dat-number(v-model='columns' :min='1' :max='rowmax' :step='1' label='columns')
+    dat-folder(label='fillControls')
+
       dat-button(@click='triggerAlert' label='alert')
 </template>
 
