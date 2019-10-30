@@ -40,6 +40,7 @@
   },
   "homepage": "https://github.com/MichaelPaulukonis/polychrome.p5#readme",
   "dependencies": {
+    "@cyrilf/vue-dat-gui": "^0.3.0",
     "@nuxtjs/axios": "^5.6.0",
     "cheerio": "^1.0.0-rc.3",
     "dat.gui": "^0.7.6",

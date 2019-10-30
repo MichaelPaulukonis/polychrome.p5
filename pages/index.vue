@@ -1,5 +1,6 @@
 <template lang="pug">
 #content
+  DatDotGui
   div
     #sketch-holder
       // Our sketch will go here!
@@ -40,6 +41,7 @@ import randomPost from '@/assets/javascript/tumblr-random.js'
 import corpus from '@/assets/javascript/corpus.js'
 import Macros from '@/assets/javascript/macros.js'
 import { setupHotkeys } from '@/assets/javascript/keys.js'
+import DatDotGui from '@/components/DatDotGui'
 
 const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
@@ -47,6 +49,9 @@ const textManager = new TextManager()
 textManager.randomPost = randomPost
 
 export default {
+  components: {
+    DatDotGui
+  },
   data () {
     return {
       currentText: 'placeholder',

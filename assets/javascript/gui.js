@@ -72,8 +72,6 @@ export default class GuiControl {
     f1.add(allParams, 'save')
     f1.add(allParams, 'clear')
     f1.add(allParams, 'swap')
-    f1.add(allParams, 'fixedWidth')
-    const fontPicker = f1.add(allParams, 'font', fontList).listen()
     const f2 = gui.addFolder('misc')
     f2.add(allParams, 'hardEdge').listen()
     f2.add(allParams, 'useShadow').listen()
@@ -85,6 +83,8 @@ export default class GuiControl {
 
     gui.add(allParams, 'invert').listen()
     gui.add(allParams, 'nextCharMode', allParams.nextCharModes).listen()
+    gui.add(allParams, 'fixedWidth')
+    const fontPicker = gui.add(allParams, 'font', fontList).listen()
     gui.add(allParams, 'rotation').min(-360).max(360).step(1).listen()
     gui.add(allParams, 'cumulativeRotation').listen()
     const dm = gui.add(allParams, 'drawMode', allParams.drawModes).listen()
@@ -125,6 +125,8 @@ export default class GuiControl {
     olGui.add(allParams, 'outline_strokeWeight').min(1).max(800).step(1)
     olGui.add(allParams, 'outline_strokeJoin', { 'MITER': 'miter', 'BEVEL': 'bevel', 'ROUND': 'round' })
     addFlatParams(olGui, allParams, 'outline')
+
+    dat.GUI.toggleHide()
 
     return {
       setupGui,
