@@ -13,8 +13,8 @@
     "deploy": "gh-pages -t -d dist",
     "bump": "npm version patch",
     "publish": "npm run bump && DEPLOY_ENV=GH_PAGES npm run generate && npm run deploy",
-    "lint": "standard --fix",
-    "lint:report": "standard"
+    "lint:clean": "standard --fix",
+    "lint": "standard"
   },
   "lint-staged": {
     "*.{js,vue}": "eslint"
