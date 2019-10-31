@@ -29,9 +29,6 @@ const tumblrRandomPost = () => {
               const body = cheerio.load(post.body)
               return cleanup(body.text())
             })
-            // const html = response.data.response.posts[0].body
-            // const body = cheerio.load(html)
-
             resolve(newCorpus)
           }))
   })

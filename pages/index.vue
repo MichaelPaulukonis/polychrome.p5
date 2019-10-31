@@ -1,6 +1,9 @@
 <template lang="pug">
 #content
-  DatDotGui(v-model="params")
+  DatDotGui(
+    v-model="params"
+    @paramChange="paramUpdate"
+    )
   div
     #sketch-holder
       // Our sketch will go here!
@@ -48,6 +51,8 @@ const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
 const textManager = new TextManager()
 textManager.randomPost = randomPost
+let pchrome
+let guiControl
 
 export default {
   components: {
@@ -62,8 +67,7 @@ export default {
   },
   mounted () {
     const keypress = require('keypress.js')
-    const guiControl = new GuiControl()
-    let pchrome
+    guiControl = new GuiControl()
 
     // TODO: replicate macro controls in the new key-handler
     // I'm prettty sure we'll use sequential things for _something_
@@ -116,6 +120,16 @@ export default {
     },
     canvas () {
       return document.getElementsByTagName('canvas')[0]
+    },
+    paramUpdate (p) {
+      // okay: proof we pass the stuff up
+      // alert(`here is the ${JSON.stringify(p)}`)
+      if (pchrome && pchrome.params) {
+        console.log(pchrome.params.font, p.font)
+        pchrome.params = p
+        guiControl.params = p
+        pchrome.randomLayer()
+      }
     }
   }
 }

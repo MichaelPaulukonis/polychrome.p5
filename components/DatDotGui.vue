@@ -3,32 +3,31 @@
     closetext='Close controls'
     opentext='Open controls'
     closeposition='bottom'
-    @onchange="$emit('paramChange', params)"
   )
-    dat-number(v-model='width' label='width')
-    dat-number(v-model='height' label='height')
+    dat-number(v-model='params.width' label='width')
+    dat-number(v-model='params.height' label='height')
     dat-button(@click='save' label='save sketch')
     dat-button(@click='clear' label='clear sketch')
     dat-button(@click='swap' label='swap params')
-    dat-string(v-model='title' label='Title')
+    dat-string(v-model='params.name' label='Title')
     dat-folder(label='misc')
-      dat-boolean(v-model='hardEdge' label='hardEdge')
-      dat-boolean(v-model='useShadow' label='shadow')
-      dat-number(v-model='shadowOffsetX' :min='-100' :max='100' :step='1' label='Offset X')
-      dat-number(v-model='shadowOffsetY' :min='-100' :max='100' :step='1' label='Offset Y')
-      dat-number(v-model='shadowBlur' :min='1' :max='100' :step='1' label='shadowBlur')
-      dat-color(v-model='shadowColor' label='Color')
-      dat-number(v-model='gamma' :min='0.01' :max='9.99' :step='0.01' label='gamma')
+      dat-boolean(v-model='params.hardEdge' label='hardEdge')
+      dat-boolean(v-model='params.useShadow' label='shadow')
+      dat-number(v-model='params.shadowOffsetX' :min='-100' :max='100' :step='1' label='Offset X')
+      dat-number(v-model='params.shadowOffsetY' :min='-100' :max='100' :step='1' label='Offset Y')
+      dat-number(v-model='params.shadowBlur' :min='1' :max='100' :step='1' label='shadowBlur')
+      dat-color(v-model='params.shadowColor' label='Color')
+      dat-number(v-model='params.gamma' :min='0.01' :max='9.99' :step='0.01' label='gamma')
       // put the invert etc stuff that not in folder in misc folder (ugh!)
-      dat-boolean(v-model='invert' label='invert XY')
-      dat-select(v-model='nextCharMode' :items='characterModes' label="charMode")
-      dat-boolean(v-model='fixedWidth' label='fixedWidth')
-      dat-select(v-model='font' :items='fonts' label="font")
-      dat-number(v-model='rotation' :min='-360' :max='360' :step='1' label='rotation')
-      dat-boolean(v-model="cumulativeRotation" label="cumulativeRotation")
+      dat-boolean(v-model='params.invert' label='invert XY')
+      dat-select(v-model='params.nextCharMode' :items='characterModes' label="charMode")
+      dat-boolean(v-model='params.fixedWidth' label='fixedWidth')
+      dat-select(v-model='params.font' :items='fonts' label="font")
+      dat-number(v-model='params.rotation' :min='-360' :max='360' :step='1' label='rotation')
+      dat-boolean(v-model="params.cumulativeRotation" label="cumulativeRotation")
     dat-folder(label='RowCol')
-      dat-number(v-model='rows' :min='1' :max='rowmax' :step='1' label='rows')
-      dat-number(v-model='columns' :min='1' :max='rowmax' :step='1' label='columns')
+      dat-number(v-model='params.rows' :min='1' :max='rowmax' :step='1' label='rows')
+      dat-number(v-model='params.columns' :min='1' :max='rowmax' :step='1' label='columns')
     dat-folder(label='fillControls')
 
       dat-button(@click='triggerAlert' label='alert')
@@ -50,7 +49,7 @@ export default {
     ...paramsInitial,
     drawModes,
     fontList,
-    params: paramsInitial
+    params
   }),
   computed: {
     fonts () {
@@ -63,9 +62,17 @@ export default {
       }))
     }
   },
+  watch: {
+    params: {
+      deep: true,
+      handler () {
+        this.$emit('paramChange', params)
+      }
+    }
+  },
   methods: {
     triggerAlert () {
-      alert(JSON.stringify(params))
+      this.$emit('paramChange', params)
     }
   }
 }
