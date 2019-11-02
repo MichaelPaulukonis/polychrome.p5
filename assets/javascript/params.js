@@ -82,13 +82,14 @@ const paramsInitial = {
 
 // fake-name-spaces
 // so it can be flat. ugh. naming things.
-const prefixObj = (obj, prefix) => {
-  const flatObj = {}
-  Object.keys(obj).forEach(key => (flatObj[`${prefix}_${key}`] = obj[key]))
-  return flatObj
-}
+// const prefixObj = (obj, prefix) => {
+//   const flatObj = {}
+//   Object.keys(obj).forEach(key => (flatObj[`${prefix}_${key}`] = obj[key]))
+//   return flatObj
+// }
 
-const allParams = Object.assign({}, paramsInitial, prefixObj(fillParams, 'fill'), prefixObj(outlineParams, 'outline'))
+// const allParams = Object.assign({}, paramsInitial, prefixObj(fillParams, 'fill'), prefixObj(outlineParams, 'outline'))
+const allParams = { ...paramsInitial, fill: fillParams, outline: outlineParams }
 
 export {
   allParams,

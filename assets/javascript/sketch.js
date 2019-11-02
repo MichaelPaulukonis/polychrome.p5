@@ -77,7 +77,8 @@ export default function Sketch (config) {
     fillGui.addObject(fillParams)
     const strokeGui = createGui({ sketch: p5, label: 'Outline' })
     strokeGui.addObject(outlineParams)
-
+    params.fill = fillParams
+    params.outline = outlineParams
     setupCallback(this)
   }
 
@@ -144,7 +145,7 @@ export default function Sketch (config) {
   // but, this binds the current values in params, apparently
   // UGH UGH UGH
   const clearCanvas = () => {
-    const color = params.fill_color
+    const color = params.fill.color
     clear(layers.drawingLayer, color)
     clear(layers.p5, color)
     // tODO: equivalent for new layers object?
@@ -176,8 +177,8 @@ export default function Sketch (config) {
     layer.colorMode(p5.HSB, params.width, params.height, 100, 1)
 
     // SIDE EFFECTS! UGH
-    setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layer.fill, layer)
-    setOutlineMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('outline', layer.stroke, layer)
+    setFillMode = ((p, func, l) => (xPos, yPos) => setPaintMode({ gridX: xPos, gridY: yPos, params: p, func, layer: l }))(params.fill, layer.fill, layer)
+    setOutlineMode = ((p, func, l) => (xPos, yPos) => setPaintMode({ gridX: xPos, gridY: yPos, params: p, func, layer: l }))(params.outline, layer.stroke, layer)
 
     return layer
   }
@@ -220,10 +221,10 @@ export default function Sketch (config) {
     // // layer.textSize(cellWidth * 1.5)
     // layer.textSize(fontSize)
     const sw = params.useOutline
-      ? params.outline_strokeWeight
+      ? params.outline.strokeWeight
       : 0
     layer.strokeWeight(sw)
-    layer.strokeJoin(params.outline_strokeJoin)
+    layer.strokeJoin(params.outline.strokeJoin)
     const fetchText = textGetter(params.nextCharMode, textManager)
 
     for (let y = 0; y < rows; y++) {
@@ -277,10 +278,10 @@ export default function Sketch (config) {
     layer.translate(layer.width / 2, layer.height / 2) // centered
     // layer.translate(0, 0) //  upper-left - we can change this around
     const sw = params.useOutline
-      ? params.outline_strokeWeight
+      ? params.outline.strokeWeight
       : 0
     layer.strokeWeight(sw)
-    layer.strokeJoin(params.outline_strokeJoin)
+    layer.strokeJoin(params.outline.strokeJoin)
 
     setFillMode(xPos, yPos, params)
     setOutlineMode(xPos, yPos, params)
@@ -399,12 +400,12 @@ export default function Sketch (config) {
     // layers.textSize(gridParams.step)
 
     const sw = params.useOutline
-      ? params.outline_strokeWeight
-        ? params.outline_strokeWeight
+      ? params.outline.strokeWeight
+        ? params.outline.strokeWeight
         : (gridParams.step / 5)
       : 0
     layer.strokeWeight(sw / 4)
-    layer.strokeJoin(params.outline_strokeJoin)
+    layer.strokeJoin(params.outline.strokeJoin)
     if (params.fixedWidth) {
       layer.textAlign(layer.CENTER, layer.CENTER)
     } else {
@@ -517,11 +518,16 @@ export default function Sketch (config) {
   // also, functions could take params that could change them up a bit.....
   // like the grays - sideways, or something. angles....
   // prefix will be (almost?) same as func name - fill or stroke
-  const setPaintMode = (gridX, gridY, params, prefix, func, layer) => {
+  const setPaintMode = (props) => {
+    let { func } = props
+    const { gridX, gridY, params, layer } = props
+
     func = func.bind(layer)
-    const transparency = params[`${prefix}_transparent`] ? parseInt(params[`${prefix}_transparency`], 10) / 100 : 100
+    const transparency = parseInt(params.transparency, 10) / 100
+
     // const mode = parseInt(params[`${prefix}_paintMode`], 10)
-    const mode = params[`${prefix}_paintMode`]
+    // const mode = params[`${prefix}_paintMode`]
+    const mode = params.paintMode
     switch (mode.toLowerCase()) {
       case 'rainbow2':
         func(layer.width - gridX, gridY, 100, transparency)
@@ -560,12 +566,12 @@ export default function Sketch (config) {
         break
 
       case 'solid':
-        func(colorAlpha(params[`${prefix}_color`], transparency))
+        func(colorAlpha(params.color, transparency))
         break
 
       case 'lerp-scheme':
         {
-          const colors = hexStringToColors(params[`${prefix}_scheme`])
+          const colors = hexStringToColors(params.scheme)
           // TODO: work with number of colors provided
 
           const color1 = layer.color(colors[0])
@@ -590,10 +596,10 @@ export default function Sketch (config) {
 
       case 'lerp-quad':
         {
-          const color1 = layer.color(params[`${prefix}_lq1`])
-          const color2 = layer.color(params[`${prefix}_lq2`])
-          const color3 = layer.color(params[`${prefix}_lq3`])
-          const color4 = layer.color(params[`${prefix}_lq4`])
+          const color1 = layer.color(params.lq1)
+          const color2 = layer.color(params.lq2)
+          const color3 = layer.color(params.lq3)
+          const color4 = layer.color(params.lq4)
           const amountX = (gridX / layer.width)
           const amountY = (gridY / layer.height)
 
