@@ -40,19 +40,20 @@
 import P5 from 'p5'
 import TextManager from '@/assets/javascript/TextManager'
 import Sketch from '@/assets/javascript/sketch.js'
-import GuiControl from '@/assets/javascript/gui.js'
+// import GuiControl from '@/assets/javascript/gui.js'
 import randomPost from '@/assets/javascript/tumblr-random.js'
 import corpus from '@/assets/javascript/corpus.js'
 import Macros from '@/assets/javascript/macros.js'
 import { setupHotkeys } from '@/assets/javascript/keys.js'
 import DatDotGui from '@/components/DatDotGui'
+import { allParams as params } from '~/assets/javascript/params.js'
 
 const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
 const textManager = new TextManager()
 textManager.randomPost = randomPost
 let pchrome
-let guiControl
+// let guiControl
 
 export default {
   components: {
@@ -62,12 +63,12 @@ export default {
     return {
       currentText: 'placeholder',
       corpus,
-      params: {}
+      params
     }
   },
   mounted () {
     const keypress = require('keypress.js')
-    guiControl = new GuiControl()
+    // guiControl = new GuiControl()
 
     // TODO: replicate macro controls in the new key-handler
     // I'm prettty sure we'll use sequential things for _something_
@@ -89,13 +90,13 @@ export default {
     // callback when setup is complete
     // this might have obviated some of the maros setup. eh. whatevs.
     const setupCallback = (sketch) => {
-      guiControl.setupGui(sketch, guiControl.fontPicker)
+      // guiControl.setupGui(sketch, guiControl.fontPicker)
       pchrome.macros = setupMacros(sketch)
-      setupHotkeys({ sketch, guiControl })
+      setupHotkeys({ sketch })
     }
 
     const builder = (p5Instance) => {
-      pchrome = new Sketch({ p5Instance, guiControl, textManager, keypress, setupCallback }) // eslint-disable-line no-new
+      pchrome = new Sketch({ p5Instance, textManager, keypress, setupCallback }, this.params) // eslint-disable-line no-new
     }
 
     randomPost()
@@ -127,8 +128,6 @@ export default {
       if (pchrome && pchrome.params) {
         console.log(pchrome.params.font, p.font)
         pchrome.params = p
-        guiControl.params = p
-        pchrome.randomLayer()
       }
     }
   }

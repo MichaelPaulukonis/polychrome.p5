@@ -4,15 +4,14 @@ import { fitTextOnCanvas } from './fit.text'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 
 // params external to guiControl are a hoped-for headless use-case
-export default function Sketch (config) {
-  const { p5Instance: p5, guiControl, textManager, setupCallback } = config
-  let { params } = config
-
-  params = params || guiControl.params
+export default function Sketch (config, params) {
+  const { p5Instance: p5, textManager, setupCallback } = config
+  // let { params } = config
 
   const density = 2
+  this.params = params
 
-  params.blackText = false
+  this.params.blackText = false
   let layers
   let setFillMode
   let setOutlineMode
@@ -49,14 +48,14 @@ export default function Sketch (config) {
   p5.setup = () => {
     invertMask()
     p5.pixelDensity(density)
-    p5.createCanvas(params.width, params.height)
-    const drawingLayer = initDrawingLayer(params.width, params.height)
-    const tempLayer = initDefaultLayer(params.width, params.height)
+    p5.createCanvas(this.params.width, this.params.height)
+    const drawingLayer = initDrawingLayer(this.params.width, this.params.height)
+    const tempLayer = initDefaultLayer(this.params.width, this.params.height)
     this.layers = layers = new Layers(p5, drawingLayer, tempLayer)
 
     // tODO: these are now set as side-effects in initializeDrawingLayer
-    // setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layers.drawingLayer.fill, layers.drawingLayer)
-    // setOutlineMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('outline', layers.drawingLayer.stroke, layers.drawingLayer)
+    // setFillMode = ((prefix, func, l) => (xPos, yPos, this.params) => setPaintMode(xPos, yPos, this.params, prefix, func, l))('fill', layers.drawingLayer.fill, layers.drawingLayer)
+    // setOutlineMode = ((prefix, func, l) => (xPos, yPos, this.params) => setPaintMode(xPos, yPos, this.params, prefix, func, l))('outline', layers.drawingLayer.stroke, layers.drawingLayer)
 
     this.clearCanvas()
     undo = new UndoLayers(layers, renderLayers, 10)
@@ -80,7 +79,7 @@ export default function Sketch (config) {
     // ignore mouse outside confines of window.
     // or you'll crash the app! or something....
     if (p5.mouseIsPressed && mouseInCanvas()) {
-      paint(p5.mouseX, p5.mouseY, params)
+      paint(p5.mouseX, p5.mouseY, this.params)
     }
   }
 
@@ -126,11 +125,11 @@ export default function Sketch (config) {
     layers.drawingLayer.clear()
   }
 
-  // pass in p5 and params because it's bound in gui.js
-  // but, this binds the current values in params, apparently
+  // pass in p5 and this.params because it's bound in gui.js
+  // but, this binds the current values in this.params, apparently
   // UGH UGH UGH
   const clearCanvas = () => {
-    const color = params.fill_color
+    const color = this.params.fill_color
     clear(layers.drawingLayer, color)
     clear(layers.p5, color)
     // tODO: equivalent for new layers object?
@@ -138,7 +137,7 @@ export default function Sketch (config) {
   }
 
   const clear = (layer, color) => {
-    layer.resizeCanvas(params.width, params.height)
+    layer.resizeCanvas(this.params.width, this.params.height)
     layer.pixelDensity(density)
     layer.background(color)
   }
@@ -157,9 +156,9 @@ export default function Sketch (config) {
 
   const initDrawingLayer = (w, h) => {
     const layer = initDefaultLayer(w, h)
-    setFont(params.font, layer)
+    setFont(this.params.font, layer)
     layer.textAlign(p5.CENTER, p5.CENTER)
-    layer.colorMode(p5.HSB, params.width, params.height, 100, 1)
+    layer.colorMode(p5.HSB, this.params.width, this.params.height, 100, 1)
 
     // SIDE EFFECTS! UGH
     setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layer.fill, layer)
@@ -803,7 +802,6 @@ export default function Sketch (config) {
   this.drawRowCol = drawRowCol
   this.flip = flip
   this.flipCore = flipCore
-  this.guiControl = guiControl
   this.layers = layers
   this.mirror = mirror
   this.newCorner = newCorner
@@ -812,7 +810,6 @@ export default function Sketch (config) {
   this.p5 = p5
   this.paint = paint
   this.paint = paint
-  this.params = params
   this.pushpop = pushpop
   this.randomLayer = randomLayer
   this.renderLayers = renderLayers
