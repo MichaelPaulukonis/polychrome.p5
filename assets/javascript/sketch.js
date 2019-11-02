@@ -2,11 +2,13 @@ import UndoLayers from './undo.layers.js'
 import Layers from './layers.js'
 import { fitTextOnCanvas } from './fit.text'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
+import { createGui } from '@/assets/javascript/p5.gui'
 
 // params external to guiControl are a hoped-for headless use-case
 export default function Sketch (config) {
   const { p5Instance: p5, guiControl, textManager, setupCallback } = config
   let { params } = config
+  let gui
 
   params = params || guiControl.params
 
@@ -63,6 +65,9 @@ export default function Sketch (config) {
     this.undo = undo
     undo.takeSnapshot()
     this.appMode = APP_MODES.STANDARD_DRAW
+
+    gui = createGui({ sketch: p5 })
+    gui.addObject(params)
 
     setupCallback(this)
   }
