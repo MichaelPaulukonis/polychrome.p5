@@ -3,18 +3,23 @@ import Layers from './layers.js'
 import { fitTextOnCanvas } from './fit.text'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 import { createGui } from '@/assets/javascript/p5.gui'
+import {
+  allParams,
+  fillParams,
+  outlineParams,
+  drawModes // ,
+  // paintModes,
+  // nextCharModes
+} from '@/assets/javascript/params.js'
 
 // params external to guiControl are a hoped-for headless use-case
 export default function Sketch (config) {
   const { p5Instance: p5, guiControl, textManager, setupCallback } = config
-  const { params } = config
+  const params = { ...allParams }
   let gui
-
-  // params = params || guiControl.params
 
   const density = 2
 
-  params.blackText = false
   let layers
   let setFillMode
   let setOutlineMode
@@ -66,8 +71,12 @@ export default function Sketch (config) {
     undo.takeSnapshot()
     this.appMode = APP_MODES.STANDARD_DRAW
 
-    gui = createGui({ sketch: p5 })
-    gui.addObject({ ...params })
+    gui = createGui({ sketch: p5, label: 'PolychromeText' })
+    gui.addObject(params) // since this _copis_ the params, they are not bound. ugh.
+    const fillGui = createGui({ sketch: p5, label: 'Fill' })
+    fillGui.addObject(fillParams)
+    const strokeGui = createGui({ sketch: p5, label: 'Outline' })
+    strokeGui.addObject(outlineParams)
 
     setupCallback(this)
   }
@@ -176,18 +185,18 @@ export default function Sketch (config) {
   const paint = (xPos, yPos, params) => {
     setFont(params.font, layers.drawingLayer)
     // layersNew.setFont(params.font)
-    const mode = parseInt(params.drawMode, 10)
-    const draw = mode === params.drawModes.Grid ? drawGrid
-      : mode === params.drawModes.Circle ? drawCircle
+    // const mode = parseInt(params.drawMode, 10)
+    const draw = params.drawMode === 'Grid' ? drawGrid
+      : params.drawMode === 'Circle' ? drawCircle
         : drawRowCol
     draw(xPos, yPos, params, params.width, params.height, layers.drawingLayer)
   }
 
   const textGetter = (textMode, t) => {
-    const tm = parseInt(textMode, 10)
-    const tfunc = tm === 0
+    const tm = textMode.toLowerCase()
+    const tfunc = tm === 'sequential'
       ? t.getchar
-      : tm === 1
+      : tm === 'random'
         ? t.getcharRandom
         : t.getWord
     return tfunc
@@ -484,10 +493,11 @@ export default function Sketch (config) {
     params.cumulativeRotation ? cum() : norm()
   }
 
+  // TODO: hah this will not work
   const nextDrawMode = (direction, params) => {
     let drawMode = params.drawMode
-    drawMode = (drawMode + direction) % params.drawModes.length
-    if (drawMode < 0) { drawMode = params.drawModes.length - 1 }
+    drawMode = (drawMode + direction) % drawModes.length
+    if (drawMode < 0) { drawMode = drawModes.length - 1 }
     params.drawMode = drawMode
   }
 
@@ -510,49 +520,50 @@ export default function Sketch (config) {
   const setPaintMode = (gridX, gridY, params, prefix, func, layer) => {
     func = func.bind(layer)
     const transparency = params[`${prefix}_transparent`] ? parseInt(params[`${prefix}_transparency`], 10) / 100 : 100
-    const mode = parseInt(params[`${prefix}_paintMode`], 10)
-    switch (mode) {
-      case 1:
+    // const mode = parseInt(params[`${prefix}_paintMode`], 10)
+    const mode = params[`${prefix}_paintMode`]
+    switch (mode.toLowerCase()) {
+      case 'rainbow2':
         func(layer.width - gridX, gridY, 100, transparency)
         break
 
-      case 2:
+      case 'raindbow3':
         func(gridX / 2, gridY / 2, 100, transparency)
         break
 
-      case 3: // offset from default
+      case 'rainbow4': // offset from default
         const x = (gridX + layer.width / 2) % layer.width
         const y = (layer.height - gridY + layer.height / 2) % layer.height
         func(x, y, 100, transparency)
         break
 
-      case 4:
+      case 'black':
         func(0, transparency)
         break
 
-      case 5:
+      case 'white':
         func(255, transparency)
         break
 
-      case 6:
+      case 'gray1':
         {
           const grayScaled = (gridY * 255) / layer.height
           func(grayScaled, transparency)
         }
         break
 
-      case 7:
+      case 'gray2':
         {
           const grayScaled = (gridY * 255) / layer.height
           func(255 - grayScaled, transparency)
         }
         break
 
-      case 9:
+      case 'solid':
         func(colorAlpha(params[`${prefix}_color`], transparency))
         break
 
-      case 13:
+      case 'lerp-scheme':
         {
           const colors = hexStringToColors(params[`${prefix}_scheme`])
           // TODO: work with number of colors provided
@@ -577,7 +588,7 @@ export default function Sketch (config) {
         }
         break
 
-      case 14:
+      case 'lerp-quad':
         {
           const color1 = layer.color(params[`${prefix}_lq1`])
           const color2 = layer.color(params[`${prefix}_lq2`])
@@ -599,7 +610,7 @@ export default function Sketch (config) {
         }
         break
 
-      case 0:
+      case 'rainbow1':
       default:
         func(gridX, layer.height - gridY, 100, transparency)
         break

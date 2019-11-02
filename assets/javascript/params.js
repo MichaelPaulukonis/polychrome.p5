@@ -12,7 +12,7 @@ const fourRandoms = (prefix = '') => {
 
 const colorParams = () => ({
   ...{
-    paintMode: 0,
+    paintMode: Object.keys(paintModes),
     transparency: 50,
     transparent: false,
     color: '#fff000',
@@ -24,10 +24,32 @@ const colorParams = () => ({
   ...fourRandoms()
 })
 
+const paintModes = {
+  'Rainbow1': 0,
+  'Rainbow2': 1,
+  'Rainbow3': 2,
+  'Rainbow4': 3,
+  'Black': 4,
+  'White': 5,
+  'Gray1': 6,
+  'Gray2': 7,
+  'solid': 9,
+  'lerp-scheme': 13,
+  'lerp-quad': 14
+}
+
+const nextCharModes = {
+  'Sequential': 0,
+  'Random': 1,
+  'Word': 2
+}
 const drawModes = { 'Grid': 0, 'Circle': 1, 'Grid2': 2 }
-const bindFunctionLater = () => {}
+
+const bindFunctionLater = () => { }
+
 const fillParams = { ...colorParams() }
-const outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: 'round', paintMode: 4 } }
+const outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: 'round' } }
+
 const paramsInitial = {
   name: 'polychrome.text',
   width: 900,
@@ -37,37 +59,18 @@ const paramsInitial = {
   clear: bindFunctionLater,
   swap: bindFunctionLater,
   fixedWidth: true,
-  font: 'Copperplate', // fontList[0],
+  font: 'Copperplate',
   rotation: 0,
   cumulativeRotation: false,
-  drawModes,
-  drawMode: 0,
+  drawMode: Object.keys(drawModes),
   invert: false,
   useOutline: true,
-  nextCharMode: 0,
+  nextCharMode: Object.keys(nextCharModes),
   maxrows: 100,
   rows: 10,
   columns: 10,
   rowmax: 100,
   colmax: 100,
-  paintModes: {
-    'Rainbow1': 0,
-    'Rainbow2': 1,
-    'Rainbow3': 2,
-    'Rainbow4': 3,
-    'Black': 4,
-    'White': 5,
-    'Gray1': 6,
-    'Gray2': 7,
-    'solid': 9,
-    'lerp-scheme': 13,
-    'lerp-quad': 14
-  },
-  nextCharModes: {
-    'Sequential': 0,
-    'Random': 1,
-    'Word': 2
-  },
   hardEdge: true,
   useShadow: false,
   shadowOffsetX: 0,
@@ -87,4 +90,13 @@ const prefixObj = (obj, prefix) => {
 
 const allParams = Object.assign({}, paramsInitial, prefixObj(fillParams, 'fill'), prefixObj(outlineParams, 'outline'))
 
-export { allParams, paramsInitial, fourRandoms, drawModes }
+export {
+  allParams,
+  fillParams,
+  outlineParams,
+  paramsInitial,
+  fourRandoms,
+  drawModes,
+  paintModes,
+  nextCharModes
+}

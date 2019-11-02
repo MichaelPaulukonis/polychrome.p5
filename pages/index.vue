@@ -45,7 +45,7 @@ import randomPost from '@/assets/javascript/tumblr-random.js'
 import corpus from '@/assets/javascript/corpus.js'
 import Macros from '@/assets/javascript/macros.js'
 import { setupHotkeys } from '@/assets/javascript/keys.js'
-import { allParams } from '~/assets/javascript/params.js'
+// import { allParams } from '~/assets/javascript/params.js'
 import { attachToP5 } from '@/assets/javascript/p5.gui'
 // import DatDotGui from '@/components/DatDotGui'
 
@@ -98,7 +98,7 @@ export default {
     }
 
     const builder = (p5Instance) => {
-      pchrome = new Sketch({ p5Instance, textManager, keypress, setupCallback, params: allParams }) // eslint-disable-line no-new
+      pchrome = new Sketch({ p5Instance, textManager, keypress, setupCallback }) // eslint-disable-line no-new
     }
 
     randomPost()
