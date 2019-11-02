@@ -7,10 +7,10 @@ import { createGui } from '@/assets/javascript/p5.gui'
 // params external to guiControl are a hoped-for headless use-case
 export default function Sketch (config) {
   const { p5Instance: p5, guiControl, textManager, setupCallback } = config
-  let { params } = config
+  const { params } = config
   let gui
 
-  params = params || guiControl.params
+  // params = params || guiControl.params
 
   const density = 2
 
@@ -67,7 +67,7 @@ export default function Sketch (config) {
     this.appMode = APP_MODES.STANDARD_DRAW
 
     gui = createGui({ sketch: p5 })
-    gui.addObject(params)
+    gui.addObject({ ...params })
 
     setupCallback(this)
   }
