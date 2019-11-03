@@ -1,5 +1,8 @@
 /* eslint-disable */
+// modified from https://bitcraftlab.github.io/p5.gui/
+
 import { QuickSettings } from '@/assets/javascript/quicksettings'
+import { TSImportEqualsDeclaration } from 'babel-types'
 // list of guis
 var guis = []
 
@@ -135,6 +138,9 @@ function QSGui (label, parent, sketch) {
   this.show = function () { qs.show() };
   this.hide = function () { qs.hide() };
   this.toggleVisibility = function () { qs.toggleVisibility() };
+  this.collapse = () => qs.collapse()
+  this.expand = () => qs.expand()
+  this.toggleCollapsed = () => qs.toggleCollapsed
   this.setPosition = function (x, y) {
     qs.setPosition(x, y)
     return this
