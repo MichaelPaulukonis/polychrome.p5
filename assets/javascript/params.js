@@ -1,3 +1,5 @@
+import fontList from '@/assets/javascript/fonts'
+
 const randomColor = () => '#' + (Math.random().toString(16) + '0000000').slice(2, 8)
 
 const fourRandoms = (prefix = '') => {
@@ -18,7 +20,6 @@ const colorParams = () => ({
     color: '#fff000',
     scheme: 'ffffff-000000',
     curCycle: 0,
-    donePainting: false,
     randomizeQuads: () => { }
   },
   ...fourRandoms()
@@ -44,11 +45,11 @@ const nextCharModes = {
   'Word': 2
 }
 const drawModes = { 'Grid': 0, 'Circle': 1, 'Grid2': 2 }
-
+const joins = { 'MITER': 'miter', 'BEVEL': 'bevel', 'ROUND': 'round' }
 const bindFunctionLater = () => { }
 
 const fillParams = { ...colorParams() }
-const outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: 'round' } }
+const outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: Object.keys(joins) } }
 
 const paramsInitial = {
   name: 'polychrome.text',
@@ -59,7 +60,7 @@ const paramsInitial = {
   clear: bindFunctionLater,
   swap: bindFunctionLater,
   fixedWidth: true,
-  font: 'Copperplate',
+  font: fontList,
   rotation: 0,
   cumulativeRotation: false,
   drawMode: Object.keys(drawModes),

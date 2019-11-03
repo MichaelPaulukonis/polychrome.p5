@@ -1,5 +1,5 @@
 /* eslint-disable */
-
+// modified from https://github.com/bit101/quicksettings
 /**
  * @module QuickSettings
  */

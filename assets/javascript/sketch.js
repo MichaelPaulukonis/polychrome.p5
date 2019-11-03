@@ -71,12 +71,16 @@ export default function Sketch (config) {
     undo.takeSnapshot()
     this.appMode = APP_MODES.STANDARD_DRAW
 
-    gui = createGui({ sketch: p5, label: 'PolychromeText' })
-    gui.addObject(params) // since this _copis_ the params, they are not bound. ugh.
-    const fillGui = createGui({ sketch: p5, label: 'Fill' })
+    gui = createGui({ sketch: p5, label: 'PolychromeText' }).setPosition(p5.windowWidth - 220, 20)
+    gui.addObject(params)
+    gui.collapse()
+    const fillGui = createGui({ sketch: p5, label: 'Fill' }).setPosition(p5.windowWidth - 220, 60)
     fillGui.addObject(fillParams)
-    const strokeGui = createGui({ sketch: p5, label: 'Outline' })
+    fillGui.collapse()
+    const strokeGui = createGui({ sketch: p5, label: 'Outline' }).setPosition(p5.windowWidth - 220, 100)
     strokeGui.addObject(outlineParams)
+    strokeGui.collapse()
+
     params.fill = fillParams
     params.outline = outlineParams
     setupCallback(this)
@@ -523,10 +527,8 @@ export default function Sketch (config) {
     const { gridX, gridY, params, layer } = props
 
     func = func.bind(layer)
-    const transparency = parseInt(params.transparency, 10) / 100
+    const transparency = params.transparent ? parseInt(params.transparency, 10) / 100 : 1
 
-    // const mode = parseInt(params[`${prefix}_paintMode`], 10)
-    // const mode = params[`${prefix}_paintMode`]
     const mode = params.paintMode
     switch (mode.toLowerCase()) {
       case 'rainbow2':
