@@ -74,6 +74,7 @@ export default function Sketch (config) {
     gui = createGui({ sketch: p5, label: 'PolychromeText' }).setPosition(p5.windowWidth - 220, 20)
     gui.addObject(params)
     gui.collapse()
+    gui.saveInLocalStorage('mainsettings')
     const fillGui = createGui({ sketch: p5, label: 'Fill' }).setPosition(p5.windowWidth - 220, 60)
     fillGui.addObject(fillParams)
     fillGui.collapse()

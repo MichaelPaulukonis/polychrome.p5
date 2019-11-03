@@ -145,6 +145,9 @@ function QSGui (label, parent, sketch) {
     qs.setPosition(x, y)
     return this
   };
+  this.saveInLocalStorage = (name) => {
+    return qs.saveInLocalStorage(name)
+  }
 
   // Extend Quicksettings
   // so it can magically create a GUI for parameters passed by name
