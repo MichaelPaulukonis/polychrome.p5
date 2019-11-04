@@ -2,21 +2,20 @@ import UndoLayers from './undo.layers.js'
 import Layers from './layers.js'
 import { fitTextOnCanvas } from './fit.text'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
-import { createGui } from '@/assets/javascript/p5.gui'
+// import { createGui } from '@/assets/javascript/p5.gui'
 import {
   allParams,
   fillParams,
   outlineParams,
-  drawModes // ,
-  // paintModes,
-  // nextCharModes
+  drawModes
 } from '@/assets/javascript/params.js'
+import { QuickSettings } from '@/assets/javascript/quicksettings'
 
 // params external to guiControl are a hoped-for headless use-case
 export default function Sketch (config) {
   const { p5Instance: p5, guiControl, textManager, setupCallback } = config
   const params = { ...allParams }
-  let gui
+  // let gui
 
   const density = 2
 
@@ -71,16 +70,55 @@ export default function Sketch (config) {
     undo.takeSnapshot()
     this.appMode = APP_MODES.STANDARD_DRAW
 
-    gui = createGui({ sketch: p5, label: 'PolychromeText' }).setPosition(p5.windowWidth - 220, 20)
-    gui.addObject(params)
-    gui.collapse()
-    gui.saveInLocalStorage('mainsettings')
-    const fillGui = createGui({ sketch: p5, label: 'Fill' }).setPosition(p5.windowWidth - 220, 60)
-    fillGui.addObject(fillParams)
+    // const settings =
+    const mainGui = QuickSettings.create(p5.windowWidth - 220, 20, 'PolychromeText', p5.canvas.parentElement)
+      .bindNumber('width', params.width, params)
+      .bindNumber('height', params.height, params)
+      .bindBoolean('fixedWidth', params.fixedWidth, params)
+      .bindDropDown('font', params.fontList, params)
+      .bindRange('rotation', -180, 180, params.rotation, 1, params)
+      .bindBoolean('cumulativeRotation', params.cumulativeRotation, params)
+      .bindDropDown('nextCharMode', params.nextCharModes, params)
+      .bindNumber('rows', params.rows, params)
+      .bindNumber('columns', params.columns, params)
+      .bindBoolean('hardEdge', params.hardEdge, params)
+      .bindBoolean('useShadow', params.useShadow, params)
+      .bindRange('shadowOffsetX', 0, 100, params.shadowOffsetX, 1, params)
+      .bindRange('shadowOffsetY', 0, 100, params.shadowOffsetY, 1, params)
+      .bindRange('shadowBlur', 0, 100, params.shadowBlur, 1, params)
+      .bindColor('shadowColor', params.shadowColor, params)
+      .bindRange('gamma', 0, 1.0, params.gamma, 0.01, params)
+
+    mainGui.collapse()
+    // .saveInLocalStorage('mainsettings')
+
+    const fillGui = QuickSettings.create(p5.windowWidth - 220, 60, 'Fill', p5.canvas.parentElement)
+      .bindDropDown('paintMode', fillParams.paintModes, fillParams)
+      .bindRange('transparency', 0, 100, fillParams.transparency, 1, fillParams)
+      .bindBoolean('transparent', fillParams.transparent, fillParams)
+      .bindColor('color', fillParams.color, fillParams)
+      .bindText('scheme', fillParams.scheme, fillParams)
+      .bindColor('lq1', fillParams.lq1, fillParams)
+      .bindColor('lq2', fillParams.lq2, fillParams)
+      .bindColor('lq3', fillParams.lq3, fillParams)
+      .bindColor('lq4', fillParams.lq4, fillParams)
+
     fillGui.collapse()
-    const strokeGui = createGui({ sketch: p5, label: 'Outline' }).setPosition(p5.windowWidth - 220, 100)
-    strokeGui.addObject(outlineParams)
-    strokeGui.collapse()
+
+    const outlineGui = QuickSettings.create(p5.windowWidth - 220, 100, 'Outline', p5.canvas.parentElement)
+      .bindDropDown('paintMode', outlineParams.paintModes, outlineParams)
+      .bindRange('strokeWeight', 0, 400, outlineParams.strokeWeight, 1, outlineParams)
+      .bindDropDown('strokeJoin', outlineParams.joins, outlineParams)
+      .bindBoolean('transparent', outlineParams.transparent, outlineParams)
+      .bindRange('transparency', 0, 100, outlineParams.transparency, 1, outlineParams)
+      .bindColor('color', outlineParams.color, outlineParams)
+      .bindText('scheme', outlineParams.scheme, outlineParams)
+      .bindColor('lq1', outlineParams.lq1, outlineParams)
+      .bindColor('lq2', outlineParams.lq2, outlineParams)
+      .bindColor('lq3', outlineParams.lq3, outlineParams)
+      .bindColor('lq4', outlineParams.lq4, outlineParams)
+
+    outlineGui.collapse()
 
     params.fill = fillParams
     params.outline = outlineParams

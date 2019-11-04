@@ -2,19 +2,19 @@ import fontList from '@/assets/javascript/fonts'
 
 const randomColor = () => '#' + (Math.random().toString(16) + '0000000').slice(2, 8)
 
-const fourRandoms = (prefix = '') => {
-  const pfx = prefix ? `${prefix}_` : ''
+const fourRandoms = () => {
   return {
-    [pfx + 'lq1']: randomColor(),
-    [pfx + 'lq2']: randomColor(),
-    [pfx + 'lq3']: randomColor(),
-    [pfx + 'lq4']: randomColor()
+    'lq1': randomColor(),
+    'lq2': randomColor(),
+    'lq3': randomColor(),
+    'lq4': randomColor()
   }
 }
 
 const colorParams = () => ({
   ...{
-    paintMode: Object.keys(paintModes),
+    paintModes,
+    paintMode: paintModes[0],
     transparency: 50,
     transparent: false,
     color: '#fff000',
@@ -25,31 +25,31 @@ const colorParams = () => ({
   ...fourRandoms()
 })
 
-const paintModes = {
-  'Rainbow1': 0,
-  'Rainbow2': 1,
-  'Rainbow3': 2,
-  'Rainbow4': 3,
-  'Black': 4,
-  'White': 5,
-  'Gray1': 6,
-  'Gray2': 7,
-  'solid': 9,
-  'lerp-scheme': 13,
-  'lerp-quad': 14
-}
+const paintModes = [
+  'Rainbow1',
+  'Rainbow2',
+  'Rainbow3',
+  'Rainbow4',
+  'Black',
+  'White',
+  'Gray1',
+  'Gray2',
+  'solid',
+  'lerp-scheme',
+  'lerp-quad'
+]
 
-const nextCharModes = {
-  'Sequential': 0,
-  'Random': 1,
-  'Word': 2
-}
-const drawModes = { 'Grid': 0, 'Circle': 1, 'Grid2': 2 }
-const joins = { 'MITER': 'miter', 'BEVEL': 'bevel', 'ROUND': 'round' }
+const nextCharModes = [
+  'Sequential',
+  'Random',
+  'Word'
+]
+const drawModes = ['Grid', 'Circle', 'Grid2']
+const joins = ['miter', 'bevel', 'round']
 const bindFunctionLater = () => { }
 
 const fillParams = { ...colorParams() }
-const outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: Object.keys(joins) } }
+const outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: joins[0], joins } }
 
 const paramsInitial = {
   name: 'polychrome.text',
@@ -60,13 +60,16 @@ const paramsInitial = {
   clear: bindFunctionLater,
   swap: bindFunctionLater,
   fixedWidth: true,
-  font: fontList,
+  fontList,
+  font: fontList[0],
   rotation: 0,
   cumulativeRotation: false,
-  drawMode: Object.keys(drawModes),
+  drawModes,
+  drawMode: drawModes[0],
   invert: false,
   useOutline: true,
-  nextCharMode: Object.keys(nextCharModes),
+  nextCharModes,
+  nextCharMode: nextCharModes[0],
   maxrows: 100,
   rows: 10,
   columns: 10,
@@ -74,22 +77,13 @@ const paramsInitial = {
   colmax: 100,
   hardEdge: true,
   useShadow: false,
-  shadowOffsetX: 0,
-  shadowOffsetY: 0,
-  shadowBlur: 0,
+  shadowOffsetX: 5,
+  shadowOffsetY: 5,
+  shadowBlur: 5,
   shadowColor: '#000000',
   gamma: 0.8
 }
 
-// fake-name-spaces
-// so it can be flat. ugh. naming things.
-// const prefixObj = (obj, prefix) => {
-//   const flatObj = {}
-//   Object.keys(obj).forEach(key => (flatObj[`${prefix}_${key}`] = obj[key]))
-//   return flatObj
-// }
-
-// const allParams = Object.assign({}, paramsInitial, prefixObj(fillParams, 'fill'), prefixObj(outlineParams, 'outline'))
 const allParams = { ...paramsInitial, fill: fillParams, outline: outlineParams }
 
 export {
@@ -100,5 +94,6 @@ export {
   fourRandoms,
   drawModes,
   paintModes,
-  nextCharModes
+  nextCharModes,
+  colorParams
 }
