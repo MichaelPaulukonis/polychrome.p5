@@ -56,8 +56,6 @@ const paramsInitial = {
   width: 900,
   height: 900,
   // bind after defined in sketch
-  save: bindFunctionLater,
-  clear: bindFunctionLater,
   swap: bindFunctionLater,
   fixedWidth: true,
   fontList,
@@ -68,6 +66,7 @@ const paramsInitial = {
   drawMode: drawModes[0],
   invert: false,
   useOutline: true,
+  useFill: true,
   nextCharModes,
   nextCharMode: nextCharModes[0],
   maxrows: 100,
