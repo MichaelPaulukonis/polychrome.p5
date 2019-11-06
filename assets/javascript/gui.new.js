@@ -3,6 +3,9 @@ import {
   fourRandoms,
   drawModes
 } from '@/assets/javascript/params'
+// import { hexStringToColors, colorLabel, selectToRadios } from '@/assets/javascript/gui.color.control.js'
+import { lerpList } from '@/assets/javascript/lerplist'
+import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 
 const assignRandoms = (p, g) => {
   const qs = fourRandoms()
@@ -16,10 +19,36 @@ const assignRandoms = (p, g) => {
   g.setValue('lq4', qs.lq4)
 }
 
+const updateColors = (panel, params) => (selection) => {
+  // remove current color selectors
+  params.quads.forEach((_, i) => {
+    panel.removeControl(`color_${i}`)
+  })
+  params.quads = hexStringToColors(selection.value)
+  params.quads.forEach((hexString, i) => {
+    panel.bindColor(`color_${i}`, params.quads[i], hexString)
+  })
+}
+
+const multiColors = ({ p5, params }) => {
+  const mc = {
+    quads: [],
+    color: '#000'
+  }
+  const colorGui = QuickSettings.create(p5.windowWidth - 440, 20, 'colors', p5.canvas.parentElement)
+  const mcUpdater = updateColors(colorGui, mc)
+  colorGui.addDropDown('color', lerpList, mcUpdater)
+  const selectedColor = colorGui.getValue('color')
+  mcUpdater(selectedColor)
+}
+
 const _ = null
 
 const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
+  multiColors({ p5, sketch, params, fillParams, outlineParams })
+
   const mainGui = QuickSettings.create(p5.windowWidth - 220, 20, 'PolychromeText', p5.canvas.parentElement)
+    // bindNumber, despite the README notes, has the same signature as binRange
     .bindNumber('width', _, _, params.width, _, params)
     .bindNumber('height', _, _, params.height, _, params)
     .addButton('save', sketch.save_sketch)
@@ -32,6 +61,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindBoolean('useShadow', params.useShadow, params)
     .bindRange('gamma', 0, 1.0, params.gamma, 0.01, params)
     .bindBoolean('useOutline', params.useOutline, params)
+    .addButton('swapParams', sketch.swapParams)
   mainGui.collapse()
 
   const fontGui = QuickSettings.create(p5.windowWidth - 220, 60, 'Font', p5.canvas.parentElement)

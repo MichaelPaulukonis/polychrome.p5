@@ -79,6 +79,15 @@ export default function Sketch (config) {
     setupCallback(this)
   }
 
+  // NOTE: not working
+  // swap paint (fill/stroke) params
+  this.swapParams = () => {
+    const temp = { ...this.params.fill }
+    this.params.fill = { ...this.params.outline }
+    this.params.outline = temp
+    console.log('flipped!')
+  }
+
   const mouseInCanvas = () => {
     return p5.mouseY > 0 && p5.mouseY < p5.height && p5.mouseX > 0 && p5.mouseX < p5.width
   }
@@ -92,7 +101,7 @@ export default function Sketch (config) {
     // ignore mouse outside confines of window.
     // or you'll crash the app! or something....
     if (p5.mouseIsPressed && mouseInCanvas()) {
-      paint(p5.mouseX, p5.mouseY, params)
+      paint(p5.mouseX, p5.mouseY, this.params)
     }
   }
 
@@ -174,8 +183,8 @@ export default function Sketch (config) {
     layer.colorMode(p5.HSB, params.width, params.height, 100, 1)
 
     // SIDE EFFECTS! UGH
-    setFillMode = ((p, func, l) => (xPos, yPos) => setPaintMode({ gridX: xPos, gridY: yPos, params: p, func, layer: l }))(params.fill, layer.fill, layer)
-    setOutlineMode = ((p, func, l) => (xPos, yPos) => setPaintMode({ gridX: xPos, gridY: yPos, params: p, func, layer: l }))(params.outline, layer.stroke, layer)
+    setFillMode = ((p, func, l) => (xPos, yPos) => setPaintMode({ gridX: xPos, gridY: yPos, params: p, func, layer: l }))(this.params.fill, layer.fill, layer)
+    setOutlineMode = ((p, func, l) => (xPos, yPos) => setPaintMode({ gridX: xPos, gridY: yPos, params: p, func, layer: l }))(this.params.outline, layer.stroke, layer)
 
     return layer
   }

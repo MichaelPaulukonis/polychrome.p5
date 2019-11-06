@@ -5,13 +5,13 @@ const hexStringToColors = (lerp) => {
   return lerp.split('-').map(c => '#' + c)
 }
 
-const colorLabel = (label) => {
-  const stops = (color, i, colors) => {
-    return color + ' ' + (i * 100 / colors.length) + '%' +
-            ',' + color + ' ' + ((i + 1) * 100 / colors.length) + '%'
-  }
-  const gradient = colors => 'linear-gradient(90deg,' + colors.map(stops) + ')'
+const stops = (color, i, colors) => {
+  return color + ' ' + (i * 100 / colors.length) + '%' +
+    ',' + color + ' ' + ((i + 1) * 100 / colors.length) + '%'
+}
+const gradient = colors => 'linear-gradient(90deg,' + colors.map(stops) + ')'
 
+const colorLabel = (label) => {
   label.style.display = 'inline-block'
   const radio = label.children[0]
   radio.nextSibling.remove()
