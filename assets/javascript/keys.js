@@ -127,14 +127,14 @@ const setupHotkeys = (config) => {
         sketch.reset(params, layers.drawingLayer)
       }
     },
-    {
-      keys: ['s', 'shift+s'].join(','),
-      action: ({ params }) => {
-        // TODO: this isn't really a GUI function
-        // it's a PARAMS function
-        sketch.guiControl.swapParams(params)
-      }
-    },
+    // {
+    //   keys: ['s', 'shift+s'].join(','),
+    //   action: ({ params }) => {
+    //     // TODO: this isn't really a GUI function
+    //     // it's a PARAMS function
+    //     sketch.guiControl.swapParams(params)
+    //   }
+    // },
     {
       keys: ['t'].join(','),
       action: ({ layers }) => {

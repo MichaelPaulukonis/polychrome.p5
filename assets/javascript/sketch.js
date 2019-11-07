@@ -2,7 +2,6 @@ import UndoLayers from './undo.layers.js'
 import Layers from './layers.js'
 import { fitTextOnCanvas } from './fit.text'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
-// import { createGui } from '@/assets/javascript/p5.gui'
 import { setupGui } from '@/assets/javascript/gui.new'
 
 import {
@@ -11,7 +10,6 @@ import {
   outlineParams,
   drawModes
 } from '@/assets/javascript/params.js'
-// import { QuickSettings } from '@/assets/javascript/quicksettings'
 
 // params external to guiControl are a hoped-for headless use-case
 export default function Sketch (config) {
@@ -62,10 +60,6 @@ export default function Sketch (config) {
     const tempLayer = initDefaultLayer(params.width, params.height)
     this.layers = layers = new Layers(p5, drawingLayer, tempLayer)
 
-    // tODO: these are now set as side-effects in initializeDrawingLayer
-    // setFillMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('fill', layers.drawingLayer.fill, layers.drawingLayer)
-    // setOutlineMode = ((prefix, func, l) => (xPos, yPos, params) => setPaintMode(xPos, yPos, params, prefix, func, l))('outline', layers.drawingLayer.stroke, layers.drawingLayer)
-
     setupGui({ p5, sketch: this, params, fillParams, outlineParams })
 
     this.clearCanvas()
@@ -76,17 +70,18 @@ export default function Sketch (config) {
 
     params.fill = fillParams
     params.outline = outlineParams
+    this.defaultParams = JSON.parse(JSON.stringify(params))
     setupCallback(this)
   }
 
   // NOTE: not working
   // swap paint (fill/stroke) params
-  this.swapParams = () => {
-    const temp = { ...this.params.fill }
-    this.params.fill = { ...this.params.outline }
-    this.params.outline = temp
-    console.log('flipped!')
-  }
+  // this.swapParams = () => {
+  //   const temp = { ...this.params.fill }
+  //   this.params.fill = { ...this.params.outline }
+  //   this.params.outline = temp
+  //   console.log('flipped!')
+  // }
 
   const mouseInCanvas = () => {
     return p5.mouseY > 0 && p5.mouseY < p5.height && p5.mouseX > 0 && p5.mouseX < p5.width
@@ -183,16 +178,14 @@ export default function Sketch (config) {
     layer.colorMode(p5.HSB, params.width, params.height, 100, 1)
 
     // SIDE EFFECTS! UGH
-    setFillMode = ((p, func, l) => (xPos, yPos) => setPaintMode({ gridX: xPos, gridY: yPos, params: p, func, layer: l }))(this.params.fill, layer.fill, layer)
-    setOutlineMode = ((p, func, l) => (xPos, yPos) => setPaintMode({ gridX: xPos, gridY: yPos, params: p, func, layer: l }))(this.params.outline, layer.stroke, layer)
+    setFillMode = (xPos, yPos, params) => setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.fill, layer })
+    setOutlineMode = (xPos, yPos, params) => setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.stroke, layer })
 
     return layer
   }
 
   const paint = (xPos, yPos, params) => {
     setFont(params.font, layers.drawingLayer)
-    // layersNew.setFont(params.font)
-    // const mode = parseInt(params.drawMode, 10)
     const draw = params.drawMode === 'Grid' ? drawGrid
       : params.drawMode === 'Circle' ? drawCircle
         : drawRowCol
@@ -244,8 +237,8 @@ export default function Sketch (config) {
         pixelX += cellWidth / 2
         pixelY += cellHeight / 2
 
-        setFillMode(pixelX, pixelY, params)
-        setOutlineMode(pixelX, pixelY, params)
+        setFillMode(pixelX, pixelY, params.fill)
+        setOutlineMode(pixelX, pixelY, params.outline)
 
         const txt = fetchText()
         const fontSize = fitTextOnCanvas(txt, params.font, cellWidth, layer)
@@ -289,8 +282,8 @@ export default function Sketch (config) {
     layer.strokeWeight(sw)
     layer.strokeJoin(params.outline.strokeJoin)
 
-    setFillMode(xPos, yPos, params)
-    setOutlineMode(xPos, yPos, params)
+    setFillMode(xPos, yPos, params.fill)
+    setOutlineMode(xPos, yPos, params.outline)
 
     const nextText = textGetter(params.nextCharMode, textManager)
     circlePainter(params, layer, xPos, nextText, width)
@@ -391,7 +384,7 @@ export default function Sketch (config) {
 
   // alternatively http://happycoding.io/examples/processing/for-loops/letters
   // cleaner?
-  const drawGrid = (xPos, yPos, params, width, height, layer) => {
+  const drawGrid = (xPos, _, params, width, height, layer) => {
     // negatives are possible, it seems...
     xPos = xPos < 5 ? 5 : xPos
     // yPos = yPos < 5 ? 5 : yPos
@@ -419,8 +412,8 @@ export default function Sketch (config) {
     }
 
     const nextText = textGetter(params.nextCharMode, textManager)
-    const fill = bloc => setFillMode(bloc.x, bloc.y, params)
-    const outline = params.useOutline ? bloc => setOutlineMode(bloc.x, bloc.y, params) : () => { }
+    const fill = bloc => setFillMode(bloc.x, bloc.y, params.fill)
+    const outline = params.useOutline ? bloc => setOutlineMode(bloc.x, bloc.y, params.outline) : () => { }
     const step = (params.fixedWidth) ? gridParams.step : 0
     const paint = ((step, layer, params) => bloc => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, layer, params)
     const yOffset = getYoffset(layer.textAscent(), 0) // only used for TextWidth
@@ -531,8 +524,8 @@ export default function Sketch (config) {
     func = func.bind(layer)
     const transparency = params.transparent ? parseInt(params.transparency, 10) / 100 : 1
 
-    const mode = params.paintMode
-    switch (mode.toLowerCase()) {
+    const mode = params.paintMode.toLowerCase()
+    switch (mode) {
       case 'rainbow2':
         func(layer.width - gridX, gridY, 100, transparency)
         break
@@ -600,10 +593,10 @@ export default function Sketch (config) {
 
       case 'lerp-quad':
         {
-          const color1 = layer.color(params.lq1)
-          const color2 = layer.color(params.lq2)
-          const color3 = layer.color(params.lq3)
-          const color4 = layer.color(params.lq4)
+          const color1 = layer.color(params.lerps[0])
+          const color2 = layer.color(params.lerps[1])
+          const color3 = params.lerps[2] ? layer.color(params.lerps[2]) : color1
+          const color4 = params.lerps[3] ? layer.color(params.lerps[3]) : color2
           const amountX = (gridX / layer.width)
           const amountY = (gridY / layer.height)
 

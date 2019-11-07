@@ -8,45 +8,38 @@ import { lerpList } from '@/assets/javascript/lerplist'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 
 const assignRandoms = (p, g) => {
-  const qs = fourRandoms()
-  p.lq1 = qs.lq1
-  p.lq2 = qs.lq2
-  p.lq3 = qs.lq3
-  p.lq4 = qs.lq4
-  g.setValue('lq1', qs.lq1)
-  g.setValue('lq2', qs.lq2)
-  g.setValue('lq3', qs.lq3)
-  g.setValue('lq4', qs.lq4)
-}
-
-const updateColors = (panel, params) => (selection) => {
-  // remove current color selectors
-  params.quads.forEach((_, i) => {
-    panel.removeControl(`color_${i}`)
-  })
-  params.quads = hexStringToColors(selection.value)
-  params.quads.forEach((hexString, i) => {
-    panel.bindColor(`color_${i}`, params.quads[i], hexString)
-  })
-}
-
-const multiColors = ({ p5, params }) => {
-  const mc = {
-    quads: [],
-    color: '#000'
+  const length = p.lerps.length
+  const qs = fourRandoms() // TODO: get the exact number we want
+  p.lerps = qs.slice(0, length)
+  for (let i = 0; i < length; i++) {
+    g.setValue(`lq${i}`, qs[i])
   }
-  const colorGui = QuickSettings.create(p5.windowWidth - 440, 20, 'colors', p5.canvas.parentElement)
-  const mcUpdater = updateColors(colorGui, mc)
-  colorGui.addDropDown('color', lerpList, mcUpdater)
-  const selectedColor = colorGui.getValue('color')
+}
+
+const updateColors = (panel, lerps, prefix, params) => (selection) => {
+  // remove current color selectors
+  lerps.forEach((_, i) => {
+    panel.removeControl(`${prefix}${i}`)
+  })
+  lerps = hexStringToColors(selection.value)
+  params.lerps = lerps
+  lerps.forEach((hexString, i) => {
+    const ref = `${prefix}${i}`
+    panel.bindColor(ref, hexString, params)
+  })
+}
+
+const addMultiColor = ({ gui, prefix, params }) => {
+  const lerps = []
+  const mcUpdater = updateColors(gui, lerps, prefix, params)
+  gui.addDropDown('color', lerpList, mcUpdater)
+  const selectedColor = gui.getValue('color')
   mcUpdater(selectedColor)
 }
 
 const _ = null
 
 const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
-  multiColors({ p5, sketch, params, fillParams, outlineParams })
-
   const mainGui = QuickSettings.create(p5.windowWidth - 220, 20, 'PolychromeText', p5.canvas.parentElement)
     // bindNumber, despite the README notes, has the same signature as binRange
     .bindNumber('width', _, _, params.width, _, params)
@@ -61,7 +54,6 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindBoolean('useShadow', params.useShadow, params)
     .bindRange('gamma', 0, 1.0, params.gamma, 0.01, params)
     .bindBoolean('useOutline', params.useOutline, params)
-    .addButton('swapParams', sketch.swapParams)
   mainGui.collapse()
 
   const fontGui = QuickSettings.create(p5.windowWidth - 220, 60, 'Font', p5.canvas.parentElement)
@@ -73,38 +65,32 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   fontGui.collapse()
 
   const shadowGui = QuickSettings.create(p5.windowWidth - 220, 100, 'Shadow', p5.canvas.parentElement)
+    .bindBoolean('useShadow', params.useShadow, params)
     .bindRange('shadowOffsetX', 0, 100, params.shadowOffsetX, 1, params)
     .bindRange('shadowOffsetY', 0, 100, params.shadowOffsetY, 1, params)
     .bindRange('shadowBlur', 0, 100, params.shadowBlur, 1, params)
     .bindColor('shadowColor', params.shadowColor, params)
   shadowGui.collapse()
 
-  const fillGui = QuickSettings.create(p5.windowWidth - 220, 140, 'Fill', p5.canvas.parentElement)
+  const fillGui = QuickSettings.create(p5.windowWidth - 440, 140, 'Fill', p5.canvas.parentElement)
   fillGui.bindDropDown('paintMode', fillParams.paintModes, fillParams)
     .bindRange('transparency', 0, 100, fillParams.transparency, 1, fillParams)
     .bindBoolean('transparent', fillParams.transparent, fillParams)
     .bindColor('color', fillParams.color, fillParams)
-    .bindText('scheme', fillParams.scheme, fillParams)
     .addButton('randomize', () => assignRandoms(fillParams, fillGui))
-    .bindColor('lq1', fillParams.lq1, fillParams)
-    .bindColor('lq2', fillParams.lq2, fillParams)
-    .bindColor('lq3', fillParams.lq3, fillParams)
-    .bindColor('lq4', fillParams.lq4, fillParams)
+  addMultiColor({ gui: fillGui, prefix: 'lq', params: fillParams })
   fillGui.collapse()
 
-  const outlineGui = QuickSettings.create(p5.windowWidth - 220, 180, 'Outline', p5.canvas.parentElement)
-  outlineGui.bindDropDown('paintMode', outlineParams.paintModes, outlineParams)
+  const outlineGui = QuickSettings.create(p5.windowWidth - 220, 140, 'Outline', p5.canvas.parentElement)
+  outlineGui.bindBoolean('useOutline', params.useOutline, params) // NOTE: both do not update when one is changed
+    .bindDropDown('paintMode', outlineParams.paintModes, outlineParams)
     .bindRange('strokeWeight', 0, 400, outlineParams.strokeWeight, 1, outlineParams)
     .bindDropDown('strokeJoin', outlineParams.joins, outlineParams)
     .bindBoolean('transparent', outlineParams.transparent, outlineParams)
     .bindRange('transparency', 0, 100, outlineParams.transparency, 1, outlineParams)
     .bindColor('color', outlineParams.color, outlineParams)
-    .bindText('scheme', outlineParams.scheme, outlineParams)
     .addButton('randomize', () => assignRandoms(outlineParams, outlineGui))
-    .bindColor('lq1', outlineParams.lq1, outlineParams)
-    .bindColor('lq2', outlineParams.lq2, outlineParams)
-    .bindColor('lq3', outlineParams.lq3, outlineParams)
-    .bindColor('lq4', outlineParams.lq4, outlineParams)
+  addMultiColor({ gui: outlineGui, prefix: 'lq', params: outlineParams })
   outlineGui.collapse()
 }
 

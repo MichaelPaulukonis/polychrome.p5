@@ -6,9 +6,9 @@ export default function Macros (pchrome) {
     HORIZONTAL, VERTICAL } = pchrome
 
   const macroWrapper = f => (pchrome) => {
-    const { params, layers: { drawingLayer: layer }, p5 } = pchrome
+    const { params, layers: { drawingLayer: layer }, p5, defaultParams } = pchrome
     layer.push()
-    f({ params: { ...params }, layer, p5 })
+    f({ params: { ...params }, layer, p5, defaultParams })
     layer.pop()
   }
 
@@ -52,19 +52,19 @@ export default function Macros (pchrome) {
     }
   })
 
-  const macro7 = macroWrapper(({ params, layer, p5 }) => {
+  const macro7 = macroWrapper(({ params, layer, p5, defaultParams }) => {
     const currParamsToKeep = {
       fixedWidth: params.fixedWidth,
       font: params.font
     }
-    params = { ...this.defaultParams, ...currParamsToKeep }
-    params.drawMode = 1 // grid
-    params.fill_paintMode = 4
-    params.fill_transparent = false
+    params = { ...defaultParams, ...currParamsToKeep }
+    params.drawMode = 'Grid' // grid
+    params.fill.paintMode = 'Black'
+    params.fill.transparent = false
     params.useOutline = false
-    params.nextCharMode = 0
+    params.nextCharMode = 'Sequential'
     params.fixedWidth = false
-    const x = p5.mouseX // ugh, global
+    const x = p5.mouseX
     const y = p5.mouseY
     layer.translate(0, 0)
     layer.resetMatrix()
@@ -191,7 +191,7 @@ export default function Macros (pchrome) {
     // paint(36, 23, params)
     params.rows = 3
     params.columns = 15
-    params.nextCharMode = 0 // char
+    params.nextCharMode = 'Sequential'
     // TODO: fittext needs to be implemented - there's nothing in rowcol for words
     // which can be ugly, but.. .well, you know, so what!
     drawRowCol(0, 0, params, layer.width, layer.height, layer)

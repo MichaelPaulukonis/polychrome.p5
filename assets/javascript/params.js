@@ -2,14 +2,12 @@ import fontList from '@/assets/javascript/fonts'
 
 const randomColor = () => '#' + (Math.random().toString(16) + '0000000').slice(2, 8)
 
-const fourRandoms = () => {
-  return {
-    'lq1': randomColor(),
-    'lq2': randomColor(),
-    'lq3': randomColor(),
-    'lq4': randomColor()
-  }
-}
+const fourRandoms = () => [
+  randomColor(),
+  randomColor(),
+  randomColor(),
+  randomColor()
+]
 
 const colorParams = () => ({
   ...{
@@ -20,7 +18,8 @@ const colorParams = () => ({
     color: '#fff000',
     scheme: 'ffffff-000000',
     curCycle: 0,
-    randomizeQuads: () => { }
+    randomizeQuads: () => { },
+    lerps: []
   },
   ...fourRandoms()
 })
@@ -49,7 +48,7 @@ const joins = ['miter', 'bevel', 'round']
 const bindFunctionLater = () => { }
 
 const fillParams = { ...colorParams() }
-const outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: joins[0], joins } }
+const outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: joins[0], joins, paintMode: 'Black' } }
 
 const paramsInitial = {
   name: 'polychrome.text',
