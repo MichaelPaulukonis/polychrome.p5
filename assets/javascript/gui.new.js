@@ -3,7 +3,6 @@ import {
   fourRandoms,
   drawModes
 } from '@/assets/javascript/params'
-// import { hexStringToColors, colorLabel, selectToRadios } from '@/assets/javascript/gui.color.control.js'
 import { lerpList } from '@/assets/javascript/lerplist'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 
@@ -32,15 +31,17 @@ const updateColors = (panel, lerps, prefix, params) => (selection) => {
 const addMultiColor = ({ gui, prefix, params }) => {
   const lerps = []
   const mcUpdater = updateColors(gui, lerps, prefix, params)
-  gui.addDropDown('color', lerpList, mcUpdater)
-  const selectedColor = gui.getValue('color')
+  gui.addDropDown('multi-color', lerpList, mcUpdater)
+  const selectedColor = gui.getValue('multi-color')
   mcUpdater(selectedColor)
 }
 
 const _ = null
 
 const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
-  const mainGui = QuickSettings.create(p5.windowWidth - 220, 20, 'PolychromeText', p5.canvas.parentElement)
+  const pDoc = p5.canvas.parentElement
+
+  const mainGui = QuickSettings.create(p5.windowWidth - 220, 20, 'PolychromeText', pDoc)
     // bindNumber, despite the README notes, has the same signature as binRange
     .bindNumber('width', _, _, params.width, _, params)
     .bindNumber('height', _, _, params.height, _, params)
@@ -56,7 +57,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindBoolean('useOutline', params.useOutline, params)
   mainGui.collapse()
 
-  const fontGui = QuickSettings.create(p5.windowWidth - 220, 60, 'Font', p5.canvas.parentElement)
+  const fontGui = QuickSettings.create(p5.windowWidth - 220, 60, 'Font', pDoc)
     .bindBoolean('fixedWidth', params.fixedWidth, params)
     .bindDropDown('font', params.fontList, params)
     .bindRange('rotation', -180, 180, params.rotation, 1, params)
@@ -64,7 +65,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindDropDown('nextCharMode', params.nextCharModes, params)
   fontGui.collapse()
 
-  const shadowGui = QuickSettings.create(p5.windowWidth - 220, 100, 'Shadow', p5.canvas.parentElement)
+  const shadowGui = QuickSettings.create(p5.windowWidth - 220, 100, 'Shadow', pDoc)
     .bindBoolean('useShadow', params.useShadow, params)
     .bindRange('shadowOffsetX', 0, 100, params.shadowOffsetX, 1, params)
     .bindRange('shadowOffsetY', 0, 100, params.shadowOffsetY, 1, params)
@@ -72,7 +73,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindColor('shadowColor', params.shadowColor, params)
   shadowGui.collapse()
 
-  const fillGui = QuickSettings.create(p5.windowWidth - 440, 140, 'Fill', p5.canvas.parentElement)
+  const fillGui = QuickSettings.create(p5.windowWidth - 440, 140, 'Fill', pDoc)
   fillGui.bindDropDown('paintMode', fillParams.paintModes, fillParams)
     .bindRange('transparency', 0, 100, fillParams.transparency, 1, fillParams)
     .bindBoolean('transparent', fillParams.transparent, fillParams)
@@ -81,7 +82,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   addMultiColor({ gui: fillGui, prefix: 'lq', params: fillParams })
   fillGui.collapse()
 
-  const outlineGui = QuickSettings.create(p5.windowWidth - 220, 140, 'Outline', p5.canvas.parentElement)
+  const outlineGui = QuickSettings.create(p5.windowWidth - 220, 140, 'Outline', pDoc)
   outlineGui.bindBoolean('useOutline', params.useOutline, params) // NOTE: both do not update when one is changed
     .bindDropDown('paintMode', outlineParams.paintModes, outlineParams)
     .bindRange('strokeWeight', 0, 400, outlineParams.strokeWeight, 1, outlineParams)
@@ -92,6 +93,33 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .addButton('randomize', () => assignRandoms(outlineParams, outlineGui))
   addMultiColor({ gui: outlineGui, prefix: 'lq', params: outlineParams })
   outlineGui.collapse()
+
+  const panels = [mainGui, fontGui, shadowGui, fillGui, outlineGui]
+  const saveAll = (name) => {
+    const allSettings = {}
+    const asString = true
+    panels.forEach((panel) => {
+      allSettings[panel._titleBar.textContent] = panel.getValuesAsJSON(asString)
+    })
+    localStorage.setItem(name, JSON.stringify(allSettings))
+  }
+  const getSetting = (name) => {
+    const blob = localStorage.getItem(name)
+    const all = JSON.parse(blob)
+    panels.forEach((panel) => {
+      const blob = all[panel._titleBar.textContent]
+      panel.setValuesFromJSON(JSON.parse(blob))
+    })
+  }
+  const remember = {
+    name: 'fooble'
+  }
+  const rememberPanel = QuickSettings.create(p5.windowWidth - 440, 20, 'SettingsArchive', pDoc)
+    .addDropDown('preset', ['first', 'second'], () => { })
+    .addButton('save', () => { saveAll(remember.name) })
+    .addButton('load', () => { getSetting(remember.name) })
+    .bindText('name', remember.name, remember)
+  rememberPanel.collapse()
 }
 
 export { setupGui }

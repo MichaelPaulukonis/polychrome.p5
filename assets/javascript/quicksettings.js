@@ -152,6 +152,7 @@ var QuickSettings = {
     this._createPanel(x, y, parent)
     this._createTitleBar(title || 'QuickSettings')
     this._createContent()
+    this.title = title;
   },
 
   _bindHandlers: function () {
