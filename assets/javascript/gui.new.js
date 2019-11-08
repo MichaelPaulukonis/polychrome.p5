@@ -6,6 +6,16 @@ import {
 import { lerpList } from '@/assets/javascript/lerplist'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 
+const createElement = (type, id, className) => {
+  const element = document.createElement(type)
+  if (!element) { return }
+  element.id = id
+  if (className) {
+    element.className = className
+  }
+  return element
+}
+
 const assignRandoms = (p, g) => {
   const length = p.lerps.length
   const qs = fourRandoms() // TODO: get the exact number we want
@@ -95,31 +105,89 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   outlineGui.collapse()
 
   const panels = [mainGui, fontGui, shadowGui, fillGui, outlineGui]
+  let presets = {}
+  const prefix = 'polychrometext'
+
   const saveAll = (name) => {
-    const allSettings = {}
+    const allPanels = {}
     const asString = true
     panels.forEach((panel) => {
-      allSettings[panel._titleBar.textContent] = panel.getValuesAsJSON(asString)
+      allPanels[panel._titleBar.textContent] = panel.getValuesAsJSON(asString)
     })
-    localStorage.setItem(name, JSON.stringify(allSettings))
+    presets[name] = allPanels
+    localStorage.setItem(prefix, JSON.stringify(presets))
+    updateNames()
+    const newSelect = buildSelect()
+    const oldSelect = document.getElementById(presetsID)
+    const parent = oldSelect.parentElement
+    parent.removeChild(oldSelect)
+    parent.appendChild(newSelect)
+  }
+  const getAllSettings = () => {
+    const blobs = localStorage.getItem(prefix)
+    return JSON.parse(blobs)
   }
   const getSetting = (name) => {
-    const blob = localStorage.getItem(name)
-    const all = JSON.parse(blob)
-    panels.forEach((panel) => {
-      const blob = all[panel._titleBar.textContent]
-      panel.setValuesFromJSON(JSON.parse(blob))
+    const blob = presets[name]
+    if (blob) {
+      panels.forEach((panel) => {
+        const values = blob[panel._titleBar.textContent]
+        panel.setValuesFromJSON(values)
+      })
+    }
+  }
+  const saveNew = () => {
+    const presetName = prompt('Enter a new preset name.')
+    if (presetName) {
+      saveAll(presetName)
+    }
+  }
+
+  let presetNames = []
+  const updateNames = () => {
+    presetNames = Object.keys(presets)
+  }
+  const startup = () => {
+    const allSets = getAllSettings()
+    if (allSets) {
+      presets = allSets
+      updateNames()
+    }
+  }
+
+  startup()
+
+  const buildSelect = () => {
+    const select = createElement('select', presetsID, 'qs_select')
+    for (let i = 0; i < presetNames.length; i++) {
+      const option = createElement('option')
+      const item = presetNames[i]
+      if (item.label) {
+        option.value = item.value
+        option.textContent = item.label
+      } else {
+        option.label = item
+        option.textContent = item
+      }
+      select.add(option)
+    }
+    select.addEventListener('change', function () {
+      const index = select.selectedIndex
+      getSetting(presetNames[index])
     })
+    return select
   }
-  const remember = {
-    name: 'fooble'
-  }
+  const presetsID = 'preset_select'
+  const select = buildSelect()
+
   const rememberPanel = QuickSettings.create(p5.windowWidth - 440, 20, 'SettingsArchive', pDoc)
-    .addDropDown('preset', ['first', 'second'], () => { })
-    .addButton('save', () => { saveAll(remember.name) })
-    .addButton('load', () => { getSetting(remember.name) })
-    .bindText('name', remember.name, remember)
+    .addElement('preset', select)
+    .addButton('new', saveNew)
   rememberPanel.collapse()
+
+  if (presetNames[0]) {
+    getSetting(presetNames[0])
+  }
 }
 
 export { setupGui }
