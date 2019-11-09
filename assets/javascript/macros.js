@@ -1,6 +1,6 @@
 
 export default function Macros (pchrome) {
-  const { drawGrid, drawCircle, drawRowCol,
+  const { drawGrid, drawCircle, drawCircleNew, drawRowCol,
     flipCore, layers, pushpop, paint, shift,
     apx, mirror, renderLayers, undo, randomLayer,
     HORIZONTAL, VERTICAL } = pchrome
@@ -197,12 +197,24 @@ export default function Macros (pchrome) {
     drawRowCol(0, 0, params, layer.width, layer.height, layer)
   })
 
-  const largestCircle = macroWrapper(({ params, layer }) => {
+  // NOTE: the first parameter is the X-position
+  // if it's 0, it's the upper-left - the circles are centered
+  const largestCircleWidth = macroWrapper(({ params, layer }) => {
     params.invert = true
     let exp = 1
     for (let radius = 0; radius < layer.width / 2; radius += 10 * exp) {
       exp = exp * 1.2
       drawCircle(radius, radius, params, layer.width, layer.height, layer)
+    }
+  })
+
+  const largestCircleCorner = macroWrapper(({ params, layer }) => {
+    params.invert = true
+    const maxRadius = Math.hypot(layer.width, layer.height)
+    let exp = 1
+    for (let radius = 0; radius < maxRadius; radius += 20 * exp) {
+      exp = exp * 1.1
+      drawCircleNew({ xPos: radius, yPos: radius, params, width: maxRadius, height: layer.height, layer })
     }
   })
 
@@ -277,7 +289,7 @@ export default function Macros (pchrome) {
     const newLayer = flipCore(VERTICAL, layers.copy())
     const alpha = (0.5 * 255)
     p5.tint(255, alpha)
-    // layer.blendMode(p5.MULTIPLY)
+    layer.blendMode(p5.MULTIPLY) // on or off ???
     layer.image(newLayer, 0, 0)
     renderLayers()
     p5.pop()
@@ -299,11 +311,12 @@ export default function Macros (pchrome) {
     macro13: shiftToCenter,
     macro14: shiftRightHalfway,
     macro15: aRowColJoint,
-    macro16: largestCircle,
+    macro16: largestCircleWidth,
     macro17: thoseCircles,
     macro18: thoseCirclesBig,
     macro19: manyRandoms,
     macro20: smallRandomAtSomePlace,
-    macro21: flipOverlay
+    macro21: flipOverlay,
+    macro22: largestCircleCorner
   }
 }

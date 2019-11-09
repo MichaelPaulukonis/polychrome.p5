@@ -268,9 +268,14 @@ export default function Sketch (config) {
     return maxUnlessLessThan(tx, 1)
   }
 
+  const drawCircleNew = ({ xPos, yPos, params, width, height, layer, textSize, sizer }) => {
+    drawCircle(xPos, yPos, params, width, height, layer, textSize, sizer)
+  }
+
   // NOTE: yPos is only used for color context....
-  const drawCircle = (xPos, yPos, params, width, height, layer, textSize) => {
-    const ts = textSize || textSizeCircle(xPos)
+  const drawCircle = (xPos, yPos, params, width, height, layer, textSize, sizer) => {
+    sizer = sizer || textSizeCircle
+    const ts = textSize || sizer(xPos)
     layer.textSize(ts)
 
     layer.push()
@@ -817,6 +822,7 @@ export default function Sketch (config) {
   this.adjustGamma = adjustGamma
   this.apx = apx
   this.clearCanvas = clearCanvas
+  this.drawCircleNew = drawCircleNew
   this.drawCircle = drawCircle
   this.drawGrid = drawGrid
   this.drawRowCol = drawRowCol
