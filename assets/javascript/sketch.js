@@ -2,7 +2,7 @@ import UndoLayers from './undo.layers.js'
 import Layers from './layers.js'
 import { fitTextOnCanvas } from './fit.text'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
-import { setupGui } from '@/assets/javascript/gui.new'
+import { setupGui } from '@/assets/javascript/gui'
 
 import {
   allParams,

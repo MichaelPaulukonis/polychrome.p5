@@ -1,140 +1,193 @@
-import { contains } from 'ramda'
-import * as dat from 'dat.gui'
-// TODO: pass in allParams, pre-defined ?
-import { allParams, paramsInitial, fourRandoms, drawModes } from '~/assets/javascript/params.js'
-import fontList from '@/assets/javascript/fonts'
+import { QuickSettings } from '@/assets/javascript/quicksettings'
+import {
+  fourRandoms,
+  drawModes
+} from '@/assets/javascript/params'
 import { lerpList } from '@/assets/javascript/lerplist'
-import { hexStringToColors, colorLabel, selectToRadios } from '@/assets/javascript/gui.color.control.js'
-const presets = require('@/assets/default.gui.settings.json')
+import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 
-export default class GuiControl {
-  constructor () {
-    const setupGui = (sketch) => {
-      allParams.save = sketch.save_sketch
-      allParams.clear = sketch.clearCanvas
-      allParams.swap = () => swapParams(allParams)
-      sketch.defaultParams = { ...(paramsInitial) }
-      fontPicker.onFinishChange(font => sketch.setFont(font))
+const createElement = (type, id, className) => {
+  const element = document.createElement(type)
+  if (!element) { return }
+  element.id = id
+  if (className) {
+    element.className = className
+  }
+  return element
+}
 
-      // TODO: uh.... need both fill and stroke. so... hrmph. stupid flat params and prefixes
-      allParams.fill_randomizeQuads = () => rqPrefix('fill')
-      allParams.outline_randomizeQuads = () => rqPrefix('outline')
-
-      const rqPrefix = (prefix) => {
-        const qs = fourRandoms(prefix)
-        allParams[prefix + '_lq1'] = qs[prefix + '_lq1']
-        allParams[prefix + '_lq2'] = qs[prefix + '_lq2']
-        allParams[prefix + '_lq3'] = qs[prefix + '_lq3']
-        allParams[prefix + '_lq4'] = qs[prefix + '_lq4']
-      }
-    }
-
-    // TODO: is this working for all things? like the nestd folders with action-buttons?
-    const swapParams = (params) => {
-      const swapped = swapPrefixParams(params, 'outline', 'fill')
-      Object.keys(swapped)
-        .forEach(key => (params[key] = swapped[key]))
-    }
-
-    // http://www.jstips.co/en/javascript/picking-and-rejecting-object-properties/
-    function pick (obj, keys) {
-      return keys.map(k => k in obj ? { [k]: obj[k] } : {})
-        .reduce((res, o) => Object.assign(res, o), {})
-    }
-
-    // this seems overly complicated
-    const swapPrefixParams = (params, prefix1, prefix2) => {
-      const newParams = Object.assign({}, params)
-      const p1keys = Object.keys(newParams).filter(k => k.startsWith(prefix1) && !contains('randomize', k))
-      const p2keys = Object.keys(newParams).filter(k => k.startsWith(prefix2) && !contains('randomize', k))
-      const p2bak = pick(newParams, p2keys)
-      p1keys.forEach((key) => {
-        const p2key = key.replace(prefix1, prefix2)
-        newParams[p2key] = newParams.hasOwnProperty(key) ? newParams[key] : newParams[p2key]
-      })
-      p1keys.forEach((p1key) => {
-        const p2key = p1key.replace(prefix1, prefix2)
-        newParams[p1key] = p2bak.hasOwnProperty(p2key) ? p2bak[p2key] : newParams[p1key]
-      })
-      return newParams
-    }
-
-    const gui = new dat.GUI({
-      load: presets,
-      preset: 'nice palette'
-    })
-    gui.remember(allParams)
-
-    const f1 = gui.addFolder('stuff')
-    f1.add(allParams, 'width')
-    f1.add(allParams, 'height')
-    f1.add(allParams, 'name')
-    f1.add(allParams, 'save')
-    f1.add(allParams, 'clear')
-    f1.add(allParams, 'swap')
-    const f2 = gui.addFolder('misc')
-    f2.add(allParams, 'hardEdge').listen()
-    f2.add(allParams, 'useShadow').listen()
-    f2.add(allParams, 'shadowOffsetX').min(-100).max(100).step(1)
-    f2.add(allParams, 'shadowOffsetY').min(-100).max(100).step(1)
-    f2.add(allParams, 'shadowBlur').min(1).max(100).step(1)
-    f2.addColor(allParams, 'shadowColor').listen()
-    f2.add(allParams, 'gamma').min(0.01).max(9.99).step(0.01)
-
-    gui.add(allParams, 'invert').listen()
-    gui.add(allParams, 'nextCharMode', allParams.nextCharModes).listen()
-    gui.add(allParams, 'fixedWidth')
-    const fontPicker = gui.add(allParams, 'font', fontList).listen()
-    gui.add(allParams, 'rotation').min(-360).max(360).step(1).listen()
-    gui.add(allParams, 'cumulativeRotation').listen()
-    const dm = gui.add(allParams, 'drawMode', allParams.drawModes).listen()
-
-    const rowColFolder = gui.addFolder('RowCol Settings')
-    rowColFolder.add(allParams, 'rows').min(1).max(allParams.rowmax).step(1).listen()
-    rowColFolder.add(allParams, 'columns').min(1).max(allParams.colmax).step(1).listen()
-    rowColFolder.close()
-
-    dm.onChange((m) => {
-      (parseInt(m, 10) === drawModes.Grid2)
-        ? rowColFolder.open()
-        : rowColFolder.close()
-    })
-
-    const addFlatParams = (gui, params, prefix) => {
-      gui.add(params, `${prefix}_paintMode`, allParams.paintModes).listen() // work in-progress....
-      gui.add(params, `${prefix}_transparent`).listen()
-      gui.add(params, `${prefix}_transparency`).min(0).max(100).step(1)
-      gui.addColor(params, `${prefix}_color`)
-      // NOTE: creating a "new" setting triggers this. hunh.
-      // cm.onChange((m) => { params[`${prefix}_paintMode`] = 9 }) // auto-set to solid color mode
-      const radioFolder = gui.addFolder('palettes')
-      const ccm = radioFolder.add(params, `${prefix}_scheme`, lerpList).name(prefix)
-      const c = selectToRadios(ccm)
-      c.__radios.map(colorLabel)
-      gui.add(params, `${prefix}_randomizeQuads`) // TODO: needs to take a params
-      gui.addColor(params, `${prefix}_lq1`).listen()
-      gui.addColor(params, `${prefix}_lq2`).listen()
-      gui.addColor(params, `${prefix}_lq3`).listen()
-      gui.addColor(params, `${prefix}_lq4`).listen()
-    }
-
-    const fpGui = gui.addFolder('fillControls')
-    addFlatParams(fpGui, allParams, 'fill')
-    gui.add(allParams, 'useOutline').listen()
-    const olGui = gui.addFolder('outlineControls')
-    olGui.add(allParams, 'outline_strokeWeight').min(1).max(800).step(1)
-    olGui.add(allParams, 'outline_strokeJoin', { 'MITER': 'miter', 'BEVEL': 'bevel', 'ROUND': 'round' })
-    addFlatParams(olGui, allParams, 'outline')
-
-    dat.GUI.toggleHide()
-
-    return {
-      setupGui,
-      params: allParams,
-      hexStringToColors,
-      swapParams,
-      fontPicker,
-      gui
-    }
+const assignRandoms = (p, g) => {
+  const length = p.lerps.length
+  const qs = fourRandoms() // TODO: get the exact number we want
+  p.lerps = qs.slice(0, length)
+  for (let i = 0; i < length; i++) {
+    g.setValue(`lq${i}`, qs[i])
   }
 }
+
+const updateColors = (panel, lerps, prefix, params) => (selection) => {
+  // remove current color selectors
+  lerps.forEach((_, i) => {
+    panel.removeControl(`${prefix}${i}`)
+  })
+  lerps = hexStringToColors(selection.value)
+  params.lerps = lerps
+  lerps.forEach((hexString, i) => {
+    const ref = `${prefix}${i}`
+    panel.bindColor(ref, hexString, params)
+  })
+}
+
+const addMultiColor = ({ gui, prefix, params }) => {
+  const lerps = []
+  const mcUpdater = updateColors(gui, lerps, prefix, params)
+  gui.addDropDown('multi-color', lerpList, mcUpdater)
+  const selectedColor = gui.getValue('multi-color')
+  mcUpdater(selectedColor)
+}
+
+const _ = null
+
+const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
+  const pDoc = p5.canvas.parentElement
+
+  const mainGui = QuickSettings.create(p5.windowWidth - 220, 20, 'PolychromeText', pDoc)
+    // bindNumber, despite the README notes, has the same signature as binRange
+    .bindNumber('width', _, _, params.width, _, params)
+    .bindNumber('height', _, _, params.height, _, params)
+    .addButton('save', sketch.save_sketch)
+    .addButton('clear', sketch.clearCanvas)
+    .bindDropDown('drawMode', drawModes, params)
+    .bindBoolean('invert', params.invert, params)
+    .bindNumber('rows', _, _, params.rows, _, params)
+    .bindNumber('columns', _, _, params.columns, _, params)
+    .bindBoolean('hardEdge', params.hardEdge, params)
+    .bindBoolean('useShadow', params.useShadow, params)
+    .bindRange('gamma', 0, 1.0, params.gamma, 0.01, params)
+    .bindBoolean('useOutline', params.useOutline, params)
+  mainGui.collapse()
+
+  const fontGui = QuickSettings.create(p5.windowWidth - 220, 60, 'Font', pDoc)
+    .bindBoolean('fixedWidth', params.fixedWidth, params)
+    .bindDropDown('font', params.fontList, params)
+    .bindRange('rotation', -180, 180, params.rotation, 1, params)
+    .bindBoolean('cumulativeRotation', params.cumulativeRotation, params)
+    .bindDropDown('nextCharMode', params.nextCharModes, params)
+  fontGui.collapse()
+
+  const shadowGui = QuickSettings.create(p5.windowWidth - 220, 100, 'Shadow', pDoc)
+    .bindBoolean('useShadow', params.useShadow, params)
+    .bindRange('shadowOffsetX', 0, 100, params.shadowOffsetX, 1, params)
+    .bindRange('shadowOffsetY', 0, 100, params.shadowOffsetY, 1, params)
+    .bindRange('shadowBlur', 0, 100, params.shadowBlur, 1, params)
+    .bindColor('shadowColor', params.shadowColor, params)
+  shadowGui.collapse()
+
+  const fillGui = QuickSettings.create(p5.windowWidth - 440, 140, 'Fill', pDoc)
+  fillGui.bindDropDown('paintMode', fillParams.paintModes, fillParams)
+    .bindRange('transparency', 0, 100, fillParams.transparency, 1, fillParams)
+    .bindBoolean('transparent', fillParams.transparent, fillParams)
+    .bindColor('color', fillParams.color, fillParams)
+    .addButton('randomize', () => assignRandoms(fillParams, fillGui))
+  addMultiColor({ gui: fillGui, prefix: 'lq', params: fillParams })
+  fillGui.collapse()
+
+  const outlineGui = QuickSettings.create(p5.windowWidth - 220, 140, 'Outline', pDoc)
+  outlineGui.bindBoolean('useOutline', params.useOutline, params) // NOTE: both do not update when one is changed
+    .bindDropDown('paintMode', outlineParams.paintModes, outlineParams)
+    .bindRange('strokeWeight', 0, 400, outlineParams.strokeWeight, 1, outlineParams)
+    .bindDropDown('strokeJoin', outlineParams.joins, outlineParams)
+    .bindBoolean('transparent', outlineParams.transparent, outlineParams)
+    .bindRange('transparency', 0, 100, outlineParams.transparency, 1, outlineParams)
+    .bindColor('color', outlineParams.color, outlineParams)
+    .addButton('randomize', () => assignRandoms(outlineParams, outlineGui))
+  addMultiColor({ gui: outlineGui, prefix: 'lq', params: outlineParams })
+  outlineGui.collapse()
+
+  const panels = [mainGui, fontGui, shadowGui, fillGui, outlineGui]
+  let presets = {}
+  const prefix = 'polychrometext'
+
+  const saveAll = (name) => {
+    const allPanels = {}
+    const asString = true
+    panels.forEach((panel) => {
+      allPanels[panel._titleBar.textContent] = panel.getValuesAsJSON(asString)
+    })
+    presets[name] = allPanels
+    localStorage.setItem(prefix, JSON.stringify(presets))
+    updateNames()
+    const newSelect = buildSelect()
+    const oldSelect = document.getElementById(presetsID)
+    const parent = oldSelect.parentElement
+    parent.removeChild(oldSelect)
+    parent.appendChild(newSelect)
+  }
+  const getAllSettings = () => {
+    const blobs = localStorage.getItem(prefix)
+    return JSON.parse(blobs)
+  }
+  const getSetting = (name) => {
+    const blob = presets[name]
+    if (blob) {
+      panels.forEach((panel) => {
+        const values = blob[panel._titleBar.textContent]
+        panel.setValuesFromJSON(values)
+      })
+    }
+  }
+  const saveNew = () => {
+    const presetName = prompt('Enter a new preset name.')
+    if (presetName) {
+      saveAll(presetName)
+    }
+  }
+
+  let presetNames = []
+  const updateNames = () => {
+    presetNames = Object.keys(presets)
+  }
+  const startup = () => {
+    const allSets = getAllSettings()
+    if (allSets) {
+      presets = allSets
+      updateNames()
+    }
+  }
+
+  startup()
+
+  const buildSelect = () => {
+    const select = createElement('select', presetsID, 'qs_select')
+    for (let i = 0; i < presetNames.length; i++) {
+      const option = createElement('option')
+      const item = presetNames[i]
+      if (item.label) {
+        option.value = item.value
+        option.textContent = item.label
+      } else {
+        option.label = item
+        option.textContent = item
+      }
+      select.add(option)
+    }
+    select.addEventListener('change', function () {
+      const index = select.selectedIndex
+      getSetting(presetNames[index])
+    })
+    return select
+  }
+  const presetsID = 'preset_select'
+  const select = buildSelect()
+
+  const rememberPanel = QuickSettings.create(p5.windowWidth - 440, 20, 'SettingsArchive', pDoc)
+    .addElement('preset', select)
+    .addButton('new', saveNew)
+  rememberPanel.collapse()
+
+  if (presetNames[0]) {
+    getSetting(presetNames[0])
+  }
+}
+
+export { setupGui }
