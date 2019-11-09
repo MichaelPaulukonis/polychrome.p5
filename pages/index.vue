@@ -44,7 +44,6 @@ import randomPost from '@/assets/javascript/tumblr-random.js'
 import corpus from '@/assets/javascript/corpus.js'
 import Macros from '@/assets/javascript/macros.js'
 import { setupHotkeys } from '@/assets/javascript/keys.js'
-import { attachToP5 } from '@/assets/javascript/p5.gui'
 
 const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
@@ -98,7 +97,6 @@ export default {
         this.corpus = this.corpus.concat(texts)
         this.currentText = randElem(this.corpus)
         this.resetTextPosition()
-        attachToP5(P5)
         new P5(builder, 'sketch-holder') // eslint-disable-line no-new
       })
   },
