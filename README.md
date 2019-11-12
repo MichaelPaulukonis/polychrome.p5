@@ -117,12 +117,25 @@ still using DAT.GUI, but in a vue.js manner??
 think I need to use VUEX (sigh)
 it's sharing state amongst components, so... ????
 
-https://github.com/quasarframework/quasar/blob/dev/ui/src/components/editor/QEditor.js
+- https://github.com/quasarframework/quasar/blob/dev/ui/src/components/editor/QEditor.js
+- https://github.com/vuegg/vuegg/blob/master/client/src/components/editor/main/Stage.vue
+- https://github.com/cyrilf/microbios/blob/f8577c75e4990e54f76168239522cee996721e0c/src/store.js
+- https://github.com/vuejs/awesome-vue#components--libraries
 
-https://github.com/vuegg/vuegg/blob/master/client/src/components/editor/main/Stage.vue
+I ended up going with [Quicksettings](https://github.com/bit101/quicksettings.git) - it doesn't have a built-in save-selector, but I'm building my own, and it seems to work!
 
-https://github.com/cyrilf/microbios/blob/f8577c75e4990e54f76168239522cee996721e0c/src/store.js
+I started with a vue-version of Dat.gui, but had some difficulties getting the updated settings into the sketch. Some disconnect in my head, and quite possible with my mish-mash of passing-by-reference and use of `this` all over the place (ugh!).
 
-https://github.com/vuejs/awesome-vue#components--libraries
+I'm quite happy with the look of Quicksettings - it's not perfect, but has a few features I really like.
 
+## color notes
 
+- https://github.com/eligrey/color.js
+- https://stackoverflow.com/questions/13806483/increase-or-decrease-color-saturation
+- https://css-tricks.com/hsl-hsla-is-great-for-programmatic-color-control/
+- https://www.w3schools.com/colors/colors_hsl.asp
+- http://code.iamkate.com/javascript/colour-handling-and-processing/
+- https://konvajs.org/docs/filters/HSL.html
+- https://www.greatbigdigitalagency.com/blog/its-not-easy-being-bleen-a-color-changing-javascript-adventure
+- COLOR SCHEMES: https://programmingdesignsystems.com/color/color-schemes/index.html
+- https://medium.com/@behreajj/color-gradients-in-processing-v-2-0-e5c0b87cdfd2

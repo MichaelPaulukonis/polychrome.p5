@@ -25,6 +25,15 @@ const assignRandoms = (p, g) => {
   }
 }
 
+const shift = arr => [ ...arr.slice(1, arr.length), arr[0] ]
+const shiftColors = (p, g) => {
+  const length = p.lerps.length
+  p.lerps = shift(p.lerps)
+  for (let i = 0; i < length; i++) {
+    g.setValue(`lq${i}`, p.lerps[i])
+  }
+}
+
 const updateColors = (panel, lerps, prefix, params) => (selection) => {
   // remove current color selectors
   lerps.forEach((_, i) => {
@@ -89,6 +98,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindBoolean('transparent', fillParams.transparent, fillParams)
     .bindColor('color', fillParams.color, fillParams)
     .addButton('randomize', () => assignRandoms(fillParams, fillGui))
+    .addButton('shift', () => shiftColors(fillParams, fillGui))
   addMultiColor({ gui: fillGui, prefix: 'lq', params: fillParams })
   fillGui.collapse()
 
@@ -122,11 +132,14 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     const parent = oldSelect.parentElement
     parent.removeChild(oldSelect)
     parent.appendChild(newSelect)
+    return newSelect
   }
+
   const getAllSettings = () => {
     const blobs = localStorage.getItem(prefix)
     return JSON.parse(blobs)
   }
+
   const getSetting = (name) => {
     const blob = presets[name]
     if (blob) {
@@ -136,11 +149,19 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
       })
     }
   }
+
   const saveNew = () => {
     const presetName = prompt('Enter a new preset name.')
     if (presetName) {
       saveAll(presetName)
     }
+  }
+
+  const update = () => {
+    const index = document.getElementById('preset_select').selectedIndex
+    const name = presetNames[index]
+    const select = saveAll(name)
+    select.selectedIndex = index
   }
 
   let presetNames = []
@@ -182,6 +203,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
 
   const rememberPanel = QuickSettings.create(p5.windowWidth - 440, 20, 'SettingsArchive', pDoc)
     .addElement('preset', select)
+    .addButton('update', update)
     .addButton('new', saveNew)
   rememberPanel.collapse()
 
