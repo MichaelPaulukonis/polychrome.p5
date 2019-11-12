@@ -2,26 +2,18 @@ import fontList from '@/assets/javascript/fonts'
 
 const randomColor = () => '#' + (Math.random().toString(16) + '0000000').slice(2, 8)
 
-const fourRandoms = () => [
-  randomColor(),
-  randomColor(),
-  randomColor(),
-  randomColor()
-]
+const getRandomColors = i => [...Array(i).keys()].map(randomColor)
 
 const colorParams = () => ({
-  ...{
-    paintModes,
-    paintMode: paintModes[0],
-    transparency: 50,
-    transparent: false,
-    color: '#fff000',
-    scheme: 'ffffff-000000',
-    curCycle: 0,
-    randomizeQuads: () => { },
-    lerps: []
-  },
-  ...fourRandoms()
+  paintModes,
+  paintMode: paintModes[0],
+  transparency: 50,
+  transparent: false,
+  color: '#fff000',
+  scheme: 'ffffff-000000',
+  curCycle: 0,
+  randomizeQuads: () => { },
+  lerps: []
 })
 
 const paintModes = [
@@ -89,7 +81,7 @@ export {
   fillParams,
   outlineParams,
   paramsInitial,
-  fourRandoms,
+  getRandomColors,
   drawModes,
   paintModes,
   nextCharModes,

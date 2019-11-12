@@ -20,20 +20,18 @@
     button#randomtext(@click="randomText")
       | Random text
   p
-    | Mouse click and drag to paint (previous paints will fade slightly).
+    | Mouse click and drag to paint.
     br
     |  Color and size are based on mouse position.
-    br
-    span.keys SPACE
-    |  - paint without fading previous actions
   p#sources
-    | Source code:
+    | Source code:&nbsp;
     a(href='https://github.com/MichaelPaulukonis/polychrome.p5') GitHub
-    |  - More
-    a(href='http://www.xradiograph.com/PrantedMutter/Sketch') Web Sketches
-    |  - Built with
-    a(href='https://p5js.org/') P5.js
-    | font: {{ params && params.font }}
+    |  - More&nbsp;
+    a(href='http://michaelpaulukonis.github.io') Web Sketches
+    |  - Built with&nbsp;
+    a(href='https://p5js.org/') P5
+    |  and&nbsp;
+    a(href='https://nuxtjs.org') Nuxt
 </template>
 
 <script>

@@ -1,6 +1,6 @@
 import { QuickSettings } from '@/assets/javascript/quicksettings'
 import {
-  fourRandoms,
+  getRandomColors,
   drawModes
 } from '@/assets/javascript/params'
 import { lerpList } from '@/assets/javascript/lerplist'
@@ -16,12 +16,11 @@ const createElement = (type, id, className) => {
   return element
 }
 
-const assignRandoms = (p, g) => {
-  const length = p.lerps.length
-  const qs = fourRandoms() // TODO: get the exact number we want
-  p.lerps = qs.slice(0, length)
+const assignRandoms = (params, gui) => {
+  const length = params.lerps.length
+  params.lerps = getRandomColors(length) // TODO: get the exact number we want
   for (let i = 0; i < length; i++) {
-    g.setValue(`lq${i}`, qs[i])
+    gui.setValue(`lq${i}`, params.lerps[i])
   }
 }
 
@@ -111,6 +110,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindRange('transparency', 0, 100, outlineParams.transparency, 1, outlineParams)
     .bindColor('color', outlineParams.color, outlineParams)
     .addButton('randomize', () => assignRandoms(outlineParams, outlineGui))
+    .addButton('shift', () => shiftColors(outlineParams, outlineGui))
   addMultiColor({ gui: outlineGui, prefix: 'lq', params: outlineParams })
   outlineGui.collapse()
 
