@@ -240,7 +240,10 @@ export default function Sketch (config) {
         setFillMode(pixelX, pixelY, params.fill)
         setOutlineMode(pixelX, pixelY, params.outline)
 
-        const txt = fetchText()
+        let txt = fetchText()
+        if (cols === 1 && txt.trim() === '') {
+          txt = fetchText() // quick hack to skip spaces on single column mode
+        }
         const fontSize = fitTextOnCanvas(txt, params.font, cellWidth, layer)
         // layer.textSize(cellWidth * 1.5)
         layer.textSize(fontSize)
