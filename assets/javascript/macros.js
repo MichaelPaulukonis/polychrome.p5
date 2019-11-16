@@ -157,7 +157,7 @@ export default function Macros (pchrome) {
   const singleRow = macroWrapper(({ params, layer }) => {
     // const drawRowCol = (xPos, yPos, params, width, height, layer) => {
     //   const rows = params.rows
-    params.rows = 8
+    params.rows = 3
     params.columns = 1
     params.nextCharMode = 'Word'
     // TODO: first time this is called it used the wrong font. ?????

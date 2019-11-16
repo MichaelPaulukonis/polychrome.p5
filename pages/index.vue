@@ -1,41 +1,57 @@
 <template lang="pug">
-#content
-  //- DatDotGui(
-  //-   v-model="params"
-  //-   @paramChange="paramUpdate"
-  //-   )
-  div
-    #sketch-holder
-      // Our sketch will go here!
-    noscript
-      p JavaScript is required to view the contents of this page.
+#app
   h1 polychrome text
-  p#description
-  p
+
+  #content
+
+    modal(
+      name="textmanager"
+      @closed="start"
+    )
+      textarea#bodycopy(v-model="currentText")
+      .text-controls
+        button#applytext(@click="resetTextPosition")
+          | Apply text
+        button#randomtext(@click="randomText")
+          | Random text
+
+    modal(
+      name="about"
+      @closed="start"
+      )
+      p#sources
+      | Source code:&nbsp;
+      a(href='https://github.com/MichaelPaulukonis/polychrome.p5') GitHub
+      |  - More&nbsp;
+      a(href='http://michaelpaulukonis.github.io') Web Sketches
+      |  - Built with&nbsp;
+      a(href='https://p5js.org/') P5
+      |  and&nbsp;
+      a(href='https://nuxtjs.org') Nuxt
+
+    modal(
+      name="help"
+      @closed="start"
+      )
+      p Mouse click and drag to paint with text.
+        br
+        |  Color and size are based on mouse position.
+
+    button(@click="show") textManager
     button#focus(@click="setFocus") focus on canvas
-  div
-    textarea#bodycopy(v-model="currentText")
-    button#applytext(@click="resetTextPosition")
-      | Apply text
-    button#randomtext(@click="randomText")
-      | Random text
-  p
-    | Mouse click and drag to paint.
-    br
-    |  Color and size are based on mouse position.
-  p#sources
-    | Source code:&nbsp;
-    a(href='https://github.com/MichaelPaulukonis/polychrome.p5') GitHub
-    |  - More&nbsp;
-    a(href='http://michaelpaulukonis.github.io') Web Sketches
-    |  - Built with&nbsp;
-    a(href='https://p5js.org/') P5
-    |  and&nbsp;
-    a(href='https://nuxtjs.org') Nuxt
+    button(@click="help") help
+    button(@click="about") About
+    div
+      #sketch-holder
+        // Our sketch will go here!
+      noscript
+        p JavaScript is required to view the contents of this page.
+
 </template>
 
 <script>
 import P5 from 'p5'
+import VModal from 'vue-js-modal'
 import TextManager from '@/assets/javascript/TextManager'
 import Sketch from '@/assets/javascript/sketch.js'
 import randomPost from '@/assets/javascript/tumblr-random.js'
@@ -51,6 +67,7 @@ let pchrome
 
 export default {
   components: {
+    VModal
   },
   data () {
     return {
@@ -84,6 +101,7 @@ export default {
     const setupCallback = (sketch) => {
       pchrome.macros = setupMacros(sketch)
       setupHotkeys({ sketch })
+      this.hide()
     }
 
     const builder = (p5Instance) => {
@@ -93,6 +111,9 @@ export default {
     randomPost()
       .then((texts) => {
         this.corpus = this.corpus.concat(texts)
+      })
+      .catch()
+      .finally((_) => {
         this.currentText = randElem(this.corpus)
         this.resetTextPosition()
         new P5(builder, 'sketch-holder') // eslint-disable-line no-new
@@ -113,15 +134,24 @@ export default {
     canvas () {
       return document.getElementsByTagName('canvas')[0]
     },
-    paramUpdate (p) {
-      // okay: proof we pass the stuff up
-      // alert(`here is the ${JSON.stringify(p)}`)
-      if (pchrome && pchrome.params) {
-        console.log(pchrome.params.font, p.font)
-        pchrome.params = p
-        // guiControl.params = p
-        // pchrome.randomLayer()
-      }
+    start () {
+      pchrome.start()
+    },
+    show () {
+      pchrome.stop()
+      this.$modal.show('textmanager')
+    },
+    hide () {
+      this.$modal.hide('textmanager')
+      pchrome.start()
+    },
+    about () {
+      pchrome.stop()
+      this.$modal.show('about')
+    },
+    help () {
+      pchrome.stop()
+      this.$modal.show('help')
     }
   }
 }
@@ -129,4 +159,13 @@ export default {
 
 <style>
 @import "@/assets/css/core.css";
+
+#bodycopy {
+  width: 100%;
+  height: 90%;
+}
+
+.text-controls {
+  float: right;
+}
 </style>

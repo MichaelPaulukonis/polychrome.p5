@@ -27,6 +27,7 @@ const tumblrRandomPost = () => {
           .then((response) => {
             const newCorpus = response.data.response.posts.map((post) => {
               const body = cheerio.load(post.body)
+              // also post.url, post.title
               return cleanup(body.text())
             })
             resolve(newCorpus)

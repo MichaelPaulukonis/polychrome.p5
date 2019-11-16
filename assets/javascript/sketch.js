@@ -89,7 +89,8 @@ export default function Sketch (config) {
 
   const APP_MODES = {
     STANDARD_DRAW: 'standard drawing mode',
-    TARGET: 'select a point on canvas'
+    TARGET: 'select a point on canvas',
+    NO_DRAW: 'no drawing for some reson'
   }
 
   const standardDraw = () => {
@@ -102,6 +103,8 @@ export default function Sketch (config) {
 
   p5.draw = () => {
     switch (this.appMode) {
+      case APP_MODES.NO_DRAW:
+        return
       case APP_MODES.STANDARD_DRAW:
       default:
         standardDraw()
@@ -577,7 +580,6 @@ export default function Sketch (config) {
       case 'lerp-scheme':
         {
           const colors = hexStringToColors(params.scheme)
-          // TODO: work with number of colors provided
 
           const color1 = layer.color(colors[0])
           const color2 = layer.color(colors[1])
@@ -595,7 +597,7 @@ export default function Sketch (config) {
           const alpha = (transparency * 255)
           l3.setAlpha(alpha)
           layer.pop()
-          func(l3, transparency)
+          func(l3)
         }
         break
 
@@ -617,7 +619,7 @@ export default function Sketch (config) {
           const alpha = (transparency * 255)
           l3.setAlpha(alpha)
           layer.pop()
-          func(l3, transparency)
+          func(l3)
         }
         break
 
@@ -819,6 +821,14 @@ export default function Sketch (config) {
     }
     context.putImageData(imageData, 0, 0)
     renderLayers(params)
+  }
+
+  this.stop = () => {
+    this.appMode = APP_MODES.NO_DRAW
+  }
+
+  this.start = () => {
+    this.appMode = APP_MODES.STANDARD_DRAW
   }
 
   // this smells, but is a start of separation

@@ -6,6 +6,8 @@ import {
 import { lerpList } from '@/assets/javascript/lerplist'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 
+// $vm.setFocus wrapper, somehow....
+
 const createElement = (type, id, className) => {
   const element = document.createElement(type)
   if (!element) { return }
@@ -16,15 +18,20 @@ const createElement = (type, id, className) => {
   return element
 }
 
+const shuffle = arr => arr.map(a => ({ sort: Math.random(), value: a }))
+  .sort((a, b) => a.sort - b.sort)
+  .map(a => a.value)
+
+const shift = arr => [...arr.slice(1, arr.length), arr[0]]
+
 const assignRandoms = (params, gui) => {
   const length = params.lerps.length
-  params.lerps = getRandomColors(length) // TODO: get the exact number we want
+  params.lerps = getRandomColors(length)
   for (let i = 0; i < length; i++) {
     gui.setValue(`lq${i}`, params.lerps[i])
   }
 }
 
-const shift = arr => [ ...arr.slice(1, arr.length), arr[0] ]
 const shiftColors = (p, g) => {
   const length = p.lerps.length
   p.lerps = shift(p.lerps)
@@ -91,10 +98,29 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindColor('shadowColor', params.shadowColor, params)
   shadowGui.collapse()
 
+  const getLerpNames = panel => Object.keys(panel._controls).filter(x => x.startsWith('lq'))
+
+  const hideColorControls = (panel) => {
+    const controls = ['color', 'randomize', 'shift', 'multi-color'].concat(getLerpNames(panel))
+    controls.forEach(c => panel.hideControl(c))
+  }
+
+  const handleModeChange = (params, key, panel) => (selected) => {
+    params[key] = selected.value
+    hideColorControls(panel)
+    const controlMap = {
+      'solid': ['color'],
+      'lerp-quad': ['randomize', 'shift', 'multi-color'].concat(getLerpNames(panel))
+    }
+    if (Object.keys(controlMap).includes(selected.value)) {
+      controlMap[selected.value].map(c => panel.showControl(c))
+    }
+  }
+
   const fillGui = QuickSettings.create(p5.windowWidth - 440, 140, 'Fill', pDoc)
-  fillGui.bindDropDown('paintMode', fillParams.paintModes, fillParams)
-    .bindRange('transparency', 0, 100, fillParams.transparency, 1, fillParams)
+  fillGui.addDropDown('paintMode', fillParams.paintModes, handleModeChange(fillParams, 'paintMode', fillGui))
     .bindBoolean('transparent', fillParams.transparent, fillParams)
+    .bindRange('transparency', 0, 100, fillParams.transparency, 1, fillParams)
     .bindColor('color', fillParams.color, fillParams)
     .addButton('randomize', () => assignRandoms(fillParams, fillGui))
     .addButton('shift', () => shiftColors(fillParams, fillGui))
@@ -103,7 +129,8 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
 
   const outlineGui = QuickSettings.create(p5.windowWidth - 220, 140, 'Outline', pDoc)
   outlineGui.bindBoolean('useOutline', params.useOutline, params) // NOTE: both do not update when one is changed
-    .bindDropDown('paintMode', outlineParams.paintModes, outlineParams)
+  outlineGui.addDropDown('paintMode', outlineParams.paintModes, handleModeChange(outlineParams, 'paintMode', outlineGui))
+    // .bindDropDown('paintMode', outlineParams.paintModes, outlineParams)
     .bindRange('strokeWeight', 0, 400, outlineParams.strokeWeight, 1, outlineParams)
     .bindDropDown('strokeJoin', outlineParams.joins, outlineParams)
     .bindBoolean('transparent', outlineParams.transparent, outlineParams)
@@ -126,7 +153,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     })
     presets[name] = allPanels
     localStorage.setItem(prefix, JSON.stringify(presets))
-    updateNames()
+    updateNames(presets)
     const newSelect = buildSelect()
     const oldSelect = document.getElementById(presetsID)
     const parent = oldSelect.parentElement
@@ -165,24 +192,24 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   }
 
   let presetNames = []
-  const updateNames = () => {
-    presetNames = Object.keys(presets)
+  const updateNames = (list) => {
+    presetNames = Object.keys(list)
   }
   const startup = () => {
     const allSets = getAllSettings()
     if (allSets) {
       presets = allSets
-      updateNames()
+      presetNames = shuffle(Object.keys(presets))
     }
   }
 
   startup()
 
-  const buildSelect = () => {
-    const select = createElement('select', presetsID, 'qs_select')
-    for (let i = 0; i < presetNames.length; i++) {
+  const buildSelect = ({ values, id, callback }) => {
+    const select = createElement('select', id, 'qs_select')
+    for (let i = 0; i < values.length; i++) {
       const option = createElement('option')
-      const item = presetNames[i]
+      const item = values[i]
       if (item.label) {
         option.value = item.value
         option.textContent = item.label
@@ -194,12 +221,12 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     }
     select.addEventListener('change', function () {
       const index = select.selectedIndex
-      getSetting(presetNames[index])
+      callback(values[index])
     })
     return select
   }
   const presetsID = 'preset_select'
-  const select = buildSelect()
+  const select = buildSelect({ values: presetNames, id: presetsID, callback: getSetting })
 
   const rememberPanel = QuickSettings.create(p5.windowWidth - 440, 20, 'SettingsArchive', pDoc)
     .addElement('preset', select)
