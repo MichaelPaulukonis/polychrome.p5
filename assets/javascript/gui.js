@@ -130,7 +130,6 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   const outlineGui = QuickSettings.create(p5.windowWidth - 220, 140, 'Outline', pDoc)
   outlineGui.bindBoolean('useOutline', params.useOutline, params) // NOTE: both do not update when one is changed
   outlineGui.addDropDown('paintMode', outlineParams.paintModes, handleModeChange(outlineParams, 'paintMode', outlineGui))
-    // .bindDropDown('paintMode', outlineParams.paintModes, outlineParams)
     .bindRange('strokeWeight', 0, 400, outlineParams.strokeWeight, 1, outlineParams)
     .bindDropDown('strokeJoin', outlineParams.joins, outlineParams)
     .bindBoolean('transparent', outlineParams.transparent, outlineParams)

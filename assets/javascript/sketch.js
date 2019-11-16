@@ -717,12 +717,6 @@ export default function Sketch (config) {
     p5.saveCanvas(`${params.name}.${getDateFormatted()}.png`)
   }
 
-  p5.keyTyped = () => {
-    if (!mouseInCanvas()) { return }
-    // keyHandler(p5.key, params, layers, this)
-    return false
-  }
-
   // TODO: use this somehow.
   // but make mouse start from regular place?
   // NOTE: doesn't work all that well if canvas is not square....
