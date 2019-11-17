@@ -529,7 +529,8 @@ var QuickSettings = {
     if (container && container.parentElement) {
       container.parentElement.removeChild(container)
     }
-    this._controls[title] = null
+    delete this._controls[title] // DELETE, not remove (otherwise it screws up getJSON etc.)
+    // this._controls[title] = null
     return this
   },
 

@@ -6,7 +6,7 @@ import {
 import { lerpList } from '@/assets/javascript/lerplist'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 
-// $vm.setFocus wrapper, somehow....
+const setFocus = () => window.setFocus() /* eslint-disable-line no-undef */
 
 const createElement = (type, id, className) => {
   const element = document.createElement(type)
@@ -80,6 +80,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindBoolean('useShadow', params.useShadow, params)
     .bindRange('gamma', 0, 1.0, params.gamma, 0.01, params)
     .bindBoolean('useOutline', params.useOutline, params)
+    .setGlobalChangeHandler(setFocus)
   mainGui.collapse()
 
   const fontGui = QuickSettings.create(p5.windowWidth - 220, 60, 'Font', pDoc)
@@ -88,6 +89,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindRange('rotation', -180, 180, params.rotation, 1, params)
     .bindBoolean('cumulativeRotation', params.cumulativeRotation, params)
     .bindDropDown('nextCharMode', params.nextCharModes, params)
+    .setGlobalChangeHandler(setFocus)
   fontGui.collapse()
 
   const shadowGui = QuickSettings.create(p5.windowWidth - 220, 100, 'Shadow', pDoc)
@@ -96,6 +98,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindRange('shadowOffsetY', 0, 100, params.shadowOffsetY, 1, params)
     .bindRange('shadowBlur', 0, 100, params.shadowBlur, 1, params)
     .bindColor('shadowColor', params.shadowColor, params)
+    .setGlobalChangeHandler(setFocus)
   shadowGui.collapse()
 
   const getLerpNames = panel => Object.keys(panel._controls).filter(x => x.startsWith('lq'))
@@ -124,6 +127,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindColor('color', fillParams.color, fillParams)
     .addButton('randomize', () => assignRandoms(fillParams, fillGui))
     .addButton('shift', () => shiftColors(fillParams, fillGui))
+    .setGlobalChangeHandler(setFocus)
   addMultiColor({ gui: fillGui, prefix: 'lq', params: fillParams })
   fillGui.collapse()
 
@@ -137,6 +141,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindColor('color', outlineParams.color, outlineParams)
     .addButton('randomize', () => assignRandoms(outlineParams, outlineGui))
     .addButton('shift', () => shiftColors(outlineParams, outlineGui))
+    .setGlobalChangeHandler(setFocus)
   addMultiColor({ gui: outlineGui, prefix: 'lq', params: outlineParams })
   outlineGui.collapse()
 
@@ -145,20 +150,27 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   const prefix = 'polychrometext'
 
   const saveAll = (name) => {
-    const allPanels = {}
-    const asString = true
-    panels.forEach((panel) => {
-      allPanels[panel._titleBar.textContent] = panel.getValuesAsJSON(asString)
-    })
-    presets[name] = allPanels
-    localStorage.setItem(prefix, JSON.stringify(presets))
-    updateNames(presets)
-    const newSelect = buildSelect()
-    const oldSelect = document.getElementById(presetsID)
-    const parent = oldSelect.parentElement
-    parent.removeChild(oldSelect)
-    parent.appendChild(newSelect)
-    return newSelect
+    let panelName = 'unknown'
+    try {
+      const allPanels = {}
+      const asString = true
+      panels.forEach((panel) => {
+        panelName = panel._titleBar.textContent
+        allPanels[panelName] = panel.getValuesAsJSON(asString)
+      })
+      presets[name] = allPanels
+      localStorage.setItem(prefix, JSON.stringify(presets))
+      updateNames(presets)
+      const newSelect = buildSelect({ values: presetNames, id: presetsID, callback: getSetting })
+      const oldSelect = document.getElementById(presetsID)
+      const parent = oldSelect.parentElement
+      parent.removeChild(oldSelect)
+      parent.appendChild(newSelect)
+      return newSelect
+    } catch (err) {
+      console.log(`'potential error saving panel: '${panelName}'`)
+      console.log(err)
+    }
   }
 
   const getAllSettings = () => {
@@ -231,6 +243,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .addElement('preset', select)
     .addButton('update', update)
     .addButton('new', saveNew)
+    .setGlobalChangeHandler(setFocus)
   rememberPanel.collapse()
 
   if (presetNames[0]) {

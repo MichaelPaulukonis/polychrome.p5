@@ -34,7 +34,10 @@ export default {
   /*
   ** Plugins to load before mounting the App
   */
-  plugins: ['~plugins/vue-js-modal'],
+  plugins: [
+    '~plugins/vue-js-modal',
+    { src: '~/plugins/setFocus', ssr: false }
+  ],
   /*
   ** Nuxt.js dev-modules
   */
