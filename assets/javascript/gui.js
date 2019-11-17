@@ -40,7 +40,12 @@ const shiftColors = (p, g) => {
   }
 }
 
-const updateColors = (panel, lerps, prefix, params) => (selection) => {
+const colorSync = (params, prefix, index) => (color) => {
+  params.lerps[index] = color
+  params[`${prefix}${index}`] = color
+}
+
+const populateColorThings = (panel, lerps, prefix, params) => (selection) => {
   // remove current color selectors
   lerps.forEach((_, i) => {
     panel.removeControl(`${prefix}${i}`)
@@ -49,13 +54,24 @@ const updateColors = (panel, lerps, prefix, params) => (selection) => {
   params.lerps = lerps
   lerps.forEach((hexString, i) => {
     const ref = `${prefix}${i}`
-    panel.bindColor(ref, hexString, params)
+    panel.addColor(ref, hexString, colorSync(params, prefix, i))
   })
+}
+
+// const removeColor = ({panel, lerps, prefix, params}) => {
+//   // TODO: remove last lerp
+// }
+
+const addColor = ({ panel, lerps, prefix, params }) => {
+  const i = lerps.length
+  lerps[i] = getRandomColors(1)[0]
+  const ref = `${prefix}${i}`
+  panel.addColor(ref, lerps[i], colorSync(params, prefix, i))
 }
 
 const addMultiColor = ({ gui, prefix, params }) => {
   const lerps = []
-  const mcUpdater = updateColors(gui, lerps, prefix, params)
+  const mcUpdater = populateColorThings(gui, lerps, prefix, params)
   gui.addDropDown('multi-color', lerpList, mcUpdater)
   const selectedColor = gui.getValue('multi-color')
   mcUpdater(selectedColor)
@@ -127,6 +143,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindColor('color', fillParams.color, fillParams)
     .addButton('randomize', () => assignRandoms(fillParams, fillGui))
     .addButton('shift', () => shiftColors(fillParams, fillGui))
+    .addButton('addColor', () => addColor({ panel: fillGui, lerps: fillParams.lerps, prefix: 'lq', params }))
     .setGlobalChangeHandler(setFocus)
   addMultiColor({ gui: fillGui, prefix: 'lq', params: fillParams })
   fillGui.collapse()
@@ -189,9 +206,13 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   }
 
   const saveNew = () => {
-    const presetName = prompt('Enter a new preset name.')
-    if (presetName) {
-      saveAll(presetName)
+    const name = prompt('Enter a new preset name.')
+    if (presetNames.includes(name)) {
+      alert(`Setting '${name}' already exists; Did you mean to use 'update'?`)
+      return
+    }
+    if (name) {
+      saveAll(name)
     }
   }
 
@@ -206,15 +227,13 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   const updateNames = (list) => {
     presetNames = Object.keys(list)
   }
-  const startup = () => {
+  const setupPresets = () => {
     const allSets = getAllSettings()
     if (allSets) {
       presets = allSets
       presetNames = shuffle(Object.keys(presets))
     }
   }
-
-  startup()
 
   const buildSelect = ({ values, id, callback }) => {
     const select = createElement('select', id, 'qs_select')
@@ -236,6 +255,8 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     })
     return select
   }
+
+  setupPresets()
   const presetsID = 'preset_select'
   const select = buildSelect({ values: presetNames, id: presetsID, callback: getSetting })
 
