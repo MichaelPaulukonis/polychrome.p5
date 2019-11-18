@@ -58,9 +58,11 @@ const populateColorThings = (panel, lerps, prefix, params) => (selection) => {
   })
 }
 
-// const removeColor = ({panel, lerps, prefix, params}) => {
-//   // TODO: remove last lerp
-// }
+const removeColor = ({ panel, prefix, params }) => {
+  const last = params.lerps.length - 1
+  panel.removeControl(`${prefix}${last}`)
+  params.lerps = params.lerps.slice(0, last)
+}
 
 const addColor = ({ panel, lerps, prefix, params }) => {
   const i = lerps.length
@@ -120,17 +122,24 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   const getLerpNames = panel => Object.keys(panel._controls).filter(x => x.startsWith('lq'))
 
   const hideColorControls = (panel) => {
-    const controls = ['color', 'randomize', 'shift', 'multi-color'].concat(getLerpNames(panel))
+    // TODO: this is repeated in controlMapper
+    // const controls = ['randomize', 'addColor', 'removeColor', 'shift', 'multi-color'].concat(getLerpNames(panel))
+    const controls = controlMapper(panel)['lerp-quad']
     controls.forEach(c => panel.hideControl(c))
   }
+
+  const controlMapper = panel => ({
+    'lerp-quad': ['randomize', 'shift', 'addColor', 'removeColor', 'multi-color'].concat(getLerpNames(panel))
+  })
 
   const handleModeChange = (params, key, panel) => (selected) => {
     params[key] = selected.value
     hideColorControls(panel)
-    const controlMap = {
-      'solid': ['color'],
-      'lerp-quad': ['randomize', 'shift', 'multi-color'].concat(getLerpNames(panel))
-    }
+    // const controlMap = {
+    //   'solid': ['color'],
+    //   'lerp-quad': ['randomize', 'shift', 'addColor', 'removeColor' 'multi-color'].concat(getLerpNames(panel))
+    // }
+    const controlMap = controlMapper(panel)
     if (Object.keys(controlMap).includes(selected.value)) {
       controlMap[selected.value].map(c => panel.showControl(c))
     }
@@ -143,7 +152,8 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindColor('color', fillParams.color, fillParams)
     .addButton('randomize', () => assignRandoms(fillParams, fillGui))
     .addButton('shift', () => shiftColors(fillParams, fillGui))
-    .addButton('addColor', () => addColor({ panel: fillGui, lerps: fillParams.lerps, prefix: 'lq', params }))
+    .addButton('addColor', () => addColor({ panel: fillGui, lerps: fillParams.lerps, prefix: 'lq', params: fillParams }))
+    .addButton('removeColor', () => removeColor({ panel: fillGui, prefix: 'lq', params: fillParams }))
     .setGlobalChangeHandler(setFocus)
   addMultiColor({ gui: fillGui, prefix: 'lq', params: fillParams })
   fillGui.collapse()
@@ -158,6 +168,8 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindColor('color', outlineParams.color, outlineParams)
     .addButton('randomize', () => assignRandoms(outlineParams, outlineGui))
     .addButton('shift', () => shiftColors(outlineParams, outlineGui))
+    .addButton('addColor', () => addColor({ panel: outlineGui, lerps: outlineParams.lerps, prefix: 'lq', params: outlineParams }))
+    .addButton('removeColor', () => removeColor({ panel: outlineGui, prefix: 'lq', params: outlineParams }))
     .setGlobalChangeHandler(setFocus)
   addMultiColor({ gui: outlineGui, prefix: 'lq', params: outlineParams })
   outlineGui.collapse()

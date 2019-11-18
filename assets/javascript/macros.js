@@ -188,8 +188,7 @@ export default function Macros (pchrome) {
 
   const aRowColJoint = macroWrapper(({ params, layer }) => {
     layer.translate(200, 100)
-    // paint(36, 23, params)
-    params.rows = 3
+    params.rows = 11
     params.columns = 15
     params.nextCharMode = 'Sequential'
     // TODO: fittext needs to be implemented - there's nothing in rowcol for words

@@ -139,3 +139,22 @@ I'm quite happy with the look of Quicksettings - it's not perfect, but has a few
 - https://www.greatbigdigitalagency.com/blog/its-not-easy-being-bleen-a-color-changing-javascript-adventure
 - COLOR SCHEMES: https://programmingdesignsystems.com/color/color-schemes/index.html
 - https://medium.com/@behreajj/color-gradients-in-processing-v-2-0-e5c0b87cdfd2
+
+- https://tylerxhobbs.com/essays/2016/working-with-color-in-generative-art
+- http://printingcode.runemadsen.com/lecture-color/
+- https://sighack.com/post/procedural-color-algorithms-monochromatic-color-scheme
+- https://medium.com/@KristinHenry/coloring-generative-art-pages-522a5dd7f892
+- http://colormind.io/
+- https://www.wired.com/story/very-mathematical-history-perfect-color-combination/
+- https://www.reddit.com/r/generative/comments/8n5osg/an_algorithm_to_generate_beautiful_color_palettes/
+- https://chris.de/posts/an-algorithm-to-generate-color-palettes/
+
+
+### Joseph Albers
+
+- https://www.brainpickings.org/2013/08/16/interaction-of-color-josef-albers-50th-anniversary/
+- https://www.schirn.de/en/magazine/context/josef_albers_interaction_of_color_peter_halley_color_theory/
+- https://acpress.amherst.edu/books/intersectingcolors/chapter/a-short-history-of-josef-alberss-interaction-of-color/
+- https://albersfoundation.org/teaching/josef-albers/interaction-of-color/publications/
+- http://www.louisapenfold.com/albers-interaction-of-color/
+  
