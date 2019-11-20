@@ -6,7 +6,10 @@ import {
 import { lerpList } from '@/assets/javascript/lerplist'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 
-const setFocus = () => window.setFocus() /* eslint-disable-line no-undef */
+const setFocus = (title) => {
+  console.log(JSON.stringify(title))
+  window.setFocus() /* eslint-disable-line no-undef */
+}
 
 const createElement = (type, id, className) => {
   const element = document.createElement(type)
@@ -18,9 +21,9 @@ const createElement = (type, id, className) => {
   return element
 }
 
-const shuffle = arr => arr.map(a => ({ sort: Math.random(), value: a }))
-  .sort((a, b) => a.sort - b.sort)
-  .map(a => a.value)
+// const shuffle = arr => arr.map(a => ({ sort: Math.random(), value: a }))
+//   .sort((a, b) => a.sort - b.sort)
+//   .map(a => a.value)
 
 const shift = arr => [...arr.slice(1, arr.length), arr[0]]
 
@@ -46,7 +49,6 @@ const colorSync = (params, prefix, index) => (color) => {
 }
 
 const populateColorThings = (panel, lerps, prefix, params) => (selection) => {
-  // remove current color selectors
   lerps.forEach((_, i) => {
     panel.removeControl(`${prefix}${i}`)
   })
@@ -122,8 +124,6 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   const getLerpNames = panel => Object.keys(panel._controls).filter(x => x.startsWith('lq'))
 
   const hideColorControls = (panel) => {
-    // TODO: this is repeated in controlMapper
-    // const controls = ['randomize', 'addColor', 'removeColor', 'shift', 'multi-color'].concat(getLerpNames(panel))
     const controls = controlMapper(panel)['lerp-quad']
     controls.forEach(c => panel.hideControl(c))
   }
@@ -135,10 +135,6 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   const handleModeChange = (params, key, panel) => (selected) => {
     params[key] = selected.value
     hideColorControls(panel)
-    // const controlMap = {
-    //   'solid': ['color'],
-    //   'lerp-quad': ['randomize', 'shift', 'addColor', 'removeColor' 'multi-color'].concat(getLerpNames(panel))
-    // }
     const controlMap = controlMapper(panel)
     if (Object.keys(controlMap).includes(selected.value)) {
       controlMap[selected.value].map(c => panel.showControl(c))
@@ -243,7 +239,8 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     const allSets = getAllSettings()
     if (allSets) {
       presets = allSets
-      presetNames = shuffle(Object.keys(presets))
+      // presetNames = shuffle(Object.keys(presets))
+      presetNames = Object.keys(presets)
     }
   }
 
@@ -282,6 +279,9 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   if (presetNames[0]) {
     getSetting(presetNames[0])
   }
+
+  // hack to allow setting focus
+  document.getElementsByTagName('canvas')[0].tabIndex = 0
 }
 
 export { setupGui }
