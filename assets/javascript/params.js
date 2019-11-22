@@ -37,7 +37,6 @@ const nextCharModes = [
 ]
 const drawModes = ['Grid', 'Circle', 'Grid2']
 const joins = ['miter', 'bevel', 'round']
-const bindFunctionLater = () => { }
 
 const fillParams = { ...colorParams() }
 const outlineParams = { ...colorParams(), ...{ strokeWeight: 1, strokeJoin: joins[0], joins, paintMode: 'Black' } }
@@ -46,8 +45,7 @@ const paramsInitial = {
   name: 'polychrome.text',
   width: 900,
   height: 900,
-  // bind after defined in sketch
-  swap: bindFunctionLater,
+  frameRate: 30,
   fixedWidth: true,
   fontList,
   font: fontList[0],

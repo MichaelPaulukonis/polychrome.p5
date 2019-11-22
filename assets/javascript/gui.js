@@ -81,6 +81,10 @@ const addMultiColor = ({ gui, prefix, params }) => {
   mcUpdater(selectedColor)
 }
 
+const setFrameRate = p5 => (value) => {
+  p5.frameRate(value)
+}
+
 const _ = null
 
 const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
@@ -92,6 +96,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindNumber('height', _, _, params.height, _, params)
     .addButton('save', sketch.save_sketch)
     .addButton('clear', sketch.clearCanvas)
+    .addRange('frameRate', 1, 60, params.frameRate, 1, setFrameRate(p5))
     .bindDropDown('drawMode', drawModes, params)
     .bindBoolean('invert', params.invert, params)
     .bindNumber('rows', _, _, params.rows, _, params)
