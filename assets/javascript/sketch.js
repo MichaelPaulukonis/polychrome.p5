@@ -190,7 +190,7 @@ export default function Sketch (config) {
   const paint = (xPos, yPos, params) => {
     setFont(params.font, layers.drawingLayer)
     const draw = params.drawMode === 'Grid' ? drawGrid
-      : params.drawMode === 'Circle' ? drawCircle
+      : params.drawMode === 'Circle' ? drawCircleOld
         : drawRowCol
     draw(xPos, yPos, params, params.width, params.height, layers.drawingLayer)
   }
@@ -274,18 +274,18 @@ export default function Sketch (config) {
     return maxUnlessLessThan(tx, 1)
   }
 
-  const drawCircleNew = ({ xPos, yPos, params, width, height, layer, textSize, sizer }) => {
-    drawCircle(xPos, yPos, params, width, height, layer, textSize, sizer)
-  }
-
   // NOTE: yPos is only used for color context....
-  const drawCircle = (xPos, yPos, params, width, height, layer, textSize, sizer) => {
+  const drawCircleOld = (xPos, yPos, params, width, height, layer, textSize, sizer) => drawCircle({ xPos, yPos, params, width, height, layer, textSize, sizer })
+
+  const drawCircle = ({ xPos, yPos, params, width, height, layer, textSize, sizer }) => {
     sizer = sizer || textSizeCircle
     const ts = textSize || sizer(xPos)
     layer.textSize(ts)
 
     layer.push()
-    layer.translate(layer.width / 2, layer.height / 2) // centered
+    // layer.translate(layer.width / 2, layer.height / 2) // centered
+    layer.translate(width / 2, height / 2) // centered
+
     // layer.translate(0, 0) //  upper-left - we can change this around
     const sw = params.useOutline
       ? params.outline.strokeWeight
@@ -829,7 +829,6 @@ export default function Sketch (config) {
   this.adjustGamma = adjustGamma
   this.apx = apx
   this.clearCanvas = clearCanvas
-  this.drawCircleNew = drawCircleNew
   this.drawCircle = drawCircle
   this.drawGrid = drawGrid
   this.drawRowCol = drawRowCol

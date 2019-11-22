@@ -94,9 +94,9 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     // bindNumber, despite the README notes, has the same signature as binRange
     .bindNumber('width', _, _, params.width, _, params)
     .bindNumber('height', _, _, params.height, _, params)
-    .addButton('save', sketch.save_sketch)
     .addButton('clear', sketch.clearCanvas)
-    .addRange('frameRate', 1, 60, params.frameRate, 1, setFrameRate(p5))
+    .addButton('save', sketch.save_sketch)
+    .addRange('frameRate', 1, 30, params.frameRate, 1, setFrameRate(p5))
     .bindDropDown('drawMode', drawModes, params)
     .bindBoolean('invert', params.invert, params)
     .bindNumber('rows', _, _, params.rows, _, params)
@@ -105,7 +105,6 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindBoolean('useShadow', params.useShadow, params)
     .bindRange('gamma', 0, 1.0, params.gamma, 0.01, params)
     .bindBoolean('useOutline', params.useOutline, params)
-    .setGlobalChangeHandler(setFocus)
   mainGui.collapse()
 
   const fontGui = QuickSettings.create(p5.windowWidth - 220, 60, 'Font', pDoc)

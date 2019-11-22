@@ -1,6 +1,6 @@
 
 export default function Macros (pchrome) {
-  const { drawGrid, drawCircle, drawCircleNew, drawRowCol,
+  const { drawGrid, drawCircle, drawRowCol,
     flipCore, layers, pushpop, paint, shift,
     apx, mirror, renderLayers, undo, randomLayer,
     HORIZONTAL, VERTICAL } = pchrome
@@ -20,16 +20,16 @@ export default function Macros (pchrome) {
   })
 
   const macro2 = macroWrapper(({ params, layer }) => {
-    drawCircle(89, 89, params, layer.width, layer.height, layer)
-    drawCircle(50, 50, params, layer.width, layer.height, layer)
-    drawCircle(40, 40, params, layer.width, layer.height, layer)
-    drawCircle(30, 30, params, layer.width, layer.height, layer)
-    drawCircle(100, 100, params, layer.width, layer.height, layer)
+    drawCircle({ xPos: 80, yPos: 90, params, width: layer.width, height: layer.height, layer })
+    drawCircle({ xPos: 50, yPos: 50, params, width: layer.width, height: layer.height, layer })
+    drawCircle({ xPos: 40, yPos: 40, params, width: layer.width, height: layer.height, layer })
+    drawCircle({ xPos: 30, yPos: 30, params, width: layer.width, height: layer.height, layer })
+    drawCircle({ xPos: 100, yPos: 100, params, width: layer.width, height: layer.height, layer })
   })
 
   const macro3 = macroWrapper(({ params, layer }) => {
     for (let i = 1; i < layer.width; i += 10) {
-      drawCircle(i, i, params, layer.width, layer.height, layer)
+      drawCircle({ xPos: i, yPos: i, params, width: layer.width, height: layer.height, layer })
     }
   })
 
@@ -203,7 +203,7 @@ export default function Macros (pchrome) {
     let exp = 1
     for (let radius = 0; radius < layer.width / 2; radius += 10 * exp) {
       exp = exp * 1.2
-      drawCircle(radius, radius, params, layer.width, layer.height, layer)
+      drawCircle({ xPos: radius, yPos: radius, params, width: layer.width, height: layer.height, layer })
     }
   })
 
@@ -213,7 +213,7 @@ export default function Macros (pchrome) {
     let exp = 1
     for (let radius = 0; radius < maxRadius; radius += 20 * exp) {
       exp = exp * 1.1
-      drawCircleNew({ xPos: radius, yPos: radius, params, width: maxRadius, height: layer.height, layer })
+      drawCircle({ xPos: radius, yPos: radius, params, width: maxRadius, height: layer.height, layer })
     }
   })
 
@@ -224,11 +224,12 @@ export default function Macros (pchrome) {
       exp = exp * 1.2
       if (p5.random() > 0.5) {
         const yPos = layer.width - (radius * 2) || 1 // for color
-        drawCircle(radius, yPos, params, layer.width, layer.height, layer)
+        drawCircle({ xPos: radius, yPos, params, width: layer.width, height: layer.height, layer })
       }
     }
   })
 
+  // 18
   const thoseCirclesBig = macroWrapper(({ params, layer, p5 }) => {
     params.invert = true
     const textSize = p5.random([5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 200, 300, 400])
@@ -236,9 +237,19 @@ export default function Macros (pchrome) {
     for (let radius = 0; radius < layer.width; radius += textSize) {
       if (p5.random() > 0.5) {
         const yPos = layer.width - (radius * 2) || 1 // for color
-        drawCircle(radius, yPos, params, layer.width * 1.5, layer.height * 1.5, layer, textSize)
+        // drawCircle(radius, yPos, params, layer.width, layer.height, layer, textSize)
+        drawCircle({ xPos: radius, yPos, params, width: layer.width, height: layer.height, layer, textSize })
       }
     }
+  })
+
+  // centered on lower-right
+  // now that drawCircle centers on width/height params (and not layer)
+  const someCircles = macroWrapper(({ params, layer, p5 }) => {
+    p5.push()
+    // layer.translate(layer.width / 3, 0)
+    drawCircle({ xPos: 850, yPos: 50, params, width: layer.width * 2, height: layer.height * 2, layer, textSize: 15 })
+    p5.pop()
   })
 
   const manyRandoms = macroWrapper(() => {
@@ -316,6 +327,7 @@ export default function Macros (pchrome) {
     macro19: manyRandoms,
     macro20: smallRandomAtSomePlace,
     macro21: flipOverlay,
-    macro22: largestCircleCorner
+    macro22: largestCircleCorner,
+    macro23: someCircles
   }
 }
