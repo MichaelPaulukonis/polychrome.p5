@@ -1,6 +1,6 @@
 
 export default function Macros (pchrome) {
-  const { drawGrid, drawCircle, drawRowCol,
+  const { drawGrid, drawGridNew, drawCircle, drawRowCol,
     flipCore, layers, pushpop, paint, shift,
     apx, mirror, renderLayers, undo, randomLayer,
     HORIZONTAL, VERTICAL } = pchrome
@@ -16,7 +16,7 @@ export default function Macros (pchrome) {
   // but that's a hoped-for goal
   // in the meantime, they can be fun to use
   const macro1 = macroWrapper(({ params, layer }) => {
-    drawGrid(20, 10, params, layer.width, layer.height, layer)
+    drawGridNew({ xPos: 20, params, width: layer.width / 2, height: layer.height / 2, layer })
   })
 
   const macro2 = macroWrapper(({ params, layer }) => {
@@ -111,6 +111,25 @@ export default function Macros (pchrome) {
     // theres an inversion, not sure how to do it otherwise. AAARGH
     // gridFunc(stats.x, stats.y,
     // drawCircle(width - stats.x, height - stats.y,
+
+    const paint = gridder(width, height, params, layer, gridConditionalRotationGen, drawGrid)
+    apx(paint)(txls)
+  })
+
+  // works GREAT with cumulativeRotation
+  // only problem is the colors are identical no matter where
+  const subThingy = macroWrapper(({ params, layer }) => {
+    // take these out of HERE
+    // and macro9 then passes in params and width/height
+    // but it should also indicate WHERE it should start
+    // the below assumes subdivision of the entire surfae
+
+    params.invert = true
+
+    // an interesting standalone blob
+    const txls = [{ x: 100, y: 100 }]
+    const width = 400
+    const height = 400
 
     const paint = gridder(width, height, params, layer, gridConditionalRotationGen, drawGrid)
     apx(paint)(txls)
@@ -232,13 +251,14 @@ export default function Macros (pchrome) {
   // 18
   const thoseCirclesBig = macroWrapper(({ params, layer, p5 }) => {
     params.invert = true
+    const maxRadius = Math.hypot(layer.width, layer.height)
+
     const textSize = p5.random([5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 200, 300, 400])
     // NOTE: while this is roughly accurate at low sizes, it fails at larger sizes
     for (let radius = 0; radius < layer.width; radius += textSize) {
       if (p5.random() > 0.5) {
         const yPos = layer.width - (radius * 2) || 1 // for color
-        // drawCircle(radius, yPos, params, layer.width, layer.height, layer, textSize)
-        drawCircle({ xPos: radius, yPos, params, width: layer.width, height: layer.height, layer, textSize })
+        drawCircle({ xPos: radius, yPos, params, width: maxRadius, height: maxRadius, layer, textSize })
       }
     }
   })
@@ -328,6 +348,7 @@ export default function Macros (pchrome) {
     macro20: smallRandomAtSomePlace,
     macro21: flipOverlay,
     macro22: largestCircleCorner,
-    macro23: someCircles
+    macro23: someCircles,
+    macro24: subThingy
   }
 }

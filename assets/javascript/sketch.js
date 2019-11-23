@@ -11,6 +11,8 @@ import {
   drawModes
 } from '@/assets/javascript/params.js'
 
+const _ = null
+
 // params external to guiControl are a hoped-for headless use-case
 export default function Sketch (config) {
   const { p5Instance: p5, guiControl, textManager, setupCallback } = config
@@ -275,18 +277,19 @@ export default function Sketch (config) {
   }
 
   // NOTE: yPos is only used for color context....
-  const drawCircleOld = (xPos, yPos, params, width, height, layer, textSize, sizer) => drawCircle({ xPos, yPos, params, width, height, layer, textSize, sizer })
+  const drawCircleOld = (xPos, yPos, params, width, _, layer, textSize, sizer) => drawCircle({ xPos, yPos, params, width, layer, textSize, sizer })
 
-  const drawCircle = ({ xPos, yPos, params, width, height, layer, textSize, sizer }) => {
+  const drawCircle = ({ xPos, yPos, params, width, layer, textSize, sizer }) => {
     sizer = sizer || textSizeCircle
     const ts = textSize || sizer(xPos)
     layer.textSize(ts)
 
     layer.push()
-    // layer.translate(layer.width / 2, layer.height / 2) // centered
-    layer.translate(width / 2, height / 2) // centered
-
+    // separating out translation from layer or width/height
+    // allows for non-center positioning
+    layer.translate(layer.width / 2, layer.height / 2) // center of layer
     // layer.translate(0, 0) //  upper-left - we can change this around
+
     const sw = params.useOutline
       ? params.outline.strokeWeight
       : 0
@@ -393,6 +396,10 @@ export default function Sketch (config) {
     layer.drawingContext.shadowColor = params.shadowColor
   }
 
+  const drawGridNew = ({ xPos, params, width, height, layer }) => {
+    drawGrid(xPos, _, params, width, height, layer)
+  }
+
   // alternatively http://happycoding.io/examples/processing/for-loops/letters
   // cleaner?
   const drawGrid = (xPos, _, params, width, height, layer) => {
@@ -407,7 +414,6 @@ export default function Sketch (config) {
     layer.textSize(gridParams.step)
     // layer.textSize(18)
     layers.p5.textSize(gridParams.step) // this is .... weird. Look at the p5js code. Something funky with textAscent going to the parent, which is set to 12
-    // layers.textSize(gridParams.step)
 
     const sw = params.useOutline
       ? params.outline.strokeWeight
@@ -831,6 +837,7 @@ export default function Sketch (config) {
   this.clearCanvas = clearCanvas
   this.drawCircle = drawCircle
   this.drawGrid = drawGrid
+  this.drawGridNew = drawGridNew
   this.drawRowCol = drawRowCol
   this.flip = flip
   this.flipCore = flipCore
