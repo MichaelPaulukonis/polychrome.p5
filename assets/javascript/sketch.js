@@ -95,15 +95,19 @@ export default function Sketch (config) {
     NO_DRAW: 'no drawing for some reson'
   }
 
-  const standardDraw = () => {
+  const standardDraw = (x = p5.mouseX, y = p5.mouseY, override = false) => {
     // ignore mouse outside confines of window.
     // or you'll crash the app! or something....
-    if (p5.mouseIsPressed && mouseInCanvas()) {
-      paint(p5.mouseX, p5.mouseY, this.params)
+    if (override || (p5.mouseIsPressed && mouseInCanvas())) {
+      paint(x, y, this.params)
     }
   }
 
   p5.draw = () => {
+    if (params.autoPaint) {
+      autoDraw(0, 0, p5.width, p5.height)
+      return
+    }
     switch (this.appMode) {
       case APP_MODES.NO_DRAW:
         return
@@ -116,6 +120,12 @@ export default function Sketch (config) {
 
   p5.mouseReleased = () => {
     this.undo.takeSnapshot()
+  }
+
+  const autoDraw = (minX, minY, maxX, maxY) => {
+    const locX = p5.random(minX, maxX)
+    const locY = p5.random(minY, maxY)
+    standardDraw(locX, locY, true)
   }
 
   const target = () => {

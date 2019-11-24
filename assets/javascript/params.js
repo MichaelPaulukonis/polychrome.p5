@@ -51,6 +51,7 @@ const paramsInitial = {
   font: fontList[0],
   rotation: 0,
   cumulativeRotation: false,
+  autoPaint: false,
   drawModes,
   drawMode: drawModes[0],
   invert: false,
