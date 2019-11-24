@@ -21,9 +21,9 @@ const createElement = (type, id, className) => {
   return element
 }
 
-// const shuffle = arr => arr.map(a => ({ sort: Math.random(), value: a }))
-//   .sort((a, b) => a.sort - b.sort)
-//   .map(a => a.value)
+const shuffle = arr => arr.map(a => ({ sort: Math.random(), value: a }))
+  .sort((a, b) => a.sort - b.sort)
+  .map(a => a.value)
 
 const shift = arr => [...arr.slice(1, arr.length), arr[0]]
 
@@ -243,8 +243,8 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     const allSets = getAllSettings()
     if (allSets) {
       presets = allSets
-      // presetNames = shuffle(Object.keys(presets))
-      presetNames = Object.keys(presets)
+      presetNames = shuffle(Object.keys(presets))
+      // presetNames = Object.keys(presets)
     }
   }
 

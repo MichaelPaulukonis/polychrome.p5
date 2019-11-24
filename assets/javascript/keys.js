@@ -203,54 +203,63 @@ const setupHotkeys = (config) => {
       ka.action({ handler, extraShift, ...blob })
     }))
 
-  const hotkeystring = 'alt+1,alt+2,alt+3,alt+4,alt+5,alt+6,alt+7,alt+8,alt+9,alt+0'
-  hotkeys(hotkeystring, (event, handler) => {
-    event.preventDefault()
-    switch (handler.key) {
-      case 'alt+1': {
-        // TODO: we can build this programmatically
-        const m = `macro${1}`
-        sketch.macros[m]({ ...sketch })
+  const macroKeylist = [
+    {
+      keys: 'alt+1',
+      action: () => {
+        sketch.macros.macro1({ ...sketch })
         sketch.undo.takeSnapshot()
-        break
       }
-      case 'alt+2': {
-        // NOTE: errors if no history (or certain length of history)
-        const m = `macro${19}`
-        sketch.macros[m]({ ...sketch })
+    },
+    {
+      keys: 'alt+2',
+      action: () => {
+        sketch.macros.macro19({ ...sketch })
         sketch.undo.takeSnapshot()
-        break
       }
-      case 'alt+3': {
-        // TODO: we can build this programmatically
-        const m = `macro${21}`
-        sketch.macros[m]({ ...sketch })
+    },
+    {
+      keys: 'alt+3',
+      action: () => {
+        sketch.macros.macro21({ ...sketch })
         sketch.undo.takeSnapshot()
-        break
       }
-      case 'alt+4': {
-        // TODO: we can build this programmatically
-        const m = `macro${16}`
-        sketch.macros[m]({ ...sketch })
+    },
+    {
+      keys: 'alt+4',
+      action: () => {
+        sketch.macros.macro16({ ...sketch })
         sketch.undo.takeSnapshot()
-        break
       }
-      case 'alt+5': {
-        // TODO: we can build this programmatically
-        const m = `macro${17}`
-        sketch.macros[m]({ ...sketch })
+    },
+    {
+      keys: 'alt+5',
+      action: () => {
+        sketch.macros.macro17({ ...sketch })
         sketch.undo.takeSnapshot()
-        break
       }
-      case 'alt+6': {
-        // TODO: we can build this programmatically
-        const m = `macro${18}`
-        sketch.macros[m]({ ...sketch })
+    },
+    {
+      keys: 'alt+6',
+      action: () => {
+        sketch.macros.macro18({ ...sketch })
         sketch.undo.takeSnapshot()
-        break
+      }
+    },
+    {
+      keys: 'alt+7',
+      action: () => {
+        sketch.macros.macro25({ ...sketch })
+        sketch.undo.takeSnapshot()
       }
     }
-  })
+  ]
+
+  macroKeylist.forEach(ka =>
+    hotkeys(ka.keys, (event) => {
+      event.preventDefault()
+      ka.action()
+    }))
 }
 
 export { setupHotkeys }

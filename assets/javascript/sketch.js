@@ -279,7 +279,7 @@ export default function Sketch (config) {
   // NOTE: yPos is only used for color context....
   const drawCircleOld = (xPos, yPos, params, width, _, layer, textSize, sizer) => drawCircle({ xPos, yPos, params, width, layer, textSize, sizer })
 
-  const drawCircle = ({ xPos, yPos, params, width, layer, textSize, sizer }) => {
+  const drawCircle = ({ xPos, yPos, params, width, layer, textSize, sizer, center }) => {
     sizer = sizer || textSizeCircle
     const ts = textSize || sizer(xPos)
     layer.textSize(ts)
@@ -287,8 +287,12 @@ export default function Sketch (config) {
     layer.push()
     // separating out translation from layer or width/height
     // allows for non-center positioning
-    layer.translate(layer.width / 2, layer.height / 2) // center of layer
-    // layer.translate(0, 0) //  upper-left - we can change this around
+    if (center) {
+      layer.translate(center.x, center.y)
+    } else {
+      layer.translate(layer.width / 2, layer.height / 2) // center of layer
+      // layer.translate(0, 0) //  upper-left - we can change this around
+    }
 
     const sw = params.useOutline
       ? params.outline.strokeWeight
@@ -726,6 +730,8 @@ export default function Sketch (config) {
   // TODO: use this somehow.
   // but make mouse start from regular place?
   // NOTE: doesn't work all that well if canvas is not square....
+  // We'd have to do something with the calculations to use the "new" rectangle -
+  // it's essentially rotating the canvas
   const newCorner = (layer) => {
     layer.translate(layer.width, 0)
     layer.rotate(layer.radians(90))

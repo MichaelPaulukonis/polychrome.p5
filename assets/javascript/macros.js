@@ -263,6 +263,21 @@ export default function Macros (pchrome) {
     }
   })
 
+  const bigCircleLowerRightCenter = macroWrapper(({ params, layer, p5 }) => {
+    params.invert = true
+    const center = { x: layer.width, y: layer.height }
+    const maxRadius = Math.hypot(layer.width, layer.height)
+
+    const textSize = p5.random([5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 200, 300, 400])
+    // NOTE: while this is roughly accurate at low sizes, it fails at larger sizes
+    for (let radius = 0; radius < maxRadius; radius += textSize) {
+      if (p5.random() > 0.5) {
+        const yPos = layer.width - (radius * 2) || 1 // for color
+        drawCircle({ xPos: radius, yPos, params, width: maxRadius * 2, height: maxRadius * 2, layer, textSize, center })
+      }
+    }
+  })
+
   // centered on lower-right
   // now that drawCircle centers on width/height params (and not layer)
   const someCircles = macroWrapper(({ params, layer, p5 }) => {
@@ -349,6 +364,7 @@ export default function Macros (pchrome) {
     macro21: flipOverlay,
     macro22: largestCircleCorner,
     macro23: someCircles,
-    macro24: subThingy
+    macro24: subThingy,
+    macro25: bigCircleLowerRightCenter
   }
 }
