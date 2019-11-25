@@ -11,8 +11,6 @@ import {
   drawModes
 } from '@/assets/javascript/params.js'
 
-const _ = null
-
 // params external to guiControl are a hoped-for headless use-case
 export default function Sketch (config) {
   const { p5Instance: p5, guiControl, textManager, setupCallback } = config
@@ -211,9 +209,9 @@ export default function Sketch (config) {
   const paint = (xPos, yPos, params) => {
     setFont(params.font, layers.drawingLayer)
     const draw = params.drawMode === 'Grid' ? drawGrid
-      : params.drawMode === 'Circle' ? drawCircleOld
+      : params.drawMode === 'Circle' ? drawCircle
         : drawRowCol
-    draw(xPos, yPos, params, params.width, params.height, layers.drawingLayer)
+    draw({ xPos, yPos, params, width: params.width, height: params.height, layer: layers.drawingLayer })
   }
 
   const textGetter = (textMode, t) => {
@@ -228,7 +226,7 @@ export default function Sketch (config) {
 
   // originally from http://happycoding.io/examples/processing/for-loops/letters
   // a reminder of something simpler
-  const drawRowCol = (xPos, yPos, params, width, height, layer) => {
+  const drawRowCol = ({ params, width, height, layer }) => {
     const rows = params.rows
     const cols = params.columns // tidally lock them together for the time being.
 
@@ -296,7 +294,7 @@ export default function Sketch (config) {
   }
 
   // NOTE: yPos is only used for color context....
-  const drawCircleOld = (xPos, yPos, params, width, _, layer, textSize, sizer) => drawCircle({ xPos, yPos, params, width, layer, textSize, sizer })
+  // const drawCircleOld = (xPos, yPos, params, width, _, layer, textSize, sizer) => drawCircle({ xPos, yPos, params, width, layer, textSize, sizer })
 
   const drawCircle = ({ xPos, yPos, params, width, layer, textSize, sizer, center }) => {
     sizer = sizer || textSizeCircle
@@ -419,13 +417,9 @@ export default function Sketch (config) {
     layer.drawingContext.shadowColor = params.shadowColor
   }
 
-  const drawGridNew = ({ xPos, params, width, height, layer }) => {
-    drawGrid(xPos, _, params, width, height, layer)
-  }
-
   // alternatively http://happycoding.io/examples/processing/for-loops/letters
   // cleaner?
-  const drawGrid = (xPos, _, params, width, height, layer) => {
+  const drawGrid = ({ xPos, params, width, height, layer }) => {
     // negatives are possible, it seems...
     xPos = xPos < 5 ? 5 : xPos
     // yPos = yPos < 5 ? 5 : yPos
@@ -862,7 +856,6 @@ export default function Sketch (config) {
   this.clearCanvas = clearCanvas
   this.drawCircle = drawCircle
   this.drawGrid = drawGrid
-  this.drawGridNew = drawGridNew
   this.drawRowCol = drawRowCol
   this.flip = flip
   this.flipCore = flipCore

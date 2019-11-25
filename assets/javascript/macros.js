@@ -1,6 +1,6 @@
 
 export default function Macros (pchrome) {
-  const { drawGrid, drawGridNew, drawCircle, drawRowCol,
+  const { drawGrid, drawCircle, drawRowCol,
     flipCore, layers, pushpop, paint, shift,
     apx, mirror, renderLayers, undo, randomLayer,
     HORIZONTAL, VERTICAL } = pchrome
@@ -16,7 +16,7 @@ export default function Macros (pchrome) {
   // but that's a hoped-for goal
   // in the meantime, they can be fun to use
   const macro1 = macroWrapper(({ params, layer }) => {
-    drawGridNew({ xPos: 20, params, width: layer.width / 2, height: layer.height / 2, layer })
+    drawGrid({ xPos: 20, params, width: layer.width / 2, height: layer.height / 2, layer })
   })
 
   const macro2 = macroWrapper(({ params, layer }) => {
@@ -174,8 +174,6 @@ export default function Macros (pchrome) {
   }
 
   const singleRow = macroWrapper(({ params, layer }) => {
-    // const drawRowCol = (xPos, yPos, params, width, height, layer) => {
-    //   const rows = params.rows
     params.rows = 3
     params.columns = 1
     params.nextCharMode = 'Word'
@@ -183,7 +181,7 @@ export default function Macros (pchrome) {
     // NOTE: params are set correctly. But the layer hasn't had it set (makes no sense)
     // TODO: fittext needs to be implemented - there's nothing in rowcol for words
     // which can be ugly, but.. .well, you know, so what!
-    drawRowCol(0, 0, params, layer.width, layer.height, layer)
+    drawRowCol({ params, width: layer.width, height: layer.height, layer })
   })
 
   const doubleMirror = macroWrapper(({ p5 }) => {
@@ -212,7 +210,7 @@ export default function Macros (pchrome) {
     params.nextCharMode = 'Sequential'
     // TODO: fittext needs to be implemented - there's nothing in rowcol for words
     // which can be ugly, but.. .well, you know, so what!
-    drawRowCol(0, 0, params, layer.width, layer.height, layer)
+    drawRowCol({ params, width: layer.width, height: layer.height, layer })
   })
 
   // NOTE: the first parameter is the X-position
