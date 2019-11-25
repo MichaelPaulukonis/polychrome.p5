@@ -122,10 +122,19 @@ export default function Sketch (config) {
     this.undo.takeSnapshot()
   }
 
+  // TODO: perlin noise on the randoms, with jumps every n frames
+  // random application of other controls (macros, etc ?)
+  // rotate canvas, mirror, etc.
   const autoDraw = (minX, minY, maxX, maxY) => {
-    const locX = p5.random(minX, maxX)
-    const locY = p5.random(minY, maxY)
-    standardDraw(locX, locY, true)
+    if (p5.random(0, 10) < 2) {
+      const macro = p5.random(['macro10', 'macro11', 'macro12', 'macro13', 'macro14', 'macro15', 'macro16',
+        'macro17', 'macro18', 'macro19', 'macro20', 'macro21', 'macro22', 'macro23', 'macro24', 'macro25'])
+      this.macros[macro]({ ...this })
+    } else {
+      const locX = p5.random(minX, maxX)
+      const locY = p5.random(minY, maxY)
+      standardDraw(locX, locY, true)
+    }
   }
 
   const target = () => {
