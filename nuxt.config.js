@@ -30,6 +30,8 @@ export default {
   ** Global CSS
   */
   css: [
+    '@/assets/css/main.scss',
+    '@/assets/css/core.css'
   ],
   /*
   ** Plugins to load before mounting the App
@@ -50,8 +52,27 @@ export default {
   */
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    '@nuxtjs/style-resources',
+    'nuxt-webfontloader'
   ],
+
+  styleResources: {
+    scss: [
+      '@/assets/css/utilities/_variables.scss',
+      '@/assets/css/utilities/_helpers.scss',
+      '@/assets/css/base/_grid.scss',
+      '@/assets/css/base/_buttons.scss'
+    ]
+  },
+
+  webfontloader: {
+    custom: {
+      families: ['Graphik', 'Tiempos Headline'],
+      urls: ['/fonts/fonts.css']
+    }
+  },
+
   /*
   ** Axios module configuration
   ** See https://axios.nuxtjs.org/options

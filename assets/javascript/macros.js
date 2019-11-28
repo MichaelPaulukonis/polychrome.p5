@@ -65,10 +65,9 @@ export default function Macros (pchrome) {
     params.nextCharMode = 'Sequential'
     params.fixedWidth = false
     const x = p5.mouseX
-    const y = p5.mouseY
     layer.translate(0, 0)
     layer.resetMatrix()
-    drawGrid(x, y, params, layer.width, layer.height, layer)
+    drawGrid({ xPos: x, params, width: layer.width, height: layer.height, layer })
   })
 
   const macro8 = macroWrapper(({ params }) => {
@@ -174,7 +173,7 @@ export default function Macros (pchrome) {
   }
 
   const singleRow = macroWrapper(({ params, layer }) => {
-    params.rows = 3
+    params.rows = 1
     params.columns = 1
     params.nextCharMode = 'Word'
     // TODO: first time this is called it used the wrong font. ?????

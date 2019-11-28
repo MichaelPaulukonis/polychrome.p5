@@ -1,57 +1,54 @@
 <template lang="pug">
 #app
-  h1 polychrome text
+  #title polychrome text
 
-  #content
+  modal(
+    name="textmanager"
+    @closed="start"
+  )
+    textarea#bodycopy(v-model="currentText")
+    .text-controls
+      button#applytext(@click="resetTextPosition")
+        | Apply text
+      button#randomtext(@click="randomText")
+        | Random text
 
-    modal(
-      name="textmanager"
-      @closed="start"
+  modal(
+    name="about"
+    @closed="start"
     )
-      textarea#bodycopy(v-model="currentText")
-      .text-controls
-        button#applytext(@click="resetTextPosition")
-          | Apply text
-        button#randomtext(@click="randomText")
-          | Random text
+    p#sources
+    | Source code:&nbsp;
+    a(href='https://github.com/MichaelPaulukonis/polychrome.p5') GitHub
+    |  - More&nbsp;
+    a(href='http://michaelpaulukonis.github.io') Web Sketches
+    |  - Built with&nbsp;
+    a(href='https://p5js.org/') P5
+    |  and&nbsp;
+    a(href='https://nuxtjs.org') Nuxt
 
-    modal(
-      name="about"
-      @closed="start"
-      )
-      p#sources
-      | Source code:&nbsp;
-      a(href='https://github.com/MichaelPaulukonis/polychrome.p5') GitHub
-      |  - More&nbsp;
-      a(href='http://michaelpaulukonis.github.io') Web Sketches
-      |  - Built with&nbsp;
-      a(href='https://p5js.org/') P5
-      |  and&nbsp;
-      a(href='https://nuxtjs.org') Nuxt
+  modal(
+    name="help"
+    @closed="start"
+    )
+    Help
 
-    modal(
-      name="help"
-      @closed="start"
-      )
-      p Mouse click and drag to paint with text.
-        br
-        |  Color and size are based on mouse position.
-
-    button(@click="show") textManager
-    button#focus(@click="setFocus") focus on canvas
-    button(@click="help") help
-    button(@click="about") About
-    div
-      #sketch-holder
-        // Our sketch will go here!
-      noscript
-        p JavaScript is required to view the contents of this page.
+  button(@click="show") textManager
+  button#focus(@click="setFocus") focus on canvas
+  button(@click="help") help
+  button(@click="about") About
+  div
+    #sketch-holder
+      // Our sketch will go here!
+    noscript
+      p JavaScript is required to view the contents of this page.
 
 </template>
 
 <script>
 import P5 from 'p5'
 import VModal from 'vue-js-modal'
+import Help from '@/components/help'
 import TextManager from '@/assets/javascript/TextManager'
 import Sketch from '@/assets/javascript/sketch.js'
 import randomPost from '@/assets/javascript/tumblr-random.js'
@@ -67,7 +64,8 @@ let pchrome
 
 export default {
   components: {
-    VModal
+    VModal,
+    Help
   },
   data () {
     return {
@@ -158,7 +156,17 @@ export default {
 </script>
 
 <style>
-@import "@/assets/css/core.css";
+/* @import "@/assets/css/core.css"; */
+#title {
+  background: linear-gradient(90deg, #f0f, #ff0);
+  line-height: 1.5em;
+  font-weight: 600;
+  width: 25vw;
+  letter-spacing: 0.1em;
+  margin-bottom: 1em;
+  padding: 1rem;
+  font-size: 1.65em;
+}
 
 #bodycopy {
   width: 100%;

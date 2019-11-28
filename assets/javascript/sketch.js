@@ -419,10 +419,9 @@ export default function Sketch (config) {
 
   // alternatively http://happycoding.io/examples/processing/for-loops/letters
   // cleaner?
+  // TODO: pass in x/y offset for repositioning/translate - like drawRowCol (or essentially circle)
   const drawGrid = ({ xPos, params, width, height, layer }) => {
-    // negatives are possible, it seems...
-    xPos = xPos < 5 ? 5 : xPos
-    // yPos = yPos < 5 ? 5 : yPos
+    xPos = xPos < 5 ? 5 : xPos // prevent negatives and too-too tiny letters
 
     setShadows(layer, params)
 
