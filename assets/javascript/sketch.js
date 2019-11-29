@@ -60,7 +60,9 @@ export default function Sketch (config) {
     const tempLayer = initDefaultLayer(params.width, params.height)
     this.layers = layers = new Layers(p5, drawingLayer, tempLayer)
 
-    setupGui({ p5, sketch: this, params, fillParams, outlineParams })
+    const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: this, params, fillParams, outlineParams })
+    this.shiftFillColors = shiftFillColors
+    this.shiftOutlineColors = shiftOutlineColors
 
     this.clearCanvas()
     undo = new UndoLayers(layers, renderLayers, 10)

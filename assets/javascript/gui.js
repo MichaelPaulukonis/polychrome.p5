@@ -35,11 +35,11 @@ const assignRandoms = (params, gui) => {
   }
 }
 
-const shiftColors = (p, g) => {
-  const length = p.lerps.length
-  p.lerps = shift(p.lerps)
+const shiftColors = (params, guiPanel) => () => {
+  const length = params.lerps.length
+  params.lerps = shift(params.lerps)
   for (let i = 0; i < length; i++) {
-    g.setValue(`lq${i}`, p.lerps[i])
+    guiPanel.setValue(`lq${i}`, params.lerps[i])
   }
 }
 
@@ -147,12 +147,13 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   }
 
   const fillGui = QuickSettings.create(p5.windowWidth - 440, 140, 'Fill', pDoc)
+  const shiftFillColors = shiftColors(fillParams, fillGui)
   fillGui.addDropDown('paintMode', fillParams.paintModes, handleModeChange(fillParams, 'paintMode', fillGui))
     .bindBoolean('transparent', fillParams.transparent, fillParams)
     .bindRange('transparency', 0, 100, fillParams.transparency, 1, fillParams)
     .bindColor('color', fillParams.color, fillParams)
     .addButton('randomize', () => assignRandoms(fillParams, fillGui))
-    .addButton('shift', () => shiftColors(fillParams, fillGui))
+    .addButton('shift', shiftFillColors)
     .addButton('addColor', () => addColor({ panel: fillGui, lerps: fillParams.lerps, prefix: 'lq', params: fillParams }))
     .addButton('removeColor', () => removeColor({ panel: fillGui, prefix: 'lq', params: fillParams }))
     .setGlobalChangeHandler(setFocus)
@@ -160,6 +161,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   fillGui.collapse()
 
   const outlineGui = QuickSettings.create(p5.windowWidth - 220, 140, 'Outline', pDoc)
+  const shiftOutlineColors = shiftColors(outlineParams, outlineGui)
   outlineGui.bindBoolean('useOutline', params.useOutline, params) // NOTE: both do not update when one is changed
   outlineGui.addDropDown('paintMode', outlineParams.paintModes, handleModeChange(outlineParams, 'paintMode', outlineGui))
     .bindRange('strokeWeight', 0, 400, outlineParams.strokeWeight, 1, outlineParams)
@@ -168,7 +170,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindRange('transparency', 0, 100, outlineParams.transparency, 1, outlineParams)
     .bindColor('color', outlineParams.color, outlineParams)
     .addButton('randomize', () => assignRandoms(outlineParams, outlineGui))
-    .addButton('shift', () => shiftColors(outlineParams, outlineGui))
+    .addButton('shift', shiftOutlineColors)
     .addButton('addColor', () => addColor({ panel: outlineGui, lerps: outlineParams.lerps, prefix: 'lq', params: outlineParams }))
     .addButton('removeColor', () => removeColor({ panel: outlineGui, prefix: 'lq', params: outlineParams }))
     .setGlobalChangeHandler(setFocus)
@@ -287,6 +289,11 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
 
   // hack to allow setting focus
   document.getElementsByTagName('canvas')[0].tabIndex = 0
+
+  return {
+    shiftFillColors,
+    shiftOutlineColors
+  }
 }
 
 export { setupGui }

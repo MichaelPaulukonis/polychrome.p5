@@ -58,6 +58,14 @@ const setupHotkeys = (config) => {
       action: () => sketch.save_sketch()
     },
     {
+      keys: 'alt+s',
+      action: () => sketch.shiftFillColors()
+    },
+    {
+      keys: 'alt+shift+s',
+      action: () => sketch.shiftOutlineColors()
+    },
+    {
       keys: 'alt+g',
       action: ({ params }) => {
         sketch.undo.takeSnapshot()
