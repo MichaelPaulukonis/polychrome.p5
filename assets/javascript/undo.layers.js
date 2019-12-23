@@ -10,11 +10,11 @@ export default class UndoLayers {
     // const density = layers.drawingLayer.pixelDensity()
 
     this.takeSnapshot = () => {
-      undoSteps = Math.min(undoSteps + 1, images.amount - 1)
+      undoSteps = Math.min(undoSteps + 1, levels - 1)
       // each time we draw we disable redo
       redoSteps = 0
-      images.next()
       images.store(layers.copy())
+      images.next() // why is this necessary?????
     }
 
     this.storeTemp = () => {
@@ -49,11 +49,10 @@ export default class UndoLayers {
 class CircImgCollection {
   constructor (layers, renderFunc, amountOfImages) {
     let current = 0
-    const img = []
+    const imgs = []
     const amount = amountOfImages
-    this.amount = amount
 
-    this.all = () => img
+    this.all = () => imgs
 
     this.next = () => {
       current = (current + 1) % amount
@@ -62,7 +61,7 @@ class CircImgCollection {
       current = (current - 1 + amount) % amount
     }
     this.store = (layer) => {
-      img[current] = layer
+      imgs[current] = layer
       layer.remove()
     }
     this.show = () => {
@@ -73,7 +72,7 @@ class CircImgCollection {
       layers.drawingLayer.push()
       layers.drawingLayer.translate(0, 0)
       layers.drawingLayer.resetMatrix()
-      layers.drawingLayer.image(img[current], 0, 0)
+      layers.drawingLayer.image(imgs[current], 0, 0)
       renderFunc()
       layers.drawingLayer.pop()
     }

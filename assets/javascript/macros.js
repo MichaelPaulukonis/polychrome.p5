@@ -38,17 +38,17 @@ export default function Macros (pchrome) {
   const macro4 = macroWrapper(({ params, layer }) => {
     for (let i = layer.width; i > layer.width / 2; i -= 80) {
       if (i < ((layer.width / 3) * 2)) { params.rotation = 90 }
-      drawGrid(i, i, params, layer.width, layer.height, layer)
+      drawGrid({ xPos: i, params, width: layer.width, height: layer.height, layer })
     }
   })
 
   const macro5 = macroWrapper(({ params, layer }) => {
-    drawGrid(4, 4, params, layer.width, layer.height, layer)
+    drawGrid({ xPos: 4, params, width: layer.width, height: layer.height, layer })
   })
 
   const macro6 = macroWrapper(({ params, layer }) => {
     for (let i = 1; i < layer.width; i += 5) {
-      drawGrid(i, layer.mouseY, params, layer.width, layer.height, layer)
+      drawGrid({ xPos: i, params, width: layer.width, height: layer.height, layer })
     }
   })
 
@@ -80,7 +80,7 @@ export default function Macros (pchrome) {
     const x = p5.mouseX
     const y = p5.mouseY
     layer.translate(x, y)
-    drawGrid(x, y, params, width, height, layer)
+    drawGrid({ xPos: x, params, width, height, layer })
   })
 
   // works GREAT with cumulativeRotation
@@ -164,7 +164,11 @@ export default function Macros (pchrome) {
 
       // TODO: we're also adding in x,y to params, but they are ignored
       // STILL: pollution
-      const dg = stats => gridFunc(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
+      // const dg = stats => gridFunc(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
+
+      const dg = stats => gridFunc({ xPos: stats.x, params: { ...params, ...stats }, width, height, layer })
+      // drawGrid({ xPos: 20, params, width: layer.width / 2, height: layer.height / 2, layer })
+
       // const dg = (stats) => drawCircle(width - stats.x, height - stats.y, { ...params, ...stats }, width, height, layer)
       // drawCirle doesn't quite work (the inversion? something - every radius is negative, so goes to 0.1)
       // turn off inversion, it works better, but size is still too large. fiddle around.
@@ -251,11 +255,14 @@ export default function Macros (pchrome) {
     const maxRadius = Math.hypot(layer.width, layer.height)
 
     const textSize = p5.random([5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 200, 300, 400])
+    let arcOffset = 20
+    const arcPercent = 50
     // NOTE: while this is roughly accurate at low sizes, it fails at larger sizes
     for (let radius = 0; radius < layer.width; radius += textSize) {
       if (p5.random() > 0.5) {
         const yPos = layer.width - (radius * 2) || 1 // for color
-        drawCircle({ xPos: radius, yPos, params, width: maxRadius, height: maxRadius, layer, textSize })
+        drawCircle({ xPos: radius, yPos, params, width: maxRadius, height: maxRadius, layer, textSize, arcOffset, arcPercent })
+        arcOffset += 20
       }
     }
   })

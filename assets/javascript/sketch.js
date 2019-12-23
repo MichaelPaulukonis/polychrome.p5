@@ -298,7 +298,7 @@ export default function Sketch (config) {
   // NOTE: yPos is only used for color context....
   // const drawCircleOld = (xPos, yPos, params, width, _, layer, textSize, sizer) => drawCircle({ xPos, yPos, params, width, layer, textSize, sizer })
 
-  const drawCircle = ({ xPos, yPos, params, width, layer, textSize, sizer, center }) => {
+  const drawCircle = ({ xPos, yPos, params, width, layer, textSize, sizer, center, arcPercent = 100, arcOffset = 0 }) => {
     sizer = sizer || textSizeCircle
     const ts = textSize || sizer(xPos)
     layer.textSize(ts)
@@ -323,20 +323,19 @@ export default function Sketch (config) {
     setOutlineMode(xPos, yPos, params.outline)
 
     const nextText = textGetter(params.nextCharMode, textManager)
-    circlePainter(params, layer, xPos, nextText, width)
+    circlePainter({ params, layer, xPos, nextText, width, arcOffset, arcPercent })
     layer.pop()
     renderLayers(params)
   }
 
-  const circlePainter = (params, layer, xPos, nextText, width) => {
+  const circlePainter = ({ params, layer, xPos, nextText, width, arcOffset, arcPercent }) => {
     const radius = getRadius(params, width, xPos)
     const paint = bloc => circlePaintAction(layer)(radius, params)(bloc.theta, bloc.text)
-    const blocGen = gimmeCircleGenerator(radius, nextText, layer)
+    const blocGen = gimmeCircleGenerator({ radius, nextText, layer, arcOffset, arcPercent })
     apx(paint)(blocGen)
   }
 
   const getRadius = (params, width, xPos) => {
-    // const radius = params.invert ? (width * 1.2 / 2) - xPos : xPos
     const radius = params.invert ? (width / 2) - xPos : xPos
     return radius < 0.1 ? 0.1 : radius
   }
@@ -345,16 +344,16 @@ export default function Sketch (config) {
   // and circlePaintActions intake radius, params, theta, text
   // so, need to move some things about
   // const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, p5, params)
-  const gimmeCircleGenerator = (radius, nextText, l) => {
-    const circumference = 2 * Math.PI * radius
-    return blocGeneratorCircle(radius, circumference)(nextText, l)
+  const gimmeCircleGenerator = ({ radius, nextText, layer, arcOffset, arcPercent }) => {
+    const circumference = (2 * Math.PI * radius) * arcPercent
+    return blocGeneratorCircle({ radius, circumference, arcOffset })(nextText, layer)
   }
 
   // generator will return { theta, text }
-  const blocGeneratorCircle = (radius, circumference) => {
+  const blocGeneratorCircle = ({ radius, circumference, arcOffset = 0 }) => {
     return function * (nextText, l) {
-      let arclength = 0
-      while (arclength < circumference) {
+      let arclength = arcOffset
+      while (arclength < circumference + arcOffset) {
         const t = nextText()
         const w = l.textWidth(t)
         arclength += w / 2
