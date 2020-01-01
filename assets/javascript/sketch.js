@@ -345,7 +345,7 @@ export default function Sketch (config) {
   // so, need to move some things about
   // const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, p5, params)
   const gimmeCircleGenerator = ({ radius, nextText, layer, arcOffset, arcPercent }) => {
-    const circumference = (2 * Math.PI * radius) * arcPercent
+    const circumference = (2 * Math.PI * radius) * (arcPercent / 100)
     return blocGeneratorCircle({ radius, circumference, arcOffset })(nextText, layer)
   }
 

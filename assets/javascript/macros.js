@@ -36,6 +36,7 @@ export default function Macros (pchrome) {
   // when INVERT is on THIS IS AMAZING
   // which suggests........
   const macro4 = macroWrapper(({ params, layer }) => {
+    params.invert = true
     for (let i = layer.width; i > layer.width / 2; i -= 80) {
       if (i < ((layer.width / 3) * 2)) { params.rotation = 90 }
       drawGrid({ xPos: i, params, width: layer.width, height: layer.height, layer })
@@ -255,6 +256,23 @@ export default function Macros (pchrome) {
     const maxRadius = Math.hypot(layer.width, layer.height)
 
     const textSize = p5.random([5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 200, 300, 400])
+    const arcOffset = 0 // 20
+    const arcPercent = 100 // 50
+    // NOTE: while this is roughly accurate at low sizes, it fails at larger sizes
+    for (let radius = 0; radius < layer.width; radius += textSize) {
+      if (p5.random() > 0.5) {
+        const yPos = layer.width - (radius * 2) || 1 // for color
+        drawCircle({ xPos: radius, yPos, params, width: maxRadius, height: maxRadius, layer, textSize, arcOffset, arcPercent })
+        // arcOffset += 20
+      }
+    }
+  })
+
+  const circlesOffsetArc = macroWrapper(({ params, layer, p5 }) => {
+    params.invert = true
+    const maxRadius = Math.hypot(layer.width, layer.height)
+
+    const textSize = p5.random([5, 10, 15, 20, 25, 30, 40, 50, 75, 100, 200, 300, 400])
     let arcOffset = 20
     const arcPercent = 50
     // NOTE: while this is roughly accurate at low sizes, it fails at larger sizes
@@ -369,6 +387,7 @@ export default function Macros (pchrome) {
     macro22: largestCircleCorner,
     macro23: someCircles,
     macro24: subThingy,
-    macro25: bigCircleLowerRightCenter
+    macro25: bigCircleLowerRightCenter,
+    macro26: circlesOffsetArc
   }
 }
