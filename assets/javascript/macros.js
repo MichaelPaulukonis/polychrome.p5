@@ -8,7 +8,9 @@ export default function Macros (pchrome) {
   const macroWrapper = f => (pchrome) => {
     const { params, layers: { drawingLayer: layer }, p5, defaultParams } = pchrome
     layer.push()
-    f({ params: { ...params }, layer, p5, defaultParams })
+    // f({ params: { ...params }, layer, p5, defaultParams })
+    f({ params: JSON.parse(JSON.stringify(params)), layer, p5, defaultParams })
+
     layer.pop()
   }
 
@@ -16,7 +18,7 @@ export default function Macros (pchrome) {
   // but that's a hoped-for goal
   // in the meantime, they can be fun to use
   const macro1 = macroWrapper(({ params, layer }) => {
-    drawGrid({ xPos: 20, params, width: layer.width / 2, height: layer.height / 2, layer })
+    drawGrid({ xPos: 20, params, width: layer.width, height: layer.height, layer })
   })
 
   const macro2 = macroWrapper(({ params, layer }) => {
@@ -54,11 +56,6 @@ export default function Macros (pchrome) {
   })
 
   const macro7 = macroWrapper(({ params, layer, p5, defaultParams }) => {
-    const currParamsToKeep = {
-      fixedWidth: params.fixedWidth,
-      font: params.font
-    }
-    params = { ...defaultParams, ...currParamsToKeep }
     params.drawMode = 'Grid' // grid
     params.fill.paintMode = 'Black'
     params.fill.transparent = false
@@ -181,6 +178,8 @@ export default function Macros (pchrome) {
     params.rows = 1
     params.columns = 1
     params.nextCharMode = 'Word'
+    params.fill.paintMode = 'solid'
+    params.fill.color = params.fill.lerps[0]
     // TODO: first time this is called it used the wrong font. ?????
     // NOTE: params are set correctly. But the layer hasn't had it set (makes no sense)
     // TODO: fittext needs to be implemented - there's nothing in rowcol for words

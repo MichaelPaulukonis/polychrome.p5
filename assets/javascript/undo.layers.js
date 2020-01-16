@@ -14,7 +14,7 @@ export default class UndoLayers {
       // each time we draw we disable redo
       redoSteps = 0
       images.store(layers.copy())
-      images.next() // why is this necessary?????
+      images.next()
     }
 
     this.storeTemp = () => {
@@ -48,7 +48,7 @@ export default class UndoLayers {
 
 class CircImgCollection {
   constructor (layers, renderFunc, amountOfImages) {
-    let current = 0
+    let current = -1
     const imgs = []
     const amount = amountOfImages
 

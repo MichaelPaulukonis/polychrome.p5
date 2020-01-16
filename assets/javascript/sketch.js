@@ -55,9 +55,10 @@ export default function Sketch (config) {
   p5.setup = () => {
     invertMask()
     p5.pixelDensity(density)
-    p5.createCanvas(params.width, params.height)
-    const drawingLayer = initDrawingLayer(params.width, params.height)
-    const tempLayer = initDefaultLayer(params.width, params.height)
+    // TODO: so, you were wondering why there were too many canvases? !!!
+    p5.createCanvas(params.width, params.height) // canvas 1
+    const drawingLayer = initDrawingLayer(params.width, params.height) // canvas 2
+    const tempLayer = initDefaultLayer(params.width, params.height) // canvas 3
     this.layers = layers = new Layers(p5, drawingLayer, tempLayer)
 
     const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: this, params, fillParams, outlineParams })
@@ -119,7 +120,9 @@ export default function Sketch (config) {
   }
 
   p5.mouseReleased = () => {
-    this.undo.takeSnapshot()
+    if (mouseInCanvas()) {
+      this.undo.takeSnapshot()
+    }
   }
 
   // TODO: perlin noise on the randoms, with jumps every n frames
@@ -173,8 +176,9 @@ export default function Sketch (config) {
     const color = params.fill.color
     clear(layers.drawingLayer, color)
     clear(layers.p5, color)
-    // tODO: equivalent for new layers object?
-    // the trick is the clearance color
+
+    layers.drawingLayer.colorMode(p5.HSB, params.width, params.height, 100, 1)
+    setColorModesFunctions(layers.drawingLayer)
   }
 
   const clear = (layer, color) => {
@@ -200,12 +204,15 @@ export default function Sketch (config) {
     setFont(params.font, layer)
     layer.textAlign(p5.CENTER, p5.CENTER)
     layer.colorMode(p5.HSB, params.width, params.height, 100, 1)
+    setColorModesFunctions(layer)
 
+    return layer
+  }
+
+  const setColorModesFunctions = (layer) => {
     // SIDE EFFECTS! UGH
     setFillMode = (xPos, yPos, params) => setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.fill, layer })
     setOutlineMode = (xPos, yPos, params) => setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.stroke, layer })
-
-    return layer
   }
 
   const paint = (xPos, yPos, params) => {
@@ -439,6 +446,9 @@ export default function Sketch (config) {
       : 0
     layer.strokeWeight(sw / 4)
     layer.strokeJoin(params.outline.strokeJoin)
+
+    // TODO: there is something fundamentally different from the "original" implementation
+    // unless original ONLY had fixed-width? (May be the case!)
     if (params.fixedWidth) {
       layer.textAlign(layer.CENTER, layer.CENTER)
     } else {
@@ -755,7 +765,7 @@ export default function Sketch (config) {
     const newWidth = params.width = p5.height
 
     layers.drawingLayer.resetMatrix()
-    layers.drawingLayer.image(layers.p5, 0, 0)
+    layers.drawingLayer.image(layers.p5.get(), 0, 0)
 
     p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
 
