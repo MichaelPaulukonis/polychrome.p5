@@ -8,9 +8,7 @@ export default function Macros (pchrome) {
   const macroWrapper = f => (pchrome) => {
     const { params, layers: { drawingLayer: layer }, p5, defaultParams } = pchrome
     layer.push()
-    // f({ params: { ...params }, layer, p5, defaultParams })
     f({ params: JSON.parse(JSON.stringify(params)), layer, p5, defaultParams })
-
     layer.pop()
   }
 
@@ -19,6 +17,14 @@ export default function Macros (pchrome) {
   // in the meantime, they can be fun to use
   const macro1 = macroWrapper(({ params, layer }) => {
     drawGrid({ xPos: 20, params, width: layer.width, height: layer.height, layer })
+  })
+
+  const inset = macroWrapper(({ params, layer }) => {
+    const wOffset = layer.width / 2
+    const hOffset = layer.height / 2
+    layer.translate(wOffset / 2, hOffset / 2)
+    // drawGrid({ xPos: 20, params, width: layer.width - wOffset * 2, height: layer.height - hOffset * 2, layer })
+    drawGrid({ xPos: 20, params, width: wOffset, height: hOffset, layer })
   })
 
   const macro2 = macroWrapper(({ params, layer }) => {
@@ -387,6 +393,7 @@ export default function Macros (pchrome) {
     macro23: someCircles,
     macro24: subThingy,
     macro25: bigCircleLowerRightCenter,
-    macro26: circlesOffsetArc
+    macro26: circlesOffsetArc,
+    macro27: inset
   }
 }

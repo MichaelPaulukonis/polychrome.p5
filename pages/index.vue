@@ -155,7 +155,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 /* @import "@/assets/css/core.css"; */
 #title {
   background: linear-gradient(90deg, #f0f, #ff0);

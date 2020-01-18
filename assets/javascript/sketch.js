@@ -428,6 +428,7 @@ export default function Sketch (config) {
   // alternatively http://happycoding.io/examples/processing/for-loops/letters
   // cleaner?
   // TODO: pass in x/y offset for repositioning/translate - like drawRowCol (or essentially circle)
+  // or handle through translate externally??
   const drawGrid = ({ xPos, params, width, height, layer }) => {
     xPos = xPos < 5 ? 5 : xPos // prevent negatives and too-too tiny letters
 
@@ -464,12 +465,12 @@ export default function Sketch (config) {
     // TODO: also the alignments above. ugh
     const blocGen = (params.fixedWidth)
       ? blocGeneratorFixedWidth(gridParams, nextText)
-      : blocGeneratorTextWidth(nextText, whOnly(layer), yOffset, layer) // whonly needs to be reworked
+      : blocGeneratorTextWidth(nextText, { width, height }, yOffset, layer) // whonly needs to be reworked
     apx(fill, outline, paint)(blocGen)
     renderLayers(params)
   }
 
-  function * blocGeneratorFixedWidth (gridParams, nextText) {
+  const blocGeneratorFixedWidth = function * (gridParams, nextText) {
     for (let gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
       for (let gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
         const t = nextText()
@@ -479,21 +480,19 @@ export default function Sketch (config) {
     return 'done'
   }
 
-  const blocGeneratorTextWidth = function * (nextText, gridSize, yOffset, r) {
+  const blocGeneratorTextWidth = function * (nextText, gridSize, yOffset, layer) {
     let t = nextText()
     let coords = { x: 0, y: yOffset }
     const offsets = { x: 0, y: yOffset }
     while (hasNextCoord(coords, gridSize, yOffset)) {
       yield { x: coords.x, y: coords.y, text: t }
-      offsets.x = r.textWidth(t)
+      offsets.x = layer.textWidth(t)
       coords = nextCoord(coords, offsets, gridSize.width)
       t = nextText()
       if (t === ' ' && coords.x === 0) { t = nextText() }
     }
     return 'done'
   }
-
-  const whOnly = obj => ({ width: obj.width, height: obj.height })
 
   const getYoffset = (textAscent, heightOffset) => {
     let yOffset = textAscent + heightOffset
