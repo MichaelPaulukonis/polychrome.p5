@@ -74,6 +74,14 @@ const keymap = [
   {
     keys: ['G'],
     note: 'Manual snapshot for history (for actions that don\'t take snapshots'
+  },
+  {
+    keys: ['alt-x, 0-9, 0-9, alt-x'],
+    note: 'predefined macros'
+  },
+  {
+    keys: ['alt + 0-9'],
+    note: 'predefined macros with less keystrokes'
   }
 ]
 
@@ -86,7 +94,7 @@ export default {
 
 <style scoped>
 #helpbox {
-    margin: 10px;
+  margin: 10px;
 }
 
 .key {

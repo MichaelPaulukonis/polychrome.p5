@@ -17,18 +17,11 @@
     name="about"
     @closed="start"
     )
-    p#sources
-    | Source code:&nbsp;
-    a(href='https://github.com/MichaelPaulukonis/polychrome.p5') GitHub
-    |  - More&nbsp;
-    a(href='http://michaelpaulukonis.github.io') Web Sketches
-    |  - Built with&nbsp;
-    a(href='https://p5js.org/') P5
-    |  and&nbsp;
-    a(href='https://nuxtjs.org') Nuxt
+    About
 
   modal(
     name="help"
+    height="auto"
     @closed="start"
     )
     Help
@@ -49,6 +42,7 @@
 import P5 from 'p5'
 import VModal from 'vue-js-modal'
 import Help from '@/components/help'
+import About from '@/components/about'
 import TextManager from '@/assets/javascript/TextManager'
 import Sketch from '@/assets/javascript/sketch.js'
 import randomPost from '@/assets/javascript/tumblr-random.js'
@@ -65,7 +59,8 @@ let pchrome
 export default {
   components: {
     VModal,
-    Help
+    Help,
+    About
   },
   data () {
     return {
