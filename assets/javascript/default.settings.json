@@ -1,0 +1,854 @@
+{
+    "roundhead": {
+        "PolychromeText": {
+            "width": 900,
+            "height": 300,
+            "frameRate": 10,
+            "drawMode": {
+                "index": 0,
+                "label": "Grid",
+                "value": "Grid"
+            },
+            "invert": true,
+            "rows": 10,
+            "columns": 10,
+            "hardEdge": true,
+            "useShadow": false,
+            "gamma": 0.8,
+            "useOutline": true
+        },
+        "Font": {
+            "fixedWidth": false,
+            "font": {
+                "index": 1,
+                "label": "Arial Rounded MT Bold",
+                "value": "Arial Rounded MT Bold"
+            },
+            "rotation": 0,
+            "cumulativeRotation": false,
+            "nextCharMode": {
+                "index": 0,
+                "label": "Sequential",
+                "value": "Sequential"
+            }
+        },
+        "Shadow": {
+            "useShadow": false,
+            "shadowOffsetX": 5,
+            "shadowOffsetY": 5,
+            "shadowBlur": 5,
+            "shadowColor": "#000000"
+        },
+        "Fill": {
+            "paintMode": {
+                "index": 4,
+                "label": "Black",
+                "value": "Black"
+            },
+            "transparent": true,
+            "transparency": 50,
+            "color": "#ccff66",
+            "multi-color": {
+                "index": 3,
+                "label": "20bf55-0b4f6c-01baef-fbfbff-757575",
+                "value": "20bf55-0b4f6c-01baef-fbfbff-757575"
+            },
+            "lq0": "#20bf55",
+            "lq1": "#0b4f6c",
+            "lq2": "#01baef",
+            "lq3": "#fbfbff",
+            "lq4": "#757575"
+        },
+        "Outline": {
+            "useOutline": true,
+            "paintMode": {
+                "index": 10,
+                "label": "lerp-quad",
+                "value": "lerp-quad"
+            },
+            "strokeWeight": 4,
+            "strokeJoin": {
+                "index": 2,
+                "label": "round",
+                "value": "round"
+            },
+            "transparent": true,
+            "transparency": 75,
+            "color": "#fff000",
+            "multi-color": {
+                "index": 13,
+                "label": "ffff00-ff00ff",
+                "value": "ffff00-ff00ff"
+            },
+            "lq0": "#ffff00",
+            "lq1": "#ff00ff"
+        }
+    },
+    "thingy": {
+        "PolychromeText": {
+            "width": 900,
+            "height": 900,
+            "drawMode": {
+                "index": 0,
+                "label": "Grid",
+                "value": "Grid"
+            },
+            "invert": false,
+            "rows": 10,
+            "columns": 10,
+            "hardEdge": true,
+            "useShadow": false,
+            "gamma": 0.8,
+            "useOutline": true
+        },
+        "Font": {
+            "fixedWidth": false,
+            "font": {
+                "index": 13,
+                "label": "Hoefler Text",
+                "value": "Hoefler Text"
+            },
+            "rotation": 0,
+            "cumulativeRotation": false,
+            "nextCharMode": {
+                "index": 0,
+                "label": "Sequential",
+                "value": "Sequential"
+            }
+        },
+        "Shadow": {
+            "useShadow": false,
+            "shadowOffsetX": 5,
+            "shadowOffsetY": 5,
+            "shadowBlur": 12,
+            "shadowColor": "#000000"
+        },
+        "Fill": {
+            "paintMode": {
+                "index": 10,
+                "label": "lerp-quad",
+                "value": "lerp-quad"
+            },
+            "transparent": false,
+            "transparency": 50,
+            "color": "#8c88ff",
+            "multi-color": {
+                "index": 12,
+                "label": "ffff00-ff00ff-800080-00ffaa",
+                "value": "ffff00-ff00ff-800080-00ffaa"
+            },
+            "lq0": "#800080",
+            "lq1": "#00ffaa",
+            "lq2": "#ffff00",
+            "lq3": "#ff00ff"
+        },
+        "Outline": {
+            "useOutline": false,
+            "paintMode": {
+                "index": 2,
+                "label": "Rainbow3",
+                "value": "Rainbow3"
+            },
+            "strokeWeight": 51,
+            "strokeJoin": {
+                "index": 0,
+                "label": "miter",
+                "value": "miter"
+            },
+            "transparent": false,
+            "transparency": 50,
+            "color": "#fff000",
+            "multi-color": {
+                "index": 0,
+                "label": "ffffff-000000",
+                "value": "ffffff-000000"
+            },
+            "lq0": "#ffffff",
+            "lq1": "#000000"
+        }
+    },
+    "brushy": {
+        "PolychromeText": {
+            "width": 900,
+            "height": 900,
+            "drawMode": {
+                "index": 0,
+                "label": "Grid",
+                "value": "Grid"
+            },
+            "invert": false,
+            "rows": 10,
+            "columns": 10,
+            "hardEdge": true,
+            "useShadow": false,
+            "gamma": 0.8,
+            "useOutline": true
+        },
+        "Font": {
+            "fixedWidth": false,
+            "font": {
+                "index": 4,
+                "label": "Brush Script MT",
+                "value": "Brush Script MT"
+            },
+            "rotation": 0,
+            "cumulativeRotation": false,
+            "nextCharMode": {
+                "index": 0,
+                "label": "Sequential",
+                "value": "Sequential"
+            }
+        },
+        "Shadow": {
+            "useShadow": false,
+            "shadowOffsetX": 5,
+            "shadowOffsetY": 5,
+            "shadowBlur": 5,
+            "shadowColor": "#000000"
+        },
+        "Fill": {
+            "paintMode": {
+                "index": 10,
+                "label": "lerp-quad",
+                "value": "lerp-quad"
+            },
+            "transparency": 50,
+            "transparent": true,
+            "color": "#8fa115",
+            "multi-color": {
+                "index": 5,
+                "label": "cc211a-234ec3-f6dc28-e8ebf7-acbed8",
+                "value": "cc211a-234ec3-f6dc28-e8ebf7-acbed8"
+            },
+            "lq0": "#cc211a",
+            "lq1": "#234ec3",
+            "lq2": "#f6dc28",
+            "lq3": "#e8ebf7",
+            "lq4": "#acbed8"
+        },
+        "Outline": {
+            "useOutline": true,
+            "paintMode": {
+                "index": 0,
+                "label": "Rainbow1",
+                "value": "Rainbow1"
+            },
+            "strokeWeight": 1,
+            "strokeJoin": {
+                "index": 0,
+                "label": "miter",
+                "value": "miter"
+            },
+            "transparent": false,
+            "transparency": 50,
+            "color": "#fff000",
+            "multi-color": {
+                "index": 0,
+                "label": "ffffff-000000",
+                "value": "ffffff-000000"
+            },
+            "lq0": "#ffffff",
+            "lq1": "#000000"
+        }
+    },
+    "quadly": {
+        "PolychromeText": {
+            "width": 900,
+            "height": 900,
+            "drawMode": {
+                "index": 0,
+                "label": "Grid",
+                "value": "Grid"
+            },
+            "invert": false,
+            "rows": 10,
+            "columns": 10,
+            "hardEdge": true,
+            "useShadow": false,
+            "gamma": 0.8,
+            "useOutline": true
+        },
+        "Font": {
+            "fixedWidth": false,
+            "font": {
+                "index": 11,
+                "label": "Gill Sans",
+                "value": "Gill Sans"
+            },
+            "rotation": 0,
+            "cumulativeRotation": false,
+            "nextCharMode": {
+                "index": 0,
+                "label": "Sequential",
+                "value": "Sequential"
+            }
+        },
+        "Shadow": {
+            "useShadow": false,
+            "shadowOffsetX": 5,
+            "shadowOffsetY": 5,
+            "shadowBlur": 5,
+            "shadowColor": "#000000"
+        },
+        "Fill": {
+            "paintMode": {
+                "index": 10,
+                "label": "lerp-quad",
+                "value": "lerp-quad"
+            },
+            "transparent": true,
+            "transparency": 50,
+            "color": "#e469e8",
+            "multi-color": {
+                "index": 3,
+                "label": "20bf55-0b4f6c-01baef-fbfbff-757575",
+                "value": "20bf55-0b4f6c-01baef-fbfbff-757575"
+            },
+            "lq0": "#20bf55",
+            "lq1": "#0b4f6c",
+            "lq2": "#01baef",
+            "lq3": "#fbfbff",
+            "lq4": "#757575"
+        },
+        "Outline": {
+            "useOutline": true,
+            "paintMode": {
+                "index": 0,
+                "label": "Rainbow1",
+                "value": "Rainbow1"
+            },
+            "strokeWeight": 1,
+            "strokeJoin": {
+                "index": 0,
+                "label": "miter",
+                "value": "miter"
+            },
+            "transparent": false,
+            "transparency": 50,
+            "color": "#fff000",
+            "multi-color": {
+                "index": 0,
+                "label": "ffffff-000000",
+                "value": "ffffff-000000"
+            },
+            "lq0": "#ffffff",
+            "lq1": "#000000"
+        }
+    },
+    "atarli": {
+        "PolychromeText": {
+            "width": 900,
+            "height": 900,
+            "drawMode": {
+                "index": 0,
+                "label": "Grid",
+                "value": "Grid"
+            },
+            "invert": false,
+            "rows": 10,
+            "columns": 10,
+            "hardEdge": true,
+            "useShadow": false,
+            "gamma": 0.8,
+            "useOutline": true
+        },
+        "Font": {
+            "fixedWidth": false,
+            "font": {
+                "index": 22,
+                "label": "ATARCC__",
+                "value": "ATARCC__"
+            },
+            "rotation": 0,
+            "cumulativeRotation": false,
+            "nextCharMode": {
+                "index": 0,
+                "label": "Sequential",
+                "value": "Sequential"
+            }
+        },
+        "Shadow": {
+            "useShadow": false,
+            "shadowOffsetX": 5,
+            "shadowOffsetY": 5,
+            "shadowBlur": 5,
+            "shadowColor": "#000000"
+        },
+        "Fill": {
+            "paintMode": {
+                "index": 10,
+                "label": "lerp-quad",
+                "value": "lerp-quad"
+            },
+            "transparency": 50,
+            "transparent": true,
+            "color": "#e469e8",
+            "multi-color": {
+                "index": 3,
+                "label": "20bf55-0b4f6c-01baef-fbfbff-757575",
+                "value": "20bf55-0b4f6c-01baef-fbfbff-757575"
+            },
+            "lq0": "#20bf55",
+            "lq1": "#0b4f6c",
+            "lq2": "#01baef",
+            "lq3": "#fbfbff",
+            "lq4": "#757575"
+        },
+        "Outline": {
+            "useOutline": false,
+            "paintMode": {
+                "index": 0,
+                "label": "Rainbow1",
+                "value": "Rainbow1"
+            },
+            "strokeWeight": 1,
+            "strokeJoin": {
+                "index": 0,
+                "label": "miter",
+                "value": "miter"
+            },
+            "transparent": false,
+            "transparency": 50,
+            "color": "#fff000",
+            "multi-color": {
+                "index": 0,
+                "label": "ffffff-000000",
+                "value": "ffffff-000000"
+            },
+            "lq0": "#ffffff",
+            "lq1": "#000000"
+        }
+    },
+    "thingummy": {
+        "PolychromeText": {
+            "width": 900,
+            "height": 900,
+            "drawMode": {
+                "index": 0,
+                "label": "Grid",
+                "value": "Grid"
+            },
+            "invert": false,
+            "rows": 10,
+            "columns": 10,
+            "hardEdge": true,
+            "useShadow": false,
+            "gamma": 0.8,
+            "useOutline": true
+        },
+        "Font": {
+            "fixedWidth": false,
+            "font": {
+                "index": 22,
+                "label": "ATARCC__",
+                "value": "ATARCC__"
+            },
+            "rotation": 0,
+            "cumulativeRotation": false,
+            "nextCharMode": {
+                "index": 0,
+                "label": "Sequential",
+                "value": "Sequential"
+            }
+        },
+        "Shadow": {
+            "useShadow": false,
+            "shadowOffsetX": 5,
+            "shadowOffsetY": 5,
+            "shadowBlur": 5,
+            "shadowColor": "#000000"
+        },
+        "Fill": {
+            "paintMode": {
+                "index": 10,
+                "label": "lerp-quad",
+                "value": "lerp-quad"
+            },
+            "transparency": 50,
+            "transparent": true,
+            "color": "#e469e8",
+            "multi-color": {
+                "index": 3,
+                "label": "20bf55-0b4f6c-01baef-fbfbff-757575",
+                "value": "20bf55-0b4f6c-01baef-fbfbff-757575"
+            },
+            "lq0": "#20bf55",
+            "lq1": "#0b4f6c",
+            "lq2": "#01baef",
+            "lq3": "#fbfbff",
+            "lq4": "#757575"
+        },
+        "Outline": {
+            "useOutline": true,
+            "paintMode": {
+                "index": 0,
+                "label": "Rainbow1",
+                "value": "Rainbow1"
+            },
+            "strokeWeight": 59,
+            "strokeJoin": {
+                "index": 0,
+                "label": "miter",
+                "value": "miter"
+            },
+            "transparent": false,
+            "transparency": 50,
+            "color": "#fff000",
+            "multi-color": {
+                "index": 0,
+                "label": "ffffff-000000",
+                "value": "ffffff-000000"
+            },
+            "lq0": "#ffffff",
+            "lq1": "#000000"
+        }
+    },
+    "hotpink": {
+        "PolychromeText": {
+            "width": 900,
+            "height": 900,
+            "drawMode": {
+                "index": 0,
+                "label": "Grid",
+                "value": "Grid"
+            },
+            "invert": false,
+            "rows": 10,
+            "columns": 10,
+            "hardEdge": true,
+            "useShadow": false,
+            "gamma": 0.8,
+            "useOutline": true
+        },
+        "Font": {
+            "fixedWidth": false,
+            "font": {
+                "index": 1,
+                "label": "Arial Rounded MT Bold",
+                "value": "Arial Rounded MT Bold"
+            },
+            "rotation": 0,
+            "cumulativeRotation": false,
+            "nextCharMode": {
+                "index": 1,
+                "label": "Random",
+                "value": "Random"
+            }
+        },
+        "Shadow": {
+            "useShadow": false,
+            "shadowOffsetX": 5,
+            "shadowOffsetY": 5,
+            "shadowBlur": 5,
+            "shadowColor": "#000000"
+        },
+        "Fill": {
+            "paintMode": {
+                "index": 10,
+                "label": "lerp-quad",
+                "value": "lerp-quad"
+            },
+            "transparent": true,
+            "transparency": 50,
+            "color": "#44f8ff",
+            "multi-color": {
+                "index": 9,
+                "label": "50514f-f25f5c-ffe066-247ba0-70c1b3",
+                "value": "50514f-f25f5c-ffe066-247ba0-70c1b3"
+            },
+            "lq0": "#70c1b3",
+            "lq1": "#008000",
+            "lq2": "#f25f5c",
+            "lq3": "#00ff00",
+            "lq4": "#247ba0"
+        },
+        "Outline": {
+            "useOutline": true,
+            "paintMode": {
+                "index": 10,
+                "label": "lerp-quad",
+                "value": "lerp-quad"
+            },
+            "strokeWeight": 45,
+            "strokeJoin": {
+                "index": 2,
+                "label": "round",
+                "value": "round"
+            },
+            "transparent": true,
+            "transparency": 50,
+            "color": "#fff000",
+            "multi-color": {
+                "index": 13,
+                "label": "ffff00-ff00ff",
+                "value": "ffff00-ff00ff"
+            },
+            "lq0": "#ff00ff",
+            "lq1": "#ffff00"
+        }
+    },
+    "tangerine": {
+        "PolychromeText": {
+            "width": 900,
+            "height": 900,
+            "frameRate": 30,
+            "autoPaint": false,
+            "drawMode": {
+                "index": 0,
+                "label": "Grid",
+                "value": "Grid"
+            },
+            "invert": false,
+            "rows": 10,
+            "columns": 10,
+            "hardEdge": true,
+            "useShadow": false,
+            "gamma": 0.8,
+            "useOutline": false
+        },
+        "Font": {
+            "fixedWidth": false,
+            "font": {
+                "index": 29,
+                "label": "carbontype",
+                "value": "carbontype"
+            },
+            "rotation": 0,
+            "cumulativeRotation": false,
+            "nextCharMode": {
+                "index": 0,
+                "label": "Sequential",
+                "value": "Sequential"
+            }
+        },
+        "Shadow": {
+            "useShadow": false,
+            "shadowOffsetX": 9,
+            "shadowOffsetY": 12,
+            "shadowBlur": 8,
+            "shadowColor": "#000000"
+        },
+        "Fill": {
+            "paintMode": {
+                "index": 10,
+                "label": "lerp-quad",
+                "value": "lerp-quad"
+            },
+            "transparent": false,
+            "transparency": 50,
+            "color": "#ffcc66",
+            "multi-color": {
+                "index": 3,
+                "label": "20bf55-0b4f6c-01baef-fbfbff-757575",
+                "value": "20bf55-0b4f6c-01baef-fbfbff-757575"
+            },
+            "lq0": "#3289a7",
+            "lq1": "#8cf813",
+            "lq2": "#cd14ec",
+            "lq3": "#3e9490",
+            "lq4": "#012b2f"
+        },
+        "Outline": {
+            "useOutline": true,
+            "paintMode": {
+                "index": 0,
+                "label": "Rainbow1",
+                "value": "Rainbow1"
+            },
+            "strokeWeight": 1,
+            "strokeJoin": {
+                "index": 0,
+                "label": "miter",
+                "value": "miter"
+            },
+            "transparent": false,
+            "transparency": 50,
+            "color": "#fff000",
+            "multi-color": {
+                "index": 0,
+                "label": "ffffff-000000",
+                "value": "ffffff-000000"
+            },
+            "lq0": "#ffffff",
+            "lq1": "#000000"
+        }
+    },
+    "test": {
+        "PolychromeText": {
+            "width": 900,
+            "height": 600,
+            "frameRate": 30,
+            "autoPaint": false,
+            "drawMode": {
+                "index": 0,
+                "label": "Grid",
+                "value": "Grid"
+            },
+            "invert": false,
+            "rows": 10,
+            "columns": 10,
+            "hardEdge": true,
+            "useShadow": false,
+            "gamma": 0.8,
+            "useOutline": false
+        },
+        "Font": {
+            "fixedWidth": true,
+            "font": {
+                "index": 1,
+                "label": "Arial Rounded MT Bold",
+                "value": "Arial Rounded MT Bold"
+            },
+            "rotation": 0,
+            "cumulativeRotation": false,
+            "nextCharMode": {
+                "index": 0,
+                "label": "Sequential",
+                "value": "Sequential"
+            }
+        },
+        "Shadow": {
+            "useShadow": false,
+            "shadowOffsetX": 5,
+            "shadowOffsetY": 5,
+            "shadowBlur": 5,
+            "shadowColor": "#000000"
+        },
+        "Fill": {
+            "paintMode": {
+                "index": 0,
+                "label": "Rainbow1",
+                "value": "Rainbow1"
+            },
+            "transparent": false,
+            "transparency": 50,
+            "color": "#ffffff",
+            "multi-color": {
+                "index": 9,
+                "label": "50514f-f25f5c-ffe066-247ba0-70c1b3",
+                "value": "50514f-f25f5c-ffe066-247ba0-70c1b3"
+            },
+            "lq0": "#70c1b3",
+            "lq1": "#008000",
+            "lq2": "#f25f5c",
+            "lq3": "#00ff00",
+            "lq4": "#247ba0"
+        },
+        "Outline": {
+            "useOutline": false,
+            "paintMode": {
+                "index": 10,
+                "label": "lerp-quad",
+                "value": "lerp-quad"
+            },
+            "strokeWeight": 45,
+            "strokeJoin": {
+                "index": 2,
+                "label": "round",
+                "value": "round"
+            },
+            "transparent": true,
+            "transparency": 50,
+            "color": "#fff000",
+            "multi-color": {
+                "index": 13,
+                "label": "FFFFFF-FF7DCB-F70AAC-05ADB3-EDFC1C",
+                "value": "FFFFFF-FF7DCB-F70AAC-05ADB3-EDFC1C"
+            },
+            "lq0": "#ff00ff",
+            "lq1": "#ffff00",
+            "lq2": "#f70aac",
+            "lq3": "#05adb3",
+            "lq4": "#edfc1c"
+        }
+    },
+    "classic": {
+        "PolychromeText": {
+            "width": 900,
+            "height": 600,
+            "frameRate": 30,
+            "autoPaint": false,
+            "drawMode": {
+                "index": 0,
+                "label": "Grid",
+                "value": "Grid"
+            },
+            "invert": false,
+            "rows": 10,
+            "columns": 10,
+            "hardEdge": true,
+            "useShadow": false,
+            "gamma": 0.8,
+            "useOutline": false
+        },
+        "Font": {
+            "fixedWidth": true,
+            "font": {
+                "index": 1,
+                "label": "Arial Rounded MT Bold",
+                "value": "Arial Rounded MT Bold"
+            },
+            "rotation": 0,
+            "cumulativeRotation": false,
+            "nextCharMode": {
+                "index": 0,
+                "label": "Sequential",
+                "value": "Sequential"
+            }
+        },
+        "Shadow": {
+            "useShadow": false,
+            "shadowOffsetX": 5,
+            "shadowOffsetY": 5,
+            "shadowBlur": 5,
+            "shadowColor": "#000000"
+        },
+        "Fill": {
+            "paintMode": {
+                "index": 0,
+                "label": "Rainbow1",
+                "value": "Rainbow1"
+            },
+            "transparent": true,
+            "transparency": 50,
+            "color": "#ffffff",
+            "multi-color": {
+                "index": 9,
+                "label": "50514f-f25f5c-ffe066-247ba0-70c1b3",
+                "value": "50514f-f25f5c-ffe066-247ba0-70c1b3"
+            },
+            "lq0": "#70c1b3",
+            "lq1": "#008000",
+            "lq2": "#f25f5c",
+            "lq3": "#00ff00",
+            "lq4": "#247ba0"
+        },
+        "Outline": {
+            "useOutline": false,
+            "paintMode": {
+                "index": 10,
+                "label": "lerp-quad",
+                "value": "lerp-quad"
+            },
+            "strokeWeight": 45,
+            "strokeJoin": {
+                "index": 2,
+                "label": "round",
+                "value": "round"
+            },
+            "transparent": true,
+            "transparency": 50,
+            "color": "#fff000",
+            "multi-color": {
+                "index": 13,
+                "label": "FFFFFF-FF7DCB-F70AAC-05ADB3-EDFC1C",
+                "value": "FFFFFF-FF7DCB-F70AAC-05ADB3-EDFC1C"
+            },
+            "lq0": "#ff00ff",
+            "lq1": "#ffff00",
+            "lq2": "#f70aac",
+            "lq3": "#05adb3",
+            "lq4": "#edfc1c"
+        }
+    }
+}

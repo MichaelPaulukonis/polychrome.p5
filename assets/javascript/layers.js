@@ -13,7 +13,8 @@ export default class Layers {
     // but whatevs.....
     const layer = this.p5.createGraphics(this.p5.width, this.p5.height)
     layer.pixelDensity(this.p5.pixelDensity())
-    layer.image(this.p5.get(), 0, 0)
+    // layer.image(this.p5.get(), 0, 0) // makes things blurry??
+    layer.image(this.p5, 0, 0)
     return layer
   }
 

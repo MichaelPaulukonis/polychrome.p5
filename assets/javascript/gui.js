@@ -1,3 +1,4 @@
+import defaults from './default.settings.json'
 import { QuickSettings } from '@/assets/javascript/quicksettings'
 import {
   getRandomColors,
@@ -246,9 +247,10 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     const allSets = getAllSettings()
     if (allSets) {
       presets = allSets
-      presetNames = shuffle(Object.keys(presets))
-      // presetNames = Object.keys(presets)
+    } else {
+      presets = { ...defaults }
     }
+    presetNames = shuffle(Object.keys(presets))
   }
 
   const buildSelect = ({ values, id, callback }) => {

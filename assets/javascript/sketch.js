@@ -764,7 +764,8 @@ export default function Sketch (config) {
     const newWidth = params.width = p5.height
 
     layers.drawingLayer.resetMatrix()
-    layers.drawingLayer.image(layers.p5.get(), 0, 0)
+    // layers.drawingLayer.image(layers.p5.get(), 0, 0) // makes things blurry ???
+    layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
 
     p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
 
