@@ -1,15 +1,14 @@
 import UndoLayers from './undo.layers.js'
 import Layers from './layers.js'
 import { fitTextOnCanvas } from './fit.text'
-import { hexStringToColors } from '@/assets/javascript/gui.color.control'
-import { setupGui } from '@/assets/javascript/gui'
-
 import {
   allParams,
   fillParams,
   outlineParams,
   drawModes
 } from '@/assets/javascript/params.js'
+import { hexStringToColors } from '@/assets/javascript/gui.color.control'
+import { setupGui } from '@/assets/javascript/gui'
 
 // params external to guiControl are a hoped-for headless use-case
 export default function Sketch (config) {
@@ -131,7 +130,8 @@ export default function Sketch (config) {
   const autoDraw = (minX, minY, maxX, maxY) => {
     if (p5.random(0, 10) < 2) {
       const macro = p5.random(['macro10', 'macro11', 'macro12', 'macro13', 'macro14', 'macro15', 'macro16',
-        'macro17', 'macro18', 'macro19', 'macro20', 'macro21', 'macro22', 'macro23', 'macro24', 'macro25'])
+        'macro17', 'macro18', 'macro19', 'macro20', 'macro21', 'macro22', 'macro23', 'macro24', 'macro25',
+        'macro26', 'macro27'])
       this.macros[macro]({ ...this })
     } else {
       const locX = p5.random(minX, maxX)
@@ -782,6 +782,7 @@ export default function Sketch (config) {
 
     layers.drawingLayer.remove()
     layers.drawingLayer = newPG
+    newPG.remove()
 
     // TODO: undo doesn't know anything about rotation......
 

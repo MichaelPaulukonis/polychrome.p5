@@ -10,10 +10,11 @@ module.exports = {
   extends: [
     '@nuxtjs',
     'plugin:nuxt/recommended',
-    'p5js',
+    'p5js'
   ],
   // add your custom rules here
   rules: {
-    "no-console": 'off'
+    'no-console': 'off',
+    'import/order': 'off'
   }
 }

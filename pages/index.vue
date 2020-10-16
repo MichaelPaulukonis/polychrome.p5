@@ -37,7 +37,6 @@
       p JavaScript is required to view the contents of this page.
 
 </template>
-
 <script>
 import P5 from 'p5'
 import VModal from 'vue-js-modal'
@@ -72,6 +71,8 @@ export default {
   mounted () {
     const keypress = require('keypress.js')
 
+    // TODO: switch over to https://craig.is/killing/mice
+
     // TODO: replicate macro controls in the new key-handler
     // I'm prettty sure we'll use sequential things for _something_
     const setupMacros = (sketch) => {
@@ -81,7 +82,7 @@ export default {
       for (let i = 1; i <= macroCount; i++) {
         const m = `macro${i}`
         const digits = String(i).split('')
-        listener.sequence_combo(`alt x ${digits.join(' ')} alt`, () => {
+        listener.sequence_combo(`x ${digits.join(' ')} alt`, () => {
           macros[m](sketch)
           sketch.undo.takeSnapshot()
         }, true)

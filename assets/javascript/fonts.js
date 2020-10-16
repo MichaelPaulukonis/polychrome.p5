@@ -89,12 +89,14 @@ function Detector () {
 };
 
 const d = new Detector()
-const supportedFonts = []
-fonts.forEach((font) => {
-  if (d.detect(font)) {
-    supportedFonts.push(font)
-  }
-})
+// const supportedFonts = []
+// fonts.forEach((font) => {
+//   if (d.detect(font)) {
+//     supportedFonts.push(font)
+//   }
+// })
+
+const supportedFonts = fonts.filter(d.detect)
 
 const fontList = supportedFonts.concat(['ATARCC__', 'ATARCE__', 'ATARCS__', 'AtariClassic-Regular',
   'BlackCasper', 'BMREA___', 'CableDingbats', 'carbontype', 'clothing logos', 'Credit Cards',
@@ -103,4 +105,4 @@ const fontList = supportedFonts.concat(['ATARCC__', 'ATARCE__', 'ATARCS__', 'Ata
   'Smartphone Color Pro', 'Social Icons Pro Set 1 - Rounded', 'social_shapes', 'TRENU___',
   'Type Icons Color', 'Type Icons', 'VT323-Regular', 'Youkairo'])
 
-module.exports = fontList
+export default fontList
