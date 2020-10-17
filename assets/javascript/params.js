@@ -70,7 +70,12 @@ const paramsInitial = {
   shadowOffsetY: 5,
   shadowBlur: 5,
   shadowColor: '#000000',
-  gamma: 0.8
+  gamma: 0.8,
+  capturing: false,
+  captureOverride: false,
+  captureCount: 0,
+  captureLimit: 200,
+  updatedCanvas: false
 }
 
 const allParams = { ...paramsInitial, fill: fillParams, outline: outlineParams }

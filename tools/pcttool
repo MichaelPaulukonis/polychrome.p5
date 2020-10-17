@@ -1,0 +1,156 @@
+#!/usr/local/bin/zsh
+
+# OBSCUR - a script to move downloaded OBSCURUS images and build an MP4 and/or GIF
+
+SOURCE=~/Downloads
+TARGET_ROOT=$SOURCE/obscur.out
+FILENAME=
+MAKE_GIF=false
+
+usage()
+{
+cat << _EOF_
+Utilities for OBSCURUS output
+Moves images into associated folders and build gifs or mp4 files
+NOTE: gif-construction takes a looooong time
+
+options
+
+  -l | --list   list unique prefixes (that will be single animations)
+
+  -f | --file   Filename to process
+
+  -b | --build  construct image
+
+  -m | --move   move files to destination folder
+
+  -c | --collect  collect animations from existing folders (won't overwrite)
+
+  -h | --help   print this file
+
+_EOF_
+}
+
+list()
+{
+    setopt extendedglob
+    pushd $1
+    local files=([0-9]##-[0-9]##.png)
+    popd
+    prefixes=($(printf "%s\n" "${files[@]%-*.png}" | sort -u | tr '\n' ' '))
+}
+
+processAll() {
+    list $SOURCE
+    print "prefixCount: $#prefixes"
+    for p in $prefixes
+    do
+        echo "processing ${p} ..."
+        moveit $p $TARGET_ROOT/$p
+        buildit $p $TARGET_ROOT/$p
+    done
+    collect
+}
+
+mkmp4() {
+    #  ffmpeg -r 30 -f image2 -s 500x500 -i "$1-%06d.png" -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
+    # https://hamelot.io/visualization/using-ffmpeg-to-convert-a-set-of-images-into-a-video/
+    # -r = frameRate
+    ffmpeg -r 15 -f image2 -s 500x500 -pattern_type glob -i '*.png' -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
+}
+
+mkgif() {
+    convert -delay 3.33 -loop 0 *.png $1.gif
+}
+
+moveit() {
+    FILE=$1
+    TARG=$2
+    echo "target: $TARG filename: $FILE"
+    mkdir $TARG
+    pushd $SOURCE
+    mv $FILE*.png $TARG
+    popd
+}
+
+buildit() {
+    FILE=$1
+    TARG=$2
+    pushd $TARG
+    mkmp4 $FILE
+    if $MAKE_GIF ; then
+        mkgif $FILE
+        echo "chrome $TARG/$FILE.gif"
+    fi
+    echo "open $TARG/$FILE.mp4"
+    popd
+}
+
+collect() {
+    pushd $TARGET_ROOT
+    # find [0-9]* -type f -name "[0-9]*.mp4" -exec cp -n {} news \;
+    # find [0-9]* -type f -name "[0-9]*.gif" -exec cp -n {} news \;
+    find [0-9]* -type f \( -name "[0-9]*.gif" -o -name "[0-9]*.mp4" \) -exec cp -n {} news \;
+    
+    popd
+}
+
+setFilename() {
+    FILENAME=$1
+    TARGET=$TARGET_ROOT/$FILENAME
+    echo "filename: $FILENAME target: $TARGET"
+}
+
+## MAIN
+
+
+
+# TODO: a boolean-flag (?) to create gif and/or mp4
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -g | --gif )
+            $MAKE_GIF = true
+        ;;
+        -a | --all )
+            processAll
+            exit
+        ;;
+        -f | --file )
+            shift
+            setFilename $1
+        ;;
+        -b | --build )
+            buildit $FILENAME $TARGET_ROOT/$FILENAME
+            exit
+        ;;
+        -m | --move )
+            moveit $FILENAME $TARGET_ROOT/$FILENAME
+            exit
+        ;;
+        -l | --list )
+            list $SOURCE
+            print $prefixes
+            exit
+        ;;
+        -c | --collect )
+            collect
+            exit
+        ;;
+        -h | --help )
+            usage
+            exit
+        ;;
+        * )
+            usage
+            exit 1
+    esac
+    shift
+done
+
+echo $TARGET
+
+# default action
+
+moveit $FILENAME $TARGET_ROOT/$FILENAME
+buildit $FILENAME $TARGET_ROOT/$FILENAME

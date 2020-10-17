@@ -58,6 +58,10 @@ const setupHotkeys = (config) => {
       action: () => sketch.save_sketch()
     },
     {
+      keys: 'shift+command+s',
+      action: ({ params }) => { params.capturing = !params.capturing }
+    },
+    {
       keys: 'alt+s',
       action: () => sketch.shiftFillColors()
     },

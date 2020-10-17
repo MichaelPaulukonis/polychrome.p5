@@ -10,6 +10,28 @@ import {
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 import { setupGui } from '@/assets/javascript/gui'
 
+const datestring = () => {
+  const d = new Date()
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  const hour = String(d.getHours()).padStart(2, '0')
+  const min = String(d.getMinutes()).padStart(2, '0')
+  const secs = String(d.getSeconds()).padStart(2, '0')
+  return `${year}${month}${day}${hour}${min}${secs}`
+}
+
+const filenamer = (prefix) => {
+  let frame = 0
+  return () => {
+    const name = `polychrometext.${prefix}-${String(frame).padStart(6, '0')}`
+    frame += 1
+    return name
+  }
+}
+
+let namer = null
+
 // params external to guiControl are a hoped-for headless use-case
 export default function Sketch (config) {
   const { p5Instance: p5, guiControl, textManager, setupCallback } = config
@@ -100,21 +122,36 @@ export default function Sketch (config) {
     // or you'll crash the app! or something....
     if (override || (p5.mouseIsPressed && mouseInCanvas())) {
       paint(x, y, this.params)
+      params.updatedCanvas = true
     }
   }
 
   p5.draw = () => {
     if (params.autoPaint) {
       autoDraw(0, 0, p5.width, p5.height)
-      return
+    } else {
+      switch (this.appMode) {
+        case APP_MODES.NO_DRAW:
+          return
+        case APP_MODES.STANDARD_DRAW:
+        default:
+          standardDraw()
+          break
+      }
     }
-    switch (this.appMode) {
-      case APP_MODES.NO_DRAW:
-        return
-      case APP_MODES.STANDARD_DRAW:
-      default:
-        standardDraw()
-        break
+    if (params.capturing && params.updatedCanvas) {
+      params.updatedCanvas = false
+      console.log('capturing frame')
+      if (namer === null) {
+        namer = filenamer(datestring())
+      }
+      p5.saveCanvas(namer(), 'png')
+      params.captureCount += 1
+      if (params.captureCount > params.captureLimit) {
+        params.capturing = false
+        p5.frameRate(params.p5frameRate)
+        params.captureCount = 0
+      }
     }
   }
 
@@ -138,6 +175,7 @@ export default function Sketch (config) {
       const locY = p5.random(minY, maxY)
       standardDraw(locX, locY, true)
     }
+    params.updatedCanvas = true
   }
 
   const target = () => {
@@ -747,6 +785,19 @@ export default function Sketch (config) {
       return nbr.length >= width ? nbr : new Array(width - nbr.length + 1).join(fill) + nbr
     }
     p5.saveCanvas(`${params.name}.${getDateFormatted()}.png`)
+  }
+
+  this.saveAnimationFrames = () => {
+    if (config.capturing) {
+      config.captureOverride = false
+      p5.frameRate(config.p5frameRate)
+    } else {
+      namer = filenamer('polychrometext.' + datestring())
+      config.captureCount = 0
+      config.captureOverride = true
+      p5.frameRate(config.captureFrameRate)
+    }
+    config.capturing = !config.capturing
   }
 
   // TODO: use this somehow.
