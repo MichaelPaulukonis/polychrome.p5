@@ -3,7 +3,7 @@
 # OBSCUR - a script to move downloaded OBSCURUS images and build an MP4 and/or GIF
 
 SOURCE=~/Downloads
-TARGET_ROOT=$SOURCE/obscur.out
+TARGET_ROOT=$SOURCE/polychrome.out
 FILENAME=
 MAKE_GIF=false
 
@@ -35,8 +35,9 @@ list()
 {
     setopt extendedglob
     pushd $1
-    local files=([0-9]##-[0-9]##.png)
+    local files=(polychrometext.[0-9]##-[0-9]##.png)
     popd
+    # prefixes=($(printf "%s\n" "polychrometext.${files[@]%-*.png}" | sort -u | tr '\n' ' '))
     prefixes=($(printf "%s\n" "${files[@]%-*.png}" | sort -u | tr '\n' ' '))
 }
 

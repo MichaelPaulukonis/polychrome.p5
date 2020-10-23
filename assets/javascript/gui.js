@@ -92,7 +92,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   const pDoc = p5.canvas.parentElement
 
   const mainGui = QuickSettings.create(p5.windowWidth - 220, 20, 'PolychromeText', pDoc)
-    // bindNumber, despite the README notes, has the same signature as binRange
+    // bindNumber, despite the README notes, has the same signature as bindRange
     .bindNumber('width', _, _, params.width, _, params)
     .bindNumber('height', _, _, params.height, _, params)
     .addButton('clear', sketch.clearCanvas)
@@ -107,6 +107,12 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindBoolean('useShadow', params.useShadow, params)
     .bindRange('gamma', 0, 1.0, params.gamma, 0.01, params)
     .bindBoolean('useOutline', params.useOutline, params)
+
+    // params.capturing
+    .addButton('frames', () => { params.capturing = !params.capturing })
+    .bindNumber('captureLimit', _, _, params.captureLimit, _, params)
+    .bindNumber('captureCount', _, _, params.captureCount, _, params)
+
   mainGui.collapse()
 
   const fontGui = QuickSettings.create(p5.windowWidth - 220, 60, 'Font', pDoc)
