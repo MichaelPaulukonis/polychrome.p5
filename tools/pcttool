@@ -89,9 +89,7 @@ buildit() {
 
 collect() {
     pushd $TARGET_ROOT
-    # find [0-9]* -type f -name "[0-9]*.mp4" -exec cp -n {} news \;
-    # find [0-9]* -type f -name "[0-9]*.gif" -exec cp -n {} news \;
-    find [0-9]* -type f \( -name "[0-9]*.gif" -o -name "[0-9]*.mp4" \) -exec cp -n {} news \;
+    find [polychrometext.0-9]* -type f \( -name "polychrometext\.[0-9]*.gif" -o -name "polychrometext\.[0-9]*.mp4" \) -exec cp -n {} news \;
     
     popd
 }
