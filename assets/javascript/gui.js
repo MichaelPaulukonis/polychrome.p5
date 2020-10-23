@@ -15,7 +15,9 @@ const setFocus = (title) => {
 const createElement = (type, id, className) => {
   const element = document.createElement(type)
   if (!element) { return }
-  element.id = id
+  if (id) {
+    element.id = id
+  }
   if (className) {
     element.className = className
   }
