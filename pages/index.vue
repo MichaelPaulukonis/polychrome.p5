@@ -73,6 +73,7 @@ export default {
     const keypress = require('keypress.js')
 
     // TODO: switch over to https://craig.is/killing/mice
+    // currently using in SUCCULENT
 
     // TODO: replicate macro controls in the new key-handler
     // I'm prettty sure we'll use sequential things for _something_

@@ -1,6 +1,7 @@
 module.exports = {
   root: true,
   env: {
+    es6: true,
     browser: true,
     node: true
   },
@@ -10,7 +11,9 @@ module.exports = {
   extends: [
     '@nuxtjs',
     'plugin:nuxt/recommended',
-    'p5js'
+    'p5js',
+    'standard',
+    'plugin:vue/recommended'
   ],
   // add your custom rules here
   rules: {

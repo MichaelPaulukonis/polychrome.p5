@@ -200,7 +200,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
         allPanels[panelName] = panel.getValuesAsJSON(asString)
       })
       presets[name] = allPanels
-      localStorage.setItem(prefix, JSON.stringify(presets))
+      window.localStorage.setItem(prefix, JSON.stringify(presets))
       updateNames(presets)
       const newSelect = buildSelect({ values: presetNames, id: presetsID, callback: getSetting })
       const oldSelect = document.getElementById(presetsID)
@@ -215,7 +215,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   }
 
   const getAllSettings = () => {
-    const blobs = localStorage.getItem(prefix)
+    const blobs = window.localStorage.getItem(prefix)
     return JSON.parse(blobs)
   }
 
@@ -230,9 +230,9 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   }
 
   const saveNew = () => {
-    const name = prompt('Enter a new preset name.')
+    const name = window.prompt('Enter a new preset name.')
     if (presetNames.includes(name)) {
-      alert(`Setting '${name}' already exists; Did you mean to use 'update'?`)
+      window.alert(`Setting '${name}' already exists; Did you mean to use 'update'?`)
       return
     }
     if (name) {

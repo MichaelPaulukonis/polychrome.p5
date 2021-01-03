@@ -13,7 +13,7 @@
     "deploy": "gh-pages -t -d dist",
     "bump": "npm version patch",
     "publish": "npm run bump && DEPLOY_ENV=GH_PAGES npm run generate && npm run deploy",
-    "lint:clean": "standard --fix",
+    "lint:fix": "standard --fix",
     "lint": "standard"
   },
   "lint-staged": {
@@ -71,25 +71,5 @@
     "sass-loader": "^8.0.0",
     "standard": "^11.0.1",
     "start-server-and-test": "^1.7.11"
-  },
-  "eslintConfigFoo": {
-    "extends": "p5js"
-  },
-  "standard": {
-    "ignore": [],
-    "extends": [
-      "p5js",
-      "plugin:cypress/recommended"
-    ],
-    "plugins": [
-      "cypress"
-    ],
-    "env": {
-      "cypress/globals": true
-    },
-    "globals": [
-      "VERSION",
-      "IMAGES"
-    ]
   }
 }
