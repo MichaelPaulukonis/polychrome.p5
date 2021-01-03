@@ -37,6 +37,7 @@
       p JavaScript is required to view the contents of this page.
 
 </template>
+
 <script>
 import P5 from 'p5'
 import VModal from 'vue-js-modal'
@@ -83,8 +84,8 @@ export default {
         const m = `macro${i}`
         const digits = String(i).split('')
         listener.sequence_combo(`x ${digits.join(' ')} alt`, () => {
-          macros[m](sketch)
           sketch.undo.takeSnapshot()
+          macros[m](sketch)
         }, true)
       }
       return macros

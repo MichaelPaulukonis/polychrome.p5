@@ -6,8 +6,8 @@ const HORIZONTAL = 0
 const VERTICAL = 1
 
 const flip = ({ layers, sketch }) => (direction) => {
-  sketch.flip(direction, layers.p5)
   sketch.undo.takeSnapshot()
+  sketch.flip(direction, layers.p5)
 }
 
 // TODO: the check for "inside of canvas" is missing, need to use a wrapper for those that need it?
@@ -20,31 +20,31 @@ const setupHotkeys = (config) => {
     {
       keys: ['left', 'shift+left', 'right', 'shift+right'].join(','),
       action: ({ handler, extraShift }) => {
+        sketch.undo.takeSnapshot()
         const vector = (handler.key.includes('right')) ? 1 : -1
         sketch.shift(0, vector * extraShift)
-        sketch.undo.takeSnapshot()
       }
     },
     {
       keys: ['down', 'up', 'shift+down', 'shift+up'].join(','),
       action: ({ handler, extraShift }) => {
+        sketch.undo.takeSnapshot()
         const vector = (handler.key.includes('down')) ? 1 : -1
         sketch.shift(vector * extraShift, 0)
-        sketch.undo.takeSnapshot()
       }
     },
     {
       keys: ['del', 'backspace'].join(','),
       action: () => {
-        sketch.clearCanvas()
         sketch.undo.takeSnapshot()
+        sketch.clearCanvas()
       }
     },
     {
       keys: 'a',
       action: ({ layers }) => {
-        sketch.newCorner(layers.drawingLayer)
         sketch.undo.takeSnapshot()
+        sketch.newCorner(layers.drawingLayer)
       }
     },
     {
@@ -90,8 +90,8 @@ const setupHotkeys = (config) => {
     {
       keys: ['space'].join(','),
       action: ({ params }) => {
-        sketch.paint(sketch.p5.mouseX, sketch.p5.mouseY, params)
         sketch.undo.takeSnapshot()
+        sketch.paint(sketch.p5.mouseX, sketch.p5.mouseY, params)
       }
     },
     {
@@ -121,16 +121,16 @@ const setupHotkeys = (config) => {
     {
       keys: ['q'].join(','),
       action: () => {
+        sketch.undo.takeSnapshot()
         sketch.rotateCanvas(1)
         // TODO: if not square, undo gets weird, here.....
-        sketch.undo.takeSnapshot()
       }
     },
     {
       keys: ['shift+q'].join(','),
       action: () => {
-        sketch.rotateCanvas(-1)
         sketch.undo.takeSnapshot()
+        sketch.rotateCanvas(-1)
       }
     },
     {
@@ -150,15 +150,15 @@ const setupHotkeys = (config) => {
     {
       keys: ['t'].join(','),
       action: ({ layers }) => {
-        sketch.mirror(VERTICAL, layers.p5)
         sketch.undo.takeSnapshot()
+        sketch.mirror(VERTICAL, layers.p5)
       }
     },
     {
       keys: ['shift+t'].join(','),
       action: ({ layers }) => {
-        sketch.mirror(HORIZONTAL, layers.p5)
         sketch.undo.takeSnapshot()
+        sketch.mirror(HORIZONTAL, layers.p5)
       }
     },
     {
@@ -183,15 +183,15 @@ const setupHotkeys = (config) => {
     {
       keys: ['z'].join(','),
       action: () => {
-        sketch.shift(0, -EXTRASHIFT)
         sketch.undo.takeSnapshot()
+        sketch.shift(0, -EXTRASHIFT)
       }
     },
     {
       keys: ['shift+z'].join(','),
       action: () => {
-        sketch.shift(0, EXTRASHIFT)
         sketch.undo.takeSnapshot()
+        sketch.shift(0, EXTRASHIFT)
       }
     },
     {
@@ -220,49 +220,49 @@ const setupHotkeys = (config) => {
       keys: 'alt+1',
       action: () => {
         sketch.macros.macro1({ ...sketch })
-        sketch.undo.takeSnapshot()
+        // sketch.undo.takeSnapshot()
       }
     },
     {
       keys: 'alt+2',
       action: () => {
         sketch.macros.macro19({ ...sketch })
-        sketch.undo.takeSnapshot()
+        // sketch.undo.takeSnapshot()
       }
     },
     {
       keys: 'alt+3',
       action: () => {
         sketch.macros.macro21({ ...sketch })
-        sketch.undo.takeSnapshot()
+        // sketch.undo.takeSnapshot()
       }
     },
     {
       keys: 'alt+4',
       action: () => {
         sketch.macros.macro16({ ...sketch })
-        sketch.undo.takeSnapshot()
+        // sketch.undo.takeSnapshot()
       }
     },
     {
       keys: 'alt+5',
       action: () => {
         sketch.macros.macro17({ ...sketch })
-        sketch.undo.takeSnapshot()
+        // sketch.undo.takeSnapshot()
       }
     },
     {
       keys: 'alt+6',
       action: () => {
         sketch.macros.macro18({ ...sketch })
-        sketch.undo.takeSnapshot()
+        // sketch.undo.takeSnapshot()
       }
     },
     {
       keys: 'alt+7',
       action: () => {
         sketch.macros.macro25({ ...sketch })
-        sketch.undo.takeSnapshot()
+        // sketch.undo.takeSnapshot()
       }
     }
   ]

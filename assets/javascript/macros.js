@@ -6,6 +6,7 @@ export default function Macros (pchrome) {
     HORIZONTAL, VERTICAL } = pchrome
 
   const macroWrapper = f => (pchrome) => {
+    pchrome.undo.takeSnapshot()
     const { params, layers: { drawingLayer: layer }, p5, defaultParams } = pchrome
     layer.push()
     f({ params: JSON.parse(JSON.stringify(params)), layer, p5, defaultParams })

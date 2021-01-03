@@ -155,9 +155,12 @@ export default function Sketch (config) {
     }
   }
 
-  p5.mouseReleased = () => {
+  p5.mousePressed = () => {
     if (mouseInCanvas()) {
-      this.undo.takeSnapshot()
+      this.undo.takeSnapshot() // since we snapshot AFTER THE DRAW
+      // the first undo image IS IDENTICAL TO THE CURRENT IMAGE
+      // and we have to undo TWICE to go back to the previous draw.
+      // DOH!!!!!
     }
   }
 

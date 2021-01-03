@@ -48,7 +48,7 @@ export default class UndoLayers {
 
 class CircImgCollection {
   constructor (layers, renderFunc, amountOfImages) {
-    let current = -1
+    let current = 0
     const imgs = []
     const amount = amountOfImages
 
