@@ -73,9 +73,12 @@ const paramsInitial = {
   gamma: 0.8,
   capturing: false,
   captureOverride: false,
-  captureCount: 0,
-  captureLimit: 200,
-  updatedCanvas: false
+  captureLimit: 200
+}
+
+const globals = {
+  updatedCanvas: false,
+  captureCount: 0
 }
 
 const allParams = { ...paramsInitial, fill: fillParams, outline: outlineParams }
@@ -89,5 +92,6 @@ export {
   drawModes,
   paintModes,
   nextCharModes,
-  colorParams
+  colorParams,
+  globals
 }

@@ -49,6 +49,8 @@ import randomPost from '@/assets/javascript/tumblr-random.js'
 import corpus from '@/assets/javascript/corpus.js'
 import Macros from '@/assets/javascript/macros.js'
 import { setupHotkeys } from '@/assets/javascript/keys.js'
+import { playScript } from '@/assets/javascript/playback'
+import recording from '@/assets/scripts/small.js'
 
 const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
@@ -98,6 +100,7 @@ export default {
       pchrome.macros = setupMacros(sketch)
       setupHotkeys({ sketch })
       this.hide()
+      setTimeout(this.playback, 0) // so it will execute AFTER p5.setup is complete
     }
 
     const builder = (p5Instance) => {
@@ -148,6 +151,11 @@ export default {
     help () {
       pchrome.stop()
       this.$modal.show('help')
+    },
+    playback () {
+      pchrome.appMode = pchrome.APP_MODES.PLAYBACK
+      playScript(recording.script, pchrome)
+      pchrome.appMode = pchrome.APP_MODES.STANDARD_DRAW
     }
   }
 }

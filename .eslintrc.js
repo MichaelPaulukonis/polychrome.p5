@@ -12,8 +12,7 @@ module.exports = {
     '@nuxtjs',
     'plugin:nuxt/recommended',
     'p5js',
-    'standard',
-    'plugin:vue/recommended'
+    'standard'
   ],
   // add your custom rules here
   rules: {

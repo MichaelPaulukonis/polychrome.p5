@@ -5,10 +5,12 @@ import {
   allParams,
   fillParams,
   outlineParams,
-  drawModes
+  drawModes,
+  globals
 } from '@/assets/javascript/params.js'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 import { setupGui } from '@/assets/javascript/gui'
+import { recordAction, recordConfig } from '@/assets/javascript/record'
 
 const datestring = () => {
   const d = new Date()
@@ -36,7 +38,6 @@ let namer = null
 export default function Sketch (config) {
   const { p5Instance: p5, guiControl, textManager, setupCallback } = config
   const params = { ...allParams }
-  // let gui
 
   const density = 2
 
@@ -96,6 +97,7 @@ export default function Sketch (config) {
     params.outline = outlineParams
     this.defaultParams = JSON.parse(JSON.stringify(params))
     setupCallback(this)
+    recordConfig(this.params, this.appMode === APP_MODES.STANDARD_DRAW)
   }
 
   // NOTE: not working
@@ -114,15 +116,18 @@ export default function Sketch (config) {
   const APP_MODES = {
     STANDARD_DRAW: 'standard drawing mode',
     TARGET: 'select a point on canvas',
-    NO_DRAW: 'no drawing for some reson'
+    NO_DRAW: 'no drawing for some reson',
+    PLAYBACK: 'replaying a paint script'
   }
 
   const standardDraw = (x = p5.mouseX, y = p5.mouseY, override = false) => {
     // ignore mouse outside confines of window.
     // or you'll crash the app! or something....
     if (override || (p5.mouseIsPressed && mouseInCanvas())) {
+      recordConfig(this.params, this.appMode !== APP_MODES.STANDARD_DRAW)
+      recordAction({ x, y }, this.appMode !== APP_MODES.STANDARD_DRAW)
       paint(x, y, this.params)
-      params.updatedCanvas = true
+      globals.updatedCanvas = true
     }
   }
 
@@ -139,18 +144,18 @@ export default function Sketch (config) {
           break
       }
     }
-    if (params.capturing && params.updatedCanvas) {
-      params.updatedCanvas = false
+    if (params.capturing && globals.updatedCanvas) {
+      globals.updatedCanvas = false
       console.log('capturing frame')
       if (namer === null) {
         namer = filenamer(datestring())
       }
       p5.saveCanvas(namer(), 'png')
-      params.captureCount += 1
-      if (params.captureCount > params.captureLimit) {
+      globals.captureCount += 1
+      if (globals.captureCount > params.captureLimit) {
         params.capturing = false
         p5.frameRate(params.p5frameRate)
-        params.captureCount = 0
+        globals.captureCount = 0
       }
     }
   }
@@ -175,7 +180,7 @@ export default function Sketch (config) {
       const locY = p5.random(minY, maxY)
       standardDraw(locX, locY, true)
     }
-    params.updatedCanvas = true
+    globals.updatedCanvas = true
   }
 
   const target = () => {
@@ -929,7 +934,6 @@ export default function Sketch (config) {
   this.nextRotation = nextRotation
   this.p5 = p5
   this.paint = paint
-  this.paint = paint
   this.params = params
   this.pushpop = pushpop
   this.randomLayer = randomLayer
@@ -943,6 +947,8 @@ export default function Sketch (config) {
   this.mouseInCanvas = mouseInCanvas
   this.HORIZONTAL = HORIZONTAL
   this.VERTICAL = VERTICAL
+  this.draw = standardDraw
+  this.APP_MODES = APP_MODES
 
   return this
 }

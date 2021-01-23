@@ -113,7 +113,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     // params.capturing
     .addButton('frames', () => { params.capturing = !params.capturing })
     .bindNumber('captureLimit', _, _, params.captureLimit, _, params)
-    .bindNumber('captureCount', _, _, params.captureCount, _, params)
+    // .bindNumber('captureCount', _, _, params.captureCount, _, params)
 
   mainGui.collapse()
 
