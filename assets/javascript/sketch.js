@@ -10,7 +10,7 @@ import {
 } from '@/assets/javascript/params.js'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 import { setupGui } from '@/assets/javascript/gui'
-import { recordAction, recordConfig } from '@/assets/javascript/record'
+import { recordAction, recordConfig, output } from '@/assets/javascript/record'
 
 const datestring = () => {
   const d = new Date()
@@ -949,6 +949,7 @@ export default function Sketch (config) {
   this.VERTICAL = VERTICAL
   this.draw = standardDraw
   this.APP_MODES = APP_MODES
+  this.output = output
 
   return this
 }

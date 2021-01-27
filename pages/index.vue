@@ -2,10 +2,7 @@
 #app
   #title polychrome text
 
-  modal(
-    name="textmanager"
-    @closed="start"
-  )
+  modal(name="textmanager", @closed="start")
     textarea#bodycopy(v-model="currentText")
     .text-controls
       button#applytext(@click="resetTextPosition")
@@ -13,29 +10,26 @@
       button#randomtext(@click="randomText")
         | Random text
 
-  modal(
-    name="about"
-    @closed="start"
-    )
+  modal(name="about", @closed="start")
     About
 
-  modal(
-    name="help"
-    height="auto"
-    @closed="start"
-    )
+  modal(name="help", height="auto", @closed="start")
     Help
+
+  modal(name="playback", height="500", @closed="start")
+    Playback(:pchrome="pchrome")
 
   button(@click="show") textManager
   button#focus(@click="setFocus") focus on canvas
   button(@click="help") help
   button(@click="about") About
+  button(@click="playback") Playback
+
   div
     #sketch-holder
       // Our sketch will go here!
     noscript
       p JavaScript is required to view the contents of this page.
-
 </template>
 
 <script>
@@ -43,14 +37,16 @@ import P5 from 'p5'
 import VModal from 'vue-js-modal'
 import Help from '@/components/help'
 import About from '@/components/about'
+import Playback from '@/components/playback'
+
 import TextManager from '@/assets/javascript/TextManager'
 import Sketch from '@/assets/javascript/sketch.js'
 import randomPost from '@/assets/javascript/tumblr-random.js'
 import corpus from '@/assets/javascript/corpus.js'
 import Macros from '@/assets/javascript/macros.js'
 import { setupHotkeys } from '@/assets/javascript/keys.js'
-import { playScript } from '@/assets/javascript/playback'
-import recording from '@/assets/scripts/small.js'
+// import { playScript } from '@/assets/javascript/playback'
+// import recording from '@/assets/scripts/small.js'
 
 const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
@@ -62,13 +58,15 @@ export default {
   components: {
     VModal,
     Help,
-    About
+    About,
+    Playback
   },
   data () {
     return {
       currentText: 'placeholder',
       corpus,
-      params: {}
+      params: {},
+      pchrome
     }
   },
   mounted () {
@@ -100,11 +98,12 @@ export default {
       pchrome.macros = setupMacros(sketch)
       setupHotkeys({ sketch })
       this.hide()
-      setTimeout(this.playback, 0) // so it will execute AFTER p5.setup is complete
+      // setTimeout(this.playback, 0) // so it will execute AFTER p5.setup is complete
     }
 
     const builder = (p5Instance) => {
       pchrome = new Sketch({ p5Instance, textManager, keypress, setupCallback }) // eslint-disable-line no-new
+      this.pchrome = pchrome
     }
 
     randomPost()
@@ -148,14 +147,13 @@ export default {
       pchrome.stop()
       this.$modal.show('about')
     },
+    playback () {
+      pchrome.stop()
+      this.$modal.show('playback')
+    },
     help () {
       pchrome.stop()
       this.$modal.show('help')
-    },
-    playback () {
-      pchrome.appMode = pchrome.APP_MODES.PLAYBACK
-      playScript(recording.script, pchrome)
-      pchrome.appMode = pchrome.APP_MODES.STANDARD_DRAW
     }
   }
 }
