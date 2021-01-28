@@ -1,10 +1,17 @@
 <template lang="pug">
 #playback
-  textarea#script(placeholder="[script goes here]", v-model="editableScript")
+  textarea#script(
+    placeholder="[script goes here]",
+    v-model="editableScript"
+  )
 
   #buttons
     button(@click="playback") Playback
     button(@click="output") Output recording
+    button(@click="keep") Keep script
+
+  #error(v-if="errorMessage" @click="clearMessages")
+    p {{ errorMessage }}
 </template>
 
 <script>
@@ -29,25 +36,46 @@ export default {
   data () {
     return {
       defaultScript: recording.script,
-      editableScript: ''
+      editableScript: '',
+      errorMessage: ''
     }
   },
   mounted () {
-    const s = (this.script && this.script.length > 0) || this.defaultScript
-    this.editableScript = this.formatDisplay(s)
+    const s = (this.script && this.script.length > 0) ? this.script : this.defaultScript
+    this.editableScript = this.stringify(s)
   },
   methods: {
     output () {
       const pScript = this.pchrome.output()
-      this.editableScript = this.formatDisplay(pScript)
+      this.editableScript = this.stringify(pScript)
     },
     playback () {
-      this.pchrome.appMode = this.pchrome.APP_MODES.PLAYBACK
-      playScript(this.defaultScript, this.pchrome)
-      this.pchrome.appMode = this.pchrome.APP_MODES.STANDARD_DRAW
+      try {
+        this.pchrome.appMode = this.pchrome.APP_MODES.PLAYBACK
+        playScript(this.jsonify(), this.pchrome)
+        this.pchrome.appMode = this.pchrome.APP_MODES.STANDARD_DRAW
+        this.pchrome.stop()
+      } catch (err) {
+        this.errorMessage = err
+      }
     },
-    formatDisplay (lines) {
+    keep () {
+      this.$emit('scriptUpdated', this.jsonify())
+    },
+    stringify (lines) {
       return lines.map(JSON.stringify).join('\n')
+    },
+    jsonify () {
+      try {
+        const stringyArray = this.editableScript.split('\n').filter(l => l.trim().length > 0).map(JSON.parse)
+        return stringyArray
+      } catch (err) {
+        this.errorMessage = err
+        return []
+      }
+    },
+    clearMessages () {
+      this.errorMessage = ''
     }
   }
 }
@@ -68,5 +96,9 @@ export default {
 #playback {
   margin: 1rem;
   padding: 1rem;
+}
+
+#error {
+  background: red;
 }
 </style>

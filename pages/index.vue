@@ -17,7 +17,7 @@
     Help
 
   modal(name="playback", height="500", @closed="start")
-    Playback(:pchrome="pchrome")
+    Playback(:pchrome="pchrome" :script="script" @scriptUpdated="script = $event")
 
   button(@click="show") textManager
   button#focus(@click="setFocus") focus on canvas
@@ -45,8 +45,6 @@ import randomPost from '@/assets/javascript/tumblr-random.js'
 import corpus from '@/assets/javascript/corpus.js'
 import Macros from '@/assets/javascript/macros.js'
 import { setupHotkeys } from '@/assets/javascript/keys.js'
-// import { playScript } from '@/assets/javascript/playback'
-// import recording from '@/assets/scripts/small.js'
 
 const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
@@ -66,7 +64,8 @@ export default {
       currentText: 'placeholder',
       corpus,
       params: {},
-      pchrome
+      pchrome,
+      script: []
     }
   },
   mounted () {
