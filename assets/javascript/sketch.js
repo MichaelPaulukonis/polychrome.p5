@@ -121,8 +121,6 @@ export default function Sketch (config) {
   }
 
   const standardDraw = (x = p5.mouseX, y = p5.mouseY, override = false) => {
-    // ignore mouse outside confines of window.
-    // or you'll crash the app! or something....
     if (override || (p5.mouseIsPressed && mouseInCanvas())) {
       recordConfig(this.params, this.appMode !== APP_MODES.STANDARD_DRAW)
       recordAction({ x, y }, this.appMode !== APP_MODES.STANDARD_DRAW)
@@ -169,6 +167,7 @@ export default function Sketch (config) {
   // TODO: perlin noise on the randoms, with jumps every n frames
   // random application of other controls (macros, etc ?)
   // rotate canvas, mirror, etc.
+  // Can we move this out of here, like playback?
   const autoDraw = (minX, minY, maxX, maxY) => {
     if (p5.random(0, 10) < 2) {
       const macro = p5.random(['macro10', 'macro11', 'macro12', 'macro13', 'macro14', 'macro15', 'macro16',
@@ -470,12 +469,15 @@ export default function Sketch (config) {
 
   // alternatively http://happycoding.io/examples/processing/for-loops/letters
   // cleaner?
-  // TODO: pass in x/y offset for repositioning/translate - like drawRowCol (or essentially circle)
-  // or handle through translate externally??
   const drawGrid = ({ xPos, params, width, height, layer }) => {
     xPos = xPos < 5 ? 5 : xPos // prevent negatives and too-too tiny letters
 
     setShadows(layer, params)
+
+    layer.push()
+    layer.translate(params.inset, params.inset)
+    width = width - (params.inset * 2)
+    height = height - (params.inset * 2)
 
     // THIS SHOULD ALL BE DEFAULT STUFF DONE COMONLY
     const gridParams = params.invert ? invertGridParm(xPos, height, width) : defaultGridParm(xPos, height, width)
@@ -511,6 +513,7 @@ export default function Sketch (config) {
       : blocGeneratorTextWidth(nextText, { width, height }, yOffset, layer) // whonly needs to be reworked
     apx(fill, outline, paint)(blocGen)
     renderLayers(params)
+    layer.pop()
   }
 
   const blocGeneratorFixedWidth = function * (gridParams, nextText) {

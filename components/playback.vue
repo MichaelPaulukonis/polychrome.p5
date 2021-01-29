@@ -9,6 +9,7 @@
     button(@click="playback") Playback
     button(@click="output") Output recording
     button(@click="keep") Keep script
+    button(@click="clearCanvas") Clear Canvas
 
   #error(v-if="errorMessage" @click="clearMessages")
     p {{ errorMessage }}
@@ -76,7 +77,11 @@ export default {
     },
     clearMessages () {
       this.errorMessage = ''
+    },
+    clearCanvas () {
+      this.pchrome.clearCanvas()
     }
+
   }
 }
 </script>

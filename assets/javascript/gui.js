@@ -103,6 +103,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindBoolean('autoPaint', params.autoPaint, params)
     .bindDropDown('drawMode', drawModes, params)
     .bindBoolean('invert', params.invert, params)
+    .bindNumber('inset', _, _, params.inset, _, params)
     .bindNumber('rows', _, _, params.rows, _, params)
     .bindNumber('columns', _, _, params.columns, _, params)
     .bindBoolean('hardEdge', params.hardEdge, params)

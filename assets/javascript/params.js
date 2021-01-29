@@ -54,6 +54,7 @@ const paramsInitial = {
   autoPaint: false,
   drawModes,
   drawMode: drawModes[0],
+  inset: 0,
   invert: false,
   useOutline: true,
   useFill: true,
