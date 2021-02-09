@@ -92,12 +92,11 @@ export default {
     }
 
     // callback when setup is complete
-    // this might have obviated some of the maros setup. eh. whatevs.
+    // this might have obviated some of the macros setup. eh. whatevs.
     const setupCallback = (sketch) => {
       pchrome.macros = setupMacros(sketch)
       setupHotkeys({ sketch })
       this.hide()
-      // setTimeout(this.playback, 0) // so it will execute AFTER p5.setup is complete
     }
 
     const builder = (p5Instance) => {

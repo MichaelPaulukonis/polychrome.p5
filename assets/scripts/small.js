@@ -51,13 +51,19 @@ module.exports = {
         'lq1': '#ff00ff'
       }
     },
-    { 'x': 762, 'y': 177.859375, 'action': 'paint' },
-    { 'x': 337, 'y': 289.859375, 'action': 'paint' },
-    { 'x': 340, 'y': 289.859375, 'action': 'paint' },
-    { 'x': 363, 'y': 289.859375, 'action': 'paint' },
-    { 'x': 398, 'y': 285.859375, 'action': 'paint' },
-    { 'x': 432, 'y': 283.859375, 'action': 'paint' },
-    { 'x': 443, 'y': 282.859375, 'action': 'paint' },
-    { 'x': 16, 'y': 19.859375, 'action': 'paint' }
+    // { 'action': 'clearCanvas' }, // POC that commands works
+    // { 'x': 762, 'y': 177.859375, 'action': 'paint' },
+    // { 'x': 337, 'y': 289.859375, 'action': 'paint' },
+    // { 'x': 340, 'y': 289.859375, 'action': 'paint' },
+    // { 'x': 363, 'y': 289.859375, 'action': 'paint' },
+    // { 'action': 'rotateCanvas', params: { direction: 1 } },
+    // { 'x': 398, 'y': 285.859375, 'action': 'paint' },
+    // { 'x': 432, 'y': 283.859375, 'action': 'paint' },
+    // { 'x': 443, 'y': 282.859375, 'action': 'paint' },
+    { 'x': 16, 'y': 19.859375, 'action': 'paint' },
+    // { 'action': 'mirrorParams', params: { axis: 1, layer: 'layers.p5' } },
+    // TODO: record will only store 'p5' and we need the parent object blarg
+    // we could something (at some point) parse through params for props, if not found, check child objects?
+    { params: { 'axis': 0, 'layer': 'layers.p5' }, 'action': 'flip' }
   ]
 }

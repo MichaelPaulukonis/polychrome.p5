@@ -64,6 +64,10 @@ const keymap = [
     note: 'Rotate canvas clockwise or counter-clockwise'
   },
   {
+    keys: ['o', 'shift+o'],
+    note: 'Reset parameters'
+  },
+  {
     keys: ['u', 'U'],
     note: 'undo, re-do'
   },

@@ -1,18 +1,28 @@
 import diff from './diff'
+import { mergeAll } from 'ramda'
 
 let recs = []
 
-const store = (obj) => {
-  recs.push(obj)
-  print(obj)
+const dry = val => typeof (val) === 'object' ? val.constructor.name : val
+
+const store = ({ action, config, params: props }) => {
+  let params
+  if (props) {
+    try {
+      params = JSON.parse(JSON.stringify(props))
+    } catch (_) {
+      params = mergeAll(Object.keys(props).map(key => ({ [key]: dry(props[key]) })))
+    }
+  }
+  recs.push({ action, config, params })
 }
 
-const print = obj => console.log(JSON.stringify(obj))
 const isDifferent = diff => Object.keys(diff).length > 0
 
-const recordAction = ({ x, y, action = 'paint' }, bypass) => {
+const recordAction = (props, bypass) => {
   if (bypass) return
-  store({ x, y, action })
+  let { action, ...params } = props
+  store({ action, params })
 }
 
 let prevConfig = {}

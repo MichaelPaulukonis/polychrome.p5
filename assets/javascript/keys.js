@@ -7,44 +7,44 @@ const VERTICAL = 1
 
 const flip = ({ layers, sketch }) => (direction) => {
   sketch.undo.takeSnapshot()
-  sketch.flip(direction, layers.p5)
+  sketch.flip({ axis: direction, layer: layers.p5 })
 }
 
 // TODO: the check for "inside of canvas" is missing, need to use a wrapper for those that need it?
-const setupHotkeys = (config) => {
-  const { sketch } = config
-  const blob = { params: sketch.params, layers: sketch.layers, sketch }
+const setupHotkeys = (polychrome) => {
+  const { sketch: pct } = polychrome
+  const blob = { params: pct.params, layers: pct.layers, sketch: pct }
   const shiftPressed = () => hotkeys.getPressedKeyCodes().includes(16)
 
   const keylist = [
     {
       keys: ['left', 'shift+left', 'right', 'shift+right'].join(','),
       action: ({ handler, extraShift }) => {
-        sketch.undo.takeSnapshot()
+        pct.undo.takeSnapshot()
         const vector = (handler.key.includes('right')) ? 1 : -1
-        sketch.shift(0, vector * extraShift)
+        pct.shift(0, vector * extraShift)
       }
     },
     {
       keys: ['down', 'up', 'shift+down', 'shift+up'].join(','),
       action: ({ handler, extraShift }) => {
-        sketch.undo.takeSnapshot()
+        pct.undo.takeSnapshot()
         const vector = (handler.key.includes('down')) ? 1 : -1
-        sketch.shift(vector * extraShift, 0)
+        pct.shift(vector * extraShift, 0)
       }
     },
     {
       keys: ['del', 'backspace'].join(','),
       action: () => {
-        sketch.undo.takeSnapshot()
-        sketch.clearCanvas()
+        pct.undo.takeSnapshot()
+        pct.clearCanvas()
       }
     },
     {
       keys: 'a',
       action: ({ layers }) => {
-        sketch.undo.takeSnapshot()
-        sketch.newCorner(layers.drawingLayer)
+        pct.undo.takeSnapshot()
+        pct.newCorner(layers.drawingLayer)
       }
     },
     {
@@ -55,7 +55,7 @@ const setupHotkeys = (config) => {
     },
     {
       keys: 'command+s',
-      action: () => sketch.save_sketch()
+      action: () => pct.save_sketch()
     },
     {
       keys: 'shift+command+s',
@@ -63,22 +63,22 @@ const setupHotkeys = (config) => {
     },
     {
       keys: 'alt+s',
-      action: () => sketch.shiftFillColors()
+      action: () => pct.shiftFillColors()
     },
     {
       keys: 'alt+shift+s',
-      action: () => sketch.shiftOutlineColors()
+      action: () => pct.shiftOutlineColors()
     },
     {
       keys: 'alt+g',
       action: ({ params }) => {
-        sketch.undo.takeSnapshot()
-        sketch.adjustGamma(params.gamma)
+        pct.undo.takeSnapshot()
+        pct.adjustGamma(params.gamma)
       }
     },
     {
       keys: 'alt+t',
-      action: () => sketch.target() // this doesn't really do anything yet....
+      action: () => pct.target() // this doesn't really do anything yet....
     },
     {
       keys: ['f', 'shift+f'].join(','),
@@ -90,20 +90,20 @@ const setupHotkeys = (config) => {
     {
       keys: ['space'].join(','),
       action: ({ params }) => {
-        sketch.undo.takeSnapshot()
-        sketch.paint(sketch.p5.mouseX, sketch.p5.mouseY, params)
+        pct.undo.takeSnapshot()
+        pct.paint(pct.p5.mouseX, pct.p5.mouseY, params)
       }
     },
     {
       keys: ['m'].join(','),
       action: ({ params }) => {
-        sketch.nextDrawMode(1, params)
+        pct.nextDrawMode(1, params)
       }
     },
     {
       keys: ['shift+m'].join(','),
       action: ({ params }) => {
-        sketch.nextDrawMode(-1, params)
+        pct.nextDrawMode(-1, params)
       }
     },
     {
@@ -121,22 +121,22 @@ const setupHotkeys = (config) => {
     {
       keys: ['q'].join(','),
       action: () => {
-        sketch.undo.takeSnapshot()
-        sketch.rotateCanvas(1)
+        pct.undo.takeSnapshot()
+        pct.rotateCanvas({ direction: 1 })
         // TODO: if not square, undo gets weird, here.....
       }
     },
     {
       keys: ['shift+q'].join(','),
       action: () => {
-        sketch.undo.takeSnapshot()
-        sketch.rotateCanvas(-1)
+        pct.undo.takeSnapshot()
+        pct.rotateCanvas({ direction: -1 })
       }
     },
     {
       keys: ['r', 'shift+r'].join(','),
       action: ({ params, layers }) => {
-        sketch.reset(params, layers.drawingLayer)
+        pct.reset(params, layers.drawingLayer)
       }
     },
     // {
@@ -150,27 +150,27 @@ const setupHotkeys = (config) => {
     {
       keys: ['t'].join(','),
       action: ({ layers }) => {
-        sketch.undo.takeSnapshot()
-        sketch.mirror(VERTICAL, layers.p5)
+        pct.undo.takeSnapshot()
+        pct.mirrorParams({ axis: VERTICAL, layer: layers.p5 })
       }
     },
     {
       keys: ['shift+t'].join(','),
       action: ({ layers }) => {
-        sketch.undo.takeSnapshot()
-        sketch.mirror(HORIZONTAL, layers.p5)
+        pct.undo.takeSnapshot()
+        pct.mirrorParams({ axis: HORIZONTAL, layer: layers.p5 })
       }
     },
     {
       keys: ['u'].join(','),
       action: () => {
-        sketch.undo.undo()
+        pct.undo.undo()
       }
     },
     {
       keys: ['shift+u'].join(','),
       action: () => {
-        sketch.undo.redo()
+        pct.undo.redo()
       }
     },
     {
@@ -183,27 +183,27 @@ const setupHotkeys = (config) => {
     {
       keys: ['z'].join(','),
       action: () => {
-        sketch.undo.takeSnapshot()
-        sketch.shift(0, -EXTRASHIFT)
+        pct.undo.takeSnapshot()
+        pct.shift(0, -EXTRASHIFT)
       }
     },
     {
       keys: ['shift+z'].join(','),
       action: () => {
-        sketch.undo.takeSnapshot()
-        sketch.shift(0, EXTRASHIFT)
+        pct.undo.takeSnapshot()
+        pct.shift(0, EXTRASHIFT)
       }
     },
     {
       keys: ['g'].join(','),
       action: () => {
-        sketch.randomLayer()
+        pct.randomLayer()
       }
     },
     {
       keys: ['shift+g'].join(','),
       action: () => {
-        sketch.undo.takeSnapshot()
+        pct.undo.takeSnapshot()
       }
     }
   ]
@@ -219,49 +219,49 @@ const setupHotkeys = (config) => {
     {
       keys: 'alt+1',
       action: () => {
-        sketch.macros.macro1({ ...sketch })
+        pct.macros.macro1({ ...pct })
         // sketch.undo.takeSnapshot()
       }
     },
     {
       keys: 'alt+2',
       action: () => {
-        sketch.macros.macro19({ ...sketch })
+        pct.macros.macro19({ ...pct })
         // sketch.undo.takeSnapshot()
       }
     },
     {
       keys: 'alt+3',
       action: () => {
-        sketch.macros.macro21({ ...sketch })
+        pct.macros.macro21({ ...pct })
         // sketch.undo.takeSnapshot()
       }
     },
     {
       keys: 'alt+4',
       action: () => {
-        sketch.macros.macro16({ ...sketch })
+        pct.macros.macro16({ ...pct })
         // sketch.undo.takeSnapshot()
       }
     },
     {
       keys: 'alt+5',
       action: () => {
-        sketch.macros.macro17({ ...sketch })
+        pct.macros.macro17({ ...pct })
         // sketch.undo.takeSnapshot()
       }
     },
     {
       keys: 'alt+6',
       action: () => {
-        sketch.macros.macro18({ ...sketch })
+        pct.macros.macro18({ ...pct })
         // sketch.undo.takeSnapshot()
       }
     },
     {
       keys: 'alt+7',
       action: () => {
-        sketch.macros.macro25({ ...sketch })
+        pct.macros.macro25({ ...pct })
         // sketch.undo.takeSnapshot()
       }
     }

@@ -38,6 +38,7 @@ let namer = null
 export default function Sketch (config) {
   const { p5Instance: p5, guiControl, textManager, setupCallback } = config
   const params = { ...allParams }
+  const pct = {}
 
   const density = 2
 
@@ -81,31 +82,31 @@ export default function Sketch (config) {
     p5.createCanvas(params.width, params.height) // canvas 1
     const drawingLayer = initDrawingLayer(params.width, params.height) // canvas 2
     const tempLayer = initDefaultLayer(params.width, params.height) // canvas 3
-    this.layers = layers = new Layers(p5, drawingLayer, tempLayer)
+    pct.layers = layers = new Layers(p5, drawingLayer, tempLayer)
 
     const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: this, params, fillParams, outlineParams })
-    this.shiftFillColors = shiftFillColors
-    this.shiftOutlineColors = shiftOutlineColors
+    pct.shiftFillColors = shiftFillColors
+    pct.shiftOutlineColors = shiftOutlineColors
 
-    this.clearCanvas()
+    pct.clearCanvas()
     undo = new UndoLayers(layers, renderLayers, 10)
-    this.undo = undo
+    pct.undo = undo
     undo.takeSnapshot()
-    this.appMode = APP_MODES.STANDARD_DRAW
+    pct.appMode = APP_MODES.STANDARD_DRAW
 
     params.fill = fillParams
     params.outline = outlineParams
-    this.defaultParams = JSON.parse(JSON.stringify(params))
-    setupCallback(this)
-    recordConfig(this.params, this.appMode === APP_MODES.STANDARD_DRAW)
+    pct.defaultParams = JSON.parse(JSON.stringify(params))
+    setupCallback(pct)
+    recordConfig(pct.params, pct.appMode === APP_MODES.STANDARD_DRAW)
   }
 
   // NOTE: not working
   // swap paint (fill/stroke) params
-  // this.swapParams = () => {
-  //   const temp = { ...this.params.fill }
-  //   this.params.fill = { ...this.params.outline }
-  //   this.params.outline = temp
+  // pct.swapParams = () => {
+  //   const temp = { ...pct.params.fill }
+  //   pct.params.fill = { ...pct.params.outline }
+  //   pct.params.outline = temp
   //   console.log('flipped!')
   // }
 
@@ -122,9 +123,9 @@ export default function Sketch (config) {
 
   const standardDraw = (x = p5.mouseX, y = p5.mouseY, override = false) => {
     if (override || (p5.mouseIsPressed && mouseInCanvas())) {
-      recordConfig(this.params, this.appMode !== APP_MODES.STANDARD_DRAW)
-      recordAction({ x, y }, this.appMode !== APP_MODES.STANDARD_DRAW)
-      paint(x, y, this.params)
+      recordConfig(pct.params, pct.appMode !== APP_MODES.STANDARD_DRAW)
+      recordAction({ x, y, action: 'paint' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+      paint(x, y, pct.params)
       globals.updatedCanvas = true
     }
   }
@@ -133,7 +134,7 @@ export default function Sketch (config) {
     if (params.autoPaint) {
       autoDraw(0, 0, p5.width, p5.height)
     } else {
-      switch (this.appMode) {
+      switch (pct.appMode) {
         case APP_MODES.NO_DRAW:
           return
         case APP_MODES.STANDARD_DRAW:
@@ -160,7 +161,7 @@ export default function Sketch (config) {
 
   p5.mousePressed = () => {
     if (mouseInCanvas()) {
-      this.undo.takeSnapshot()
+      pct.undo.takeSnapshot()
     }
   }
 
@@ -173,7 +174,7 @@ export default function Sketch (config) {
       const macro = p5.random(['macro10', 'macro11', 'macro12', 'macro13', 'macro14', 'macro15', 'macro16',
         'macro17', 'macro18', 'macro19', 'macro20', 'macro21', 'macro22', 'macro23', 'macro24', 'macro25',
         'macro26', 'macro27'])
-      this.macros[macro]({ ...this })
+      pct.macros[macro]({ ...this })
     } else {
       const locX = p5.random(minX, maxX)
       const locY = p5.random(minY, maxY)
@@ -215,6 +216,7 @@ export default function Sketch (config) {
   // but, this binds the current values in params, apparently
   // UGH UGH UGH
   const clearCanvas = () => {
+    recordAction({ action: 'clearCanvas' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
     const color = params.fill.color
     clear(layers.drawingLayer, color)
     clear(layers.p5, color)
@@ -562,7 +564,7 @@ export default function Sketch (config) {
 
   // translate, rotate, text
   const trText = (layer, rotation) => (x, y, tx, ty, txt) => () => {
-    // think I'm over-thinking this. Original version was easier to understand
+    // think I'm over-thinking pct. Original version was easier to understand
     if (tx !== 0 || ty !== 0) {
       layer.translate(tx, ty)
     }
@@ -717,7 +719,9 @@ export default function Sketch (config) {
 
   const HORIZONTAL = 0 // up=>down
   const VERTICAL = 1 // left=>right
-  const flip = (axis, layer) => {
+  const flip = ({ axis, layer }) => {
+    recordAction({ axis, layer, action: 'flip' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+
     const newLayer = flipCore(axis, layers.copy())
     layer.image(newLayer, 0, 0)
     renderLayers(params)
@@ -742,12 +746,21 @@ export default function Sketch (config) {
     return tmp
   }
 
-  const mirror = (axis = VERTICAL, layer) => {
-    const newLayer = mirrorCore(axis, layers.copy())
-    layer.image(newLayer, 0, 0)
+  const mirrorParams = (prms = { axis: VERTICAL, layer: layers.p5 }) => {
+    recordAction({ ...prms, action: 'flip' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+
+    const newLayer = mirrorCore(prms.axis, layers.copy())
+    prms.layer.image(newLayer, 0, 0)
     renderLayers(params)
     newLayer.remove()
   }
+
+  // const mirror = (axis = VERTICAL, layer) => {
+  //   const newLayer = mirrorCore(axis, layers.copy())
+  //   layer.image(newLayer, 0, 0)
+  //   renderLayers(params)
+  //   newLayer.remove()
+  // }
 
   const mirrorCore = (axis = VERTICAL, g) => {
     const tmp = flipCore(axis, g)
@@ -781,7 +794,7 @@ export default function Sketch (config) {
     renderLayers(params)
   }
 
-  this.save_sketch = () => {
+  pct.save_sketch = () => {
     const getDateFormatted = () => {
       const d = new Date()
       const df = `${d.getFullYear()}${pad((d.getMonth() + 1), 2)}${pad(d.getDate(), 2)}.${pad(d.getHours(), 2)}${pad(d.getMinutes(), 2)}${pad(d.getSeconds(), 2)}`
@@ -795,7 +808,7 @@ export default function Sketch (config) {
     p5.saveCanvas(`${params.name}.${getDateFormatted()}.png`)
   }
 
-  this.saveAnimationFrames = () => {
+  pct.saveAnimationFrames = () => {
     if (config.capturing) {
       config.captureOverride = false
       p5.frameRate(config.p5frameRate)
@@ -818,7 +831,7 @@ export default function Sketch (config) {
     layer.rotate(layer.radians(90))
   }
 
-  const rotateCanvas = (direction = 1) => {
+  const rotateCanvas = (cfg = { direction: 1 }) => {
     const newHeight = params.height = p5.width
     const newWidth = params.width = p5.height
 
@@ -830,12 +843,12 @@ export default function Sketch (config) {
 
     const newPG = initDrawingLayer(newWidth, newHeight)
     newPG.push()
-    if (direction === -1) {
+    if (cfg.direction === -1) {
       newPG.translate(0, newHeight)
     } else {
       newPG.translate(newWidth, 0)
     }
-    newPG.rotate(p5.radians(90 * direction))
+    newPG.rotate(p5.radians(90 * cfg.direction))
     newPG.image(layers.drawingLayer, 0, 0)
     newPG.pop()
 
@@ -848,29 +861,29 @@ export default function Sketch (config) {
     renderLayers(params)
   }
 
-  const coinflip = () => this.p5.random() > 0.5
+  const coinflip = () => pct.p5.random() > 0.5
 
   // place image from history into location in current image
   // with (optional) rotation, transparency, mask and size
   const randomLayer = () => {
-    const img = this.p5.random(this.undo.history())
+    const img = pct.p5.random(pct.undo.history())
     layers.drawingLayer.push()
     layers.drawingLayer.resetMatrix()
 
     // can be negative, but to appear it depends on the size percentage
     const pctSize = percentSize()
     // this is an approximation, an does not take rotation into account
-    const size = { width: this.p5.width * pctSize, height: this.p5.height * pctSize }
+    const size = { width: pct.p5.width * pctSize, height: pct.p5.height * pctSize }
     const offsetSize = { width: size.width * 0.75, height: size.height * 0.75 }
-    const originX = this.p5.random(-offsetSize.width, this.p5.width + offsetSize.width) // should be able to go BACK and UP as well
-    const originY = this.p5.random(-offsetSize.height, this.p5.height + offsetSize.height)
+    const originX = pct.p5.random(-offsetSize.width, pct.p5.width + offsetSize.width) // should be able to go BACK and UP as well
+    const originY = pct.p5.random(-offsetSize.height, pct.p5.height + offsetSize.height)
     layers.drawingLayer.translate(originX, originY)
     // TODO: hrm. maybe there could be some more options, here?
-    if (coinflip()) { layers.drawingLayer.rotate(this.p5.radians(this.p5.random(360))) }
+    if (coinflip()) { layers.drawingLayer.rotate(pct.p5.radians(pct.p5.random(360))) }
     // this is a POC
     // I'd like to explore gradients or other masks for transparency
-    const alpha = (this.p5.random(255))
-    this.p5.push()
+    const alpha = (pct.p5.random(255))
+    pct.p5.push()
 
     // hey! the density is all off, here
     const img2 = layers.p5.createImage(img.width, img.height)
@@ -881,19 +894,19 @@ export default function Sketch (config) {
       img2.mask(mask2) // TODO: need to modify by size, as well
     }
 
-    this.p5.tint(255, alpha)
+    pct.p5.tint(255, alpha)
     setShadows(layers.drawingLayer, params)
 
     layers.drawingLayer.image(img2, 0, 0)
     renderTarget() // not all layers - skip clearing and background, thus allowing an overlay
-    this.p5.pop()
+    pct.p5.pop()
 
     layers.drawingLayer.pop()
   }
 
   const percentSize = () => {
     const sizes = [0.25, 0.5, 0.75, 1.0, 1.5, 2]
-    const size = this.p5.random(sizes)
+    const size = pct.p5.random(sizes)
     return size
   }
 
@@ -912,47 +925,46 @@ export default function Sketch (config) {
     renderLayers(params)
   }
 
-  this.stop = () => {
-    this.appMode = APP_MODES.NO_DRAW
+  pct.stop = () => {
+    pct.appMode = APP_MODES.NO_DRAW
   }
 
-  this.start = () => {
-    this.appMode = APP_MODES.STANDARD_DRAW
+  pct.start = () => {
+    pct.appMode = APP_MODES.STANDARD_DRAW
   }
-
   // this smells, but is a start of separation
-  this.adjustGamma = adjustGamma
-  this.apx = apx
-  this.clearCanvas = clearCanvas
-  this.drawCircle = drawCircle
-  this.drawGrid = drawGrid
-  this.drawRowCol = drawRowCol
-  this.flip = flip
-  this.flipCore = flipCore
-  this.guiControl = guiControl
-  this.layers = layers
-  this.mirror = mirror
-  this.newCorner = newCorner
-  this.nextDrawMode = nextDrawMode
-  this.nextRotation = nextRotation
-  this.p5 = p5
-  this.paint = paint
-  this.params = params
-  this.pushpop = pushpop
-  this.randomLayer = randomLayer
-  this.renderLayers = renderLayers
-  this.reset = reset
-  this.rotateCanvas = rotateCanvas
-  this.setFont = setFont
-  this.shift = shift
-  this.target = target
-  this.textManager = textManager
-  this.mouseInCanvas = mouseInCanvas
-  this.HORIZONTAL = HORIZONTAL
-  this.VERTICAL = VERTICAL
-  this.draw = standardDraw
-  this.APP_MODES = APP_MODES
-  this.output = output
+  pct.adjustGamma = adjustGamma
+  pct.apx = apx
+  pct.clearCanvas = clearCanvas
+  pct.drawCircle = drawCircle
+  pct.drawGrid = drawGrid
+  pct.drawRowCol = drawRowCol
+  pct.flip = flip
+  pct.flipCore = flipCore
+  pct.guiControl = guiControl
+  pct.layers = layers
+  pct.mirrorParams = mirrorParams
+  pct.newCorner = newCorner
+  pct.nextDrawMode = nextDrawMode
+  pct.nextRotation = nextRotation
+  pct.p5 = p5
+  pct.paint = paint
+  pct.params = params
+  pct.pushpop = pushpop
+  pct.randomLayer = randomLayer
+  pct.renderLayers = renderLayers
+  pct.reset = reset
+  pct.rotateCanvas = rotateCanvas
+  pct.setFont = setFont
+  pct.shift = shift
+  pct.target = target
+  pct.textManager = textManager
+  pct.mouseInCanvas = mouseInCanvas
+  pct.HORIZONTAL = HORIZONTAL
+  pct.VERTICAL = VERTICAL
+  pct.draw = standardDraw
+  pct.APP_MODES = APP_MODES
+  pct.output = output
 
-  return this
+  return pct
 }

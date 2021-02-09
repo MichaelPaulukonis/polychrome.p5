@@ -2,7 +2,7 @@
 export default function Macros (pchrome) {
   const { drawGrid, drawCircle, drawRowCol,
     flipCore, layers, pushpop, paint, shift,
-    apx, mirror, renderLayers, undo, randomLayer,
+    apx, mirrorParams, renderLayers, undo, randomLayer,
     HORIZONTAL, VERTICAL } = pchrome
 
   const macroWrapper = f => (pchrome) => {
@@ -195,8 +195,8 @@ export default function Macros (pchrome) {
   })
 
   const doubleMirror = macroWrapper(({ p5 }) => {
-    mirror(HORIZONTAL, p5)
-    mirror(VERTICAL, p5)
+    mirrorParams({ axis: HORIZONTAL, layer: layers.p5 })
+    mirrorParams({ axis: VERTICAL, layer: layers.p5 })
   })
 
   const shiftToCenter = macroWrapper(({ layer }) => {
