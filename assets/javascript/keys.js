@@ -22,7 +22,7 @@ const setupHotkeys = (polychrome) => {
       action: ({ handler, extraShift }) => {
         pct.undo.takeSnapshot()
         const vector = (handler.key.includes('right')) ? 1 : -1
-        pct.shift(0, vector * extraShift)
+        pct.shift({ verticalOffset: 0, horizontalOffset: vector * extraShift })
       }
     },
     {
@@ -30,7 +30,7 @@ const setupHotkeys = (polychrome) => {
       action: ({ handler, extraShift }) => {
         pct.undo.takeSnapshot()
         const vector = (handler.key.includes('down')) ? 1 : -1
-        pct.shift(vector * extraShift, 0)
+        pct.shift({ verticalOffset: vector * extraShift, horizontalOffset: 0 })
       }
     },
     {
@@ -73,7 +73,7 @@ const setupHotkeys = (polychrome) => {
       keys: 'alt+g',
       action: ({ params }) => {
         pct.undo.takeSnapshot()
-        pct.adjustGamma(params.gamma)
+        pct.adjustGamma({ gamma: params.gamma })
       }
     },
     {
@@ -151,14 +151,14 @@ const setupHotkeys = (polychrome) => {
       keys: ['t'].join(','),
       action: ({ layers }) => {
         pct.undo.takeSnapshot()
-        pct.mirrorParams({ axis: VERTICAL, layer: layers.p5 })
+        pct.mirror({ axis: VERTICAL, layer: layers.p5 })
       }
     },
     {
       keys: ['shift+t'].join(','),
       action: ({ layers }) => {
         pct.undo.takeSnapshot()
-        pct.mirrorParams({ axis: HORIZONTAL, layer: layers.p5 })
+        pct.mirror({ axis: HORIZONTAL, layer: layers.p5 })
       }
     },
     {
@@ -184,14 +184,14 @@ const setupHotkeys = (polychrome) => {
       keys: ['z'].join(','),
       action: () => {
         pct.undo.takeSnapshot()
-        pct.shift(0, -EXTRASHIFT)
+        pct.shift({ verticalOffset: 0, horizontalOffset: -EXTRASHIFT })
       }
     },
     {
       keys: ['shift+z'].join(','),
       action: () => {
         pct.undo.takeSnapshot()
-        pct.shift(0, EXTRASHIFT)
+        pct.shift({ verticalOffset: 0, horizontalOffset: EXTRASHIFT })
       }
     },
     {

@@ -2,8 +2,10 @@
 export default function Macros (pchrome) {
   const { drawGrid, drawCircle, drawRowCol,
     flipCore, layers, pushpop, paint, shift,
-    apx, mirrorParams, renderLayers, undo, randomLayer,
+    apx, mirror, renderLayers, undo, randomLayer,
     HORIZONTAL, VERTICAL } = pchrome
+
+  // TODO: pchrome should be referenced at the time of calling the macro ???
 
   const macroWrapper = f => (pchrome) => {
     pchrome.undo.takeSnapshot()
@@ -195,22 +197,22 @@ export default function Macros (pchrome) {
   })
 
   const doubleMirror = macroWrapper(({ p5 }) => {
-    mirrorParams({ axis: HORIZONTAL, layer: layers.p5 })
-    mirrorParams({ axis: VERTICAL, layer: layers.p5 })
+    mirror({ axis: HORIZONTAL, layer: layers.p5 })
+    mirror({ axis: VERTICAL, layer: layers.p5 })
   })
 
   const shiftToCenter = macroWrapper(({ layer }) => {
     // because density is 2, this is shifting by half
     const x = layer.width
     const y = layer.height
-    shift(y, x)
+    shift({ verticalOffset: x, horizontalOffset: y })
   })
 
   const shiftRightHalfway = macroWrapper(({ layer }) => {
     // because density is 2, this is shifting by half
     const x = layer.width
     const y = 0
-    shift(y, x)
+    shift({ verticalOffset: x, horizontalOffset: y })
   })
 
   const aRowColJoint = macroWrapper(({ params, layer }) => {

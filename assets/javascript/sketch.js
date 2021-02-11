@@ -10,7 +10,7 @@ import {
 } from '@/assets/javascript/params.js'
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 import { setupGui } from '@/assets/javascript/gui'
-import { recordAction, recordConfig, output } from '@/assets/javascript/record'
+import { recordAction, recordConfig, output, clear as clearRecording } from '@/assets/javascript/record'
 
 const datestring = () => {
   const d = new Date()
@@ -746,21 +746,14 @@ export default function Sketch (config) {
     return tmp
   }
 
-  const mirrorParams = (prms = { axis: VERTICAL, layer: layers.p5 }) => {
-    recordAction({ ...prms, action: 'flip' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+  const mirror = (cfg = { axis: VERTICAL, layer: layers.p5 }) => {
+    recordAction({ ...cfg, action: 'flip' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
 
-    const newLayer = mirrorCore(prms.axis, layers.copy())
-    prms.layer.image(newLayer, 0, 0)
+    const newLayer = mirrorCore(cfg.axis, layers.copy())
+    cfg.layer.image(newLayer, 0, 0)
     renderLayers(params)
     newLayer.remove()
   }
-
-  // const mirror = (axis = VERTICAL, layer) => {
-  //   const newLayer = mirrorCore(axis, layers.copy())
-  //   layer.image(newLayer, 0, 0)
-  //   renderLayers(params)
-  //   newLayer.remove()
-  // }
 
   const mirrorCore = (axis = VERTICAL, g) => {
     const tmp = flipCore(axis, g)
@@ -775,22 +768,24 @@ export default function Sketch (config) {
 
   // shift pixels in image
   // I'd love to be able to drag the image around, but I think that will require something else, but related
-  const shift = (verticalOffset, horizontalOffset) => {
+  const shift = (cfg = { verticalOffset: 0, horizontalOffset: 0 }) => {
+    recordAction({ ...cfg, action: 'shift' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+
     // TODO: has to be pointing to the drawingLayer
     const context = layers.p5.drawingContext
     const imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
-    const cw = (horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
-    const ch = (verticalOffset > 0 ? context.canvas.height : -context.canvas.height)
+    const cw = (cfg.horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
+    const ch = (cfg.verticalOffset > 0 ? context.canvas.height : -context.canvas.height)
 
-    context.putImageData(imageData, 0 + horizontalOffset, 0 + verticalOffset)
-    if (horizontalOffset !== 0) {
-      context.putImageData(imageData, 0 + horizontalOffset - cw, 0 + verticalOffset)
+    context.putImageData(imageData, 0 + cfg.horizontalOffset, 0 + cfg.verticalOffset)
+    if (cfg.horizontalOffset !== 0) {
+      context.putImageData(imageData, 0 + cfg.horizontalOffset - cw, 0 + cfg.verticalOffset)
     }
-    if (verticalOffset !== 0) {
-      context.putImageData(imageData, 0 + horizontalOffset, 0 + verticalOffset - ch)
+    if (cfg.verticalOffset !== 0) {
+      context.putImageData(imageData, 0 + cfg.horizontalOffset, 0 + cfg.verticalOffset - ch)
     }
-    context.putImageData(imageData, 0 - cw + horizontalOffset, 0 - ch + verticalOffset)
+    context.putImageData(imageData, 0 - cw + cfg.horizontalOffset, 0 - ch + cfg.verticalOffset)
     renderLayers(params)
   }
 
@@ -865,24 +860,27 @@ export default function Sketch (config) {
 
   // place image from history into location in current image
   // with (optional) rotation, transparency, mask and size
-  const randomLayer = () => {
+  const randomLayer = (cfg = {}) => {
     const img = pct.p5.random(pct.undo.history())
     layers.drawingLayer.push()
     layers.drawingLayer.resetMatrix()
 
     // can be negative, but to appear it depends on the size percentage
-    const pctSize = percentSize()
+    const pctSize = cfg.percentSize || percentSize()
     // this is an approximation, an does not take rotation into account
     const size = { width: pct.p5.width * pctSize, height: pct.p5.height * pctSize }
     const offsetSize = { width: size.width * 0.75, height: size.height * 0.75 }
-    const originX = pct.p5.random(-offsetSize.width, pct.p5.width + offsetSize.width) // should be able to go BACK and UP as well
-    const originY = pct.p5.random(-offsetSize.height, pct.p5.height + offsetSize.height)
+    const originX = cfg.originX || pct.p5.random(-offsetSize.width, pct.p5.width + offsetSize.width) // should be able to go BACK and UP as well
+    const originY = cfg.originY || pct.p5.random(-offsetSize.height, pct.p5.height + offsetSize.height)
     layers.drawingLayer.translate(originX, originY)
     // TODO: hrm. maybe there could be some more options, here?
-    if (coinflip()) { layers.drawingLayer.rotate(pct.p5.radians(pct.p5.random(360))) }
+
+    const rotateP = cfg.rotateP || coinflip()
+    const radians = cfg.radians || pct.p5.random(360)
+    if (rotateP) { layers.drawingLayer.rotate(pct.p5.radians(radians)) }
     // this is a POC
     // I'd like to explore gradients or other masks for transparency
-    const alpha = (pct.p5.random(255))
+    const alpha = cfg.alpha || pct.p5.random(255)
     pct.p5.push()
 
     // hey! the density is all off, here
@@ -902,6 +900,8 @@ export default function Sketch (config) {
     pct.p5.pop()
 
     layers.drawingLayer.pop()
+
+    recordAction({ action: 'randomLayer', percentSize: pctSize, originX, originY, rotateP, radians, alpha }, pct.appMode !== APP_MODES.STANDARD_DRAW)
   }
 
   const percentSize = () => {
@@ -910,8 +910,10 @@ export default function Sketch (config) {
     return size
   }
 
-  const adjustGamma = (gamma = 0.8) => {
-    const gammaCorrection = 1 / gamma
+  const adjustGamma = (props = { gamma: 0.8 }) => {
+    recordAction({ action: 'adjustGamma', 'gamma': props.gamma }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+
+    const gammaCorrection = 1 / props.gamma
     const context = layers.p5.drawingContext
     const imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
@@ -943,7 +945,7 @@ export default function Sketch (config) {
   pct.flipCore = flipCore
   pct.guiControl = guiControl
   pct.layers = layers
-  pct.mirrorParams = mirrorParams
+  pct.mirror = mirror
   pct.newCorner = newCorner
   pct.nextDrawMode = nextDrawMode
   pct.nextRotation = nextRotation
@@ -965,6 +967,7 @@ export default function Sketch (config) {
   pct.draw = standardDraw
   pct.APP_MODES = APP_MODES
   pct.output = output
+  pct.clearRecording = clearRecording
 
   return pct
 }

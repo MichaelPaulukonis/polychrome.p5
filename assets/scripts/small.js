@@ -61,7 +61,7 @@ module.exports = {
     // { 'x': 432, 'y': 283.859375, 'action': 'paint' },
     // { 'x': 443, 'y': 282.859375, 'action': 'paint' },
     { 'x': 16, 'y': 19.859375, 'action': 'paint' },
-    // { 'action': 'mirrorParams', params: { axis: 1, layer: 'layers.p5' } },
+    // { 'action': 'mirror', params: { axis: 1, layer: 'layers.p5' } },
     // TODO: record will only store 'p5' and we need the parent object blarg
     // we could something (at some point) parse through params for props, if not found, check child objects?
     { params: { 'axis': 0, 'layer': 'layers.p5' }, 'action': 'flip' }

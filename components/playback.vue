@@ -10,6 +10,8 @@
     button(@click="output") Output recording
     button(@click="keep") Keep script
     button(@click="clearCanvas") Clear Canvas
+    button(@click="clearScripts") Erase recording
+    button(@click="loadRecording") Load Recording
 
   #error(v-if="errorMessage" @click="clearMessages")
     p {{ errorMessage }}
@@ -42,8 +44,8 @@ export default {
     }
   },
   mounted () {
-    const s = (this.script && this.script.length > 0) ? this.script : this.defaultScript
-    this.editableScript = this.stringify(s)
+    // const s = (this.script && this.script.length > 0) ? this.script : this.defaultScript
+    this.editableScript = this.stringify(this.script)
   },
   methods: {
     output () {
@@ -80,6 +82,14 @@ export default {
     },
     clearCanvas () {
       this.pchrome.clearCanvas()
+    },
+    clearScripts () {
+      this.pchrome.clearRecording()
+      this.editableScript = ''
+      this.$emit('scriptUpdated', this.jsonify([]))
+    },
+    loadRecording () {
+      this.editableScript = this.stringify(this.defaultScript)
     }
 
   }
