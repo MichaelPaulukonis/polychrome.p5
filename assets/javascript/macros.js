@@ -1,11 +1,8 @@
-
 export default function Macros (pchrome) {
   const { drawGrid, drawCircle, drawRowCol,
     flipCore, layers, pushpop, paint, shift,
     apx, mirror, renderLayers, undo, randomLayer,
     HORIZONTAL, VERTICAL } = pchrome
-
-  // TODO: pchrome should be referenced at the time of calling the macro ???
 
   const macroWrapper = f => (pchrome) => {
     pchrome.undo.takeSnapshot()
@@ -15,9 +12,6 @@ export default function Macros (pchrome) {
     layer.pop()
   }
 
-  // these aren't "macros" as in recorded
-  // but that's a hoped-for goal
-  // in the meantime, they can be fun to use
   const macro1 = macroWrapper(({ params, layer }) => {
     drawGrid({ xPos: 20, params, width: layer.width, height: layer.height, layer })
   })

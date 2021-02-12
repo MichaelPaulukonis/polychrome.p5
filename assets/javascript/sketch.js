@@ -35,8 +35,7 @@ const filenamer = (prefix) => {
 let namer = null
 
 // params external to guiControl are a hoped-for headless use-case
-export default function Sketch (config) {
-  const { p5Instance: p5, guiControl, textManager, setupCallback } = config
+export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback }) {
   const params = { ...allParams }
   const pct = {}
 
@@ -174,7 +173,9 @@ export default function Sketch (config) {
       const macro = p5.random(['macro10', 'macro11', 'macro12', 'macro13', 'macro14', 'macro15', 'macro16',
         'macro17', 'macro18', 'macro19', 'macro20', 'macro21', 'macro22', 'macro23', 'macro24', 'macro25',
         'macro26', 'macro27'])
-      pct.macros[macro]({ ...this })
+      let foo = { ...pct }
+      pct.macros[macro](foo)
+      recordAction({ macro, action: 'macro' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
     } else {
       const locX = p5.random(minX, maxX)
       const locY = p5.random(minY, maxY)
@@ -804,16 +805,16 @@ export default function Sketch (config) {
   }
 
   pct.saveAnimationFrames = () => {
-    if (config.capturing) {
-      config.captureOverride = false
-      p5.frameRate(config.p5frameRate)
+    if (params.capturing) {
+      params.captureOverride = false
+      p5.frameRate(params.p5frameRate)
     } else {
       namer = filenamer('polychrometext.' + datestring())
-      config.captureCount = 0
-      config.captureOverride = true
-      p5.frameRate(config.captureFrameRate)
+      params.captureCount = 0
+      params.captureOverride = true
+      p5.frameRate(params.captureFrameRate)
     }
-    config.capturing = !config.capturing
+    params.capturing = !params.capturing
   }
 
   // TODO: use this somehow.
@@ -968,6 +969,8 @@ export default function Sketch (config) {
   pct.APP_MODES = APP_MODES
   pct.output = output
   pct.clearRecording = clearRecording
+  pct.recordAction = recordAction
+  pct.recordConfig = recordConfig
 
   return pct
 }

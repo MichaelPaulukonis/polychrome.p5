@@ -25,6 +25,10 @@ const playScript = (script, pct) => {
         pct.params = { ...pct.params, ...newConf }
         break
 
+      case 'macro':
+        pct.macros[cmd.params.macro](pct)
+        break
+
       default:
         // ah, but if the params require a layer or layers....
         // they ARE available in pct, we just have to parse & alias.....
