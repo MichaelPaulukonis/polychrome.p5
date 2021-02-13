@@ -9,8 +9,8 @@ const vivify = pchrome => params => {
   return liveParams
 }
 
-let prevConfig = {}
 const playScript = (script, pct) => {
+  let prevConfig = {}
   const hydrate = vivify(pct)
   const origParams = { ...pct.params }
   script.forEach((cmd) => {
