@@ -34,9 +34,8 @@ const filenamer = (prefix) => {
 
 let namer = null
 
-// params external to guiControl are a hoped-for headless use-case
 export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback }) {
-  const params = { ...allParams }
+  const params = allParams
   const pct = {}
 
   const density = 2
@@ -46,8 +45,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   let setOutlineMode
   let undo
 
-  // TODO: this is soooooo ugly!
-  // plus, it's the GUI that needs to know this stuff
+  // it's the GUI that needs to know this stuff
   // even though P5 has to load the fonts......
   const fontList = {}
   const loadedFonts = ['ATARCC__', 'ATARCE__', 'ATARCS__', 'AtariClassic-Regular',
@@ -83,7 +81,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     const tempLayer = initDefaultLayer(params.width, params.height) // canvas 3
     pct.layers = layers = new Layers(p5, drawingLayer, tempLayer)
 
-    const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: this, params, fillParams, outlineParams })
+    const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: pct, params, fillParams: params.fill, outlineParams: params.outline })
     pct.shiftFillColors = shiftFillColors
     pct.shiftOutlineColors = shiftOutlineColors
 
@@ -120,11 +118,11 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     PLAYBACK: 'replaying a paint script'
   }
 
-  const standardDraw = (x = p5.mouseX, y = p5.mouseY, override = false) => {
+  const standardDraw = ({ x, y, override, params } = { x: p5.mouseX, y: p5.mouseY, override: false, params: pct.params }) => {
     if (override || (p5.mouseIsPressed && mouseInCanvas())) {
-      recordConfig(pct.params, pct.appMode !== APP_MODES.STANDARD_DRAW)
+      recordConfig(params, pct.appMode !== APP_MODES.STANDARD_DRAW)
       recordAction({ x, y, action: 'paint' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-      paint(x, y, pct.params)
+      paint(x, y, params)
       globals.updatedCanvas = true
     }
   }
@@ -173,13 +171,12 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       const macro = p5.random(['macro10', 'macro11', 'macro12', 'macro13', 'macro14', 'macro15', 'macro16',
         'macro17', 'macro18', 'macro19', 'macro20', 'macro21', 'macro22', 'macro23', 'macro24', 'macro25',
         'macro26', 'macro27'])
-      let foo = { ...pct }
-      pct.macros[macro](foo)
+      pct.macros[macro]({ ...pct })
       recordAction({ macro, action: 'macro' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
     } else {
       const locX = p5.random(minX, maxX)
       const locY = p5.random(minY, maxY)
-      standardDraw(locX, locY, true)
+      standardDraw({ x: locX, y: locY, override: true, params: pct.params })
     }
     globals.updatedCanvas = true
   }

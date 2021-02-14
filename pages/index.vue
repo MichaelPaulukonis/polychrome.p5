@@ -50,7 +50,7 @@ const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
 const textManager = new TextManager()
 textManager.randomPost = randomPost
-let pchrome
+// let pchrome
 
 export default {
   components: {
@@ -64,7 +64,7 @@ export default {
       currentText: 'placeholder',
       corpus,
       params: {},
-      pchrome,
+      pchrome: {},
       script: []
     }
   },
@@ -94,16 +94,18 @@ export default {
     // callback when setup is complete
     // this might have obviated some of the macros setup. eh. whatevs.
     const setupCallback = (sketch) => {
-      pchrome.macros = setupMacros(sketch)
-      setupHotkeys({ sketch })
+      this.pchrome.macros = setupMacros(sketch)
+      setupHotkeys(sketch)
       this.hide()
     }
 
     const builder = (p5Instance) => {
-      pchrome = new Sketch({ p5Instance, textManager, keypress, setupCallback }) // eslint-disable-line no-new
+      const pchrome = new Sketch({ p5Instance, textManager, keypress, setupCallback }) // eslint-disable-line no-new
       this.pchrome = pchrome
     }
 
+    // TODO: this can take a while
+    // how about we start up with a default text, and populate when ready ???
     randomPost()
       .then((texts) => {
         this.corpus = this.corpus.concat(texts)
@@ -131,26 +133,26 @@ export default {
       return document.getElementsByTagName('canvas')[0]
     },
     start () {
-      pchrome.start()
+      this.pchrome.start()
     },
     show () {
-      pchrome.stop()
+      this.pchrome.stop()
       this.$modal.show('textmanager')
     },
     hide () {
       this.$modal.hide('textmanager')
-      pchrome.start()
+      this.pchrome.start()
     },
     about () {
-      pchrome.stop()
+      this.pchrome.stop()
       this.$modal.show('about')
     },
     playback () {
-      pchrome.stop()
+      this.pchrome.stop()
       this.$modal.show('playback')
     },
     help () {
-      pchrome.stop()
+      this.pchrome.stop()
       this.$modal.show('help')
     }
   }

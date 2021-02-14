@@ -31,7 +31,7 @@ const recordConfig = (parms, bypass) => {
   const changes = diff(prevConfig, parms)
   prevConfig = { ...parms }
   const notSame = isDifferent(changes)
-  if (notSame) store({ action: 'config', config: changes })
+  if (notSame) store({ action: 'config', params: changes })
 }
 
 const output = () => [...recs]

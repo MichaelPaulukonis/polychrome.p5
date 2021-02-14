@@ -13,16 +13,17 @@ const playScript = (script, pct) => {
   let prevConfig = {}
   const hydrate = vivify(pct)
   const origParams = { ...pct.params }
+  let localParams = JSON.parse(JSON.stringify(origParams))
   script.forEach((cmd) => {
     switch (cmd.action) {
       case 'paint':
-        pct.draw(cmd.x, cmd.y, true)
+        pct.draw({ x: cmd.params.x, y: cmd.params.y, override: true, params: localParams })
         break
 
       case 'config':
-        const newConf = { ...prevConfig, ...cmd.config }
+        const newConf = { ...prevConfig, ...cmd.params }
         prevConfig = newConf
-        pct.params = { ...pct.params, ...newConf }
+        localParams = { ...localParams, ...newConf }
         break
 
       case 'macro':
@@ -33,13 +34,10 @@ const playScript = (script, pct) => {
         // ah, but if the params require a layer or layers....
         // they ARE available in pct, we just have to parse & alias.....
         const newParams = hydrate(cmd.params)
-        pct[cmd.action](newParams || {}) // if this a params object, it'd be helpful.....
-      // but then, EVERY action would have to take a params object.....
-      // rotate Canvas has been updated......
-      // print('unknown action')
+        pct[cmd.action](newParams || {})
     }
   })
-  pct.params = { ...origParams }
+  // pct.params = { ...origParams }
 }
 
 export {

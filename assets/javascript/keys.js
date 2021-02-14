@@ -11,8 +11,8 @@ const flip = ({ layers, sketch }) => (direction) => {
 }
 
 // TODO: the check for "inside of canvas" is missing, need to use a wrapper for those that need it?
-const setupHotkeys = (polychrome) => {
-  const { sketch: pct } = polychrome
+const setupHotkeys = (pct) => {
+  // const { sketch: pct } = polychrome
   const blob = { params: pct.params, layers: pct.layers, sketch: pct }
   const shiftPressed = () => hotkeys.getPressedKeyCodes().includes(16)
 
