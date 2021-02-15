@@ -1,9 +1,6 @@
 <template lang="pug">
 #playback
-  textarea#script(
-    placeholder="[script goes here]",
-    v-model="editableScript"
-  )
+  textarea#script(placeholder="[script goes here]", v-model="editableScript")
 
   #buttons
     button(@click="playback") Playback
@@ -13,7 +10,7 @@
     button(@click="clearScripts") Erase recording
     button(@click="loadRecording") Load Recording
 
-  #error(v-if="errorMessage" @click="clearMessages")
+  #error(v-if="errorMessage", @click="clearMessages")
     p {{ errorMessage }}
 </template>
 
@@ -44,8 +41,11 @@ export default {
     }
   },
   mounted () {
-    // const s = (this.script && this.script.length > 0) ? this.script : this.defaultScript
+    this.pchrome.stop(this.pchrome.APP_MODES.PLAYBACK)
     this.editableScript = this.stringify(this.script)
+  },
+  unmounted () {
+    this.pchrome.start()
   },
   methods: {
     output () {
@@ -54,10 +54,7 @@ export default {
     },
     playback () {
       try {
-        this.pchrome.appMode = this.pchrome.APP_MODES.PLAYBACK
         playScript(this.jsonify(), this.pchrome)
-        this.pchrome.appMode = this.pchrome.APP_MODES.STANDARD_DRAW
-        this.pchrome.stop()
       } catch (err) {
         this.errorMessage = err
       }

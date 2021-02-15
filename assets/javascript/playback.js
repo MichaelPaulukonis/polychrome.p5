@@ -30,6 +30,10 @@ const playScript = (script, pct) => {
         pct.macros[cmd.params.macro](pct)
         break
 
+      case 'save':
+        pct.p5.redraw()
+        break
+
       default:
         // ah, but if the params require a layer or layers....
         // they ARE available in pct, we just have to parse & alias.....

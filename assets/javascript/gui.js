@@ -112,7 +112,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindBoolean('useOutline', params.useOutline, params)
 
     // params.capturing
-    .addButton('frames', () => { params.capturing = !params.capturing })
+    .addButton('Capture frames', () => { params.capturing = !params.capturing })
     .bindNumber('captureLimit', _, _, params.captureLimit, _, params)
     // .bindNumber('captureCount', _, _, params.captureCount, _, params)
 

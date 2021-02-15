@@ -134,6 +134,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       switch (pct.appMode) {
         case APP_MODES.NO_DRAW:
           return
+        case APP_MODES.PLAYBACK:
+          break
         case APP_MODES.STANDARD_DRAW:
         default:
           standardDraw()
@@ -142,7 +144,6 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     }
     if (params.capturing && globals.updatedCanvas) {
       globals.updatedCanvas = false
-      console.log('capturing frame')
       if (namer === null) {
         namer = filenamer(datestring())
       }
@@ -925,13 +926,16 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     renderLayers(params)
   }
 
-  pct.stop = () => {
-    pct.appMode = APP_MODES.NO_DRAW
+  pct.stop = (mode = APP_MODES.NO_DRAW) => {
+    pct.appMode = mode
+    p5.noLoop()
   }
 
   pct.start = () => {
     pct.appMode = APP_MODES.STANDARD_DRAW
+    p5.loop()
   }
+
   // this smells, but is a start of separation
   pct.adjustGamma = adjustGamma
   pct.apx = apx
@@ -968,6 +972,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   pct.clearRecording = clearRecording
   pct.recordAction = recordAction
   pct.recordConfig = recordConfig
+  pct.globals = globals
 
   return pct
 }
