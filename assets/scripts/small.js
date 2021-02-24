@@ -1,56 +1,6 @@
 module.exports = {
   meta: 'recorded actions captured from the console so it is a start',
   script: [
-    {
-      'action': 'config',
-      'params': {
-        'width': 900,
-        'height': 600,
-        'frameRate': 30,
-        'fixedWidth': true,
-        'font': 'Arial Rounded MT Bold',
-        'rotation': 0,
-        'cumulativeRotation': false,
-        'autoPaint': false,
-        'drawModes': ['Grid', 'Circle', 'Grid2'],
-        'drawMode': 'Grid',
-        'invert': false,
-        'useOutline': false,
-        'useFill': true,
-        'nextCharModes': ['Sequential', 'Random', 'Word'],
-        'nextCharMode': 'Sequential',
-        'maxrows': 100,
-        'rows': 10,
-        'columns': 10,
-        'rowmax': 100,
-        'colmax': 100,
-        'hardEdge': true,
-        'useShadow': false,
-        'shadowOffsetX': 5,
-        'shadowOffsetY': 5,
-        'shadowBlur': 5,
-        'shadowColor': '#000000',
-        'gamma': 0.8,
-        'capturing': false,
-        'captureOverride': false,
-        'captureLimit': 200,
-        'fill': { 'paintModes': ['Rainbow1', 'Rainbow2', 'Rainbow3', 'Rainbow4', 'Black', 'White', 'Gray1', 'Gray2', 'solid', 'lerp-scheme', 'lerp-quad'], 'paintMode': 'Rainbow1', 'transparency': 50, 'transparent': true, 'color': '#ffffff', 'scheme': 'ffffff-000000', 'curCycle': 0, 'lerps': ['#70c1b3', '#008000', '#f25f5c', '#00ff00', '#247ba0'], 'lq0': '#70c1b3', 'lq1': '#008000', 'lq2': '#f25f5c', 'lq3': '#00ff00', 'lq4': '#247ba0' },
-        'outline': { 'paintModes': ['Rainbow1', 'Rainbow2', 'Rainbow3', 'Rainbow4', 'Black', 'White', 'Gray1', 'Gray2', 'solid', 'lerp-scheme', 'lerp-quad'], 'paintMode': 'lerp-quad', 'transparency': 50, 'transparent': true, 'color': '#fff000', 'scheme': 'ffffff-000000', 'curCycle': 0, 'lerps': ['#ff00ff', '#ffff00', '#f70aac', '#05adb3', '#edfc1c'], 'strokeWeight': 45, 'strokeJoin': 'round', 'joins': ['miter', 'bevel', 'round'], 'lq0': '#ff00ff', 'lq1': '#ffff00', 'lq2': '#f70aac', 'lq3': '#05adb3', 'lq4': '#edfc1c' },
-        'paintModes': ['Rainbow1', 'Rainbow2', 'Rainbow3', 'Rainbow4', 'Black', 'White', 'Gray1', 'Gray2', 'solid', 'lerp-scheme', 'lerp-quad'],
-        'paintMode': 'lerp-quad',
-        'transparency': 75,
-        'transparent': true,
-        'color': '#fff000',
-        'scheme': 'ffffff-000000',
-        'curCycle': 0,
-        'lerps': ['#ffff00', '#ff00ff', '#F70AAC', '#05ADB3', '#EDFC1C'],
-        'strokeWeight': 4,
-        'strokeJoin': 'round',
-        'joins': ['miter', 'bevel', 'round'],
-        'lq0': '#ffff00',
-        'lq1': '#ff00ff'
-      }
-    },
     // { 'action': 'clearCanvas' }, // POC that commands works
     // { 'x': 762, 'y': 177.859375, 'action': 'paint' },
     // { 'x': 337, 'y': 289.859375, 'action': 'paint' },
@@ -60,11 +10,20 @@ module.exports = {
     // { 'x': 398, 'y': 285.859375, 'action': 'paint' },
     // { 'x': 432, 'y': 283.859375, 'action': 'paint' },
     // { 'x': 443, 'y': 282.859375, 'action': 'paint' },
+    { 'action': 'text', 'params': { 'text': 'This is the text that was there when she called' } },
     { 'params': { 'x': 16, 'y': 19.859375 }, 'action': 'paint' },
     { 'action': 'config', 'params': { 'drawMode': 'Circle' } },
+
+    { 'params': { 'x': 20, 'y': 30 }, 'action': 'paint' },
+    // { 'action': 'save' },
+    { 'params': { 'x': 100, 'y': 100 }, 'action': 'paint' },
+    { params: { 'axis': 1, 'layer': 'layers.p5' }, 'action': 'flip' },
+    // { 'action': 'save' },
+
     // { 'action': 'mirror', params: { axis: 1, layer: 'layers.p5' } },
     // TODO: record will only store 'p5' and we need the parent object blarg
     // we could something (at some point) parse through params for props, if not found, check child objects?
     { params: { 'axis': 0, 'layer': 'layers.p5' }, 'action': 'flip' }
+    // { 'action': 'save' }
   ]
 }

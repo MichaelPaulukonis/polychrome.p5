@@ -17,7 +17,11 @@
     Help
 
   modal(name="playback", height="500", @closed="start")
-    Playback(:pchrome="pchrome" :script="script" @scriptUpdated="script = $event")
+    Playback(
+      :pchrome="pchrome",
+      :script="script",
+      @scriptUpdated="script = $event"
+    )
 
   button(@click="show") textManager
   button#focus(@click="setFocus") focus on canvas
@@ -48,8 +52,8 @@ import { setupHotkeys } from '@/assets/javascript/keys.js'
 
 const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
-const textManager = new TextManager()
-textManager.randomPost = randomPost
+// const textManager = new TextManager()
+// textManager.randomPost = randomPost
 // let pchrome
 
 export default {
@@ -65,11 +69,14 @@ export default {
       corpus,
       params: {},
       pchrome: {},
-      script: []
+      script: [],
+      textManager: {}
     }
   },
   mounted () {
     const keypress = require('keypress.js')
+    this.textManager = new TextManager()
+    this.textManager.randomPost = randomPost
 
     // TODO: switch over to https://craig.is/killing/mice
     // currently using in SUCCULENT
@@ -100,6 +107,7 @@ export default {
     }
 
     const builder = (p5Instance) => {
+      const textManager = this.textManager
       const pchrome = new Sketch({ p5Instance, textManager, keypress, setupCallback }) // eslint-disable-line no-new
       this.pchrome = pchrome
     }
@@ -120,11 +128,11 @@ export default {
   methods: {
     randomText () {
       const text = randElem(this.corpus)
-      textManager.setText(text)
+      this.textManager.setText(text)
       this.currentText = text
     },
     resetTextPosition () {
-      textManager.setText(this.currentText)
+      this.textManager.setText(this.currentText)
     },
     setFocus () {
       this.canvas().focus()
@@ -148,7 +156,7 @@ export default {
       this.$modal.show('about')
     },
     playback () {
-      this.pchrome.stop()
+      // this.pchrome.stop()
       this.$modal.show('playback')
     },
     help () {

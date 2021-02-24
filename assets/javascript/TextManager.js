@@ -22,12 +22,14 @@ export default class TextManager {
       return self.w
     }
     self.setText = function (text) {
-      self.w = text
-      // words loses the split chars
-      // thus, word mode (with same-color for whole word) has no spaces
-      // uh..... neat, but would prefer that as an option?
-      // words = self.w.replace(/\n/g, '').split(new RegExp(SPLIT_TOKENS, 'g'))
-      words = self.w.replace(/\n|\s+/g, ' ').match(/\w+|\s+|[^\s\w]+/g)
+      if (text !== undefined) {
+        self.w = text
+        // words loses the split chars
+        // thus, word mode (with same-color for whole word) has no spaces
+        // uh..... neat, but would prefer that as an option?
+        // words = self.w.replace(/\n/g, '').split(new RegExp(SPLIT_TOKENS, 'g'))
+        words = self.w.replace(/\n|\s+/g, ' ').match(/\w+|\s+|[^\s\w]+/g)
+      }
       wordIndex = 0
       charIndex = 0
     }

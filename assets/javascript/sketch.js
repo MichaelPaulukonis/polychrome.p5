@@ -11,24 +11,15 @@ import {
 import { hexStringToColors } from '@/assets/javascript/gui.color.control'
 import { setupGui } from '@/assets/javascript/gui'
 import { recordAction, recordConfig, output, clear as clearRecording } from '@/assets/javascript/record'
+import saveAs from 'file-saver'
+import { datestring, filenamer } from './filelib'
 
-const datestring = () => {
-  const d = new Date()
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  const hour = String(d.getHours()).padStart(2, '0')
-  const min = String(d.getMinutes()).padStart(2, '0')
-  const secs = String(d.getSeconds()).padStart(2, '0')
-  return `${year}${month}${day}${hour}${min}${secs}`
-}
-
-const filenamer = (prefix) => {
-  let frame = 0
-  return () => {
-    const name = `polychrometext.${prefix}-${String(frame).padStart(6, '0')}`
-    frame += 1
-    return name
+const sleep = (milliseconds) => {
+  var start = new Date().getTime()
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds) {
+      break
+    }
   }
 }
 
@@ -128,13 +119,15 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   }
 
   p5.draw = () => {
-    if (params.autoPaint) {
+    if (pct.params.autoPaint) {
       autoDraw(0, 0, p5.width, p5.height)
     } else {
       switch (pct.appMode) {
         case APP_MODES.NO_DRAW:
           return
         case APP_MODES.PLAYBACK:
+          // do the thing with the stuff
+          pct.playback.next()
           break
         case APP_MODES.STANDARD_DRAW:
         default:
@@ -142,16 +135,25 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
           break
       }
     }
-    if (params.capturing && globals.updatedCanvas) {
+    if (pct.params.playbackSave || (pct.params.capturing && globals.updatedCanvas)) {
+      pct.params.playbackSave = false
       globals.updatedCanvas = false
       if (namer === null) {
         namer = filenamer(datestring())
       }
-      p5.saveCanvas(namer(), 'png')
+      console.log('saving canvas: ' + globals.captureCount)
+
+      pct.layers.p5.drawingContext.canvas.toBlob((blob) => {
+        console.log('blobified, pre-save')
+        saveAs(blob, namer() + '.png')
+        console.log('blobified, post-save')
+        sleep(200)
+      })
+
       globals.captureCount += 1
-      if (globals.captureCount > params.captureLimit) {
-        params.capturing = false
-        p5.frameRate(params.p5frameRate)
+      if (globals.captureCount > pct.params.captureLimit) {
+        pct.params.capturing = false
+        p5.frameRate(pct.params.p5frameRate)
         globals.captureCount = 0
       }
     }
@@ -220,12 +222,12 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     clear(layers.drawingLayer, color)
     clear(layers.p5, color)
 
-    layers.drawingLayer.colorMode(p5.HSB, params.width, params.height, 100, 1)
+    layers.drawingLayer.colorMode(p5.HSB, pct.params.width, pct.params.height, 100, 1)
     setColorModesFunctions(layers.drawingLayer)
   }
 
   const clear = (layer, color) => {
-    layer.resizeCanvas(params.width, params.height)
+    layer.resizeCanvas(pct.params.width, pct.params.height)
     layer.pixelDensity(density)
     layer.background(color)
   }
@@ -928,11 +930,12 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
   pct.stop = (mode = APP_MODES.NO_DRAW) => {
     pct.appMode = mode
+    if (mode === APP_MODES.PLAYBACK) return
     p5.noLoop()
   }
 
-  pct.start = () => {
-    pct.appMode = APP_MODES.STANDARD_DRAW
+  pct.start = (mode = APP_MODES.STANDARD_DRAW) => {
+    pct.appMode = mode
     p5.loop()
   }
 

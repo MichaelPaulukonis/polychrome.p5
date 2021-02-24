@@ -1,7 +1,5 @@
 import { mergeAll, path } from 'ramda'
 
-// const print = obj => console.log(JSON.stringify(obj))
-
 var fromPathOrOriginal = (val, pct) => (typeof val === 'string' && path(val.split('.'), pct)) || val
 
 const vivify = pchrome => params => {
@@ -9,41 +7,53 @@ const vivify = pchrome => params => {
   return liveParams
 }
 
-const playScript = (script, pct) => {
+const playback = function * ({ script, pct }) {
   let prevConfig = {}
   const hydrate = vivify(pct)
+  const origCapturing = pct.params.capturing
   const origParams = { ...pct.params }
   let localParams = JSON.parse(JSON.stringify(origParams))
-  script.forEach((cmd) => {
+  for (let i = 0; i < script.length; i++) {
+    const cmd = script[i]
     switch (cmd.action) {
       case 'paint':
         pct.draw({ x: cmd.params.x, y: cmd.params.y, override: true, params: localParams })
+        yield
         break
 
       case 'config':
         const newConf = { ...prevConfig, ...cmd.params }
         prevConfig = newConf
         localParams = { ...localParams, ...newConf }
+        yield
         break
 
       case 'macro':
         pct.macros[cmd.params.macro](pct)
+        yield
         break
 
       case 'save':
-        pct.p5.redraw()
+        console.log('saving')
+        pct.params.playbackSave = true
+        yield
+        break
+
+      case 'text':
+        pct.textManager.setText(cmd.params.text || undefined)
+        yield
         break
 
       default:
-        // ah, but if the params require a layer or layers....
-        // they ARE available in pct, we just have to parse & alias.....
         const newParams = hydrate(cmd.params)
         pct[cmd.action](newParams || {})
+        yield
     }
-  })
-  // pct.params = { ...origParams }
+  }
+  pct.stop()
+  pct.params.capturing = origCapturing
 }
 
 export {
-  playScript
+  playback
 }

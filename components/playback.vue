@@ -1,5 +1,12 @@
 <template lang="pug">
 #playback
+  atom-spinner(
+    v-show="isPlaying",
+    :animation-duration="1000",
+    :size="60",
+    :color="'#ff1d5e'"
+  )
+
   textarea#script(placeholder="[script goes here]", v-model="editableScript")
 
   #buttons
@@ -15,8 +22,9 @@
 </template>
 
 <script>
-import { playScript } from '@/assets/javascript/playback'
+import { playback } from '@/assets/javascript/playback'
 import recording from '@/assets/scripts/small.js'
+import { AtomSpinner } from 'epic-spinners'
 
 export default {
   props: {
@@ -40,12 +48,20 @@ export default {
       errorMessage: ''
     }
   },
+  components: {
+    AtomSpinner
+  },
   mounted () {
-    this.pchrome.stop(this.pchrome.APP_MODES.PLAYBACK)
+    this.pchrome.stop()
     this.editableScript = this.stringify(this.script)
   },
   unmounted () {
     this.pchrome.start()
+  },
+  computed: {
+    isPlaying () {
+      return this.pchrome.appMode === this.pchrome.APP_MODES.PLAYBACK
+    }
   },
   methods: {
     output () {
@@ -54,8 +70,10 @@ export default {
     },
     playback () {
       try {
-        playScript(this.jsonify(), this.pchrome)
+        this.pchrome.playback = playback({ script: this.jsonify(), pct: this.pchrome })
+        this.pchrome.start(this.pchrome.APP_MODES.PLAYBACK)
       } catch (err) {
+        this.pchrome.stop()
         this.errorMessage = err
       }
     },
@@ -88,7 +106,6 @@ export default {
     loadRecording () {
       this.editableScript = this.stringify(this.defaultScript)
     }
-
   }
 }
 </script>
@@ -98,8 +115,6 @@ export default {
   box-sizing: border-box;
   padding: 1rem;
   margin: auto;
-  /* min-height: 50vh;
-  max-height: 50vh; */
   height: 50vh;
   width: 100%;
   border: 1px solid #000;
