@@ -1,11 +1,11 @@
 <template lang="pug">
-    div#helpbox
-        p Mouse click and drag to paint with text.
-        p Color and size are based on mouse position.
-        p Edit canvas size, fill color, outlines, font choice etc. with panels to the right
-        h3 Keys
-        #keys(v-for="key in keymap" v-bind:key='key.key')
-            span #[span.key {{ key.keys.join(', ') }} ] {{ key.note }}
+div#helpbox
+    p Mouse click and drag to paint with text.
+    p Color and size are based on mouse position.
+    p Edit canvas size, fill color, outlines, font choice etc. with panels to the right
+    h3 Keys
+    #keys(v-for="key in keymap" v-bind:key='key.key')
+        span #[span.key {{ key.keys.join(', ') }} ] {{ key.note }}
 
 </template>
 

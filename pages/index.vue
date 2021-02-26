@@ -13,10 +13,10 @@
   modal(name="about", @closed="start")
     About
 
-  modal(name="help", height="auto", @closed="start")
+  modal(name="help", height="auto", @closed="start", :draggable="true")
     Help
 
-  modal(name="playback", height="500", @closed="start")
+  modal(name="playback", height="500", @closed="start", :draggable="true")
     Playback(
       :pchrome="pchrome",
       :script="script",
@@ -51,10 +51,6 @@ import Macros from '@/assets/javascript/macros.js'
 import { setupHotkeys } from '@/assets/javascript/keys.js'
 
 const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
-
-// const textManager = new TextManager()
-// textManager.randomPost = randomPost
-// let pchrome
 
 export default {
   components: {

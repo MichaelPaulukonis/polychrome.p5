@@ -219,50 +219,43 @@ const setupHotkeys = (pct) => {
     {
       keys: 'alt+1',
       action: () => {
-        pct.macros.macro1({ ...pct })
-        // sketch.undo.takeSnapshot()
+        pct.macros.gridHere({ ...pct })
       }
     },
     {
       keys: 'alt+2',
       action: () => {
-        pct.macros.macro19({ ...pct })
-        // sketch.undo.takeSnapshot()
+        pct.macros.manyRandoms({ ...pct })
       }
     },
     {
       keys: 'alt+3',
       action: () => {
-        pct.macros.macro21({ ...pct })
-        // sketch.undo.takeSnapshot()
+        pct.macros.smallRandomAtSomePlace({ ...pct })
       }
     },
     {
       keys: 'alt+4',
       action: () => {
-        pct.macros.macro16({ ...pct })
-        // sketch.undo.takeSnapshot()
+        pct.macros.largestCircleWidth({ ...pct })
       }
     },
     {
       keys: 'alt+5',
       action: () => {
-        pct.macros.macro17({ ...pct })
-        // sketch.undo.takeSnapshot()
+        pct.macros.thoseCircles({ ...pct })
       }
     },
     {
       keys: 'alt+6',
       action: () => {
-        pct.macros.macro18({ ...pct })
-        // sketch.undo.takeSnapshot()
+        pct.macros.thoseCirclesBig({ ...pct })
       }
     },
     {
       keys: 'alt+7',
       action: () => {
-        pct.macros.macro25({ ...pct })
-        // sketch.undo.takeSnapshot()
+        pct.macros.bigCircleLowerRightCenter({ ...pct })
       }
     }
   ]

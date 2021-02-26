@@ -171,11 +171,9 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   // Can we move this out of here, like playback?
   const autoDraw = (minX, minY, maxX, maxY) => {
     if (p5.random(0, 10) < 2) {
-      const macro = p5.random(['macro10', 'macro11', 'macro12', 'macro13', 'macro14', 'macro15', 'macro16',
-        'macro17', 'macro18', 'macro19', 'macro20', 'macro21', 'macro22', 'macro23', 'macro24', 'macro25',
-        'macro26', 'macro27'])
-      pct.macros[macro]({ ...pct })
-      recordAction({ macro, action: 'macro' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+      const mList = Object.keys(pct.macros)
+      const macroName = p5.random(mList)
+      pct.macros[macroName]({ ...pct })
     } else {
       const locX = p5.random(minX, maxX)
       const locY = p5.random(minY, maxY)

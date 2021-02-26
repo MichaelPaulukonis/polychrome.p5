@@ -4,19 +4,23 @@ export default function Macros (pchrome) {
     apx, mirror, renderLayers, undo, randomLayer,
     HORIZONTAL, VERTICAL } = pchrome
 
-  const macroWrapper = f => (pchrome) => {
-    pchrome.undo.takeSnapshot()
-    const { params, layers: { drawingLayer: layer }, p5, defaultParams } = pchrome
+  // TODO: record needs to happen here
+  const macroWrapper = m => (pct) => {
+    pct.undo.takeSnapshot()
+    const { params, layers: { drawingLayer: layer }, p5, defaultParams } = pct
     layer.push()
-    f({ params: JSON.parse(JSON.stringify(params)), layer, p5, defaultParams })
+    m({ params: JSON.parse(JSON.stringify(params)), layer, p5, defaultParams })
+    if (m.name) {
+      pct.recordAction({ action: 'macro', 'macro': m.name }, pct.appMode !== pct.APP_MODES.STANDARD_DRAW)
+    }
     layer.pop()
   }
 
-  const macro1 = macroWrapper(({ params, layer }) => {
+  const gridHere = macroWrapper(function gridHere ({ params, layer }) {
     drawGrid({ xPos: 20, params, width: layer.width, height: layer.height, layer })
   })
 
-  const inset = macroWrapper(({ params, layer }) => {
+  const inset = macroWrapper(function inset ({ params, layer }) {
     const wOffset = layer.width / 2
     const hOffset = layer.height / 2
     layer.translate(wOffset / 2, hOffset / 2)
@@ -24,7 +28,7 @@ export default function Macros (pchrome) {
     drawGrid({ xPos: 20, params, width: wOffset, height: hOffset, layer })
   })
 
-  const macro2 = macroWrapper(({ params, layer }) => {
+  const fiveCircles = macroWrapper(function fiveCircles ({ params, layer }) {
     drawCircle({ xPos: 80, yPos: 90, params, width: layer.width, height: layer.height, layer })
     drawCircle({ xPos: 50, yPos: 50, params, width: layer.width, height: layer.height, layer })
     drawCircle({ xPos: 40, yPos: 40, params, width: layer.width, height: layer.height, layer })
@@ -32,7 +36,7 @@ export default function Macros (pchrome) {
     drawCircle({ xPos: 100, yPos: 100, params, width: layer.width, height: layer.height, layer })
   })
 
-  const macro3 = macroWrapper(({ params, layer }) => {
+  const manyCircles = macroWrapper(function manyCircles ({ params, layer }) {
     for (let i = 1; i < layer.width; i += 10) {
       drawCircle({ xPos: i, yPos: i, params, width: layer.width, height: layer.height, layer })
     }
@@ -40,7 +44,7 @@ export default function Macros (pchrome) {
 
   // when INVERT is on THIS IS AMAZING
   // which suggests........
-  const macro4 = macroWrapper(({ params, layer }) => {
+  const manyGrids = macroWrapper(function manyGrids ({ params, layer }) {
     params.invert = true
     for (let i = layer.width; i > layer.width / 2; i -= 80) {
       if (i < ((layer.width / 3) * 2)) { params.rotation = 90 }
@@ -48,17 +52,17 @@ export default function Macros (pchrome) {
     }
   })
 
-  const macro5 = macroWrapper(({ params, layer }) => {
+  const macro5 = macroWrapper(function macro5 ({ params, layer }) {
     drawGrid({ xPos: 4, params, width: layer.width, height: layer.height, layer })
   })
 
-  const macro6 = macroWrapper(({ params, layer }) => {
+  const macro6 = macroWrapper(function macro6 ({ params, layer }) {
     for (let i = 1; i < layer.width; i += 5) {
       drawGrid({ xPos: i, params, width: layer.width, height: layer.height, layer })
     }
   })
 
-  const macro7 = macroWrapper(({ params, layer, p5, defaultParams }) => {
+  const macro7 = macroWrapper(function macro7 ({ params, layer, p5, defaultParams }) {
     params.drawMode = 'Grid' // grid
     params.fill.paintMode = 'Black'
     params.fill.transparent = false
@@ -71,11 +75,11 @@ export default function Macros (pchrome) {
     drawGrid({ xPos: x, params, width: layer.width, height: layer.height, layer })
   })
 
-  const macro8 = macroWrapper(({ params }) => {
+  const macro8 = macroWrapper(function macro8 ({ params }) {
     paint(36, 23, params)
   })
 
-  const halfHeightGridAtMousePos = macroWrapper(({ params, layer, p5 }) => {
+  const halfHeightGridAtMousePos = macroWrapper(function halfHeightGridAtMousePos ({ params, layer, p5 }) {
     const width = layer.width / 2
     const height = layer.height / 2
     const x = p5.mouseX
@@ -86,7 +90,7 @@ export default function Macros (pchrome) {
 
   // works GREAT with cumulativeRotation
   // only problem is the colors are identical no matter where
-  const macro9 = macroWrapper(({ params, layer }) => {
+  const macro9 = macroWrapper(function macro9 ({ params, layer }) {
     // take these out of HERE
     // and macro9 then passes in params and width/height
     // but it should also indicate WHERE it should start
@@ -177,7 +181,7 @@ export default function Macros (pchrome) {
     })()
   }
 
-  const singleRow = macroWrapper(({ params, layer }) => {
+  const singleRow = macroWrapper(function singleRow ({ params, layer }) {
     params.rows = 1
     params.columns = 1
     params.nextCharMode = 'Word'
@@ -190,26 +194,26 @@ export default function Macros (pchrome) {
     drawRowCol({ params, width: layer.width, height: layer.height, layer })
   })
 
-  const doubleMirror = macroWrapper(({ p5 }) => {
+  const doubleMirror = macroWrapper(function doubleMirror ({ p5 }) {
     mirror({ axis: HORIZONTAL, layer: layers.p5 })
     mirror({ axis: VERTICAL, layer: layers.p5 })
   })
 
-  const shiftToCenter = macroWrapper(({ layer }) => {
+  const shiftToCenter = macroWrapper(function shiftToCenter ({ layer }) {
     // because density is 2, this is shifting by half
     const x = layer.width
     const y = layer.height
     shift({ verticalOffset: x, horizontalOffset: y })
   })
 
-  const shiftRightHalfway = macroWrapper(({ layer }) => {
+  const shiftRightHalfway = macroWrapper(function shiftRightHalfway ({ layer }) {
     // because density is 2, this is shifting by half
     const x = layer.width
     const y = 0
     shift({ verticalOffset: x, horizontalOffset: y })
   })
 
-  const aRowColJoint = macroWrapper(({ params, layer }) => {
+  const aRowColJoint = macroWrapper(function aRowColJoint ({ params, layer }) {
     layer.translate(200, 100)
     params.rows = 11
     params.columns = 15
@@ -221,7 +225,7 @@ export default function Macros (pchrome) {
 
   // NOTE: the first parameter is the X-position
   // if it's 0, it's the upper-left - the circles are centered
-  const largestCircleWidth = macroWrapper(({ params, layer }) => {
+  const largestCircleWidth = macroWrapper(function largestCircleWidth ({ params, layer }) {
     params.invert = true
     let exp = 1
     for (let radius = 0; radius < layer.width / 2; radius += 10 * exp) {
@@ -230,7 +234,7 @@ export default function Macros (pchrome) {
     }
   })
 
-  const largestCircleCorner = macroWrapper(({ params, layer }) => {
+  const largestCircleCorner = macroWrapper(function largestCircleCorner ({ params, layer }) {
     params.invert = true
     const maxRadius = Math.hypot(layer.width, layer.height)
     let exp = 1
@@ -240,7 +244,7 @@ export default function Macros (pchrome) {
     }
   })
 
-  const thoseCircles = macroWrapper(({ params, layer, p5 }) => {
+  const thoseCircles = macroWrapper(function thoseCircles ({ params, layer, p5 }) {
     params.invert = true
     let exp = 1
     for (let radius = 0; radius < layer.width / 2; radius += 10 * exp) {
@@ -253,7 +257,7 @@ export default function Macros (pchrome) {
   })
 
   // 18
-  const thoseCirclesBig = macroWrapper(({ params, layer, p5 }) => {
+  const thoseCirclesBig = macroWrapper(function thoseCirclesBig ({ params, layer, p5 }) {
     params.invert = true
     const maxRadius = Math.hypot(layer.width, layer.height)
 
@@ -270,7 +274,7 @@ export default function Macros (pchrome) {
     }
   })
 
-  const circlesOffsetArc = macroWrapper(({ params, layer, p5 }) => {
+  const circlesOffsetArc = macroWrapper(function circlesOffsetArc ({ params, layer, p5 }) {
     params.invert = true
     const maxRadius = Math.hypot(layer.width, layer.height)
 
@@ -287,7 +291,7 @@ export default function Macros (pchrome) {
     }
   })
 
-  const bigCircleLowerRightCenter = macroWrapper(({ params, layer, p5 }) => {
+  const bigCircleLowerRightCenter = macroWrapper(function bigCircleLowerRightCenter ({ params, layer, p5 }) {
     params.invert = true
     const center = { x: layer.width, y: layer.height }
     const maxRadius = Math.hypot(layer.width, layer.height)
@@ -304,18 +308,18 @@ export default function Macros (pchrome) {
 
   // centered on lower-right
   // now that drawCircle centers on width/height params (and not layer)
-  const someCircles = macroWrapper(({ params, layer, p5 }) => {
+  const someCircles = macroWrapper(function someCircles ({ params, layer, p5 }) {
     p5.push()
     // layer.translate(layer.width / 3, 0)
     drawCircle({ xPos: 850, yPos: 50, params, width: layer.width * 2, height: layer.height * 2, layer, textSize: 15 })
     p5.pop()
   })
 
-  const manyRandoms = macroWrapper(() => {
+  const manyRandoms = macroWrapper(function manyRandoms () {
     for (let i = 0; i < 10; i++) { randomLayer() }
   })
 
-  const smallRandomAtSomePlace = macroWrapper(({ layer, p5 }) => {
+  const smallRandomAtSomePlace = macroWrapper(function smallRandomAtSomePlace ({ layer, p5 }) {
     const img = p5.random(undo.history())
     layer.push()
     layer.resetMatrix()
@@ -351,7 +355,7 @@ export default function Macros (pchrome) {
   //   // TODO: random quadritlateral with no fade (maybe)
   // })
 
-  const flipOverlay = macroWrapper(({ layer, p5 }) => {
+  const flipOverlay = macroWrapper(function flipOverlay ({ layer, p5 }) {
     p5.push()
     layer.translate(0, 0)
     layer.resetMatrix()
@@ -365,32 +369,32 @@ export default function Macros (pchrome) {
   })
 
   return {
-    macro1,
-    macro2,
-    macro3,
-    macro4,
+    gridHere,
+    fiveCircles,
+    manyCircles,
+    manyGrids,
     macro5,
     macro6,
     macro7,
     macro8,
     macro9,
-    macro10: halfHeightGridAtMousePos,
-    macro11: singleRow,
-    macro12: doubleMirror,
-    macro13: shiftToCenter,
-    macro14: shiftRightHalfway,
-    macro15: aRowColJoint,
-    macro16: largestCircleWidth,
-    macro17: thoseCircles,
-    macro18: thoseCirclesBig,
-    macro19: manyRandoms,
-    macro20: smallRandomAtSomePlace,
-    macro21: flipOverlay,
-    macro22: largestCircleCorner,
-    macro23: someCircles,
-    macro24: subThingy,
-    macro25: bigCircleLowerRightCenter,
-    macro26: circlesOffsetArc,
-    macro27: inset
+    halfHeightGridAtMousePos,
+    singleRow,
+    doubleMirror,
+    shiftToCenter,
+    shiftRightHalfway,
+    aRowColJoint,
+    largestCircleWidth,
+    thoseCircles,
+    thoseCirclesBig,
+    manyRandoms,
+    smallRandomAtSomePlace,
+    flipOverlay,
+    largestCircleCorner,
+    someCircles,
+    subThingy,
+    bigCircleLowerRightCenter,
+    circlesOffsetArc,
+    inset
   }
 }

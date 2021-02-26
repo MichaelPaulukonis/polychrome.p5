@@ -45,7 +45,7 @@ const playback = function * ({ script, pct }) {
         break
 
       default:
-        const newParams = hydrate(cmd.params)
+        const newParams = hydrate(cmd.params || {})
         pct[cmd.action](newParams || {})
         yield
     }
