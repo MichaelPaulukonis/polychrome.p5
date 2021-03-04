@@ -76,7 +76,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     pct.shiftFillColors = shiftFillColors
     pct.shiftOutlineColors = shiftOutlineColors
 
-    pct.clearCanvas()
+    pct.clearCanvas({ layers: pct.layers, params: pct.params })
     undo = new UndoLayers(layers, renderLayers, 10)
     pct.undo = undo
     undo.takeSnapshot()
@@ -214,13 +214,13 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   // pass in p5 and params because it's bound in gui.js
   // but, this binds the current values in params, apparently
   // UGH UGH UGH
-  const clearCanvas = () => {
+  const clearCanvas = ({ layers, params } = { layers: pct.layers, params: pct.params }) => {
     recordAction({ action: 'clearCanvas' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
     const color = params.fill.color
     clear(layers.drawingLayer, color)
     clear(layers.p5, color)
 
-    layers.drawingLayer.colorMode(p5.HSB, pct.params.width, pct.params.height, 100, 1)
+    layers.drawingLayer.colorMode(p5.HSB, params.width, params.height, 100, 1)
     setColorModesFunctions(layers.drawingLayer)
   }
 

@@ -90,6 +90,7 @@ const setupHotkeys = (pct) => {
     {
       keys: ['space'].join(','),
       action: ({ params }) => {
+        pct.recordAction({ x: pct.p5.mouseX, y: pct.p5.mouseY, action: 'paint' }, pct.appMode !== pct.APP_MODES.STANDARD_DRAW)
         pct.undo.takeSnapshot()
         pct.paint(pct.p5.mouseX, pct.p5.mouseY, params)
       }
