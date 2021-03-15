@@ -22,6 +22,9 @@ const sleep = (milliseconds) => {
     }
   }
 }
+const fonts = require.context('../fonts', false, /\.ttf$/)
+
+console.log(fonts.keys())
 
 let namer = null
 
@@ -36,15 +39,11 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   let setOutlineMode
   let undo
 
-  // it's the GUI that needs to know this stuff
-  // even though P5 has to load the fonts......
   const fontList = {}
-  const loadedFonts = ['ATARCC__', 'ATARCE__', 'ATARCS__', 'AtariClassic-Regular',
-    'BlackCasper', 'BMREA___', 'CableDingbats', 'carbontype', 'clothing logos', 'Credit Cards',
-    'D3Digitalism', 'D3DigitalismI', 'D3DigitalismR', 'edunline', 'enhanced_dot_digital-7', 'Fast Food logos',
-    'Harting_plain', 'illustrate-it', 'openlogos', 'RecycleIt', 'retro_computer_personal_use', 'SEGA',
-    'Smartphone Color Pro', 'Social Icons Pro Set 1 - Rounded', 'social_shapes', 'TRENU___',
-    'Type Icons Color', 'Type Icons', 'VT323-Regular', 'Youkairo']
+
+  // TODO: we can clean this up to be simpler and consistent
+  // POC it works
+  const loadedFonts = fonts.keys().map(f => f.replace(/\.\/(.*?)\.ttf/, '$1'))
 
   let imgMask
   p5.preload = () => {
@@ -118,25 +117,9 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     }
   }
 
-  p5.draw = () => {
-    if (pct.params.autoPaint) {
-      autoDraw(0, 0, p5.width, p5.height)
-    } else {
-      switch (pct.appMode) {
-        case APP_MODES.NO_DRAW:
-          return
-        case APP_MODES.PLAYBACK:
-          // do the thing with the stuff
-          pct.playback.next()
-          break
-        case APP_MODES.STANDARD_DRAW:
-        default:
-          standardDraw()
-          break
-      }
-    }
-    if (pct.params.playbackSave || (pct.params.capturing && globals.updatedCanvas)) {
-      pct.params.playbackSave = false
+  const savit = ({ params }) => {
+    if (params.playbackSave || (params.capturing && globals.updatedCanvas)) {
+      params.playbackSave = false
       globals.updatedCanvas = false
       if (namer === null) {
         namer = filenamer(datestring())
@@ -152,11 +135,30 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
       globals.captureCount += 1
       if (globals.captureCount > pct.params.captureLimit) {
-        pct.params.capturing = false
+        params.capturing = false
         p5.frameRate(pct.params.p5frameRate)
         globals.captureCount = 0
       }
     }
+  }
+
+  p5.draw = () => {
+    if (pct.params.autoPaint) {
+      autoDraw(0, 0, p5.width, p5.height)
+    } else {
+      switch (pct.appMode) {
+        case APP_MODES.NO_DRAW:
+          return
+        case APP_MODES.PLAYBACK:
+          pct.playback.next()
+          break
+        case APP_MODES.STANDARD_DRAW:
+        default:
+          standardDraw()
+          break
+      }
+    }
+    savit({ params: pct.params })
   }
 
   p5.mousePressed = () => {
@@ -182,6 +184,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     globals.updatedCanvas = true
   }
 
+  // this was a POO-WIP for picking the center for various operations
+  // never finished
   const target = () => {
     const layer = layers.copy()
 
@@ -202,20 +206,17 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     l.pop()
   }
 
-  const renderLayers = () => {
-    renderTarget()
+  const renderLayers = ({ layers }) => {
+    renderTarget({ layers })
   }
 
-  const renderTarget = () => {
+  const renderTarget = ({ layers }) => {
     layers.p5.image(layers.drawingLayer, 0, 0)
     layers.drawingLayer.clear()
   }
 
-  // pass in p5 and params because it's bound in gui.js
-  // but, this binds the current values in params, apparently
-  // UGH UGH UGH
-  const clearCanvas = ({ layers, params } = { layers: pct.layers, params: pct.params }) => {
-    recordAction({ action: 'clearCanvas' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+  const clearCanvas = ({ layers, params }) => {
+    recordAction({ action: 'clearCanvas', layers }, pct.appMode !== APP_MODES.STANDARD_DRAW)
     const color = params.fill.color
     clear(layers.drawingLayer, color)
     clear(layers.p5, color)
@@ -335,7 +336,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
         // pushpop(p5)(doit)()
       }
     }
-    renderLayers(params)
+    renderLayers({ layers })
   }
 
   const maxUnlessLessThan = (val, min) => val < min ? min : val
@@ -375,7 +376,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     const nextText = textGetter(params.nextCharMode, textManager)
     circlePainter({ params, layer, xPos, nextText, width, arcOffset, arcPercent })
     layer.pop()
-    renderLayers(params)
+    renderLayers({ layers })
   }
 
   const circlePainter = ({ params, layer, xPos, nextText, width, arcOffset, arcPercent }) => {
@@ -513,7 +514,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       ? blocGeneratorFixedWidth(gridParams, nextText)
       : blocGeneratorTextWidth(nextText, { width, height }, yOffset, layer) // whonly needs to be reworked
     apx(fill, outline, paint)(blocGen)
-    renderLayers(params)
+    renderLayers({ layers })
     layer.pop()
   }
 
@@ -723,8 +724,9 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
     const newLayer = flipCore(axis, layers.copy())
     layer.image(newLayer, 0, 0)
-    renderLayers(params)
+    renderLayers({ layers })
     newLayer.remove()
+    globals.updatedCanvas = true
   }
 
   const flipCore = (axis = VERTICAL, g) => {
@@ -746,12 +748,13 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   }
 
   const mirror = (cfg = { axis: VERTICAL, layer: layers.p5 }) => {
-    recordAction({ ...cfg, action: 'flip' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+    recordAction({ ...cfg, action: 'mirror' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
 
     const newLayer = mirrorCore(cfg.axis, layers.copy())
     cfg.layer.image(newLayer, 0, 0)
-    renderLayers(params)
+    renderLayers({ layers })
     newLayer.remove()
+    globals.updatedCanvas = true
   }
 
   const mirrorCore = (axis = VERTICAL, g) => {
@@ -785,7 +788,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       context.putImageData(imageData, 0 + cfg.horizontalOffset, 0 + cfg.verticalOffset - ch)
     }
     context.putImageData(imageData, 0 - cw + cfg.horizontalOffset, 0 - ch + cfg.verticalOffset)
-    renderLayers(params)
+    renderLayers({ layers })
+    globals.updatedCanvas = true
   }
 
   pct.save_sketch = () => {
@@ -825,9 +829,48 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     layer.rotate(layer.radians(90))
   }
 
-  const rotateCanvas = (cfg = { direction: 1 }) => {
-    const newHeight = params.height = p5.width
-    const newWidth = params.width = p5.height
+  const rotateWrapper = (pct) => ({ direction = 1 }) => {
+    return rotateCanvas({ direction, height: pct.params.height, width: pct.params.width, layers: pct.layers, p5: pct.p5 })
+  }
+
+  const rotateCanvas = ({ direction, height, width, layers, p5 }) => {
+    recordAction({ action: 'rotateCanvas', direction, height, width, layers }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+
+    const newHeight = height
+    const newWidth = width
+
+    layers.drawingLayer.resetMatrix()
+    layers.drawingLayer.image(layers.p5, 0, 0)
+
+    p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
+
+    const newPG = initDrawingLayer(newWidth, newHeight)
+    newPG.push()
+    if (direction === -1) {
+      newPG.translate(0, newHeight)
+    } else {
+      newPG.translate(newWidth, 0)
+    }
+    newPG.rotate(p5.radians(90 * direction))
+    newPG.image(layers.drawingLayer, 0, 0)
+    newPG.pop()
+
+    layers.drawingLayer.remove()
+    layers.drawingLayer = newPG
+    newPG.remove()
+
+    // TODO: undo doesn't know anything about rotation......
+
+    renderLayers({ layers })
+    globals.updatedCanvas = true
+  }
+
+  // stopped working, again. doh!
+  // could the issue be in rotate? I mean, WTF
+  const rotateCanvasOrig = (cfg = { direction: 1, height: pct.params.height, width: pct.params.height }) => {
+    // recordAction({ action: 'rotateCanvas', ...cfg }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+    const newHeight = cfg.height
+    const newWidth = cfg.width
 
     layers.drawingLayer.resetMatrix()
     // layers.drawingLayer.image(layers.p5.get(), 0, 0) // makes things blurry ???
@@ -852,7 +895,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
     // TODO: undo doesn't know anything about rotation......
 
-    renderLayers(params)
+    renderLayers({ layers })
   }
 
   const coinflip = () => pct.p5.random() > 0.5
@@ -895,12 +938,13 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     setShadows(layers.drawingLayer, params)
 
     layers.drawingLayer.image(img2, 0, 0)
-    renderTarget() // not all layers - skip clearing and background, thus allowing an overlay
+    renderTarget({ layers }) // not all layers - skip clearing and background, thus allowing an overlay
     pct.p5.pop()
 
     layers.drawingLayer.pop()
 
     recordAction({ action: 'randomLayer', percentSize: pctSize, originX, originY, rotateP, radians, alpha }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+    globals.updatedCanvas = true
   }
 
   const percentSize = () => {
@@ -923,7 +967,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       data[i + 2] = 255 * (data[i + 2] / 255) ** gammaCorrection
     }
     context.putImageData(imageData, 0, 0)
-    renderLayers(params)
+    renderLayers({ layers })
+    globals.updatedCanvas = true
   }
 
   pct.stop = (mode = APP_MODES.NO_DRAW) => {
@@ -959,7 +1004,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   pct.randomLayer = randomLayer
   pct.renderLayers = renderLayers
   pct.reset = reset
-  pct.rotateCanvas = rotateCanvas
+  pct.rotateCanvas = rotateCanvasOrig
+  pct.rotateWrapped = rotateWrapper(pct)
   pct.setFont = setFont
   pct.shift = shift
   pct.target = target

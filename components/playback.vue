@@ -1,21 +1,23 @@
 <template lang="pug">
 #playback
-  atom-spinner(
-    v-show="isPlaying",
-    :animation-duration="1000",
-    :size="60",
-    :color="'#ff1d5e'"
-  )
+  //- atom-spinner(
+  //-   v-show="playing",
+  //-   :animation-duration="1000",
+  //-   :size="60",
+  //-   :color="'#ff1d5e'"
+  //- )
 
   textarea#script(placeholder="[script goes here]", v-model="editableScript")
 
   #buttons
-    button(@click="playback") Playback
-    button(@click="output") Output recording
+    button(@click="playback") {{ playing ?  'playing' : 'Playback' }}
+    button(@click="output") Output script
     button(@click="keep") Keep script
     button(@click="clearCanvas") Clear Canvas
-    button(@click="clearScripts") Erase recording
-    button(@click="loadRecording") Load Recording
+    button(@click="clearScripts") Erase script
+    button(@click="loadRecording") Load script
+    button(@click="saveFrames")
+      | {{ capturing ? 'Capture Frames' : 'Stop Capture' }}
 
   #error(v-if="errorMessage", @click="clearMessages")
     p {{ errorMessage }}
@@ -39,13 +41,21 @@ export default {
       default () {
         return []
       }
+    },
+    originalCapturing: {
+      type: Boolean,
+      default () {
+        return false
+      }
     }
   },
   data () {
     return {
       defaultScript: recording.script,
       editableScript: '',
-      errorMessage: ''
+      errorMessage: '',
+      capturing: false,
+      playing: false
     }
   },
   components: {
@@ -54,14 +64,11 @@ export default {
   mounted () {
     this.pchrome.stop()
     this.editableScript = this.stringify(this.script)
+    this.capturing = this.originalCapturing
   },
   unmounted () {
+    // reset pchrome
     this.pchrome.start()
-  },
-  computed: {
-    isPlaying () {
-      return this.pchrome.appMode === this.pchrome.APP_MODES.PLAYBACK
-    }
   },
   methods: {
     output () {
@@ -70,11 +77,16 @@ export default {
     },
     playback () {
       try {
+        this.playing = true
+        // if button for record, switch here
         this.pchrome.playback = playback({ script: this.jsonify(), pct: this.pchrome })
         this.pchrome.start(this.pchrome.APP_MODES.PLAYBACK)
+        // ah, but when done.... in unmounted ???
       } catch (err) {
         this.pchrome.stop()
         this.errorMessage = err
+      } finally {
+        this.playing = false
       }
     },
     keep () {
@@ -105,6 +117,10 @@ export default {
     },
     loadRecording () {
       this.editableScript = this.stringify(this.defaultScript)
+    },
+    saveFrames () {
+      this.capturing = !this.capturing
+      this.$emit('capturing', this.capturing)
     }
   }
 }

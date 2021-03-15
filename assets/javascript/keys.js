@@ -37,7 +37,7 @@ const setupHotkeys = (pct) => {
       keys: ['del', 'backspace'].join(','),
       action: () => {
         pct.undo.takeSnapshot()
-        pct.clearCanvas()
+        pct.clearCanvas({ ...pct })
       }
     },
     {
@@ -90,9 +90,8 @@ const setupHotkeys = (pct) => {
     {
       keys: ['space'].join(','),
       action: ({ params }) => {
-        pct.recordAction({ x: pct.p5.mouseX, y: pct.p5.mouseY, action: 'paint' }, pct.appMode !== pct.APP_MODES.STANDARD_DRAW)
         pct.undo.takeSnapshot()
-        pct.paint(pct.p5.mouseX, pct.p5.mouseY, params)
+        pct.draw({ x: pct.p5.mouseX, y: pct.p5.mouseY, params, override: true })
       }
     },
     {
@@ -121,17 +120,19 @@ const setupHotkeys = (pct) => {
     },
     {
       keys: ['q'].join(','),
-      action: () => {
+      action: ({ params }) => {
         pct.undo.takeSnapshot()
-        pct.rotateCanvas({ direction: 1 })
+        pct.rotateCanvas({ direction: 1, height: params.height, width: params.width, layers: pct.layers })
+        // pct.rotateWrapped({ direction: 1 })
         // TODO: if not square, undo gets weird, here.....
       }
     },
     {
       keys: ['shift+q'].join(','),
-      action: () => {
+      action: ({ params }) => {
         pct.undo.takeSnapshot()
-        pct.rotateCanvas({ direction: -1 })
+        pct.rotateCanvas({ direction: -1, height: params.height, width: params.width, layers: pct.layers })
+        // pct.rotateWrapped({ direction: -1 })
       }
     },
     {

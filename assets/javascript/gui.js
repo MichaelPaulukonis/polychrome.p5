@@ -97,7 +97,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     // bindNumber, despite the README notes, has the same signature as bindRange
     .bindNumber('width', _, _, params.width, _, params)
     .bindNumber('height', _, _, params.height, _, params)
-    .addButton('clear', sketch.clearCanvas)
+    .addButton('clear', () => sketch.clearCanvas({ layers: sketch.layers, params: params }))
     .addButton('save', sketch.save_sketch)
     .addRange('frameRate', 1, 30, params.frameRate, 1, setFrameRate(p5))
     .bindBoolean('autoPaint', params.autoPaint, params)

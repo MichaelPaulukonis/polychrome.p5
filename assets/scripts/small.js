@@ -1,17 +1,19 @@
 module.exports = {
   meta: 'Sample of scriptable actions',
   script: [
-    { 'action': 'clearCanvas' },
+    { 'action': 'clearCanvas', 'params': { 'layers': 'layers' } },
 
     { 'action': 'text', 'params': { 'text': 'This is the text that was there when she called' } },
 
     { 'action': 'config', 'params': { 'drawMode': 'Circle' } },
 
+    { 'action': 'config', 'params': { 'capturing': true } },
+
     { 'action': 'config', 'params': { 'fixedWidth': true, 'font': 'AtariClassic-Regular' } },
 
     { 'params': { 'x': 16, 'y': 19.859375 }, 'action': 'paint' },
 
-    { 'action': 'rotateCanvas', params: { direction: 1 } },
+    { 'action': 'rotateCanvas', params: { direction: 1, layers: 'layers' } },
 
     { 'action': 'paint', 'params': { 'x': 20, 'y': 30 } },
 

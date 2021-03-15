@@ -89,12 +89,6 @@ function Detector () {
 };
 
 const d = new Detector()
-// const supportedFonts = []
-// fonts.forEach((font) => {
-//   if (d.detect(font)) {
-//     supportedFonts.push(font)
-//   }
-// })
 
 const supportedFonts = fonts.filter(d.detect)
 

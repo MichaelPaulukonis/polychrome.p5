@@ -21,6 +21,7 @@
       :pchrome="pchrome",
       :script="script",
       @scriptUpdated="script = $event"
+      @capturing="pchrome.params.capturing = $event"
     )
 
   button(@click="show") textManager
@@ -63,7 +64,6 @@ export default {
     return {
       currentText: 'placeholder',
       corpus,
-      params: {},
       pchrome: {},
       script: [],
       textManager: {}
