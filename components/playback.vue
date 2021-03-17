@@ -108,7 +108,7 @@ export default {
       this.errorMessage = ''
     },
     clearCanvas () {
-      this.pchrome.clearCanvas()
+      this.pchrome.clearCanvas({ layers: this.pchrome.layers, params: this.pchrome.params })
     },
     clearScripts () {
       this.pchrome.clearRecording()

@@ -216,7 +216,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   }
 
   const clearCanvas = ({ layers, params }) => {
-    recordAction({ action: 'clearCanvas', layers }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+    recordAction({ action: 'clearCanvas', layers: 'layers' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
     const color = params.fill.color
     clear(layers.drawingLayer, color)
     clear(layers.p5, color)
@@ -833,6 +833,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     return rotateCanvas({ direction, height: pct.params.height, width: pct.params.width, layers: pct.layers, p5: pct.p5 })
   }
 
+  // version as rewritten
+
   const rotateCanvas = ({ direction, height, width, layers, p5 }) => {
     recordAction({ action: 'rotateCanvas', direction, height, width, layers }, pct.appMode !== APP_MODES.STANDARD_DRAW)
 
@@ -867,36 +869,71 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
   // stopped working, again. doh!
   // could the issue be in rotate? I mean, WTF
-  const rotateCanvasOrig = (cfg = { direction: 1, height: pct.params.height, width: pct.params.height }) => {
-    // recordAction({ action: 'rotateCanvas', ...cfg }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-    const newHeight = cfg.height
-    const newWidth = cfg.width
+  // const rotateCanvasRework = (cfg = { direction: 1, height: pct.params.height, width: pct.params.height }) => {
+  //   // recordAction({ action: 'rotateCanvas', ...cfg }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+  //   const newHeight = cfg.height
+  //   const newWidth = cfg.width
 
-    layers.drawingLayer.resetMatrix()
-    // layers.drawingLayer.image(layers.p5.get(), 0, 0) // makes things blurry ???
-    layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
+  //   layers.drawingLayer.resetMatrix()
+  //   // layers.drawingLayer.image(layers.p5.get(), 0, 0) // makes things blurry ???
+  //   layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
 
-    p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
+  //   p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
 
-    const newPG = initDrawingLayer(newWidth, newHeight)
-    newPG.push()
-    if (cfg.direction === -1) {
-      newPG.translate(0, newHeight)
-    } else {
-      newPG.translate(newWidth, 0)
-    }
-    newPG.rotate(p5.radians(90 * cfg.direction))
-    newPG.image(layers.drawingLayer, 0, 0)
-    newPG.pop()
+  //   const newPG = initDrawingLayer(newWidth, newHeight)
+  //   newPG.push()
+  //   if (cfg.direction === -1) {
+  //     newPG.translate(0, newHeight)
+  //   } else {
+  //     newPG.translate(newWidth, 0)
+  //   }
+  //   newPG.rotate(p5.radians(90 * cfg.direction))
+  //   newPG.image(layers.drawingLayer, 0, 0)
+  //   newPG.pop()
 
-    layers.drawingLayer.remove()
-    layers.drawingLayer = newPG
-    newPG.remove()
+  //   layers.drawingLayer.remove()
+  //   layers.drawingLayer = newPG
+  //   newPG.remove()
 
-    // TODO: undo doesn't know anything about rotation......
+  //   // TODO: undo doesn't know anything about rotation......
 
-    renderLayers({ layers })
+  //   renderLayers({ layers })
+  // }
+
+  const rotateCanvasOrig = (cfg = { direction: 1 }) => {
+    rotateInner(params, p5, layers, initDrawingLayer, cfg, renderLayers)
   }
+
+  // from cd05908
+  // const rotateCanvas = (cfg = { direction: 1 }) => {
+  //   const newHeight = params.height = p5.width
+  //   const newWidth = params.width = p5.height
+
+  //   layers.drawingLayer.resetMatrix()
+  //   // layers.drawingLayer.image(layers.p5.get(), 0, 0) // makes things blurry ???
+  //   layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
+
+  //   p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
+
+  //   const newPG = initDrawingLayer(newWidth, newHeight)
+  //   newPG.push()
+  //   if (cfg.direction === -1) {
+  //     newPG.translate(0, newHeight)
+  //   } else {
+  //     newPG.translate(newWidth, 0)
+  //   }
+  //   newPG.rotate(p5.radians(90 * cfg.direction))
+  //   newPG.image(layers.drawingLayer, 0, 0)
+  //   newPG.pop()
+
+  //   layers.drawingLayer.remove()
+  //   layers.drawingLayer = newPG
+  //   newPG.remove()
+
+  //   // TODO: undo doesn't know anything about rotation......
+
+  //   renderLayers(params)
+  // }
 
   const coinflip = () => pct.p5.random() > 0.5
 
@@ -1022,4 +1059,33 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   pct.globals = globals
 
   return pct
+}
+
+function rotateInner (params, p5, layers, initDrawingLayer, cfg, renderLayers) {
+  const newHeight = params.height = p5.width
+  const newWidth = params.width = p5.height
+
+  layers.drawingLayer.resetMatrix()
+  // layers.drawingLayer.image(layers.p5.get(), 0, 0) // makes things blurry ???
+  layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
+
+  p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
+
+  const newPG = initDrawingLayer(newWidth, newHeight)
+  newPG.push()
+  if (cfg.direction === -1) {
+    newPG.translate(0, newHeight)
+  } else {
+    newPG.translate(newWidth, 0)
+  }
+  newPG.rotate(p5.radians(90 * cfg.direction))
+  newPG.image(layers.drawingLayer, 0, 0)
+  newPG.pop()
+
+  layers.drawingLayer.remove()
+  layers.drawingLayer = newPG
+  newPG.remove()
+
+  // TODO: undo doesn't know anything about rotation......
+  renderLayers({ layers })
 }
