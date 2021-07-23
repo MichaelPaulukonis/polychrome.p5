@@ -15,8 +15,8 @@ import saveAs from 'file-saver'
 import { datestring, filenamer } from './filelib'
 
 const sleep = (milliseconds) => {
-  var start = new Date().getTime()
-  for (var i = 0; i < 1e7; i++) {
+  const start = new Date().getTime()
+  for (let i = 0; i < 1e7; i++) {
     if ((new Date().getTime() - start) > milliseconds) {
       break
     }
@@ -261,8 +261,10 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
   const paint = (xPos, yPos, params) => {
     setFont(params.font, layers.drawingLayer)
-    const draw = params.drawMode === 'Grid' ? drawGrid
-      : params.drawMode === 'Circle' ? drawCircle
+    const draw = params.drawMode === 'Grid'
+      ? drawGrid
+      : params.drawMode === 'Circle'
+        ? drawCircle
         : drawRowCol
     draw({ xPos, yPos, params, width: params.width, height: params.height, layer: layers.drawingLayer })
   }
@@ -489,8 +491,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
     const sw = params.useOutline
       ? params.outline.strokeWeight
-        ? params.outline.strokeWeight
-        : (gridParams.step / 5)
+          ? params.outline.strokeWeight
+          : (gridParams.step / 5)
       : 0
     layer.strokeWeight(sw / 4)
     layer.strokeJoin(params.outline.strokeJoin)
@@ -625,10 +627,11 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
         func(gridX / 2, gridY / 2, 100, transparency)
         break
 
-      case 'rainbow4': // offset from default
+      case 'rainbow4': { // offset from default
         const x = (gridX + layer.width / 2) % layer.width
         const y = (layer.height - gridY + layer.height / 2) % layer.height
         func(x, y, 100, transparency)
+      }
         break
 
       case 'black':
@@ -991,7 +994,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   }
 
   const adjustGamma = (props = { gamma: 0.8 }) => {
-    recordAction({ action: 'adjustGamma', 'gamma': props.gamma }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+    recordAction({ action: 'adjustGamma', gamma: props.gamma }, pct.appMode !== APP_MODES.STANDARD_DRAW)
 
     const gammaCorrection = 1 / props.gamma
     const context = layers.p5.drawingContext

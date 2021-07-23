@@ -21,7 +21,7 @@ const isDifferent = diff => Object.keys(diff).length > 0
 
 const recordAction = (props, bypass) => {
   if (bypass) return
-  let { action, ...params } = props
+  const { action, ...params } = props
   store({ action, params })
 }
 

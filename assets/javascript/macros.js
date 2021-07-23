@@ -1,8 +1,10 @@
 export default function Macros (pchrome) {
-  const { drawGrid, drawCircle, drawRowCol,
+  const {
+    drawGrid, drawCircle, drawRowCol,
     flipCore, layers, pushpop, paint, shift,
     apx, mirror, renderLayers, undo, randomLayer,
-    HORIZONTAL, VERTICAL } = pchrome
+    HORIZONTAL, VERTICAL
+  } = pchrome
 
   // TODO: record needs to happen here
   const macroWrapper = m => (pct) => {
@@ -11,7 +13,7 @@ export default function Macros (pchrome) {
     layer.push()
     m({ params: JSON.parse(JSON.stringify(params)), layer, p5, defaultParams })
     if (m.name) {
-      pct.recordAction({ action: 'macro', 'macro': m.name }, pct.appMode !== pct.APP_MODES.STANDARD_DRAW)
+      pct.recordAction({ action: 'macro', macro: m.name }, pct.appMode !== pct.APP_MODES.STANDARD_DRAW)
     }
     layer.pop()
   }
@@ -337,7 +339,7 @@ export default function Macros (pchrome) {
     layer.image(img2, originX, originY)
     img2.remove()
     layer.pop()
-    renderLayers()
+    renderLayers({ layers })
   })
 
   const randomSection = (targetWidth, targetHeight, imgWidth, imgHeight, p5) => {
@@ -364,7 +366,7 @@ export default function Macros (pchrome) {
     p5.tint(255, alpha)
     layer.blendMode(p5.MULTIPLY) // on or off ???
     layer.image(newLayer, 0, 0)
-    renderLayers()
+    renderLayers({ layers })
     p5.pop()
   })
 

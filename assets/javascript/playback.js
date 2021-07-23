@@ -1,6 +1,6 @@
 import { mergeAll, path } from 'ramda'
 
-var fromPathOrOriginal = (val, pct) => (typeof val === 'string' && path(val.split('.'), pct)) || val
+const fromPathOrOriginal = (val, pct) => (typeof val === 'string' && path(val.split('.'), pct)) || val
 
 const vivify = pchrome => params => {
   const liveParams = mergeAll(Object.keys(params).map(key => ({ [key]: fromPathOrOriginal(params[key], pchrome) })))
@@ -24,12 +24,13 @@ const playback = function * ({ script, pct }) {
         yield
         break
 
-      case 'config':
+      case 'config': {
         const newConf = { ...prevConfig, ...cmd.params }
         prevConfig = newConf
         localParams = { ...localParams, ...newConf }
         yield
         break
+      }
 
       case 'macro':
         pct.macros[cmd.params.macro](pct)
@@ -47,10 +48,11 @@ const playback = function * ({ script, pct }) {
         yield
         break
 
-      default:
+      default: {
         const newParams = hydrate(cmd.params || {})
         pct[cmd.action]({ ...newParams, params: localParams })
         yield
+      }
     }
   }
   pct.stop()

@@ -1,4 +1,4 @@
-#!/usr/local/bin/zsh
+#!/bin/zsh
 
 # OBSCUR - a script to move downloaded OBSCURUS images and build an MP4 and/or GIF
 
