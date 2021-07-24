@@ -73,7 +73,7 @@ class CircImgCollection {
       layers.drawingLayer.translate(0, 0)
       layers.drawingLayer.resetMatrix()
       layers.drawingLayer.image(imgs[current], 0, 0)
-      renderFunc()
+      renderFunc({ layers })
       layers.drawingLayer.pop()
     }
   }

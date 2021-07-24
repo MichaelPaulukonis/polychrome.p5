@@ -58,6 +58,7 @@
     "@nuxtjs/eslint-module": "^3.0.2",
     "cypress": "^3.1.4",
     "eslint": "^7.25.0",
+    "eslint-plugin-nuxt": "^2.0.0",
     "gh-pages": "^2.1.1",
     "husky": "^3.0.9",
     "node-sass": "^4.13.1",
