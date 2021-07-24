@@ -17,7 +17,8 @@
     "bump": "npm version patch",
     "publish": "npm run bump && DEPLOY_ENV=GH_PAGES npm run generate && npm run deploy",
     "lint:fix": "standard --fix",
-    "lint": "standard"
+    "lint": "standard",
+    "open": "open https://michaelpaulukonis.github.io/polychrome.p5/"
   },
   "lint-staged": {
     "*.{js,vue}": "standard"
@@ -61,6 +62,7 @@
     "@nuxtjs/eslint-module": "^3.0.2",
     "cypress": "^3.1.4",
     "eslint": "^7.25.0",
+    "eslint-config-p5js": "^1.1.0",
     "eslint-plugin-nuxt": "^2.0.0",
     "gh-pages": "^2.1.1",
     "husky": "^3.0.9",
