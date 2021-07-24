@@ -6,11 +6,12 @@ SOURCE=~/Downloads
 TARGET_ROOT=$SOURCE/polychrome.out
 FILENAME=
 MAKE_GIF=false
+SPEED=15
 
 usage()
 {
 cat << _EOF_
-Utilities for OBSCURUS output
+Utilities for PolychromeText output
 Moves images into associated folders and build gifs or mp4 files
 NOTE: gif-construction takes a looooong time
 
@@ -57,7 +58,7 @@ mkmp4() {
     #  ffmpeg -r 30 -f image2 -s 500x500 -i "$1-%06d.png" -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
     # https://hamelot.io/visualization/using-ffmpeg-to-convert-a-set-of-images-into-a-video/
     # -r = frameRate
-    ffmpeg -r 15 -f image2 -s 500x500 -pattern_type glob -i '*.png' -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
+    ffmpeg -r $SPEED -f image2 -s 500x500 -pattern_type glob -i '*.png' -vcodec libx264 -crf 17 -pix_fmt yuv420p $1.mp4
 }
 
 mkgif() {
@@ -122,6 +123,18 @@ while [ "$1" != "" ]; do
         -b | --build )
             buildit $FILENAME $TARGET_ROOT/$FILENAME
             exit
+        ;;
+        -r | --reprocess )
+            buildit $FILENAME $TARGET_ROOT
+            exit
+        ;;
+        -s | --speed )
+            shift
+            SPEED=$1
+        ;;
+        -i | --input )
+            shift
+            TARGET_ROOT=$1
         ;;
         -m | --move )
             moveit $FILENAME $TARGET_ROOT/$FILENAME
