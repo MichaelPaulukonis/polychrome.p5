@@ -167,3 +167,14 @@ Over time, my use/the use of color has come to be really important. That _is_ th
 - https://albersfoundation.org/teaching/josef-albers/interaction-of-color/publications/
 - http://www.louisapenfold.com/albers-interaction-of-color/
   
+
+  ## Scripting
+
+  It is now possible to record and playback most activity.
+  Not all of it is recorded correctly, and needs work.
+  Also, I'd really like to extend it by a simple language (ay-yi-yi) to allow for some looping.
+  Have a look at https://www.npmjs.com/package/tracery-grammar and https://github.com/kyranet/tracery
+
+  https://shiffman.net/a2z/cfg/
+
+

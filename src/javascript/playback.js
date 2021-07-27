@@ -7,9 +7,6 @@ const vivify = pchrome => params => {
   return liveParams
 }
 
-// TODO: add button to record script playback to Playback.vue
-// but local to instance only
-// restored on exit
 const playback = function * ({ script, pct }) {
   let prevConfig = {}
   const hydrate = vivify(pct)

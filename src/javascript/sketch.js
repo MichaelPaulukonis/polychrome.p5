@@ -7,10 +7,10 @@ import {
   outlineParams,
   drawModes,
   globals
-} from '@/assets/javascript/params.js'
-import { hexStringToColors } from '@/assets/javascript/gui.color.control'
-import { setupGui } from '@/assets/javascript/gui'
-import { recordAction, recordConfig, output, clear as clearRecording } from '@/assets/javascript/record'
+} from '@/src/javascript/params.js'
+import { hexStringToColors } from '@/src/javascript/gui.color.control'
+import { setupGui } from '@/src/javascript/gui'
+import { recordAction, recordConfig, output, clear as clearRecording } from '@/src/javascript/record'
 import saveAs from 'file-saver'
 import { datestring, filenamer } from './filelib'
 
@@ -22,7 +22,7 @@ const sleep = (milliseconds) => {
     }
   }
 }
-const fonts = require.context('../fonts', false, /\.ttf$/)
+const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
 console.log(fonts.keys())
 
@@ -172,6 +172,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   // rotate canvas, mirror, etc.
   // Can we move this out of here, like playback?
   const autoDraw = (minX, minY, maxX, maxY) => {
+    // TODO: things like shift and rotate would be nice. change text, etc.
     if (p5.random(0, 10) < 2) {
       const mList = Object.keys(pct.macros)
       const macroName = p5.random(mList)
@@ -184,7 +185,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     globals.updatedCanvas = true
   }
 
-  // this was a POO-WIP for picking the center for various operations
+  // this was a POC-WIP for picking the center for various operations
   // never finished
   const target = () => {
     const layer = layers.copy()

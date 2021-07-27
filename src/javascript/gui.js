@@ -1,11 +1,11 @@
 import defaults from './default.settings.json'
-import { QuickSettings } from '@/assets/javascript/quicksettings'
+import { QuickSettings } from '~/src/javascript/quicksettings'
 import {
   getRandomColors,
   drawModes
-} from '@/assets/javascript/params'
-import { lerpList } from '@/assets/javascript/lerplist'
-import { hexStringToColors } from '@/assets/javascript/gui.color.control'
+} from '~/src/javascript/params'
+import { lerpList } from '~/src/javascript/lerplist'
+import { hexStringToColors } from '~/src/javascript/gui.color.control'
 
 const setFocus = (title) => {
   console.log(JSON.stringify(title))

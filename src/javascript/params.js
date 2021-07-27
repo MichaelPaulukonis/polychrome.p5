@@ -1,4 +1,4 @@
-import fontList from '@/assets/javascript/fonts'
+import fontList from '~/src/javascript/fonts'
 
 const randomColor = () => '#' + (Math.random().toString(16) + '0000000').slice(2, 8)
 

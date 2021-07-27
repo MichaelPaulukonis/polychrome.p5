@@ -60,6 +60,7 @@
   },
   "devDependencies": {
     "@nuxtjs/eslint-module": "^3.0.2",
+    "babel-eslint": "^10.1.0",
     "cypress": "^3.1.4",
     "eslint": "^7.25.0",
     "eslint-config-p5js": "^1.1.0",
