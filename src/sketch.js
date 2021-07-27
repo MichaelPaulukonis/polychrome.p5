@@ -7,10 +7,10 @@ import {
   outlineParams,
   drawModes,
   globals
-} from '@/src/javascript/params.js'
-import { hexStringToColors } from '@/src/javascript/gui.color.control'
-import { setupGui } from '@/src/javascript/gui'
-import { recordAction, recordConfig, output, clear as clearRecording } from '@/src/javascript/record'
+} from '@/src/params.js'
+import { hexStringToColors } from '@/src/gui/gui.color.control'
+import { setupGui } from '@/src/gui/gui'
+import { recordAction, recordConfig, output, clear as clearRecording } from '@/src/record'
 import saveAs from 'file-saver'
 import { datestring, filenamer } from './filelib'
 
@@ -28,7 +28,7 @@ console.log(fonts.keys())
 
 let namer = null
 
-export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback }) {
+export default function Sketch({ p5Instance: p5, guiControl, textManager, setupCallback }) {
   const params = allParams
   const pct = {}
 
@@ -405,7 +405,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
   // generator will return { theta, text }
   const blocGeneratorCircle = ({ radius, circumference, arcOffset = 0 }) => {
-    return function * (nextText, l) {
+    return function* (nextText, l) {
       let arclength = arcOffset
       while (arclength < circumference + arcOffset) {
         const t = nextText()
@@ -492,8 +492,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
     const sw = params.useOutline
       ? params.outline.strokeWeight
-          ? params.outline.strokeWeight
-          : (gridParams.step / 5)
+        ? params.outline.strokeWeight
+        : (gridParams.step / 5)
       : 0
     layer.strokeWeight(sw / 4)
     layer.strokeJoin(params.outline.strokeJoin)
@@ -521,7 +521,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     layer.pop()
   }
 
-  const blocGeneratorFixedWidth = function * (gridParams, nextText) {
+  const blocGeneratorFixedWidth = function* (gridParams, nextText) {
     for (let gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
       for (let gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
         const t = nextText()
@@ -531,7 +531,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     return 'done'
   }
 
-  const blocGeneratorTextWidth = function * (nextText, gridSize, yOffset, layer) {
+  const blocGeneratorTextWidth = function* (nextText, gridSize, yOffset, layer) {
     let t = nextText()
     let coords = { x: 0, y: yOffset }
     const offsets = { x: 0, y: yOffset }
@@ -1065,7 +1065,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   return pct
 }
 
-function rotateInner (params, p5, layers, initDrawingLayer, cfg, renderLayers) {
+function rotateInner(params, p5, layers, initDrawingLayer, cfg, renderLayers) {
   const newHeight = params.height = p5.width
   const newWidth = params.width = p5.height
 

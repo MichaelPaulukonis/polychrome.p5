@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { playback } from '@/src/javascript/playback'
+import { playback } from '@/src/playback'
 import recording from '@/assets/scripts/small.js'
 import { AtomSpinner } from 'epic-spinners'
 

@@ -44,12 +44,12 @@ import Help from '@/components/help'
 import About from '@/components/about'
 import Playback from '@/components/playback'
 
-import TextManager from '@/src/javascript/TextManager'
-import Sketch from '@/src/javascript/sketch.js'
-import randomPost from '@/src/javascript/tumblr-random.js'
-import corpus from '@/src/javascript/corpus.js'
-import Macros from '@/src/javascript/macros.js'
-import { setupHotkeys } from '@/src/javascript/keys.js'
+import TextManager from '@/src/text/TextManager'
+import Sketch from '@/src/sketch.js'
+import randomPost from '@/src/text/tumblr-random.js'
+import corpus from '@/src/text/corpus.js'
+import Macros from '@/src/gui/macros.js'
+import { setupHotkeys } from '@/src/gui/keys.js'
 
 const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
