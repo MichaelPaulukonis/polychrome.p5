@@ -7,6 +7,10 @@ const vivify = pchrome => params => {
   return liveParams
 }
 
+// TODO: w/out going full-parser [NOTE: why not?]
+// it would be nice to have some looping, or defined functions, or
+// okay, that sound like full-parser
+
 const playback = function * ({ script, pct }) {
   let prevConfig = {}
   const hydrate = vivify(pct)

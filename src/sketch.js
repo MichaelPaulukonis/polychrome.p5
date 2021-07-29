@@ -28,7 +28,7 @@ console.log(fonts.keys())
 
 let namer = null
 
-export default function Sketch({ p5Instance: p5, guiControl, textManager, setupCallback }) {
+export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback }) {
   const params = allParams
   const pct = {}
 
@@ -60,6 +60,13 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
       imgMask.pixels[i] = 255 - imgMask.pixels[i]
     }
     imgMask.updatePixels()
+  }
+
+  const APP_MODES = {
+    STANDARD_DRAW: 'standard drawing mode',
+    TARGET: 'select a point on canvas',
+    NO_DRAW: 'no drawing for some reson',
+    PLAYBACK: 'replaying a paint script'
   }
 
   p5.setup = () => {
@@ -99,13 +106,6 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
 
   const mouseInCanvas = () => {
     return p5.mouseY > 0 && p5.mouseY < p5.height && p5.mouseX > 0 && p5.mouseX < p5.width
-  }
-
-  const APP_MODES = {
-    STANDARD_DRAW: 'standard drawing mode',
-    TARGET: 'select a point on canvas',
-    NO_DRAW: 'no drawing for some reson',
-    PLAYBACK: 'replaying a paint script'
   }
 
   const standardDraw = ({ x, y, override, params } = { x: p5.mouseX, y: p5.mouseY, override: false, params: pct.params }) => {
@@ -306,12 +306,9 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
 
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
-        // calculate cell position
         let pixelX = cellWidth * x
         let pixelY = cellHeight * y
 
-        // add half to center letters
-        // TODO: eh, doesn't work. figure out something better
         pixelX += cellWidth / 2
         pixelY += cellHeight / 2
 
@@ -323,7 +320,6 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
           txt = fetchText() // quick hack to skip spaces on single column mode
         }
         const fontSize = fitTextOnCanvas(txt, params.font, cellWidth, layer)
-        // layer.textSize(cellWidth * 1.5)
         layer.textSize(fontSize)
 
         const cum = trText(layer)(pixelX, pixelY, 0, 0, txt)
@@ -350,8 +346,6 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
   }
 
   // NOTE: yPos is only used for color context....
-  // const drawCircleOld = (xPos, yPos, params, width, _, layer, textSize, sizer) => drawCircle({ xPos, yPos, params, width, layer, textSize, sizer })
-
   const drawCircle = ({ xPos, yPos, params, width, layer, textSize, sizer, center, arcPercent = 100, arcOffset = 0 }) => {
     sizer = sizer || textSizeCircle
     const ts = textSize || sizer(xPos)
@@ -405,7 +399,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
 
   // generator will return { theta, text }
   const blocGeneratorCircle = ({ radius, circumference, arcOffset = 0 }) => {
-    return function* (nextText, l) {
+    return function * (nextText, l) {
       let arclength = arcOffset
       while (arclength < circumference + arcOffset) {
         const t = nextText()
@@ -492,8 +486,8 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
 
     const sw = params.useOutline
       ? params.outline.strokeWeight
-        ? params.outline.strokeWeight
-        : (gridParams.step / 5)
+          ? params.outline.strokeWeight
+          : (gridParams.step / 5)
       : 0
     layer.strokeWeight(sw / 4)
     layer.strokeJoin(params.outline.strokeJoin)
@@ -521,7 +515,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     layer.pop()
   }
 
-  const blocGeneratorFixedWidth = function* (gridParams, nextText) {
+  const blocGeneratorFixedWidth = function * (gridParams, nextText) {
     for (let gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
       for (let gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
         const t = nextText()
@@ -531,7 +525,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     return 'done'
   }
 
-  const blocGeneratorTextWidth = function* (nextText, gridSize, yOffset, layer) {
+  const blocGeneratorTextWidth = function * (nextText, gridSize, yOffset, layer) {
     let t = nextText()
     let coords = { x: 0, y: yOffset }
     const offsets = { x: 0, y: yOffset }
@@ -1065,7 +1059,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
   return pct
 }
 
-function rotateInner(params, p5, layers, initDrawingLayer, cfg, renderLayers) {
+function rotateInner (params, p5, layers, initDrawingLayer, cfg, renderLayers) {
   const newHeight = params.height = p5.width
   const newWidth = params.width = p5.height
 

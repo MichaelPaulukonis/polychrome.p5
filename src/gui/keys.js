@@ -1,6 +1,5 @@
 import hotkeys from 'hotkeys-js'
 
-// once all of these are moved into HotKeys, we can rid of the ref insie of sketch
 const EXTRASHIFT = 10
 const HORIZONTAL = 0
 const VERTICAL = 1
@@ -12,7 +11,6 @@ const flip = ({ layers, sketch }) => (direction) => {
 
 // TODO: the check for "inside of canvas" is missing, need to use a wrapper for those that need it?
 const setupHotkeys = (pct) => {
-  // const { sketch: pct } = polychrome
   const blob = { params: pct.params, layers: pct.layers, sketch: pct }
   const shiftPressed = () => hotkeys.getPressedKeyCodes().includes(16)
 
