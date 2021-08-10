@@ -17,9 +17,15 @@ const playback = function * ({ script, pct }) {
   const origCapturing = pct.params.capturing
   const origParams = { ...pct.params }
   let localParams = JSON.parse(JSON.stringify(origParams))
+
   for (let i = 0; i < script.length; i++) {
     const cmd = script[i]
     switch (cmd.action) {
+      case 'repeat':
+        // TODO: figure it out!
+        // this whole yield bit and calling with .next() is .... awkward
+        break
+
       case 'paint':
         pct.draw({ x: cmd.params.x, y: cmd.params.y, override: true, params: localParams })
         yield

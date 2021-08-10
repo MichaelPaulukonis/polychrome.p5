@@ -13,6 +13,7 @@ import { setupGui } from '@/src/gui/gui'
 import { recordAction, recordConfig, output, clear as clearRecording } from '@/src/record'
 import saveAs from 'file-saver'
 import { datestring, filenamer } from './filelib'
+import { setupActions } from '@/src/gui/actions'
 
 const sleep = (milliseconds) => {
   const start = new Date().getTime()
@@ -171,12 +172,16 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   // random application of other controls (macros, etc ?)
   // rotate canvas, mirror, etc.
   // Can we move this out of here, like playback?
+  const actions = setupActions(pct)
+
   const autoDraw = (minX, minY, maxX, maxY) => {
-    // TODO: things like shift and rotate would be nice. change text, etc.
     if (p5.random(0, 10) < 2) {
       const mList = Object.keys(pct.macros)
       const macroName = p5.random(mList)
       pct.macros[macroName]({ ...pct })
+    } else if (p5.random(0, 5) < 2) {
+      const blob = { params: pct.params, layers: pct.layers, sketch: pct }
+      p5.random(actions).action({ ...blob })
     } else {
       const locX = p5.random(minX, maxX)
       const locY = p5.random(minY, maxY)
@@ -346,7 +351,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   }
 
   // NOTE: yPos is only used for color context....
-  const drawCircle = ({ xPos, yPos, params, width, layer, textSize, sizer, center, arcPercent = 100, arcOffset = 0 }) => {
+  const drawCircle = ({ xPos, yPos, params, width, layer, textSize, sizer, center, arcPercent = 100, arcOffset = params.arcOffset || 0 }) => {
     sizer = sizer || textSizeCircle
     const ts = textSize || sizer(xPos)
     layer.textSize(ts)

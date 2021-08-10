@@ -4,7 +4,7 @@ import {
   getRandomColors,
   drawModes
 } from '~/src/params'
-import { lerpList } from '~/src/lerplist'
+import { lerpList } from '~/src/gui/lerplist'
 import { hexStringToColors } from '~/src/gui/gui.color.control'
 
 const setFocus = (title) => {

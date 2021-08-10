@@ -47,7 +47,7 @@ const setupHotkeys = (pct) => {
     },
     {
       keys: 'alt+e',
-      actions: ({ params }) => {
+      action: ({ params }) => {
         params.hardEdge = !params.hardEdge
       }
     },
