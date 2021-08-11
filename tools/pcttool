@@ -1,17 +1,13 @@
 #!/bin/zsh
 
-# OBSCUR - a script to move downloaded OBSCURUS images and build an MP4 and/or GIF
-
-SOURCE=~/Downloads
-TARGET_ROOT=$SOURCE/polychrome.out
-FILENAME=
-MAKE_GIF=false
-SPEED=15
+DIR="`pwd`"
+source $DIR/tool.config
+declare MovieList=()
 
 usage()
 {
 cat << _EOF_
-Utilities for PolychromeText output
+Utilities for animated output
 Moves images into associated folders and build gifs or mp4 files
 NOTE: gif-construction takes a looooong time
 
@@ -38,7 +34,6 @@ list()
     pushd $1
     local files=(polychrometext.[0-9]##-[0-9]##.png)
     popd
-    # prefixes=($(printf "%s\n" "polychrometext.${files[@]%-*.png}" | sort -u | tr '\n' ' '))
     prefixes=($(printf "%s\n" "${files[@]%-*.png}" | sort -u | tr '\n' ' '))
 }
 
@@ -51,7 +46,11 @@ processAll() {
         moveit $p $TARGET_ROOT/$p
         buildit $p $TARGET_ROOT/$p
     done
+
     collect
+
+    echo "processing complete"
+    echo ${MovieList[@]}
 }
 
 mkmp4() {
@@ -84,6 +83,7 @@ buildit() {
         mkgif $FILE
         echo "chrome $TARG/$FILE.gif"
     fi
+    MovieList=(${MovieList[@]} "open $TARG/$FILE.mp4")
     echo "open $TARG/$FILE.mp4"
     popd
 }

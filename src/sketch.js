@@ -175,13 +175,17 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   const actions = setupActions(pct)
 
   const autoDraw = (minX, minY, maxX, maxY) => {
-    if (p5.random(0, 10) < 2) {
+    if (p5.random(0, 10) < 1) {
       const mList = Object.keys(pct.macros)
       const macroName = p5.random(mList)
       pct.macros[macroName]({ ...pct })
-    } else if (p5.random(0, 5) < 2) {
+    } else if (p5.random(0, 10) < 1) {
+      // ah, should not update canvas if not a paint-type action
+      // doh!
+      // also, don't run it so dang often!!!
       const blob = { params: pct.params, layers: pct.layers, sketch: pct }
       p5.random(actions).action({ ...blob })
+      return
     } else {
       const locX = p5.random(minX, maxX)
       const locY = p5.random(minY, maxY)

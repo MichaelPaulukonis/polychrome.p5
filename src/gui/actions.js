@@ -17,6 +17,7 @@ const setupActions = (pct) => {
         const vector = coinflip() ? 1 : -1
         const extraShift = coinflip() ? 100 : 10
         pct.shift({ verticalOffset: 0, horizontalOffset: vector * extraShift })
+        pct.globals.updatedCanvas = true
       }
     },
     {
@@ -25,6 +26,7 @@ const setupActions = (pct) => {
         const vector = coinflip() ? 1 : -1
         const extraShift = coinflip() ? 100 : 10
         pct.shift({ verticalOffset: vector * extraShift, horizontalOffset: 0 })
+        pct.globals.updatedCanvas = true
       }
     },
     {
@@ -50,18 +52,14 @@ const setupActions = (pct) => {
       action: ({ params }) => {
         pct.undo.takeSnapshot()
         pct.adjustGamma({ gamma: params.gamma })
+        pct.globals.updatedCanvas = true
       }
     },
     {
       action: ({ layers, sketch }) => {
         const vector = coinflip() ? VERTICAL : HORIZONTAL
         flip({ layers, sketch })(vector)
-      }
-    },
-    {
-      action: ({ params }) => {
-        pct.undo.takeSnapshot()
-        pct.draw({ x: pct.p5.mouseX, y: pct.p5.mouseY, params, override: true })
+        pct.globals.updatedCanvas = true
       }
     },
     {
@@ -83,41 +81,48 @@ const setupActions = (pct) => {
       action: ({ params }) => {
         pct.undo.takeSnapshot()
         pct.rotateCanvas({ direction: 1, height: params.height, width: params.width, layers: pct.layers })
+        pct.globals.updatedCanvas = true
       }
     },
     {
       action: ({ params }) => {
         pct.undo.takeSnapshot()
         pct.rotateCanvas({ direction: -1, height: params.height, width: params.width, layers: pct.layers })
+        pct.globals.updatedCanvas = true
       }
     },
     {
       action: ({ layers }) => {
         pct.undo.takeSnapshot()
         pct.mirror({ axis: VERTICAL, layer: layers.p5 })
+        pct.globals.updatedCanvas = true
       }
     },
     {
       action: ({ layers }) => {
         pct.undo.takeSnapshot()
         pct.mirror({ axis: HORIZONTAL, layer: layers.p5 })
+        pct.globals.updatedCanvas = true
       }
     },
     {
       action: () => {
         pct.undo.takeSnapshot()
         pct.shift({ verticalOffset: 0, horizontalOffset: -EXTRASHIFT })
+        pct.globals.updatedCanvas = true
       }
     },
     {
       action: () => {
         pct.undo.takeSnapshot()
         pct.shift({ verticalOffset: 0, horizontalOffset: EXTRASHIFT })
+        pct.globals.updatedCanvas = true
       }
     },
     {
       action: () => {
         pct.randomLayer()
+        pct.globals.updatedCanvas = true
       }
     }
   ]
