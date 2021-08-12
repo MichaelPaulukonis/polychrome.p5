@@ -7,9 +7,14 @@ const vivify = pchrome => params => {
   return liveParams
 }
 
-// TODO: w/out going full-parser [NOTE: why not?]
-// it would be nice to have some looping, or defined functions, or
-// okay, that sound like full-parser
+const unroll = script => {
+  const longified = script.map(cmd => {
+    return (cmd.action === 'repeat')
+      ? Array.from({ length: cmd.count }).map(i => Array.from(cmd.actions)).flat()
+      : cmd
+  })
+  return longified.flat()
+}
 
 const playback = function * ({ script, pct }) {
   let prevConfig = {}
@@ -18,14 +23,11 @@ const playback = function * ({ script, pct }) {
   const origParams = { ...pct.params }
   let localParams = JSON.parse(JSON.stringify(origParams))
 
-  for (let i = 0; i < script.length; i++) {
-    const cmd = script[i]
-    switch (cmd.action) {
-      case 'repeat':
-        // TODO: figure it out!
-        // this whole yield bit and calling with .next() is .... awkward
-        break
+  const scriptUnrolled = unroll(script)
 
+  for (let i = 0; i < scriptUnrolled.length; i++) {
+    const cmd = scriptUnrolled[i]
+    switch (cmd.action) {
       case 'paint':
         pct.draw({ x: cmd.params.x, y: cmd.params.y, override: true, params: localParams })
         yield

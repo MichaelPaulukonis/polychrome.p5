@@ -25,7 +25,9 @@
 
 <script>
 import { playback } from '@/src/playback'
-import recording from '@/assets/scripts/rotate.circle.js'
+// import recording from '@/assets/scripts/rotate.circle.js'
+import recording from '@/assets/scripts/repeat.js'
+
 import { AtomSpinner } from 'epic-spinners'
 
 export default {
