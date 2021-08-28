@@ -86,10 +86,12 @@ const setupHotkeys = (pct) => {
       }
     },
     {
+      // heyyyyyyyyyyy, this bypasses "save frames" .....
       keys: ['space'].join(','),
       action: ({ params }) => {
         pct.undo.takeSnapshot()
         pct.draw({ x: pct.p5.mouseX, y: pct.p5.mouseY, params, override: true })
+        pct.savit({ params })
       }
     },
     {

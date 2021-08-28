@@ -15,17 +15,7 @@ import saveAs from 'file-saver'
 import { datestring, filenamer } from './filelib'
 import { setupActions } from '@/src/gui/actions'
 
-const sleep = (milliseconds) => {
-  const start = new Date().getTime()
-  for (let i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds) {
-      break
-    }
-  }
-}
 const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
-
-console.log(fonts.keys())
 
 let namer = null
 
@@ -118,6 +108,10 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     }
   }
 
+  const saver = (canvas, name) => {
+    canvas.toBlob(blob => saveAs(blob, name))
+  }
+
   const savit = ({ params }) => {
     if (params.playbackSave || (params.capturing && globals.updatedCanvas)) {
       params.playbackSave = false
@@ -127,12 +121,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       }
       console.log('saving canvas: ' + globals.captureCount)
 
-      pct.layers.p5.drawingContext.canvas.toBlob((blob) => {
-        console.log('blobified, pre-save')
-        saveAs(blob, namer() + '.png')
-        console.log('blobified, post-save')
-        sleep(200)
-      })
+      saver(pct.layers.p5.drawingContext.canvas, namer() + '.png')
 
       globals.captureCount += 1
       if (globals.captureCount > pct.params.captureLimit) {
@@ -147,6 +136,9 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     if (pct.params.autoPaint) {
       autoDraw(0, 0, p5.width, p5.height)
     } else {
+      // increment incremental things
+      increment(pct.params)
+
       switch (pct.appMode) {
         case APP_MODES.NO_DRAW:
           return
@@ -160,6 +152,31 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       }
     }
     savit({ params: pct.params })
+  }
+
+  /**
+ *
+ *
+ *
+ * func(colorAlpha(params.color, transparency))}
+ *
+ * var i = 0, colour;
+for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
+    colour = '#' + ('00000' + i.toString(16)).slice(-6); // pad to 6 digits
+    // #000000
+    // #000001
+    // ... #000100 ...
+    // #FFFFFE
+    // #FFFFFF
+} you know, maybe I should this in a sketch.....
+ */
+
+  const increment = (params) => {
+    // TODO: implement something
+    pct.skewCollection.forEach(skew => {
+      // TODO: iterate each
+      skew.next()
+    })
   }
 
   p5.mousePressed = () => {
@@ -258,12 +275,6 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     setColorModesFunctions(layer)
 
     return layer
-  }
-
-  const setColorModesFunctions = (layer) => {
-    // SIDE EFFECTS! UGH
-    setFillMode = (xPos, yPos, params) => setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.fill, layer })
-    setOutlineMode = (xPos, yPos, params) => setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.stroke, layer })
   }
 
   const paint = (xPos, yPos, params) => {
@@ -607,12 +618,18 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     return p5.color('rgba(' + [p5.red(c), p5.green(c), p5.blue(c), alpha].join(',') + ')')
   }
 
+  const setColorModesFunctions = (layer) => {
+    // SIDE EFFECTS! UGH
+    setFillMode = (xPos, yPos, params) => setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.fill, layer })
+    setOutlineMode = (xPos, yPos, params) => setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.stroke, layer })
+  }
+
   // TODO: if these were.... functions, we could have an array, and not have to worry about counting the mode
   // also, functions could take params that could change them up a bit.....
   // like the grays - sideways, or something. angles....
   // prefix will be (almost?) same as func name - fill or stroke
   const setPaintMode = (props) => {
-    let { func } = props
+    let { func } = props // layer.fill or layer.stroke
     const { gridX, gridY, params, layer } = props
 
     func = func.bind(layer)
@@ -1061,6 +1078,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   pct.recordAction = recordAction
   pct.recordConfig = recordConfig
   pct.globals = globals
+  pct.skewCollection = []
+  pct.savit = savit
 
   return pct
 }
