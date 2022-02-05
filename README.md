@@ -11,6 +11,17 @@ This web-app plays with those boundaries, providing an polychromatic text painti
 > Although the word polychrome is created from the combining of two Greek words, it was not used in ancient Greece. The term was coined in the early nineteenth century by Antoine Chrysostôme Quatremère de Quincy. ([source](https://en.wikipedia.org/wiki/Ancient_Greek_art#Polychromy))
 
 
+## Animations
+
+Output multiple images
+Run the `pcttool` to stitch them together using `ffmpeg` and  ImageMagick's `convert`
+
+- `brew install ffmpeg` and `brew install imagemagick`
+- more options at [StackOverflow](https://askubuntu.com/a/837574/613420)
+
+See below for some ffmpeg notes
+
+
 ## Previous version
 Conversion of my Processing.js text-app from [WebText sketches](https://github.com/MichaelPaulukonis/WebText)
 
@@ -97,9 +108,11 @@ https://idmnyu.github.io/p5.js-func/ ???
 - draw into sub-section (click-n-drag to define)
 - more kalidoscopic features (eh, dunno)
   - ~~maybe just auto-quad with a "macro" ?~~
-- save/record animation
+- ~s~ave/record animation~~
 - higher resolution
 - save all actions for replay (particularly for user when resize/up-resolution)
+  - in-progress. May need to redo the API to get it to work better
+  - plus, I've never done a "scripting language" before
 - pass color context separately from grid-paint context
   - so if we paint a sub-grid, we can use a completely separate color pattern (any given section of super-grid)
 - background color selection
@@ -178,3 +191,18 @@ Over time, my use/the use of color has come to be really important. That _is_ th
   https://shiffman.net/a2z/cfg/
 
 
+  ## SVG ???!??
+
+  - https://github.com/zenozeng/p5.js-svg
+  - https://stackoverflow.com/questions/5495952/draw-svg-on-html5-canvas-with-support-for-font-element
+  
+
+
+## ffmpeg
+
+This will take all png files in a folder and make one .mp4 from all them.
+The size will be of the largest image, with all other images centered (unscaled) and padded with black.
+See [notes on `pad`](http://ffmpeg.org/ffmpeg-filters.html#pad) for more.
+
+
+`ffmpeg -r 15 -f image2 -pattern_type glob -i '*.png' -vf pad="max(iw\,ih):ow:(ow-iw)/2:(oh-ih)/2" -vcodec libx264 -crf 17 -pix_fmt yuv420p 'combined.mp4'`

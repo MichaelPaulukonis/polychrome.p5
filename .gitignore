@@ -44,12 +44,6 @@ build
 .vscode
 !.vscode/launch.json
 
-# package-lock
-package-lock.json
-
-# dist
-dist
-
 # next.js build output
 .next
 
@@ -77,3 +71,4 @@ sw.*
 # miscellaneus
 split.troubles.txt
 sketch.jan31.js
+./eslintcache
