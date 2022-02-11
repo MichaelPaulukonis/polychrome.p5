@@ -67,7 +67,7 @@
     "eslint-config-standard": "^16.0.3",
     "gh-pages": "^2.1.1",
     "husky": "^3.0.9",
-    "node-sass": "^4.13.1",
+    "node-sass": "^7.0.0",
     "open": "^7.0.0",
     "pug": "^3.0.1",
     "pug-plain-loader": "^1.0.0",
