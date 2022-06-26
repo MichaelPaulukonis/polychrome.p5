@@ -29,6 +29,11 @@
   button(@click="help") help
   button(@click="about") About
   button(@click="playback") Playback
+  Counter(
+    v-if="pchrome && pchrome.params && pchrome.params.capturing"
+    :count="pchrome.params.globals.captureCount"
+    :total="pchrome.params.captureLimit"
+  )
 
   div
     #sketch-holder
@@ -43,6 +48,7 @@ import VModal from 'vue-js-modal'
 import Help from '@/components/help'
 import About from '@/components/about'
 import Playback from '@/components/playback'
+import Counter from '@/components/captureCounter.vue'
 
 import TextManager from '@/src/text/TextManager'
 import Sketch from '@/src/sketch.js'
@@ -58,7 +64,8 @@ export default {
     VModal,
     Help,
     About,
-    Playback
+    Playback,
+    Counter
   },
   data () {
     return {

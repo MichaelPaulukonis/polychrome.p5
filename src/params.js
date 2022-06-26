@@ -82,7 +82,7 @@ const globals = {
   captureCount: 0
 }
 
-const allParams = { ...paramsInitial, fill: fillParams, outline: outlineParams }
+const allParams = { ...paramsInitial, fill: fillParams, outline: outlineParams, globals}
 
 export {
   allParams,

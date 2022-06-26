@@ -13,6 +13,8 @@ NOTE: gif-construction takes a looooong time
 
 options
 
+  -a | --all    process all prefixes
+
   -l | --list   list unique prefixes (that will be single animations)
 
   -f | --file   Filename to process
