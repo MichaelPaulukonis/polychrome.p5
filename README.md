@@ -121,6 +121,7 @@ https://idmnyu.github.io/p5.js-func/ ???
   - store a nice palette locally
   - ~add/remove`
   - Find a better name than "lerp" !!!
+- inset - inset on all sides
 
 ## in-prgress GUI redo
 

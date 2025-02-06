@@ -1,7 +1,7 @@
 export default class Layers {
   constructor (p5, dl, temp) {
     this.p5 = p5 // TODO: rename
-    this.drawingLayer = dl
+    this.drawingLayer = dl   // p5.Graphics
     this.tempLayer = temp
   }
 

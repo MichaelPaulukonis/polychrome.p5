@@ -56,7 +56,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   const APP_MODES = {
     STANDARD_DRAW: 'standard drawing mode',
     TARGET: 'select a point on canvas',
-    NO_DRAW: 'no drawing for some reson',
+    NO_DRAW: 'no drawing for some reason',
     PLAYBACK: 'replaying a paint script'
   }
 
@@ -172,7 +172,7 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
  */
 
   const increment = (params) => {
-    // TODO: implement something
+    // TODO: implement something to move from value A to value B over set of steps
     pct.skewCollection.forEach(skew => {
       // TODO: iterate each
       skew.next()
@@ -827,6 +827,8 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     p5.saveCanvas(`${params.name}.${getDateFormatted()}.png`)
   }
 
+  // not used, and params not defined
+  // .... these are from that other project ???
   pct.saveAnimationFrames = () => {
     if (params.capturing) {
       params.captureOverride = false
