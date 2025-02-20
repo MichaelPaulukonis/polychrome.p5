@@ -91,13 +91,13 @@ export default {
         test: /\.mjs$/,
         include: /node_modules/,
         type: 'javascript/auto'
-      });
+      })
 
       // Fix for cheerio ES modules
       config.resolve.alias = {
         ...config.resolve.alias,
-        'cheerio': 'cheerio/lib/cheerio.js'
-      };
+        cheerio: 'cheerio/lib/cheerio.js'
+      }
     },
     // Transpile vue-js-modal
     transpile: ['vue-js-modal']
