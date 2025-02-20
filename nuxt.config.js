@@ -7,7 +7,7 @@ const routerBase = {
 
 export default {
   ...routerBase,
-  mode: 'spa',
+  ssr: false,
   /*
   ** Headers of the page
   */
@@ -37,8 +37,8 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '~plugins/vue-js-modal',
-    { src: '~/plugins/setFocus', ssr: false }
+    { src: '~plugins/vue-js-modal', mode: 'client' },
+    { src: '~/plugins/setFocus', mode: 'client' }
   ],
   /*
   ** Nuxt.js dev-modules
@@ -87,6 +87,19 @@ export default {
     ** You can extend webpack config here
     */
     extend (config, ctx) {
-    }
+      config.module.rules.push({
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto'
+      });
+
+      // Fix for cheerio ES modules
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'cheerio': 'cheerio/lib/cheerio.js'
+      };
+    },
+    // Transpile vue-js-modal
+    transpile: ['vue-js-modal']
   }
 }
