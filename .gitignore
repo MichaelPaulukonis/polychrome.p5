@@ -72,3 +72,5 @@ sw.*
 split.troubles.txt
 sketch.jan31.js
 ./eslintcache
+# SpecStory explanation file
+.specstory/.what-is-this.md
