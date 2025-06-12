@@ -120,11 +120,9 @@ const setupHotkeys = (pct) => {
     },
     {
       keys: ['q'].join(','),
-      action: ({ params }) => {
+      action: ({ params, layers }) => {
         pct.undo.takeSnapshot()
-        pct.rotateCanvas({ direction: 1, height: params.height, width: params.width, layers: pct.layers })
-        // pct.rotateWrapped({ direction: 1 })
-        // TODO: if not square, undo gets weird, here.....
+        pct.rotateCanvas({ direction: -1, height: params.height, width: params.width, layers })
       }
     },
     {

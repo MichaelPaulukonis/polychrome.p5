@@ -19,7 +19,7 @@ const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
 let namer = null
 
-export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback }) {
+export default function Sketch({ p5Instance: p5, guiControl, textManager, setupCallback }) {
   const params = allParams
   const pct = {}
 
@@ -416,7 +416,7 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
 
   // generator will return { theta, text }
   const blocGeneratorCircle = ({ radius, circumference, arcOffset = 0 }) => {
-    return function * (nextText, l) {
+    return function* (nextText, l) {
       let arclength = arcOffset
       while (arclength < circumference + arcOffset) {
         const t = nextText()
@@ -503,8 +503,8 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
 
     const sw = params.useOutline
       ? params.outline.strokeWeight
-          ? params.outline.strokeWeight
-          : (gridParams.step / 5)
+        ? params.outline.strokeWeight
+        : (gridParams.step / 5)
       : 0
     layer.strokeWeight(sw / 4)
     layer.strokeJoin(params.outline.strokeJoin)
@@ -532,7 +532,7 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     layer.pop()
   }
 
-  const blocGeneratorFixedWidth = function * (gridParams, nextText) {
+  const blocGeneratorFixedWidth = function* (gridParams, nextText) {
     for (let gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
       for (let gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
         const t = nextText()
@@ -542,7 +542,7 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     return 'done'
   }
 
-  const blocGeneratorTextWidth = function * (nextText, gridSize, yOffset, layer) {
+  const blocGeneratorTextWidth = function* (nextText, gridSize, yOffset, layer) {
     let t = nextText()
     let coords = { x: 0, y: yOffset }
     const offsets = { x: 0, y: yOffset }
@@ -890,73 +890,39 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     globals.updatedCanvas = true
   }
 
-  // stopped working, again. doh!
-  // could the issue be in rotate? I mean, WTF
-  // const rotateCanvasRework = (cfg = { direction: 1, height: pct.params.height, width: pct.params.height }) => {
-  //   // recordAction({ action: 'rotateCanvas', ...cfg }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-  //   const newHeight = cfg.height
-  //   const newWidth = cfg.width
-
-  //   layers.drawingLayer.resetMatrix()
-  //   // layers.drawingLayer.image(layers.p5.get(), 0, 0) // makes things blurry ???
-  //   layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
-
-  //   p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
-
-  //   const newPG = initDrawingLayer(newWidth, newHeight)
-  //   newPG.push()
-  //   if (cfg.direction === -1) {
-  //     newPG.translate(0, newHeight)
-  //   } else {
-  //     newPG.translate(newWidth, 0)
-  //   }
-  //   newPG.rotate(p5.radians(90 * cfg.direction))
-  //   newPG.image(layers.drawingLayer, 0, 0)
-  //   newPG.pop()
-
-  //   layers.drawingLayer.remove()
-  //   layers.drawingLayer = newPG
-  //   newPG.remove()
-
-  //   // TODO: undo doesn't know anything about rotation......
-
-  //   renderLayers({ layers })
-  // }
-
   const rotateCanvasOrig = (cfg = { direction: 1 }) => {
     rotateInner(params, p5, layers, initDrawingLayer, cfg, renderLayers)
   }
 
-  // from cd05908
-  // const rotateCanvas = (cfg = { direction: 1 }) => {
-  //   const newHeight = params.height = p5.width
-  //   const newWidth = params.width = p5.height
+  function rotateInner(params, p5, layers, initDrawingLayer, cfg, renderLayers) {
+    recordAction({ action: 'rotateCanvas', ...cfg }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+    // if the canvas is a square we do not need to resize
+    // that could be a micro-optimization
+    const newHeight = params.height = p5.width
+    const newWidth = params.width = p5.height
 
-  //   layers.drawingLayer.resetMatrix()
-  //   // layers.drawingLayer.image(layers.p5.get(), 0, 0) // makes things blurry ???
-  //   layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
+    layers.drawingLayer.resetMatrix()
+    layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
 
-  //   p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
+    p5.resizeCanvas(newWidth, newHeight) // this clears the main canvas as a side-effect
 
-  //   const newPG = initDrawingLayer(newWidth, newHeight)
-  //   newPG.push()
-  //   if (cfg.direction === -1) {
-  //     newPG.translate(0, newHeight)
-  //   } else {
-  //     newPG.translate(newWidth, 0)
-  //   }
-  //   newPG.rotate(p5.radians(90 * cfg.direction))
-  //   newPG.image(layers.drawingLayer, 0, 0)
-  //   newPG.pop()
+    const newPG = initDrawingLayer(newWidth, newHeight)
+    newPG.push()
+    if (cfg.direction === -1) {
+      newPG.translate(0, newHeight)
+    } else {
+      newPG.translate(newWidth, 0)
+    }
+    newPG.rotate(p5.radians(90 * cfg.direction))
+    newPG.image(layers.drawingLayer, 0, 0)
+    newPG.pop()
 
-  //   layers.drawingLayer.remove()
-  //   layers.drawingLayer = newPG
-  //   newPG.remove()
+    layers.drawingLayer.remove()
+    layers.drawingLayer = newPG
 
-  //   // TODO: undo doesn't know anything about rotation......
-
-  //   renderLayers(params)
-  // }
+    // TODO: undo doesn't know anything about rotation......
+    renderLayers({ layers })
+  }
 
   const coinflip = () => pct.p5.random() > 0.5
 
@@ -965,45 +931,61 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   const randomLayer = (cfg = {}) => {
     const img = pct.p5.random(pct.undo.history())
     layers.drawingLayer.push()
-    layers.drawingLayer.resetMatrix()
-
-    // can be negative, but to appear it depends on the size percentage
-    const pctSize = cfg.percentSize || percentSize()
-    // this is an approximation, an does not take rotation into account
-    const size = { width: pct.p5.width * pctSize, height: pct.p5.height * pctSize }
-    const offsetSize = { width: size.width * 0.75, height: size.height * 0.75 }
-    const originX = cfg.originX || pct.p5.random(-offsetSize.width, pct.p5.width + offsetSize.width) // should be able to go BACK and UP as well
-    const originY = cfg.originY || pct.p5.random(-offsetSize.height, pct.p5.height + offsetSize.height)
-    layers.drawingLayer.translate(originX, originY)
-    // TODO: hrm. maybe there could be some more options, here?
-
-    const rotateP = cfg.rotateP || coinflip()
-    const radians = cfg.radians || pct.p5.random(360)
-    if (rotateP) { layers.drawingLayer.rotate(pct.p5.radians(radians)) }
-    // this is a POC
-    // I'd like to explore gradients or other masks for transparency
-    const alpha = cfg.alpha || pct.p5.random(255)
     pct.p5.push()
 
-    // hey! the density is all off, here
-    const img2 = layers.p5.createImage(img.width, img.height)
-    img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
-    if (!params.hardEdge) {
-      const mask2 = layers.p5.createImage(img.width, img.height)
-      mask2.copy(imgMask, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
-      img2.mask(mask2) // TODO: need to modify by size, as well
+    try {
+      layers.drawingLayer.resetMatrix()
+
+      // can be negative, but to appear it depends on the size percentage
+      const pctSize = cfg.percentSize || percentSize()
+      // this is an approximation, an does not take rotation into account
+      const size = { width: pct.p5.width * pctSize, height: pct.p5.height * pctSize }
+      const offsetSize = { width: size.width * 0.75, height: size.height * 0.75 }
+      const originX = cfg.originX || pct.p5.random(-offsetSize.width, pct.p5.width + offsetSize.width) // should be able to go BACK and UP as well
+      const originY = cfg.originY || pct.p5.random(-offsetSize.height, pct.p5.height + offsetSize.height)
+      layers.drawingLayer.translate(originX, originY)
+      // TODO: hrm. maybe there could be some more options, here?
+
+      const rotateP = cfg.rotateP || coinflip()
+      const radians = cfg.radians || pct.p5.random(360)
+      if (rotateP) { layers.drawingLayer.rotate(pct.p5.radians(radians)) }
+      // this is a POC
+      // I'd like to explore gradients or other masks for transparency
+      const alpha = cfg.alpha || pct.p5.random(255)
+
+      // hey! the density is all off, here
+      const img2 = layers.p5.createImage(img.width, img.height)
+
+      // error: img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
+      // possibly something to do with the p5js update?
+      // TypeError: Cannot read properties of undefined (reading 'width')
+      //     at f.default._copyHelper (p5.min.js:2:1)
+      //     at f.default.copy (p5.min.js:2:1)
+      //     at r.value (p5.min.js:2:1)
+      //     at Object.randomLayer (sketch.js:958:1)
+      //     at Object.action (keys.js:215:1)
+      //     at Object.eval [as method] (keys.js:230:1)
+
+      img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
+      if (!params.hardEdge) {
+        const mask2 = layers.p5.createImage(img.width, img.height)
+        mask2.copy(imgMask, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
+        img2.mask(mask2) // TODO: need to modify by size, as well
+      }
+
+      pct.p5.tint(255, alpha)
+      setShadows(layers.drawingLayer, params)
+
+      layers.drawingLayer.image(img2, 0, 0)
+      renderTarget({ layers }) // not all layers - skip clearing and background, thus allowing an overlay
+
+      recordAction({ action: 'randomLayer', percentSize: pctSize, originX, originY, rotateP, radians, alpha }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+    } catch (e) {
+      console.log(e)
+    } finally {
+      pct.p5.pop()
+      layers.drawingLayer.pop()
     }
-
-    pct.p5.tint(255, alpha)
-    setShadows(layers.drawingLayer, params)
-
-    layers.drawingLayer.image(img2, 0, 0)
-    renderTarget({ layers }) // not all layers - skip clearing and background, thus allowing an overlay
-    pct.p5.pop()
-
-    layers.drawingLayer.pop()
-
-    recordAction({ action: 'randomLayer', percentSize: pctSize, originX, originY, rotateP, radians, alpha }, pct.appMode !== APP_MODES.STANDARD_DRAW)
     globals.updatedCanvas = true
   }
 
@@ -1084,33 +1066,4 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   pct.savit = savit
 
   return pct
-}
-
-function rotateInner (params, p5, layers, initDrawingLayer, cfg, renderLayers) {
-  const newHeight = params.height = p5.width
-  const newWidth = params.width = p5.height
-
-  layers.drawingLayer.resetMatrix()
-  // layers.drawingLayer.image(layers.p5.get(), 0, 0) // makes things blurry ???
-  layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
-
-  p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
-
-  const newPG = initDrawingLayer(newWidth, newHeight)
-  newPG.push()
-  if (cfg.direction === -1) {
-    newPG.translate(0, newHeight)
-  } else {
-    newPG.translate(newWidth, 0)
-  }
-  newPG.rotate(p5.radians(90 * cfg.direction))
-  newPG.image(layers.drawingLayer, 0, 0)
-  newPG.pop()
-
-  layers.drawingLayer.remove()
-  layers.drawingLayer = newPG
-  newPG.remove()
-
-  // TODO: undo doesn't know anything about rotation......
-  renderLayers({ layers })
 }
