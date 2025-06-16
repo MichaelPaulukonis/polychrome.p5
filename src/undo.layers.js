@@ -18,7 +18,7 @@ export default class UndoLayers {
     }
 
     this.storeTemp = () => {
-      temp = layers.copy()  // Fixed: was this.layers.copy()
+      temp = layers.copy() // Fixed: was this.layers.copy()
       return temp
     }
 
