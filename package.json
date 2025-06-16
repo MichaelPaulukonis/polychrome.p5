@@ -5,7 +5,7 @@
   "main_orig": "index.html/sketch.js",
   "main": "src/index.js",
   "engines": {
-    "node": "20.x"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "dev": "nuxt",
@@ -54,11 +54,12 @@
     "keypress.js": "^2.1.5",
     "nuxt": "^2.17.3",
     "nuxt-webfontloader": "^1.1.0",
-    "p5": "^1.9.0",
+    "p5": "^1.11.0",
     "ramda": "^0.29.1",
     "vue-js-modal": "^2.0.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "@nuxtjs/eslint-config": "^6.0.1",
     "@nuxtjs/eslint-module": "^3.0.2",
     "babel-eslint": "^10.1.0",
@@ -67,10 +68,10 @@
     "eslint-config-standard": "^16.0.3",
     "gh-pages": "^2.1.1",
     "husky": "^3.0.9",
-    "sass": "^1.71.0",
     "open": "^7.0.0",
     "pug": "^3.0.1",
     "pug-plain-loader": "^1.0.0",
+    "sass": "^1.71.0",
     "sass-loader": "^10.1.1",
     "standard": "^16.0.3"
   },

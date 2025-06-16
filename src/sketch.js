@@ -763,7 +763,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
       tmp.scale(-1, 1)
     }
     tmp.image(g, 0, 0, tmp.width, tmp.height)
-    g.remove()
     tmp.pop()
     return tmp
   }
@@ -771,10 +770,12 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   const mirror = (cfg = { axis: VERTICAL, layer: layers.p5 }) => {
     recordAction({ ...cfg, action: 'mirror' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
 
-    const newLayer = mirrorCore(cfg.axis, layers.copy())
+    const tmp = layers.copy()
+    const newLayer = mirrorCore(cfg.axis, tmp)
     cfg.layer.image(newLayer, 0, 0)
     renderLayers({ layers })
     newLayer.remove()
+    tmp.remove()
     globals.updatedCanvas = true
   }
 
@@ -954,8 +955,11 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
       const alpha = cfg.alpha || pct.p5.random(255)
 
       // hey! the density is all off, here
-      const img2 = layers.p5.createImage(img.width, img.height)
-
+      const img2 = layers.p5.createGraphics(img.width, img.height)
+      img2.loadPixels() // Force canvas backing creation
+      img2.updatePixels() // Ensure canvas is properly initialized
+      img.loadPixels()
+      img.updatePixels()
       // error: img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
       // possibly something to do with the p5js update?
       // TypeError: Cannot read properties of undefined (reading 'width')
@@ -966,6 +970,7 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
       //     at Object.action (keys.js:215:1)
       //     at Object.eval [as method] (keys.js:230:1)
 
+      // img is lacking the canvas, not img2
       img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
       if (!params.hardEdge) {
         const mask2 = layers.p5.createImage(img.width, img.height)

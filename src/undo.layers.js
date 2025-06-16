@@ -18,7 +18,7 @@ export default class UndoLayers {
     }
 
     this.storeTemp = () => {
-      temp = this.layers.copy()
+      temp = layers.copy()  // Fixed: was this.layers.copy()
       return temp
     }
 
@@ -55,14 +55,18 @@ class CircImgCollection {
     this.all = () => imgs
 
     this.next = () => {
-      current = (current + 1) % amount
+      const nextIndex = (current + 1) % amount
+      // Use layers.dispose() for proper cleanup
+      if (imgs[nextIndex]) {
+        layers.dispose(imgs[nextIndex])
+      }
+      current = nextIndex
     }
     this.prev = () => {
       current = (current - 1 + amount) % amount
     }
     this.store = (layer) => {
       imgs[current] = layer
-      layer.remove()
     }
     this.show = () => {
       // TODO: if w/h does NOT match current, then should rotate canvas

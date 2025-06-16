@@ -86,7 +86,7 @@ export default {
     /*
     ** You can extend webpack config here
     */
-    extend (config, ctx) {
+    extend(config, ctx) {
       config.module.rules.push({
         test: /\.mjs$/,
         include: /node_modules/,
@@ -97,6 +97,13 @@ export default {
       config.resolve.alias = {
         ...config.resolve.alias,
         cheerio: 'cheerio/lib/cheerio.js'
+      }
+
+      // Use unminified p5.js in development
+      if (ctx.isDev) {
+        config.resolve.alias.p5 = 'p5/lib/p5.js'
+        // If you also use p5.sound, you might want to alias it too:
+        // config.resolve.alias['p5.sound'] = 'p5/lib/addons/p5.sound.js';
       }
     },
     // Transpile vue-js-modal
