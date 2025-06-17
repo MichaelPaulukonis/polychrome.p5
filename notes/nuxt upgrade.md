@@ -1,4 +1,14 @@
-# nuxt upgrade
+# Nuxt2 to Nuxt3 upgrade
+
+MY MAJOR PROBLEM: vue-js-modal is not (natively) compatible with Nuxt3.
+There are fixes or forks available.
+
+There are some notes in Trello, but this is more comprehensive.
+
+See: https://github.com/euvl/vue-js-modal/issues/814
+
+
+## a generated plan
 
 Upgrading from Nuxt 2 to Nuxt 3
 Upgrading from Nuxt 2 to Nuxt 3 involves several steps, as there are significant changes between the two versions. Here is a step-by-step guide to help you with the upgrade process:

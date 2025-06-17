@@ -19,7 +19,7 @@ PolychromeText is a multi-color text painter
 
 ## Architecture
 - **Modular Component System**: Separation of concerns with independent modules
-- **Event-Driven Model**: Utilizing p5.js event system for user interactions
+- **Interactive Programming Model**: Direct user input handling through p5.js callbacks
 - **Object-Oriented Design**: Encapsulating visual elements as objects
 - **File Structure**:
   - `/assets`: Images, fonts, and other static assets

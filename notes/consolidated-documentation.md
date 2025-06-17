@@ -7,11 +7,11 @@ PolychromeText is a multi-color text painter that transforms text into visual ar
 
 ## Technology Stack
 - **p5.js**: Core creative coding library for all visual rendering
-- **Nuxt 2**: Framework for building the application (with roadmap upgrade to v3)
 - **JavaScript/ES6+**: Primary programming language
+- **Nuxt 2**: Framework for building the application (with roadmap upgrade to v3)
 - **HTML5/CSS3**: Application structure and styling
-- **Local Storage**: For saving user preferences and creations
-- **Responsive Design**: Adapts to various screen sizes and devices
+- **Local Storage**: For saving user preferences and images
+
 
 ## Architecture Overview
 
@@ -25,22 +25,21 @@ PolychromeText is a multi-color text painter that transforms text into visual ar
 ### Technical Architecture
 - **Modular Component System**: Separation of concerns with independent modules
 - **Interactive Programming Model**: Direct user input handling through p5.js callbacks
-- **Object-Oriented Design**: Encapsulating visual elements as objects
-- **Key Modules Integration**: Application integrates with multiple external modules for enhanced functionality
+- **Object-Oriented Design**: Encapsulating elements as objects
 
 ### File Structure
+- `/.github`: instructional files for Github Copilot assistance
 - `/assets`: Images, fonts, and other static assets
-- `/components`: component
+- `/components`: Vue components
 - `/dev.utilites`: which are somehow different from tools (not part of deployed app)
 - `/layouts`: layouts
-- `/lib`: Third-party libraries
-- `/pages`: pages
+- `/notes`: project docs and thoughts
+- `/pages`: pages (one)
 - `/plugins`
 - `/src`: Source code
 - `/static`: fonts and favicon
 - `/styles`: CSS styling
 - `/tools`: move images around for animating (not part of deployed app)
-- `/utils`: Utility functions and helpers
 
 ## Application Modes
 
