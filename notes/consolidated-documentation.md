@@ -1,7 +1,7 @@
 # Polychrome - Consolidated Documentation
 
 ## Overview
-PolychromeText is a multi-color text painter that transforms text into visual art through various drawing modes, color schemes, and interactive controls.
+PolychromeText is a multi-color text painter that allows the user to "paint with text" using the mouse through various drawing modes, color schemes, and interactive controls.
 
 **Technical Implementation**: The main sketch file implements a multi-layered text painting application using p5.js with sophisticated canvas management and rendering systems.
 
@@ -68,6 +68,7 @@ PolychromeText is a multi-color text painter that transforms text into visual ar
 - **Keyboard shortcuts**: Extensive hotkey system
 - **Auto-paint mode**: Automated random painting
 - **Macro system**: Predefined complex operations
+- **Recording and Playback**: record, edit, and playback sequences of actions
 
 ## Core Functionality
 
@@ -79,7 +80,7 @@ PolychromeText is a multi-color text painter that transforms text into visual ar
 ### Text Rendering
 - **Font loading**: TTF fonts loaded from assets
 - **Text sizing**: Automatic fitting algorithms for different contexts
-- **Character modes**: Sequential, random, or word-based text generation
+- **Character modes**: Sequential letter, random letter, or word-based text rendering
 
 ### Color Systems
 Multiple paint modes available:
@@ -92,10 +93,9 @@ Multiple paint modes available:
 - **Rotation**: Canvas and text rotation with cumulative options
 - **Mirroring**: Horizontal/vertical canvas flipping
 - **Shifting**: Pixel-level canvas translation
+- **Gamma**: adjust gamma (lightness/darkness)
 
 ## Visual Style & Interaction Design
-- **Minimalist UI**: Focuses attention on the canvas
-- **High contrast**: Between UI elements and generated art
 - **Mouse input**: Direct manipulation capabilities
 - **Parameter sliders**: Fine-tuning visual elements
 - **Keyboard shortcuts**: Power user functionality
@@ -118,18 +118,19 @@ Multiple paint modes available:
 ### GUI Integration
 - QuickSettings-based control panels
   - modified (unk) from https://github.com/bit101/quicksettings
-- Real-time parameter binding
-- Preset save/load system
+- Real-time parameter binding (via Nuxt/Vue)
+- Settings save/load system (localStorage API)
 
 ### File Operations
 - Canvas export (PNG format)
 - Animation frame capture
-- Settings persistence (localStorage)
+  - This is a multiple canvas export, either to a known number or until turned off
 
 ## Performance Considerations
 - **Generator functions**: Memory-efficient text/coordinate generation
 - **Layer separation**: Isolated drawing operations
 - **Pixel density management**: Optimized for different display types
+  - this is a bit of a reach, but might be worth reaching
 - **Frame rate control**: Adjustable for smooth interaction vs. capture modes
 
 ## Setup Instructions
@@ -155,21 +156,29 @@ Multiple paint modes available:
    npm run build
    ```
 
+5. **Publishing to GitHub Pages**:
+    ```zsh
+    npm run publish
+    ```
+    Uses the `gh-pages` package
+
+
 ## Development Guidelines
 - **Code Style**: Follow JavaScript Standard Style guidelines
 - **Documentation**: Document all functions and complex code sections
 - **Naming Conventions**: Use camelCase for variables and functions
 - **Testing**: Test visual components manually on different devices/browsers
+  - This is aspirational 
 
 ## Current Limitations & TODOs
-Based on comments in the code:
 - Undo system doesn't track rotation operations
-- Canvas rotation works best with square canvases
 - Some color modes need refinement
 - Target mode is incomplete
 - Performance could be optimized for large canvases
 
 ## Development Roadmap
+
+Day-to-day work is tracked at [Trello](https://trello.com/b/WdA1q4uV/polychrometext)
 
 ### High Priority
 1. **Nuxt Migration**: Upgrade from Nuxt 2 to Nuxt 3
