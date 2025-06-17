@@ -44,7 +44,6 @@
   },
   "homepage": "https://github.com/MichaelPaulukonis/polychrome.p5#readme",
   "dependencies": {
-    "@cyrilf/vue-dat-gui": "^0.3.0",
     "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/style-resources": "^1.0.0",
     "cheerio": "^0.22.0",
@@ -54,8 +53,8 @@
     "keypress.js": "^2.1.5",
     "nuxt": "^2.17.3",
     "nuxt-webfontloader": "^1.1.0",
-    "p5": "^1.11.0",
-    "ramda": "^0.29.1",
+    "p5": "^1.11.8",
+    "ramda": "^0.30.1",
     "vue-js-modal": "^2.0.1"
   },
   "devDependencies": {

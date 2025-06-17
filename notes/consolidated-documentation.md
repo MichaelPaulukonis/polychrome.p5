@@ -117,6 +117,7 @@ Multiple paint modes available:
 
 ### GUI Integration
 - QuickSettings-based control panels
+  - modified (unk) from https://github.com/bit101/quicksettings
 - Real-time parameter binding
 - Preset save/load system
 
