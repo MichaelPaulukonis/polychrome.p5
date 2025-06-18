@@ -7,6 +7,27 @@ There are some notes in Trello, but this is more comprehensive.
 
 See: https://github.com/euvl/vue-js-modal/issues/814
 
+## Framework Patterns (Nuxt 3)
+
+=== NUXT 3 ONLY ===
+NOTE: the below may only apply after the Nuxt 3 upgrade has been completed.
+
+- Use Nuxt 3's script setup syntax when possible
+- Use `ref()` and `reactive()` for local component state
+- Leverage Nuxt's `useState()` composable for shared state across components
+- Implement `provide()`/`inject()` for passing data down component trees
+- Use `useAsyncData()` and `useFetch()` for server data and API interactions
+
+Implement code splitting with Nuxt's built-in lazy-loading:
+
+- Lazy-loaded components with `defineAsyncComponent()`
+- Lazy-loaded pages with the `lazy` option in route configuration
+
+Extract and reuse common logic with Vue composables. For backend APIs, consistently validate and sanitize user inputs with libraries like Zod, Yup, or Joi.
+
+=== END NUXT 3 ONLY ===
+
+
 
 ## a generated plan
 

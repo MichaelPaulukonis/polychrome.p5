@@ -163,13 +163,6 @@ Multiple paint modes available:
     Uses the `gh-pages` package
 
 
-## Development Guidelines
-- **Code Style**: Follow JavaScript Standard Style guidelines
-- **Documentation**: Document all functions and complex code sections
-- **Naming Conventions**: Use camelCase for variables and functions
-- **Testing**: Test visual components manually on different devices/browsers
-  - This is aspirational 
-
 ## Current Limitations & TODOs
 - Undo system doesn't track rotation operations
 - Some color modes need refinement
@@ -199,7 +192,3 @@ Day-to-day work is tracked at [Trello](https://trello.com/b/WdA1q4uV/polychromet
 ### Future Considerations
 9. **Framework Exploration**: Look at q5 as potential alternative
 10. **Dependency Cleanup**: cheerio can be removed, see dragline for native example
-
----
-
-**Note**: This consolidated documentation combines information from multiple sources. Any contradictions or overlapping information have been integrated to provide the most comprehensive and accurate representation of the Polychrome project.
