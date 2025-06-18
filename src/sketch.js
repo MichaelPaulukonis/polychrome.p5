@@ -853,76 +853,60 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     layer.rotate(layer.radians(90))
   }
 
-  const rotateWrapper = (pct) => ({ direction = 1 }) => {
-    return rotateCanvas({ direction, height: pct.params.height, width: pct.params.width, layers: pct.layers, p5: pct.p5 })
-  }
+  // rotates canvas 90 degrees in specified direction
+  // direction: 1 for clockwise, -1 for counter-clockwise
+  const rotateCanvas = ({ direction = 1, height, width, layers, p5 }) => {
+    recordAction({ action: 'rotateCanvas', direction, height, width }, pct.appMode !== APP_MODES.STANDARD_DRAW)
 
-  // version as rewritten
-
-  const rotateCanvas = ({ direction, height, width, layers, p5 }) => {
-    recordAction({ action: 'rotateCanvas', direction, height, width, layers }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-
-    const newHeight = height
-    const newWidth = width
-
+    // Store current canvas content in drawing layer before resize
     layers.drawingLayer.resetMatrix()
-    layers.drawingLayer.image(layers.p5, 0, 0)
+    layers.drawingLayer.image(p5, 0, 0)
 
-    p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
+    // Swap dimensions for 90-degree rotation
+    const newWidth = height
+    const newHeight = width
 
+    // Update params to reflect new dimensions
+    pct.params.width = newWidth
+    pct.params.height = newHeight
+
+    // Resize main canvas (this clears it as a side-effect)
+    p5.resizeCanvas(newWidth, newHeight)
+
+    // Create new graphics layer for rotated content
     const newPG = initDrawingLayer(newWidth, newHeight)
     newPG.push()
+
+    // Set rotation origin based on direction
     if (direction === -1) {
       newPG.translate(0, newHeight)
     } else {
       newPG.translate(newWidth, 0)
     }
+
+    // Apply 90-degree rotation and draw stored content
     newPG.rotate(p5.radians(90 * direction))
     newPG.image(layers.drawingLayer, 0, 0)
     newPG.pop()
 
+    // Replace old drawing layer with rotated version
     layers.drawingLayer.remove()
     layers.drawingLayer = newPG
-    newPG.remove()
 
-    // TODO: undo doesn't know anything about rotation......
-
+    // Note: Undo system doesn't track rotation operations
     renderLayers({ layers })
     globals.updatedCanvas = true
   }
 
-  const rotateCanvasOrig = (cfg = { direction: 1 }) => {
-    rotateInner(params, p5, layers, initDrawingLayer, cfg, renderLayers)
-  }
-
-  function rotateInner (params, p5, layers, initDrawingLayer, cfg, renderLayers) {
-    recordAction({ action: 'rotateCanvas', ...cfg }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-    // if the canvas is a square we do not need to resize
-    // that could be a micro-optimization
-    const newHeight = params.height = p5.width
-    const newWidth = params.width = p5.height
-
-    layers.drawingLayer.resetMatrix()
-    layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
-
-    p5.resizeCanvas(newWidth, newHeight) // this clears the main canvas as a side-effect
-
-    const newPG = initDrawingLayer(newWidth, newHeight)
-    newPG.push()
-    if (cfg.direction === -1) {
-      newPG.translate(0, newHeight)
-    } else {
-      newPG.translate(newWidth, 0)
-    }
-    newPG.rotate(p5.radians(90 * cfg.direction))
-    newPG.image(layers.drawingLayer, 0, 0)
-    newPG.pop()
-
-    layers.drawingLayer.remove()
-    layers.drawingLayer = newPG
-
-    // TODO: undo doesn't know anything about rotation......
-    renderLayers({ layers })
+  // Wrapper function that provides simplified interface
+  const rotateWrapped = (direction = 1) => {
+    return rotateCanvas({
+      direction,
+      height: pct.params.height,
+      width: pct.params.width,
+      layers: pct.layers,
+      p5: pct.layers.p5
+    })
   }
 
   const coinflip = () => pct.p5.random() > 0.5
@@ -1037,8 +1021,8 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   pct.randomLayer = randomLayer
   pct.renderLayers = renderLayers
   pct.reset = reset
-  pct.rotateCanvas = rotateCanvasOrig
-  pct.rotateWrapped = rotateWrapper(pct)
+  pct.rotateCanvas = rotateCanvas
+  pct.rotateWrapped = rotateWrapped
   pct.setFont = setFont
   pct.shift = shift
   pct.target = target
