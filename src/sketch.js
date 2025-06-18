@@ -14,6 +14,7 @@ import { recordAction, recordConfig, output, clear as clearRecording } from '@/s
 import saveAs from 'file-saver'
 import { datestring, filenamer } from './filelib'
 import { setupActions } from '@/src/gui/actions'
+import { createColorFunctions, createGammaAdjustment, initializeColorMode } from '@/src/color/color-system'
 
 const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
@@ -26,8 +27,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   const density = 2
 
   let layers
-  let setFillMode
-  let setOutlineMode
+  let colorSystem
+  let adjustGamma
   let undo
 
   const fontList = {}
@@ -68,6 +69,19 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     const drawingLayer = initDrawingLayer(params.width, params.height) // canvas 2
     const tempLayer = initDefaultLayer(params.width, params.height) // canvas 3
     pct.layers = layers = new Layers(p5, drawingLayer, tempLayer)
+
+    // Initialize color system
+    colorSystem = createColorFunctions(p5, layers)
+
+    // Initialize gamma adjustment with dependencies
+    adjustGamma = createGammaAdjustment({
+      layers,
+      recordAction,
+      globals,
+      renderLayers,
+      get appMode () { return pct.appMode },
+      APP_MODES
+    })
 
     const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: pct, params, fillParams: params.fill, outlineParams: params.outline })
     pct.shiftFillColors = shiftFillColors
@@ -245,8 +259,7 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     clear(layers.drawingLayer, color)
     clear(layers.p5, color)
 
-    layers.drawingLayer.colorMode(p5.HSB, params.width, params.height, 100, 1)
-    setColorModesFunctions(layers.drawingLayer)
+    initializeColorMode(layers.drawingLayer, p5, params)
   }
 
   const clear = (layer, color) => {
@@ -271,8 +284,7 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     const layer = initDefaultLayer(w, h)
     setFont(params.font, layer)
     layer.textAlign(p5.CENTER, p5.CENTER)
-    layer.colorMode(p5.HSB, params.width, params.height, 100, 1)
-    setColorModesFunctions(layer)
+    initializeColorMode(layer, p5, params)
 
     return layer
   }
@@ -329,8 +341,8 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
         pixelX += cellWidth / 2
         pixelY += cellHeight / 2
 
-        setFillMode(pixelX, pixelY, params.fill)
-        setOutlineMode(pixelX, pixelY, params.outline)
+        colorSystem.setFillMode(pixelX, pixelY, params.fill, hexStringToColors)
+        colorSystem.setOutlineMode(pixelX, pixelY, params.outline, hexStringToColors)
 
         let txt = fetchText()
         if (cols === 1 && txt.trim() === '') {
@@ -384,8 +396,8 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     layer.strokeWeight(sw)
     layer.strokeJoin(params.outline.strokeJoin)
 
-    setFillMode(xPos, yPos, params.fill)
-    setOutlineMode(xPos, yPos, params.outline)
+    colorSystem.setFillMode(xPos, yPos, params.fill, hexStringToColors)
+    colorSystem.setOutlineMode(xPos, yPos, params.outline, hexStringToColors)
 
     const nextText = textGetter(params.nextCharMode, textManager)
     circlePainter({ params, layer, xPos, nextText, width, arcOffset, arcPercent })
@@ -518,8 +530,8 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     }
 
     const nextText = textGetter(params.nextCharMode, textManager)
-    const fill = bloc => setFillMode(bloc.x, bloc.y, params.fill)
-    const outline = params.useOutline ? bloc => setOutlineMode(bloc.x, bloc.y, params.outline) : () => { }
+    const fill = bloc => colorSystem.setFillMode(bloc.x, bloc.y, params.fill, hexStringToColors)
+    const outline = params.useOutline ? bloc => colorSystem.setOutlineMode(bloc.x, bloc.y, params.outline, hexStringToColors) : () => { }
     const step = (params.fixedWidth) ? gridParams.step : 0
     const paint = ((step, layer, params) => bloc => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, layer, params)
     const yOffset = getYoffset(layer.textAscent(), 0) // only used for TextWidth
@@ -611,124 +623,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     params.rotation = (params.rotation + step * direction) % 360
     if (params.rotation > 360) { params.rotation = 360 }
     if (params.rotation < -360) { params.rotation = -360 }
-  }
-
-  const colorAlpha = (aColor, alpha) => {
-    const c = p5.color(aColor)
-    return p5.color('rgba(' + [p5.red(c), p5.green(c), p5.blue(c), alpha].join(',') + ')')
-  }
-
-  const setColorModesFunctions = (layer) => {
-    // SIDE EFFECTS! UGH
-    setFillMode = (xPos, yPos, params) => setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.fill, layer })
-    setOutlineMode = (xPos, yPos, params) => setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.stroke, layer })
-  }
-
-  // TODO: if these were.... functions, we could have an array, and not have to worry about counting the mode
-  // also, functions could take params that could change them up a bit.....
-  // like the grays - sideways, or something. angles....
-  // prefix will be (almost?) same as func name - fill or stroke
-  const setPaintMode = (props) => {
-    let { func } = props // layer.fill or layer.stroke
-    const { gridX, gridY, params, layer } = props
-
-    func = func.bind(layer)
-    const transparency = params.transparent ? parseInt(params.transparency, 10) / 100 : 1
-
-    const mode = params.paintMode.toLowerCase()
-    switch (mode) {
-      case 'rainbow2':
-        func(layer.width - gridX, gridY, 100, transparency)
-        break
-
-      case 'raindbow3':
-        func(gridX / 2, gridY / 2, 100, transparency)
-        break
-
-      case 'rainbow4': { // offset from default
-        const x = (gridX + layer.width / 2) % layer.width
-        const y = (layer.height - gridY + layer.height / 2) % layer.height
-        func(x, y, 100, transparency)
-      }
-        break
-
-      case 'black':
-        func(0, transparency)
-        break
-
-      case 'white':
-        func(255, transparency)
-        break
-
-      case 'gray1':
-        {
-          const grayScaled = (gridY * 255) / layer.height
-          func(grayScaled, transparency)
-        }
-        break
-
-      case 'gray2':
-        {
-          const grayScaled = (gridY * 255) / layer.height
-          func(255 - grayScaled, transparency)
-        }
-        break
-
-      case 'solid':
-        func(colorAlpha(params.color, transparency))
-        break
-
-      case 'lerp-scheme':
-        {
-          const colors = hexStringToColors(params.scheme)
-
-          const color1 = layer.color(colors[0])
-          const color2 = layer.color(colors[1])
-          const color3 = colors[2] ? layer.color(colors[2]) : color1
-          const color4 = colors[3] ? layer.color(colors[3]) : color2
-          const amountX = (gridX / layer.width)
-          const amountY = (gridY / layer.height)
-
-          layer.push()
-          layer.colorMode(layer.RGB)
-
-          const l1 = layer.lerpColor(color1, color2, amountX)
-          const l2 = layer.lerpColor(color3, color4, amountX)
-          const l3 = layer.lerpColor(l1, l2, amountY)
-          const alpha = (transparency * 255)
-          l3.setAlpha(alpha)
-          layer.pop()
-          func(l3)
-        }
-        break
-
-      case 'lerp-quad':
-        {
-          const color1 = layer.color(params.lerps[0])
-          const color2 = layer.color(params.lerps[1])
-          const color3 = params.lerps[2] ? layer.color(params.lerps[2]) : color1
-          const color4 = params.lerps[3] ? layer.color(params.lerps[3]) : color2
-          const amountX = (gridX / layer.width)
-          const amountY = (gridY / layer.height)
-
-          layer.push()
-          layer.colorMode(layer.RGB)
-
-          const l1 = layer.lerpColor(color1, color2, amountX)
-          const l2 = layer.lerpColor(color3, color4, amountX)
-          const l3 = layer.lerpColor(l1, l2, amountY)
-          const alpha = (transparency * 255)
-          l3.setAlpha(alpha)
-          layer.pop()
-          func(l3)
-        }
-        break
-
-      case 'rainbow1':
-      default:
-        func(gridX, layer.height - gridY, 100, transparency)
-        break
-    }
   }
 
   // only resets the angle, for now...
@@ -968,24 +862,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     const sizes = [0.25, 0.5, 0.75, 1.0, 1.5, 2]
     const size = pct.p5.random(sizes)
     return size
-  }
-
-  const adjustGamma = (props = { gamma: 0.8 }) => {
-    recordAction({ action: 'adjustGamma', gamma: props.gamma }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-
-    const gammaCorrection = 1 / props.gamma
-    const context = layers.p5.drawingContext
-    const imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
-
-    const data = imageData.data
-    for (let i = 0; i < data.length; i += 4) {
-      data[i] = 255 * (data[i] / 255) ** gammaCorrection
-      data[i + 1] = 255 * (data[i + 1] / 255) ** gammaCorrection
-      data[i + 2] = 255 * (data[i + 2] / 255) ** gammaCorrection
-    }
-    context.putImageData(imageData, 0, 0)
-    renderLayers({ layers })
-    globals.updatedCanvas = true
   }
 
   pct.stop = (mode = APP_MODES.NO_DRAW) => {

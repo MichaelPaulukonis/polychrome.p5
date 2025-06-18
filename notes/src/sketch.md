@@ -12,12 +12,13 @@
 - `saveAs` - File saving utility from file-saver library
 - `datestring, filenamer` - File naming utilities
 - `setupActions` - Action/macro system setup
+- `createColorSystem` - Color system factory from color module
 
 ## Global Variables
 - `namer` - File naming helper instance
 - `density` - Pixel density setting (set to 2 for high-DPI displays)
 - `layers` - Multi-layer canvas system instance
-- `setFillMode, setOutlineMode` - Color application functions
+- `colorSystem` - Color system instance created from factory with p5 and layers
 - `undo` - Undo/redo system instance
 - `fontList` - Object containing loaded p5.js font objects
 - `loadedFonts` - Array of available font names extracted from font context
@@ -34,6 +35,7 @@
 ### `setup()`
 - Initializes canvas with pixel density and dimensions
 - Creates drawing layer and temp layer via `initDrawingLayer()` and `initDefaultLayer()`
+- Initializes color system with p5 instance and layers object
 - Sets up GUI controls and color shift functions
 - Initializes undo system with 10-state history
 - Sets HSB color mode and configures initial state
@@ -54,7 +56,7 @@ Takes undo snapshot when mouse pressed within canvas bounds
 Renders text in grid patterns with configurable spacing:
 - Supports fixed-width or text-width based layouts using generators
 - Handles inversion and rotation parameters
-- Applies shadows and stroke settings
+- Applies shadows and stroke settings using color system
 - Uses `blocGeneratorFixedWidth` or `blocGeneratorTextWidth`
 
 ### `drawCircle({ xPos, yPos, params, width, layer, ... })`
@@ -62,13 +64,14 @@ Arranges text along circular/arc paths:
 - Calculates circumference-based text placement via `circlePainter()`
 - Supports arc percentage and offset parameters
 - Handles radius inversion and cumulative rotation
+- Uses color system for fill and stroke operations
 - Uses `blocGeneratorCircle` for coordinate generation
 
 ### `drawRowCol({ params, width, height, layer })`
 Simple row/column text layout:
 - Divides canvas into grid cells based on rows/columns
 - Fits text size to cell dimensions
-- Supports outline stroke settings
+- Supports outline stroke settings via color system
 - Uses `textGetter()` for character/word selection
 
 ## Canvas Operations
@@ -101,18 +104,16 @@ Shifts pixels with wrapping using canvas ImageData API
 ### `adjustGamma(props)`
 Applies gamma correction to adjust brightness/contrast via pixel manipulation
 
-## Color System Functions
+## Color System Integration
 
-### `setPaintMode(props)`
-Applies various color algorithms:
-- `rainbow1-4` - HSB-based positional coloring
-- `lerp-quad/scheme` - Multi-color interpolation
-- `gray1-2` - Grayscale gradients  
-- `solid` - Single color fills
-- `black/white` - Solid black/white
+### Color System Usage
+The sketch integrates with the external color system module via:
+- `colorSystem.setFillMode(params, colorAlpha, hexStringToColors)` - Applies fill colors based on paint mode
+- `colorSystem.setOutlineMode(params, colorAlpha, hexStringToColors)` - Applies stroke colors based on paint mode
 
-### `setColorModesFunctions(layer)`
-Initializes `setFillMode` and `setOutlineMode` functions for specified layer
+The color system automatically references the current `layers.drawingLayer`, ensuring compatibility with dynamic layer replacement after operations like canvas rotation.
+
+For detailed color system documentation, see: `notes/src/color/color-system.md`
 
 ## Utility Functions
 
@@ -163,9 +164,6 @@ Checks if mouse position is within canvas bounds
 
 ### `coinflip()`
 Returns random boolean value using `p5.random()`
-
-### `colorAlpha(aColor, alpha)`
-Creates color with specified alpha transparency
 
 ### `trText(layer, rotation)`
 Higher-order function for translate/rotate/text operations
