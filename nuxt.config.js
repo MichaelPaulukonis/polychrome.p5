@@ -69,7 +69,7 @@ export default {
   webfontloader: {
     custom: {
       families: ['Graphik', 'Tiempos Headline'],
-      urls: ['/fonts/fonts.css']
+      urls: [`${routerBase.router.base}/fonts/fonts.css`]
     }
   },
 
