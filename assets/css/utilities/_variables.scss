@@ -1,7 +1,7 @@
 //COLORS
 $primary:             #6C5CFF;
-$primary-light:       lighten($primary,20%);
-$primary-lighter:     lighten($primary,30%);
+$primary-light:       safe-lighten($primary, 20%);
+$primary-lighter:     safe-lighten($primary, 30%);
 $secondary:           #030303;
 $grey-1:     #161618;
 $grey-2:   #767676;

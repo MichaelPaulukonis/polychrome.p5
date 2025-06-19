@@ -14,6 +14,7 @@ import { recordAction, recordConfig, output, clear as clearRecording } from '@/s
 import saveAs from 'file-saver'
 import { datestring, filenamer } from './filelib'
 import { setupActions } from '@/src/gui/actions'
+import { createColorFunctions, createGammaAdjustment, initializeColorMode } from '@/src/color/color-system'
 
 const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
@@ -26,8 +27,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   const density = 2
 
   let layers
-  let setFillMode
-  let setOutlineMode
+  let colorSystem
+  let adjustGamma
   let undo
 
   const fontList = {}
@@ -56,7 +57,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   const APP_MODES = {
     STANDARD_DRAW: 'standard drawing mode',
     TARGET: 'select a point on canvas',
-    NO_DRAW: 'no drawing for some reson',
+    NO_DRAW: 'no drawing for some reason',
     PLAYBACK: 'replaying a paint script'
   }
 
@@ -68,6 +69,19 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     const drawingLayer = initDrawingLayer(params.width, params.height) // canvas 2
     const tempLayer = initDefaultLayer(params.width, params.height) // canvas 3
     pct.layers = layers = new Layers(p5, drawingLayer, tempLayer)
+
+    // Initialize color system
+    colorSystem = createColorFunctions(p5, layers)
+
+    // Initialize gamma adjustment with dependencies
+    adjustGamma = createGammaAdjustment({
+      layers,
+      recordAction,
+      globals,
+      renderLayers,
+      get appMode () { return pct.appMode },
+      APP_MODES
+    })
 
     const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: pct, params, fillParams: params.fill, outlineParams: params.outline })
     pct.shiftFillColors = shiftFillColors
@@ -172,7 +186,7 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
  */
 
   const increment = (params) => {
-    // TODO: implement something
+    // TODO: implement something to move from value A to value B over set of steps
     pct.skewCollection.forEach(skew => {
       // TODO: iterate each
       skew.next()
@@ -245,8 +259,7 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     clear(layers.drawingLayer, color)
     clear(layers.p5, color)
 
-    layers.drawingLayer.colorMode(p5.HSB, params.width, params.height, 100, 1)
-    setColorModesFunctions(layers.drawingLayer)
+    initializeColorMode(layers.drawingLayer, p5, params)
   }
 
   const clear = (layer, color) => {
@@ -271,8 +284,7 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     const layer = initDefaultLayer(w, h)
     setFont(params.font, layer)
     layer.textAlign(p5.CENTER, p5.CENTER)
-    layer.colorMode(p5.HSB, params.width, params.height, 100, 1)
-    setColorModesFunctions(layer)
+    initializeColorMode(layer, p5, params)
 
     return layer
   }
@@ -329,8 +341,8 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
         pixelX += cellWidth / 2
         pixelY += cellHeight / 2
 
-        setFillMode(pixelX, pixelY, params.fill)
-        setOutlineMode(pixelX, pixelY, params.outline)
+        colorSystem.setFillMode(pixelX, pixelY, params.fill, hexStringToColors)
+        colorSystem.setOutlineMode(pixelX, pixelY, params.outline, hexStringToColors)
 
         let txt = fetchText()
         if (cols === 1 && txt.trim() === '') {
@@ -384,8 +396,8 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     layer.strokeWeight(sw)
     layer.strokeJoin(params.outline.strokeJoin)
 
-    setFillMode(xPos, yPos, params.fill)
-    setOutlineMode(xPos, yPos, params.outline)
+    colorSystem.setFillMode(xPos, yPos, params.fill, hexStringToColors)
+    colorSystem.setOutlineMode(xPos, yPos, params.outline, hexStringToColors)
 
     const nextText = textGetter(params.nextCharMode, textManager)
     circlePainter({ params, layer, xPos, nextText, width, arcOffset, arcPercent })
@@ -518,8 +530,8 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     }
 
     const nextText = textGetter(params.nextCharMode, textManager)
-    const fill = bloc => setFillMode(bloc.x, bloc.y, params.fill)
-    const outline = params.useOutline ? bloc => setOutlineMode(bloc.x, bloc.y, params.outline) : () => { }
+    const fill = bloc => colorSystem.setFillMode(bloc.x, bloc.y, params.fill, hexStringToColors)
+    const outline = params.useOutline ? bloc => colorSystem.setOutlineMode(bloc.x, bloc.y, params.outline, hexStringToColors) : () => { }
     const step = (params.fixedWidth) ? gridParams.step : 0
     const paint = ((step, layer, params) => bloc => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, layer, params)
     const yOffset = getYoffset(layer.textAscent(), 0) // only used for TextWidth
@@ -613,124 +625,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     if (params.rotation < -360) { params.rotation = -360 }
   }
 
-  const colorAlpha = (aColor, alpha) => {
-    const c = p5.color(aColor)
-    return p5.color('rgba(' + [p5.red(c), p5.green(c), p5.blue(c), alpha].join(',') + ')')
-  }
-
-  const setColorModesFunctions = (layer) => {
-    // SIDE EFFECTS! UGH
-    setFillMode = (xPos, yPos, params) => setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.fill, layer })
-    setOutlineMode = (xPos, yPos, params) => setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.stroke, layer })
-  }
-
-  // TODO: if these were.... functions, we could have an array, and not have to worry about counting the mode
-  // also, functions could take params that could change them up a bit.....
-  // like the grays - sideways, or something. angles....
-  // prefix will be (almost?) same as func name - fill or stroke
-  const setPaintMode = (props) => {
-    let { func } = props // layer.fill or layer.stroke
-    const { gridX, gridY, params, layer } = props
-
-    func = func.bind(layer)
-    const transparency = params.transparent ? parseInt(params.transparency, 10) / 100 : 1
-
-    const mode = params.paintMode.toLowerCase()
-    switch (mode) {
-      case 'rainbow2':
-        func(layer.width - gridX, gridY, 100, transparency)
-        break
-
-      case 'raindbow3':
-        func(gridX / 2, gridY / 2, 100, transparency)
-        break
-
-      case 'rainbow4': { // offset from default
-        const x = (gridX + layer.width / 2) % layer.width
-        const y = (layer.height - gridY + layer.height / 2) % layer.height
-        func(x, y, 100, transparency)
-      }
-        break
-
-      case 'black':
-        func(0, transparency)
-        break
-
-      case 'white':
-        func(255, transparency)
-        break
-
-      case 'gray1':
-        {
-          const grayScaled = (gridY * 255) / layer.height
-          func(grayScaled, transparency)
-        }
-        break
-
-      case 'gray2':
-        {
-          const grayScaled = (gridY * 255) / layer.height
-          func(255 - grayScaled, transparency)
-        }
-        break
-
-      case 'solid':
-        func(colorAlpha(params.color, transparency))
-        break
-
-      case 'lerp-scheme':
-        {
-          const colors = hexStringToColors(params.scheme)
-
-          const color1 = layer.color(colors[0])
-          const color2 = layer.color(colors[1])
-          const color3 = colors[2] ? layer.color(colors[2]) : color1
-          const color4 = colors[3] ? layer.color(colors[3]) : color2
-          const amountX = (gridX / layer.width)
-          const amountY = (gridY / layer.height)
-
-          layer.push()
-          layer.colorMode(layer.RGB)
-
-          const l1 = layer.lerpColor(color1, color2, amountX)
-          const l2 = layer.lerpColor(color3, color4, amountX)
-          const l3 = layer.lerpColor(l1, l2, amountY)
-          const alpha = (transparency * 255)
-          l3.setAlpha(alpha)
-          layer.pop()
-          func(l3)
-        }
-        break
-
-      case 'lerp-quad':
-        {
-          const color1 = layer.color(params.lerps[0])
-          const color2 = layer.color(params.lerps[1])
-          const color3 = params.lerps[2] ? layer.color(params.lerps[2]) : color1
-          const color4 = params.lerps[3] ? layer.color(params.lerps[3]) : color2
-          const amountX = (gridX / layer.width)
-          const amountY = (gridY / layer.height)
-
-          layer.push()
-          layer.colorMode(layer.RGB)
-
-          const l1 = layer.lerpColor(color1, color2, amountX)
-          const l2 = layer.lerpColor(color3, color4, amountX)
-          const l3 = layer.lerpColor(l1, l2, amountY)
-          const alpha = (transparency * 255)
-          l3.setAlpha(alpha)
-          layer.pop()
-          func(l3)
-        }
-        break
-
-      case 'rainbow1':
-      default:
-        func(gridX, layer.height - gridY, 100, transparency)
-        break
-    }
-  }
-
   // only resets the angle, for now...
   const reset = (params, layer) => {
     params.rotation = 0
@@ -763,7 +657,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
       tmp.scale(-1, 1)
     }
     tmp.image(g, 0, 0, tmp.width, tmp.height)
-    g.remove()
     tmp.pop()
     return tmp
   }
@@ -771,10 +664,12 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   const mirror = (cfg = { axis: VERTICAL, layer: layers.p5 }) => {
     recordAction({ ...cfg, action: 'mirror' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
 
-    const newLayer = mirrorCore(cfg.axis, layers.copy())
+    const tmp = layers.copy()
+    const newLayer = mirrorCore(cfg.axis, tmp)
     cfg.layer.image(newLayer, 0, 0)
     renderLayers({ layers })
     newLayer.remove()
+    tmp.remove()
     globals.updatedCanvas = true
   }
 
@@ -827,6 +722,8 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     p5.saveCanvas(`${params.name}.${getDateFormatted()}.png`)
   }
 
+  // not used, and params not defined
+  // .... these are from that other project ???
   pct.saveAnimationFrames = () => {
     if (params.capturing) {
       params.captureOverride = false
@@ -850,111 +747,61 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     layer.rotate(layer.radians(90))
   }
 
-  const rotateWrapper = (pct) => ({ direction = 1 }) => {
-    return rotateCanvas({ direction, height: pct.params.height, width: pct.params.width, layers: pct.layers, p5: pct.p5 })
-  }
+  // rotates canvas 90 degrees in specified direction
+  // direction: 1 for clockwise, -1 for counter-clockwise
+  const rotateCanvas = ({ direction = 1, height, width, layers, p5 }) => {
+    recordAction({ action: 'rotateCanvas', direction, height, width }, pct.appMode !== APP_MODES.STANDARD_DRAW)
 
-  // version as rewritten
-
-  const rotateCanvas = ({ direction, height, width, layers, p5 }) => {
-    recordAction({ action: 'rotateCanvas', direction, height, width, layers }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-
-    const newHeight = height
-    const newWidth = width
-
+    // Store current canvas content in drawing layer before resize
     layers.drawingLayer.resetMatrix()
-    layers.drawingLayer.image(layers.p5, 0, 0)
+    layers.drawingLayer.image(p5, 0, 0)
 
-    p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
+    // Swap dimensions for 90-degree rotation
+    const newWidth = height
+    const newHeight = width
 
+    // Update params to reflect new dimensions
+    pct.params.width = newWidth
+    pct.params.height = newHeight
+
+    // Resize main canvas (this clears it as a side-effect)
+    p5.resizeCanvas(newWidth, newHeight)
+
+    // Create new graphics layer for rotated content
     const newPG = initDrawingLayer(newWidth, newHeight)
     newPG.push()
+
+    // Set rotation origin based on direction
     if (direction === -1) {
       newPG.translate(0, newHeight)
     } else {
       newPG.translate(newWidth, 0)
     }
+
+    // Apply 90-degree rotation and draw stored content
     newPG.rotate(p5.radians(90 * direction))
     newPG.image(layers.drawingLayer, 0, 0)
     newPG.pop()
 
+    // Replace old drawing layer with rotated version
     layers.drawingLayer.remove()
     layers.drawingLayer = newPG
-    newPG.remove()
 
-    // TODO: undo doesn't know anything about rotation......
-
+    // Note: Undo system doesn't track rotation operations
     renderLayers({ layers })
     globals.updatedCanvas = true
   }
 
-  // stopped working, again. doh!
-  // could the issue be in rotate? I mean, WTF
-  // const rotateCanvasRework = (cfg = { direction: 1, height: pct.params.height, width: pct.params.height }) => {
-  //   // recordAction({ action: 'rotateCanvas', ...cfg }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-  //   const newHeight = cfg.height
-  //   const newWidth = cfg.width
-
-  //   layers.drawingLayer.resetMatrix()
-  //   // layers.drawingLayer.image(layers.p5.get(), 0, 0) // makes things blurry ???
-  //   layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
-
-  //   p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
-
-  //   const newPG = initDrawingLayer(newWidth, newHeight)
-  //   newPG.push()
-  //   if (cfg.direction === -1) {
-  //     newPG.translate(0, newHeight)
-  //   } else {
-  //     newPG.translate(newWidth, 0)
-  //   }
-  //   newPG.rotate(p5.radians(90 * cfg.direction))
-  //   newPG.image(layers.drawingLayer, 0, 0)
-  //   newPG.pop()
-
-  //   layers.drawingLayer.remove()
-  //   layers.drawingLayer = newPG
-  //   newPG.remove()
-
-  //   // TODO: undo doesn't know anything about rotation......
-
-  //   renderLayers({ layers })
-  // }
-
-  const rotateCanvasOrig = (cfg = { direction: 1 }) => {
-    rotateInner(params, p5, layers, initDrawingLayer, cfg, renderLayers)
+  // Wrapper function that provides simplified interface
+  const rotateWrapped = (direction = 1) => {
+    return rotateCanvas({
+      direction,
+      height: pct.params.height,
+      width: pct.params.width,
+      layers: pct.layers,
+      p5: pct.layers.p5
+    })
   }
-
-  // from cd05908
-  // const rotateCanvas = (cfg = { direction: 1 }) => {
-  //   const newHeight = params.height = p5.width
-  //   const newWidth = params.width = p5.height
-
-  //   layers.drawingLayer.resetMatrix()
-  //   // layers.drawingLayer.image(layers.p5.get(), 0, 0) // makes things blurry ???
-  //   layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
-
-  //   p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
-
-  //   const newPG = initDrawingLayer(newWidth, newHeight)
-  //   newPG.push()
-  //   if (cfg.direction === -1) {
-  //     newPG.translate(0, newHeight)
-  //   } else {
-  //     newPG.translate(newWidth, 0)
-  //   }
-  //   newPG.rotate(p5.radians(90 * cfg.direction))
-  //   newPG.image(layers.drawingLayer, 0, 0)
-  //   newPG.pop()
-
-  //   layers.drawingLayer.remove()
-  //   layers.drawingLayer = newPG
-  //   newPG.remove()
-
-  //   // TODO: undo doesn't know anything about rotation......
-
-  //   renderLayers(params)
-  // }
 
   const coinflip = () => pct.p5.random() > 0.5
 
@@ -963,45 +810,51 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   const randomLayer = (cfg = {}) => {
     const img = pct.p5.random(pct.undo.history())
     layers.drawingLayer.push()
-    layers.drawingLayer.resetMatrix()
-
-    // can be negative, but to appear it depends on the size percentage
-    const pctSize = cfg.percentSize || percentSize()
-    // this is an approximation, an does not take rotation into account
-    const size = { width: pct.p5.width * pctSize, height: pct.p5.height * pctSize }
-    const offsetSize = { width: size.width * 0.75, height: size.height * 0.75 }
-    const originX = cfg.originX || pct.p5.random(-offsetSize.width, pct.p5.width + offsetSize.width) // should be able to go BACK and UP as well
-    const originY = cfg.originY || pct.p5.random(-offsetSize.height, pct.p5.height + offsetSize.height)
-    layers.drawingLayer.translate(originX, originY)
-    // TODO: hrm. maybe there could be some more options, here?
-
-    const rotateP = cfg.rotateP || coinflip()
-    const radians = cfg.radians || pct.p5.random(360)
-    if (rotateP) { layers.drawingLayer.rotate(pct.p5.radians(radians)) }
-    // this is a POC
-    // I'd like to explore gradients or other masks for transparency
-    const alpha = cfg.alpha || pct.p5.random(255)
     pct.p5.push()
 
-    // hey! the density is all off, here
-    const img2 = layers.p5.createImage(img.width, img.height)
-    img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
-    if (!params.hardEdge) {
-      const mask2 = layers.p5.createImage(img.width, img.height)
-      mask2.copy(imgMask, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
-      img2.mask(mask2) // TODO: need to modify by size, as well
+    try {
+      layers.drawingLayer.resetMatrix()
+
+      // can be negative, but to appear it depends on the size percentage
+      const pctSize = cfg.percentSize || percentSize()
+      // this is an approximation, an does not take rotation into account
+      const size = { width: pct.p5.width * pctSize, height: pct.p5.height * pctSize }
+      const offsetSize = { width: size.width * 0.75, height: size.height * 0.75 }
+      const originX = cfg.originX || pct.p5.random(-offsetSize.width, pct.p5.width + offsetSize.width) // should be able to go BACK and UP as well
+      const originY = cfg.originY || pct.p5.random(-offsetSize.height, pct.p5.height + offsetSize.height)
+      layers.drawingLayer.translate(originX, originY)
+      // TODO: hrm. maybe there could be some more options, here?
+
+      const rotateP = cfg.rotateP || coinflip()
+      const radians = cfg.radians || pct.p5.random(360)
+      if (rotateP) { layers.drawingLayer.rotate(pct.p5.radians(radians)) }
+      // this is a POC
+      // I'd like to explore gradients or other masks for transparency
+      const alpha = cfg.alpha || pct.p5.random(255)
+
+      // hey! the density is all off, here
+      const img2 = layers.p5.createGraphics(img.width, img.height)
+
+      img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
+      if (!params.hardEdge) {
+        const mask2 = layers.p5.createImage(img.width, img.height)
+        mask2.copy(imgMask, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
+        img2.mask(mask2) // TODO: need to modify by size, as well
+      }
+
+      pct.p5.tint(255, alpha)
+      setShadows(layers.drawingLayer, params)
+
+      layers.drawingLayer.image(img2, 0, 0)
+      renderTarget({ layers }) // not all layers - skip clearing and background, thus allowing an overlay
+
+      recordAction({ action: 'randomLayer', percentSize: pctSize, originX, originY, rotateP, radians, alpha }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+    } catch (e) {
+      console.log(e)
+    } finally {
+      pct.p5.pop()
+      layers.drawingLayer.pop()
     }
-
-    pct.p5.tint(255, alpha)
-    setShadows(layers.drawingLayer, params)
-
-    layers.drawingLayer.image(img2, 0, 0)
-    renderTarget({ layers }) // not all layers - skip clearing and background, thus allowing an overlay
-    pct.p5.pop()
-
-    layers.drawingLayer.pop()
-
-    recordAction({ action: 'randomLayer', percentSize: pctSize, originX, originY, rotateP, radians, alpha }, pct.appMode !== APP_MODES.STANDARD_DRAW)
     globals.updatedCanvas = true
   }
 
@@ -1009,24 +862,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     const sizes = [0.25, 0.5, 0.75, 1.0, 1.5, 2]
     const size = pct.p5.random(sizes)
     return size
-  }
-
-  const adjustGamma = (props = { gamma: 0.8 }) => {
-    recordAction({ action: 'adjustGamma', gamma: props.gamma }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-
-    const gammaCorrection = 1 / props.gamma
-    const context = layers.p5.drawingContext
-    const imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
-
-    const data = imageData.data
-    for (let i = 0; i < data.length; i += 4) {
-      data[i] = 255 * (data[i] / 255) ** gammaCorrection
-      data[i + 1] = 255 * (data[i + 1] / 255) ** gammaCorrection
-      data[i + 2] = 255 * (data[i + 2] / 255) ** gammaCorrection
-    }
-    context.putImageData(imageData, 0, 0)
-    renderLayers({ layers })
-    globals.updatedCanvas = true
   }
 
   pct.stop = (mode = APP_MODES.NO_DRAW) => {
@@ -1062,8 +897,8 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   pct.randomLayer = randomLayer
   pct.renderLayers = renderLayers
   pct.reset = reset
-  pct.rotateCanvas = rotateCanvasOrig
-  pct.rotateWrapped = rotateWrapper(pct)
+  pct.rotateCanvas = rotateCanvas
+  pct.rotateWrapped = rotateWrapped
   pct.setFont = setFont
   pct.shift = shift
   pct.target = target
@@ -1082,33 +917,4 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   pct.savit = savit
 
   return pct
-}
-
-function rotateInner (params, p5, layers, initDrawingLayer, cfg, renderLayers) {
-  const newHeight = params.height = p5.width
-  const newWidth = params.width = p5.height
-
-  layers.drawingLayer.resetMatrix()
-  // layers.drawingLayer.image(layers.p5.get(), 0, 0) // makes things blurry ???
-  layers.drawingLayer.image(layers.p5, 0, 0) // makes things blurry ???
-
-  p5.resizeCanvas(newWidth, newHeight) // this zaps out p5, so we store it in drawingLayer
-
-  const newPG = initDrawingLayer(newWidth, newHeight)
-  newPG.push()
-  if (cfg.direction === -1) {
-    newPG.translate(0, newHeight)
-  } else {
-    newPG.translate(newWidth, 0)
-  }
-  newPG.rotate(p5.radians(90 * cfg.direction))
-  newPG.image(layers.drawingLayer, 0, 0)
-  newPG.pop()
-
-  layers.drawingLayer.remove()
-  layers.drawingLayer = newPG
-  newPG.remove()
-
-  // TODO: undo doesn't know anything about rotation......
-  renderLayers({ layers })
 }

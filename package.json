@@ -1,11 +1,11 @@
 {
   "name": "polychrome.p5",
-  "version": "1.0.64",
+  "version": "1.0.65",
   "description": "A colorful text painter",
   "main_orig": "index.html/sketch.js",
   "main": "src/index.js",
   "engines": {
-    "node": "14.16.1"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "dev": "nuxt",
@@ -44,21 +44,21 @@
   },
   "homepage": "https://github.com/MichaelPaulukonis/polychrome.p5#readme",
   "dependencies": {
-    "@cyrilf/vue-dat-gui": "^0.3.0",
-    "@nuxtjs/axios": "^5.6.0",
+    "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/style-resources": "^1.0.0",
-    "cheerio": "^1.0.0-rc.3",
+    "cheerio": "^0.22.0",
     "epic-spinners": "^1.1.0",
     "file-saver": "^2.0.5",
     "hotkeys-js": "^3.7.2",
     "keypress.js": "^2.1.5",
-    "nuxt": "^2.10.2",
+    "nuxt": "^2.17.3",
     "nuxt-webfontloader": "^1.1.0",
-    "p5": "^1.4.0",
-    "ramda": "^0.26.1",
-    "vue-js-modal": "^1.3.31"
+    "p5": "^1.11.8",
+    "ramda": "^0.30.1",
+    "vue-js-modal": "^2.0.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "@nuxtjs/eslint-config": "^6.0.1",
     "@nuxtjs/eslint-module": "^3.0.2",
     "babel-eslint": "^10.1.0",
@@ -67,10 +67,10 @@
     "eslint-config-standard": "^16.0.3",
     "gh-pages": "^2.1.1",
     "husky": "^3.0.9",
-    "node-sass": "^4.13.1",
     "open": "^7.0.0",
     "pug": "^3.0.1",
     "pug-plain-loader": "^1.0.0",
+    "sass": "^1.71.0",
     "sass-loader": "^10.1.1",
     "standard": "^16.0.3"
   },

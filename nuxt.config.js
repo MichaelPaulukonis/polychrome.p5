@@ -7,7 +7,7 @@ const routerBase = {
 
 export default {
   ...routerBase,
-  mode: 'spa',
+  ssr: false,
   /*
   ** Headers of the page
   */
@@ -37,8 +37,8 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '~plugins/vue-js-modal',
-    { src: '~/plugins/setFocus', ssr: false }
+    { src: '~plugins/vue-js-modal', mode: 'client' },
+    { src: '~/plugins/setFocus', mode: 'client' }
   ],
   /*
   ** Nuxt.js dev-modules
@@ -69,7 +69,7 @@ export default {
   webfontloader: {
     custom: {
       families: ['Graphik', 'Tiempos Headline'],
-      urls: ['/fonts/fonts.css']
+      urls: [`${routerBase.router.base}/fonts/fonts.css`]
     }
   },
 
@@ -87,6 +87,26 @@ export default {
     ** You can extend webpack config here
     */
     extend (config, ctx) {
-    }
+      config.module.rules.push({
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto'
+      })
+
+      // Fix for cheerio ES modules
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        cheerio: 'cheerio/lib/cheerio.js'
+      }
+
+      // Use unminified p5.js in development
+      if (ctx.isDev) {
+        config.resolve.alias.p5 = 'p5/lib/p5.js'
+        // If you also use p5.sound, you might want to alias it too:
+        // config.resolve.alias['p5.sound'] = 'p5/lib/addons/p5.sound.js';
+      }
+    },
+    // Transpile vue-js-modal
+    transpile: ['vue-js-modal']
   }
 }

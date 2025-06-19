@@ -95,8 +95,8 @@ const supportedFonts = fonts.filter(d.detect)
 const fontList = supportedFonts.concat(['ATARCC__', 'ATARCE__', 'ATARCS__', 'AtariClassic-Regular',
   'BlackCasper', 'BMREA___', 'CableDingbats', 'carbontype', 'clothing logos', 'Credit Cards',
   'D3Digitalism', 'D3DigitalismI', 'D3DigitalismR', 'edunline', 'enhanced_dot_digital-7', 'Fast Food logos',
-  'Harting_plain', 'illustrate-it', 'openlogos', 'RecycleIt', 'retro_computer_personal_use', 'SEGA',
+  'Harting_plain', 'Hellvetica', 'illustrate-it', 'openlogos', 'RecycleIt', 'retro_computer_personal_use', 'SEGA',
   'Smartphone Color Pro', 'Social Icons Pro Set 1 - Rounded', 'social_shapes', 'TRENU___',
-  'Type Icons Color', 'Type Icons', 'VT323-Regular', 'Youkairo'])
+  'Type Icons Color', 'Type Icons', 'VT323-Regular', 'Youkairo', 'AEXKON_Bold', 'Biker New Normal', 'Interlac-SD-Regular', 'OpenLukyanov', 'OrthodoxHerbertarian', 'PixieSerif-Bold', 'PixieSerif-BoldLines', 'Raster', 'UpheavalPro'])
 
 export default fontList

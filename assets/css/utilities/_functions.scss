@@ -1,0 +1,17 @@
+// Modern SASS functions to replace deprecated ones
+@use "sass:math";
+
+@function safe-percentage($value) {
+  @return percentage($value);
+}
+
+@function safe-divide($dividend, $divisor) {
+  @if $divisor == 0 {
+    @error "Cannot divide by zero";
+  }
+  @return math.div($dividend, $divisor);
+}
+
+@function safe-lighten($color, $amount) {
+  @return lighten($color, $amount);
+}

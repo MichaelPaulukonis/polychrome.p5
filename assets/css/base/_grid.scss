@@ -31,8 +31,8 @@ $grid-breakpoint:     $screen-md;
 }
 
 @mixin make-row($gutter: $grid-gutter-width) {
-  margin-left:  ($gutter / -2);
-  margin-right: ($gutter / -2);
+  margin-left:  safe-divide($gutter, -2);
+  margin-right: safe-divide($gutter, -2);
 }
 
 @mixin make-column($columns, $gutter: $grid-gutter-width) {
@@ -229,8 +229,8 @@ $grid-breakpoint:     $screen-md;
     // Prevent columns from collapsing when empty
     min-height: 1px;
     // Inner gutter via padding
-    padding-left:  ($grid-gutter-width / 2);
-    padding-right: ($grid-gutter-width / 2);
+    padding-left:  safe-divide($grid-gutter-width, 2);
+    padding-right: safe-divide($grid-gutter-width, 2);
   }
 
   @each $bp in $breakpoints {
@@ -256,12 +256,12 @@ $grid-breakpoint:     $screen-md;
 @mixin calc-grid-column($index, $class, $type) {
   @if ($type == width) and ($index > 0) {
     .col-#{$class}-#{$index} {
-      width: percentage(($index / $grid-columns));
+      width: safe-percentage(safe-divide($index, $grid-columns));
     }
   }
   @if ($type == push) and ($index > 0) {
     .col-#{$class}-push-#{$index} {
-      left: percentage(($index / $grid-columns));
+      left: safe-percentage(safe-divide($index, $grid-columns));
     }
   }
   @if ($type == push) and ($index == 0) {
@@ -271,7 +271,7 @@ $grid-breakpoint:     $screen-md;
   }
   @if ($type == pull) and ($index > 0) {
     .col-#{$class}-pull-#{$index} {
-      right: percentage(($index / $grid-columns));
+      right: safe-percentage(safe-divide($index, $grid-columns));
     }
   }
   @if ($type == pull) and ($index == 0) {
@@ -281,7 +281,7 @@ $grid-breakpoint:     $screen-md;
   }
   @if ($type == offset) {
     .col-#{$class}-offset-#{$index} {
-      margin-left: percentage(($index / $grid-columns));
+      margin-left: safe-percentage(safe-divide($index, $grid-columns));
     }
   }
 }
