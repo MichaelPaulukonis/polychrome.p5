@@ -1,9 +1,9 @@
-## Optimized Copilot Instructions for PolychromeText
-
 ---
 description: AI rules derived by SpecStory from the project AI interaction history
 globs: *
 ---
+
+## Copilot Instructions for PolychromeText
 
 # Project Context
 
@@ -28,6 +28,7 @@ globs: *
 - Use **p5.js** for all canvas/visual rendering.
 - Follow **Nuxt 2** patterns (until v3 upgrade).
 - Use **Conventional Commits** for commit messages.
+- Use Node.js v22 LTS for best compatibility.
 
 # Code Style
 
@@ -59,7 +60,6 @@ globs: *
 - Validate UI parameter ranges.
 - Test localStorage save/load.
 - Use Vitest (preferred) or Jest for utility tests.
-- Use Node.js v22 LTS for best compatibility.
 
 # Linting & Style
 
@@ -69,6 +69,13 @@ globs: *
 # Commit Messages
 
 - Follow Conventional Commits (see `./copilot-commit-message-instructions.md`).
+- Use commit messages like: `docs: refactor copilot instructions for improved AI coding guidance`
+  - Reorganize instructions into clear sections (Context, Documentation, Guidance)
+  - Add TypeScript migration preferences and p5.js canvas optimization focus
+  - Include module extraction patterns with canvas-transforms example
+  - Specify testing frameworks (Vitest preferred) and Node.js v22 LTS requirement
+  - Clarify accessibility requirements for canvas controls and UI
+  - Add linting configuration details for Standard Style with Vitest globals
 
 # Module Extraction Example: Canvas Transforms
 
