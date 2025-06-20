@@ -106,7 +106,7 @@ describe('Canvas Transforms - Core Functions', () => {
       expect(mockGraphics.image).toHaveBeenCalledWith(
         mockClonedGraphics,
         50, 0, 50, 200, // dest: x=width/2, y=0, w=width/2, h=height
-        50, 0, 50      // src: x=width/2, y=0, w=width/2 (height omitted in call)
+        50, 0, 50 // src: x=width/2, y=0, w=width/2 (height omitted in call)
       )
 
       expect(mockClonedGraphics.remove).toHaveBeenCalled()
@@ -120,7 +120,7 @@ describe('Canvas Transforms - Core Functions', () => {
       expect(mockGraphics.image).toHaveBeenCalledWith(
         mockClonedGraphics,
         0, 100, 100, 100, // dest: x=0, y=height/2, w=width, h=height/2
-        0, 100, 100, 100  // src: x=0, y=height/2, w=width, h=height/2
+        0, 100, 100, 100 // src: x=0, y=height/2, w=width, h=height/2
       )
 
       expect(result).toBe(mockGraphics)

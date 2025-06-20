@@ -20,7 +20,7 @@ import { flipCore, mirrorCore, newCorner, HORIZONTAL, VERTICAL } from './core-tr
  * @param {Object} dependencies.params - Global parameters object
  * @returns {Object} Object containing transform functions
  */
-export function createCanvasTransforms({
+export function createCanvasTransforms ({
   layers,
   recordAction,
   globals,

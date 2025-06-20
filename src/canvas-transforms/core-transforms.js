@@ -7,7 +7,7 @@
 
 // Transform direction constants
 export const HORIZONTAL = 0 // up=>down
-export const VERTICAL = 1   // left=>right
+export const VERTICAL = 1 // left=>right
 
 /**
  * Pure function to flip a graphics object along specified axis
