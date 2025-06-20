@@ -543,8 +543,8 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
 
     const sw = params.useOutline
       ? params.outline.strokeWeight
-          ? params.outline.strokeWeight
-          : (gridParams.step / 5)
+        ? params.outline.strokeWeight
+        : (gridParams.step / 5)
       : 0
     layer.strokeWeight(sw / 4)
     layer.strokeJoin(params.outline.strokeJoin)

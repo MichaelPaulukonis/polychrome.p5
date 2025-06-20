@@ -80,23 +80,21 @@
     "pug-plain-loader": "^1.0.0",
     "sass": "^1.71.0",
     "sass-loader": "^10.1.1",
-    "standard": "^16.0.3",
+    "standard": "^17.1.2",
     "vitest": "^3.2.4",
     "vue-jest": "^3.0.7"
   },
   "standard": {
-    "plugins": [],
-    "parser": "babel-eslint",
     "env": {
       "vitest-globals/env": true
     },
-    "globals": {
-      "describe": "readonly",
-      "test": "readonly",
-      "expect": "readonly",
-      "beforeEach": "readonly",
-      "afterEach": "readonly",
-      "vi": "readonly"
-    }
+    "globals": [
+      "describe",
+      "test",
+      "expect",
+      "beforeEach",
+      "afterEach",
+      "vi"
+    ]
   }
 }

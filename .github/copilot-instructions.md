@@ -392,3 +392,10 @@ For detailed instructions, please refer to [Conventional Commits 1.0.0](./copilo
 
 ## Project Documentation & Context System
 - Create overview documents for new modules, similar to `sketch.md` and `color-system.md`. One file per module should be sufficient (e.g., `canvas-transforms.md`).
+
+## Dependencies and Compatibility
+
+- **Node.js Compatibility:**
+  - The project should be running on Node.js v22 LTS.
+  - Be aware of compatibility issues with `standard-js` in Node.js v22 and later. If encountering errors like `TypeError: def.split is not a function or its return value is not iterable`, consider updating `standard-js` to the latest version.
+  - If updating `standard-js` is necessary, reconfigure it to work with Vitest globals.

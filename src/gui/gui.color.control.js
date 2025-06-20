@@ -1,4 +1,3 @@
-
 // eh, maybe some other way of doing/naming this
 const hexStringToColors = (lerp) => {
   // based on https://bl.ocks.org/mootari/bfbf01320da6c14f9cba186c581d507d
