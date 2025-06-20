@@ -15,6 +15,7 @@ import saveAs from 'file-saver'
 import { datestring, filenamer } from './filelib'
 import { setupActions } from '@/src/gui/actions'
 import { createColorFunctions, createGammaAdjustment, initializeColorMode } from '@/src/color/color-system'
+import { createCanvasTransforms } from '@/src/canvas-transforms'
 
 const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
@@ -29,6 +30,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   let layers
   let colorSystem
   let adjustGamma
+  let canvasTransforms
   let undo
 
   const fontList = {}
@@ -83,6 +85,18 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       APP_MODES
     })
 
+    // Initialize canvas transforms with dependencies
+    canvasTransforms = createCanvasTransforms({
+      layers,
+      recordAction,
+      globals,
+      renderLayers,
+      initDrawingLayer,
+      getAppMode: () => pct.appMode,
+      APP_MODES,
+      params
+    })
+
     const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: pct, params, fillParams: params.fill, outlineParams: params.outline })
     pct.shiftFillColors = shiftFillColors
     pct.shiftOutlineColors = shiftOutlineColors
@@ -96,6 +110,20 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     params.fill = fillParams
     params.outline = outlineParams
     pct.defaultParams = JSON.parse(JSON.stringify(params))
+
+    pct.adjustGamma = adjustGamma
+
+    // Assign canvas transforms to pct object
+    pct.flip = canvasTransforms.flip
+    pct.flipCore = canvasTransforms.flipCore
+    pct.mirror = canvasTransforms.mirror
+    pct.newCorner = canvasTransforms.newCorner
+    pct.rotateCanvas = canvasTransforms.rotateCanvas
+    pct.rotateWrapped = canvasTransforms.rotateWrapped
+    pct.shift = canvasTransforms.shift
+    pct.HORIZONTAL = canvasTransforms.HORIZONTAL
+    pct.VERTICAL = canvasTransforms.VERTICAL
+
     setupCallback(pct)
     recordConfig(pct.params, pct.appMode === APP_MODES.STANDARD_DRAW)
   }
@@ -632,82 +660,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     layer.resetMatrix()
   }
 
-  const HORIZONTAL = 0 // up=>down
-  const VERTICAL = 1 // left=>right
-  const flip = ({ axis, layer }) => {
-    recordAction({ axis, layer, action: 'flip' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-
-    const newLayer = flipCore(axis, layers.copy())
-    layer.image(newLayer, 0, 0)
-    renderLayers({ layers })
-    newLayer.remove()
-    globals.updatedCanvas = true
-  }
-
-  const flipCore = (axis = VERTICAL, g) => {
-    const tmp = layers.clone(g)
-    tmp.push()
-    tmp.translate(0, 0)
-    tmp.resetMatrix()
-    if (axis === HORIZONTAL) {
-      tmp.translate(0, tmp.height)
-      tmp.scale(1, -1)
-    } else {
-      tmp.translate(tmp.width, 0)
-      tmp.scale(-1, 1)
-    }
-    tmp.image(g, 0, 0, tmp.width, tmp.height)
-    tmp.pop()
-    return tmp
-  }
-
-  const mirror = (cfg = { axis: VERTICAL, layer: layers.p5 }) => {
-    recordAction({ ...cfg, action: 'mirror' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-
-    const tmp = layers.copy()
-    const newLayer = mirrorCore(cfg.axis, tmp)
-    cfg.layer.image(newLayer, 0, 0)
-    renderLayers({ layers })
-    newLayer.remove()
-    tmp.remove()
-    globals.updatedCanvas = true
-  }
-
-  const mirrorCore = (axis = VERTICAL, g) => {
-    const tmp = flipCore(axis, g)
-    if (axis === HORIZONTAL) {
-      g.image(tmp, 0, g.height / 2, g.width, g.height / 2, 0, g.height / 2, g.width, g.height / 2)
-    } else {
-      g.image(tmp, g.width / 2, 0, g.width / 2, g.height, g.width / 2, 0, g.width / 2)
-    }
-    tmp.remove()
-    return g
-  }
-
-  // shift pixels in image
-  // I'd love to be able to drag the image around, but I think that will require something else, but related
-  const shift = (cfg = { verticalOffset: 0, horizontalOffset: 0 }) => {
-    recordAction({ ...cfg, action: 'shift' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-
-    // TODO: has to be pointing to the drawingLayer
-    const context = layers.p5.drawingContext
-    const imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
-
-    const cw = (cfg.horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
-    const ch = (cfg.verticalOffset > 0 ? context.canvas.height : -context.canvas.height)
-
-    context.putImageData(imageData, 0 + cfg.horizontalOffset, 0 + cfg.verticalOffset)
-    if (cfg.horizontalOffset !== 0) {
-      context.putImageData(imageData, 0 + cfg.horizontalOffset - cw, 0 + cfg.verticalOffset)
-    }
-    if (cfg.verticalOffset !== 0) {
-      context.putImageData(imageData, 0 + cfg.horizontalOffset, 0 + cfg.verticalOffset - ch)
-    }
-    context.putImageData(imageData, 0 - cw + cfg.horizontalOffset, 0 - ch + cfg.verticalOffset)
-    renderLayers({ layers })
-    globals.updatedCanvas = true
-  }
-
   pct.save_sketch = () => {
     const getDateFormatted = () => {
       const d = new Date()
@@ -735,72 +687,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
       p5.frameRate(params.captureFrameRate)
     }
     params.capturing = !params.capturing
-  }
-
-  // TODO: use this somehow.
-  // but make mouse start from regular place?
-  // NOTE: doesn't work all that well if canvas is not square....
-  // We'd have to do something with the calculations to use the "new" rectangle -
-  // it's essentially rotating the canvas
-  const newCorner = (layer) => {
-    layer.translate(layer.width, 0)
-    layer.rotate(layer.radians(90))
-  }
-
-  // rotates canvas 90 degrees in specified direction
-  // direction: 1 for clockwise, -1 for counter-clockwise
-  const rotateCanvas = ({ direction = 1, height, width, layers, p5 }) => {
-    recordAction({ action: 'rotateCanvas', direction, height, width }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-
-    // Store current canvas content in drawing layer before resize
-    layers.drawingLayer.resetMatrix()
-    layers.drawingLayer.image(p5, 0, 0)
-
-    // Swap dimensions for 90-degree rotation
-    const newWidth = height
-    const newHeight = width
-
-    // Update params to reflect new dimensions
-    pct.params.width = newWidth
-    pct.params.height = newHeight
-
-    // Resize main canvas (this clears it as a side-effect)
-    p5.resizeCanvas(newWidth, newHeight)
-
-    // Create new graphics layer for rotated content
-    const newPG = initDrawingLayer(newWidth, newHeight)
-    newPG.push()
-
-    // Set rotation origin based on direction
-    if (direction === -1) {
-      newPG.translate(0, newHeight)
-    } else {
-      newPG.translate(newWidth, 0)
-    }
-
-    // Apply 90-degree rotation and draw stored content
-    newPG.rotate(p5.radians(90 * direction))
-    newPG.image(layers.drawingLayer, 0, 0)
-    newPG.pop()
-
-    // Replace old drawing layer with rotated version
-    layers.drawingLayer.remove()
-    layers.drawingLayer = newPG
-
-    // Note: Undo system doesn't track rotation operations
-    renderLayers({ layers })
-    globals.updatedCanvas = true
-  }
-
-  // Wrapper function that provides simplified interface
-  const rotateWrapped = (direction = 1) => {
-    return rotateCanvas({
-      direction,
-      height: pct.params.height,
-      width: pct.params.width,
-      layers: pct.layers,
-      p5: pct.layers.p5
-    })
   }
 
   const coinflip = () => pct.p5.random() > 0.5
@@ -876,18 +762,13 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   }
 
   // this smells, but is a start of separation
-  pct.adjustGamma = adjustGamma
   pct.apx = apx
   pct.clearCanvas = clearCanvas
   pct.drawCircle = drawCircle
   pct.drawGrid = drawGrid
   pct.drawRowCol = drawRowCol
-  pct.flip = flip
-  pct.flipCore = flipCore
   pct.guiControl = guiControl
   pct.layers = layers
-  pct.mirror = mirror
-  pct.newCorner = newCorner
   pct.nextDrawMode = nextDrawMode
   pct.nextRotation = nextRotation
   pct.p5 = p5
@@ -897,15 +778,10 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   pct.randomLayer = randomLayer
   pct.renderLayers = renderLayers
   pct.reset = reset
-  pct.rotateCanvas = rotateCanvas
-  pct.rotateWrapped = rotateWrapped
   pct.setFont = setFont
-  pct.shift = shift
   pct.target = target
   pct.textManager = textManager
   pct.mouseInCanvas = mouseInCanvas
-  pct.HORIZONTAL = HORIZONTAL
-  pct.VERTICAL = VERTICAL
   pct.draw = standardDraw
   pct.APP_MODES = APP_MODES
   pct.output = output

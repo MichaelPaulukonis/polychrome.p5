@@ -205,7 +205,7 @@ For CSS, use TailwindCSS with responsive designs based on Flexbox/Grid.
       ````
     - Create a test setup file (e.g., `test/setup.js`):
       ````javascript
-      import { config } from '@vue/test-utils'
+      import { config from '@vue/test-utils'
 
       // Mock p5.js for testing
       global.p5 = {
@@ -252,7 +252,143 @@ For CSS, use TailwindCSS with responsive designs based on Flexbox/Grid.
   ```
 - Consider using Node.js v22 LTS for better compatibility with older dependencies, especially if encountering native dependency issues.
 
+### Code Style and Linting Configuration
+
+- **Standard Style and Vitest:** To configure JavaScript Standard Style to work with Vitest globals, use the following approach:
+  - Disable built-in JavaScript validation, if desired, using the **javascript.validate.enable** setting:
+    ```json
+    {
+      "javascript.validate.enable": "false"
+    }
+    ```
+  - Configure JavaScript-specific settings:
+    ```json
+    {
+      "[javascript]": "{ \"editor.defaultFormatter\": \"standard.vscode-standard\" }"
+    }
+    ```
+  - Configure Standard Style at the project level by creating a `.eslintrc.json` or adding to your `package.json` to configure Standard Style to recognize Vitest globals.
+- **Recommended Extensions:** Install the following extensions for improved Standard Style and Vitest integration:
+  - `standard.vscode-standard`: Handles linting with proper configuration.
+  - `vitest.explorer`: Provides proper test environment support.
+
+## Development Environment
+
+### Docker Container Connectivity Testing (macOS)
+
+When debugging connectivity to local Docker containers on macOS, these methods are preferred:
+
+- **HTTP/TCP Connection Testing**
+  - Test HTTP connectivity:
+    ```bash
+    curl http://localhost:8080
+    ```
+  - Test TCP port connectivity:
+    ```bash
+    nc -zv localhost 8080
+    ```
+  - Test with telnet:
+    ```bash
+    telnet localhost:8080
+    ```
+- **Find Container IP Address**
+  - List running containers:
+    ```bash
+    docker ps
+    ```
+  - Get container IP (replace CONTAINER_NAME with your container name/ID):
+    ```bash
+    docker inspect CONTAINER_NAME | grep IPAddress
+    ```
+  - Ping the container's IP directly (replace with actual container IP):
+    ```bash
+    ping 172.17.0.2
+    ```
+- **Docker Network Inspection**
+  - List Docker networks:
+    ```bash
+    docker network ls
+    ```
+  - Inspect the default bridge network:
+    ```bash
+    docker network inspect bridge
+    ```
+- **Alternative Tools**
+  - Using HTTPie (if installed):
+    ```bash
+    http localhost:8080
+    ```
+  - Using wget:
+    ```bash
+    wget -qO- http://localhost:8080
+    ```
+  - The most reliable method is usually `curl` or `nc` since Docker containers are designed to expose services rather than respond to ping requests.
+
+### Testing the container IP directly
+
+If you want to test the container IP without ping, use:
+
+```bash
+# Test TCP connection to container IP
+nc -zv 172.17.0.4 80
+
+# Test HTTP directly to container IP  
+curl http://172.17.0.4:80
+
+# Test with telnet
+telnet 172.17.0.4 80
+```
+
+Docker containers on macOS don't respond to ICMP ping requests by default, even when HTTP services are working perfectly. This happens because:
+
+1. **Container networking**: Docker's bridge network doesn't route ICMP traffic the same way as TCP traffic
+2. **macOS Docker Desktop**: Uses a Linux VM that handles networking differently than native Linux Docker
+3. **Firewall/iptables**: The container's network stack may filter ICMP packets
+
 ## Commit Message Guidelines
 
 All commit messages should adhere to the Conventional Commits specification.
 For detailed instructions, please refer to [Conventional Commits 1.0.0](./copilot-commit-message-instructions.md).
+
+## Refactoring Guidelines
+
+### Canvas Transforms Module
+- **Objective**: Extract canvas transformation functions from `sketch.js` into a new module named `canvas-transforms`.
+- **Module Design**:
+  - Follow the factory function pattern: `createCanvasTransforms(dependencies)` returning an object with transform functions.
+  - Use dependency injection: Pass in required dependencies like `layers`, `recordAction`, `globals`, `renderLayers`, `APP_MODES`, etc.
+  - Extract core transformation logic (`flipCore`, `mirrorCore`) as pure functions for easy testing.
+  - Consider exporting constants like `HORIZONTAL` and `VERTICAL`.
+- **Functions to Extract**:
+  - `rotateCanvas` - Rotates canvas 90 degrees with dimension swapping.
+  - `flip` + `flipCore` - Flips canvas horizontally or vertically.
+  - `mirror` + `mirrorCore` - Creates mirrored half-images.
+  - `shift` - Shifts pixels with wrapping using ImageData API.
+  - `newCorner` - Utility for corner rotation (currently unused but related).
+- **File Structure**:
+  ```
+  src/
+    canvas-transforms/
+      index.js          # Main factory function and public API
+      core-transforms.js # Pure transformation functions (if applicable)
+      canvas-transforms.js # Main implementation (if not using core-transforms.js)
+  ```
+- **Testing**:
+  - Ensure `flipCore` and `mirrorCore` are pure functions for isolated testing.
+  - Mock dependencies like p5.js, layers, and recording systems using the factory pattern.
+- **Integration**:
+  - Import the factory function in `sketch.js`.
+  - Initialize with required dependencies in `setup()`.
+  - Replace existing function calls with the new module's methods.
+  - Update the `pct` object exports to use the new module.
+- **Considerations**:
+  - Module structure: Split into multiple files like `core-transforms.js` for pure functions and `canvas-transforms.js` for the main factory.
+  - Prioritize extracting code first, and add comprehensive tests in a follow-up.
+  - `adjustGamma` should remain in `color-system.js`.
+  - Use the naming convention: `createCanvasTransforms`.
+  - Locate `HORIZONTAL`/`VERTICAL` constants exported from the transforms module.
+- **Variable Scope**: Ensure variables initialized within the `setup()` function that are used elsewhere in the module (e.g., in the `pct` object assignments) are declared in the module scope, not just within `setup()`. This avoids "ReferenceError: variable is not defined" errors.
+- **Order of Operations**: Ensure that variables which are instantiated or initialized in `p5.setup()` are available before they are used. Specifically, if a variable (e.g. `canvasTransforms`) is only instantiated within `p5.setup()`, and is used to populate a module-level object (e.g. `pct`), then move the instantiation of that module-level object into the `p5.setup()` function, after the `canvasTransforms` variable has been instantiated.
+
+## Project Documentation & Context System
+- Create overview documents for new modules, similar to `sketch.md` and `color-system.md`. One file per module should be sufficient (e.g., `canvas-transforms.md`).

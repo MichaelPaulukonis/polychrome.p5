@@ -86,6 +86,17 @@
   },
   "standard": {
     "plugins": [],
-    "parser": "babel-eslint"
+    "parser": "babel-eslint",
+    "env": {
+      "vitest-globals/env": true
+    },
+    "globals": {
+      "describe": "readonly",
+      "test": "readonly",
+      "expect": "readonly",
+      "beforeEach": "readonly",
+      "afterEach": "readonly",
+      "vi": "readonly"
+    }
   }
 }

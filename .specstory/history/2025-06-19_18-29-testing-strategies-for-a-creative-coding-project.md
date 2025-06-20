@@ -884,3 +884,15 @@ As you add more functionality, you can create additional test files like `color-
 
 ---
 
+_**User**_
+
+Please create a commit message for these changes (added basic testing framework with vitest)
+
+---
+
+_**Assistant**_
+
+
+
+---
+
