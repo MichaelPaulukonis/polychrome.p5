@@ -111,7 +111,38 @@ Please list top-level folders you have access to.
 
 _**Assistant**_
 
+I'll list the top-level directories I have access to using the filesystem tools. Based on the filesystem access, I can only access the `/app` directory. Let me check what's in there: It looks like I only have access to the `/app` directory, which contains a `server` file. This appears to be running inside a containerized environment.
 
+However, for viewing Docker container logs, you have several options:
+
+## Via Docker Desktop GUI:
+1. Open Docker Desktop
+2. Go to the "Containers" tab
+3. Find your github-mcp-server container
+4. Click on the container name to open its details
+5. Click on the "Logs" tab to view the container logs
+
+## Via Command Line:
+You can use these Docker commands from your host machine (not from within this container):
+
+```bash
+# List running containers to find the container name/ID
+docker ps
+
+# View logs for a specific container (replace with your container name/ID)
+docker logs <container-name-or-id>
+
+# View logs with timestamps
+docker logs -t <container-name-or-id>
+
+# Follow logs in real-time
+docker logs -f <container-name-or-id>
+
+# View last N lines of logs
+docker logs --tail 50 <container-name-or-id>
+```
+
+Since you mentioned you can see the container in Docker Desktop, the GUI method would be the easiest way to view the logs.
 
 ---
 
