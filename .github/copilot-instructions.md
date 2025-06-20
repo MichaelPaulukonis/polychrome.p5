@@ -14,6 +14,8 @@ globs: *
 # Documentation
 
 - For project architecture and features, reference: `../notes/master.md`
+- Module documentation should be placed into  '../notes/src/' in a folder structure that parallels the module. These should be concise overviews to provide context for AI-assisted development rather than human readers.
+- Refactor plans should be placed into `notes/plans/`. For example: `notes/plans/drawing-modes-refactor.md`
 
 # Copilot Guidance
 
@@ -60,6 +62,7 @@ globs: *
 - Validate UI parameter ranges.
 - Test localStorage save/load.
 - Use Vitest (preferred) or Jest for utility tests.
+- Prioritize visual consistency during refactoring. Create unit tests for parameter handling after refactoring is complete.
 
 # Linting & Style
 
@@ -93,14 +96,37 @@ globs: *
 - Ensure variables used outside `setup()` are declared at module scope.
 - Instantiate module-level objects after dependencies are available in `setup()`.
 
+# Module Extraction Example: Drawing Modes
+
+- Extract drawing mode code (`drawGrid`, `drawCircle`, `drawRowCol` and their generators) into separate modules (`grid-painter.js`, `circle-painter.js`, `rowcol-painter.js`).
+- Extract `drawGrid`, `drawCircle`, `drawRowCol` functions and their generators.
+- Focus on clean separation and maintaining current behavior.
+- Ensure functions are testable for future automated testing.
+
 # Documentation for Modules
 
 - Create a concise overview `.md` file for each major module.
+- Optimize the overview to provide context for AI-assisted development rather than human readers.
+- Place into  '../notes/src/' in a folder structure that parallels the module.
+- Create documentation structure that parallels the module structure.
 
 # Dependencies
 
 - Use Node.js v22 LTS.
 - If `standard-js` errors occur, update to latest version and reconfigure for Vitest.
+
+# Drawing Mode Refactoring Guidelines
+
+- Extract drawing mode code (`drawGrid`, `drawCircle`, `drawRowCol` and their generators) into separate modules (`grid-painter.js`, `circle-painter.js`, `rowcol-painter.js`).
+- Create three utility modules:
+  - `src/utils/index.js`: For generic utilities like `apx` and `pushpop`.
+  - `drawing-utils.js`: For drawing-specific utilities like `textGetter`, `setShadows`, and `trText`.
+  - `core-generators.js`: For coordinate/text generators (unless strong arguments exist to keep them separate). Currently, keep them separate.
+- Rendering responsibility (`renderLayers` call) should remain in `sketch.js`. Create a consistent rendering pattern across all modes.
+- Move toward immutable parameter passing. If not fully implemented, document which parameters each function modifies.
+- Prioritize visual consistency during refactoring. Unit tests for parameter handling will be created after refactoring is complete.
+- Start with `drawGrid` as a proof of concept, focusing on shared utilities first.
+- Proceed with circle mode next, after the grid mode is extracted. Then proceed with rowcol mode.
 
 ---
 

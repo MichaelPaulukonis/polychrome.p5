@@ -1,6 +1,5 @@
 import UndoLayers from './undo.layers.js'
 import Layers from './layers.js'
-import { fitTextOnCanvas } from './fit.text'
 import {
   allParams,
   fillParams,
@@ -16,6 +15,9 @@ import { datestring, filenamer } from './filelib'
 import { setupActions } from '@/src/gui/actions'
 import { createColorFunctions, createGammaAdjustment, initializeColorMode } from '@/src/color/color-system'
 import { createCanvasTransforms } from '@/src/canvas-transforms'
+import { createDrawingModes } from '@/src/drawing-modes'
+import { apx, pushpop } from '@/src/utils'
+import { trText } from '@/src/drawing-modes/drawing-utils'
 
 const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
@@ -31,6 +33,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   let colorSystem
   let adjustGamma
   let canvasTransforms
+  let drawingModes
   let undo
 
   const fontList = {}
@@ -97,6 +100,14 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       params
     })
 
+    // Initialize drawing modes with dependencies
+    drawingModes = createDrawingModes({
+      layers,
+      colorSystem,
+      hexStringToColors,
+      p5
+    })
+
     const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: pct, params, fillParams: params.fill, outlineParams: params.outline })
     pct.shiftFillColors = shiftFillColors
     pct.shiftOutlineColors = shiftOutlineColors
@@ -123,6 +134,11 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     pct.shift = canvasTransforms.shift
     pct.HORIZONTAL = canvasTransforms.HORIZONTAL
     pct.VERTICAL = canvasTransforms.VERTICAL
+
+    // Assign drawing modes to pct object
+    pct.drawGrid = drawingModes.drawGrid
+    pct.drawCircle = drawingModes.drawCircle
+    pct.drawRowCol = drawingModes.drawRowCol
 
     setupCallback(pct)
     recordConfig(pct.params, pct.appMode === APP_MODES.STANDARD_DRAW)
@@ -264,14 +280,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     layer.remove()
   }
 
-  const apx = (...fns) => list => [...list].map(b => fns.forEach(f => f(b)))
-
-  const pushpop = l => f => () => {
-    l.push()
-    f()
-    l.pop()
-  }
-
   const renderLayers = ({ layers }) => {
     renderTarget({ layers })
   }
@@ -319,166 +327,38 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
 
   const paint = (xPos, yPos, params) => {
     setFont(params.font, layers.drawingLayer)
-    const draw = params.drawMode === 'Grid'
-      ? drawGrid
-      : params.drawMode === 'Circle'
-        ? drawCircle
-        : drawRowCol
-    draw({ xPos, yPos, params, width: params.width, height: params.height, layer: layers.drawingLayer })
-  }
 
-  const textGetter = (textMode, t) => {
-    const tm = textMode.toLowerCase()
-    const tfunc = tm === 'sequential'
-      ? t.getchar
-      : tm === 'random'
-        ? t.getcharRandom
-        : t.getWord
-    return tfunc
-  }
-
-  // originally from http://happycoding.io/examples/processing/for-loops/letters
-  // a reminder of something simpler
-  const drawRowCol = ({ params, width, height, layer }) => {
-    const rows = params.rows
-    const cols = params.columns // tidally lock them together for the time being.
-
-    const cellHeight = height / rows
-    const cellWidth = width / cols
-
-    layer.textAlign(layer.CENTER, layer.CENTER)
-
-    // this kept ending up being almost the same as cellWidth everytime
-    // so I just went with the fudge factor. :::sigh:::
-    // doh! if it's a single thing, we need a word. ugh. not now...
-    // let fontSize = fitTextOnCanvas('.', params.font, cellWidth, layer)
-    // // layer.textSize(cellWidth * 1.5)
-    // layer.textSize(fontSize)
-    const sw = params.useOutline
-      ? params.outline.strokeWeight
-      : 0
-    layer.strokeWeight(sw)
-    layer.strokeJoin(params.outline.strokeJoin)
-    const fetchText = textGetter(params.nextCharMode, textManager)
-
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        let pixelX = cellWidth * x
-        let pixelY = cellHeight * y
-
-        pixelX += cellWidth / 2
-        pixelY += cellHeight / 2
-
-        colorSystem.setFillMode(pixelX, pixelY, params.fill, hexStringToColors)
-        colorSystem.setOutlineMode(pixelX, pixelY, params.outline, hexStringToColors)
-
-        let txt = fetchText()
-        if (cols === 1 && txt.trim() === '') {
-          txt = fetchText() // quick hack to skip spaces on single column mode
-        }
-        const fontSize = fitTextOnCanvas(txt, params.font, cellWidth, layer)
-        layer.textSize(fontSize)
-
-        const cum = trText(layer)(pixelX, pixelY, 0, 0, txt)
-        const norm = pushpop(layer)(trText(layer)(0, 0, pixelX, pixelY, txt))
-        params.cumulativeRotation ? cum() : norm()
-
-        // the whole block is rotated. which is ... interesting....
-        // because of the push/pop
-        // const doit = () => {
-        //   p5.rotate(p5.radians(params.rotation))
-        //   p5.text(fetchText(), pixelX, pixelY)
-        // }
-        // pushpop(p5)(doit)()
-      }
-    }
-    renderLayers({ layers })
-  }
-
-  const maxUnlessLessThan = (val, min) => val < min ? min : val
-
-  const textSizeCircle = (xPos) => {
-    const tx = xPos / 2
-    return maxUnlessLessThan(tx, 1)
-  }
-
-  // NOTE: yPos is only used for color context....
-  const drawCircle = ({ xPos, yPos, params, width, layer, textSize, sizer, center, arcPercent = 100, arcOffset = params.arcOffset || 0 }) => {
-    sizer = sizer || textSizeCircle
-    const ts = textSize || sizer(xPos)
-    layer.textSize(ts)
-
-    layer.push()
-    // separating out translation from layer or width/height
-    // allows for non-center positioning
-    if (center) {
-      layer.translate(center.x, center.y)
+    if (params.drawMode === 'Grid') {
+      drawingModes.drawGrid({
+        xPos,
+        params,
+        width: params.width,
+        height: params.height,
+        layer: layers.drawingLayer,
+        textManager
+      })
+      renderLayers({ layers })
+    } else if (params.drawMode === 'Circle') {
+      drawingModes.drawCircle({
+        xPos,
+        yPos,
+        params,
+        width: params.width,
+        height: params.height,
+        layer: layers.drawingLayer,
+        textManager
+      })
+      renderLayers({ layers })
     } else {
-      layer.translate(layer.width / 2, layer.height / 2) // center of layer
-      // layer.translate(0, 0) //  upper-left - we can change this around
+      // Use modular RowCol painter
+      drawingModes.drawRowCol({
+        params,
+        width: params.width,
+        height: params.height,
+        layer: layers.drawingLayer,
+        textManager
+      })
     }
-
-    const sw = params.useOutline
-      ? params.outline.strokeWeight
-      : 0
-    layer.strokeWeight(sw)
-    layer.strokeJoin(params.outline.strokeJoin)
-
-    colorSystem.setFillMode(xPos, yPos, params.fill, hexStringToColors)
-    colorSystem.setOutlineMode(xPos, yPos, params.outline, hexStringToColors)
-
-    const nextText = textGetter(params.nextCharMode, textManager)
-    circlePainter({ params, layer, xPos, nextText, width, arcOffset, arcPercent })
-    layer.pop()
-    renderLayers({ layers })
-  }
-
-  const circlePainter = ({ params, layer, xPos, nextText, width, arcOffset, arcPercent }) => {
-    const radius = getRadius(params, width, xPos)
-    const paint = bloc => circlePaintAction(layer)(radius, params)(bloc.theta, bloc.text)
-    const blocGen = gimmeCircleGenerator({ radius, nextText, layer, arcOffset, arcPercent })
-    apx(paint)(blocGen)
-  }
-
-  const getRadius = (params, width, xPos) => {
-    const radius = params.invert ? (width / 2) - xPos : xPos
-    return radius < 0.1 ? 0.1 : radius
-  }
-
-  // generator returns { theta, text }
-  // and circlePaintActions intake radius, params, theta, text
-  // so, need to move some things about
-  // const paint = ((step, layer, params) => (bloc) => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, p5, params)
-  const gimmeCircleGenerator = ({ radius, nextText, layer, arcOffset, arcPercent }) => {
-    const circumference = (2 * Math.PI * radius) * (arcPercent / 100)
-    return blocGeneratorCircle({ radius, circumference, arcOffset })(nextText, layer)
-  }
-
-  // generator will return { theta, text }
-  const blocGeneratorCircle = ({ radius, circumference, arcOffset = 0 }) => {
-    return function * (nextText, l) {
-      let arclength = arcOffset
-      while (arclength < circumference + arcOffset) {
-        const t = nextText()
-        const w = l.textWidth(t)
-        arclength += w / 2
-        // Angle in radians is the arclength divided by the radius
-        // Starting on the left side of the circle by adding PI
-        const theta = Math.PI + arclength / radius
-        yield { theta, text: t }
-        arclength += w / 2
-      }
-      return 'done'
-    }
-  }
-
-  const circlePaintAction = (layer = p5) => (radius, params) => (theta, currentchar) => {
-    if (!params.cumulativeRotation) { layer.push() }
-    // Polar to cartesian coordinate conversion
-    layer.translate(radius * layer.cos(theta), radius * layer.sin(theta))
-    layer.rotate(theta + Math.PI / 2 + layer.radians(params.rotation))
-    layer.text(currentchar, 0, 0)
-    if (!params.cumulativeRotation) { layer.pop() }
   }
 
   const defaultGridParm = (xPos, height, width) => {
@@ -616,21 +496,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     return nc
   }
 
-  // translate, rotate, text
-  const trText = (layer, rotation) => (x, y, tx, ty, txt) => () => {
-    // think I'm over-thinking pct. Original version was easier to understand
-    if (tx !== 0 || ty !== 0) {
-      layer.translate(tx, ty)
-    }
-    layer.rotate(layer.radians(rotation))
-    // layer.push()
-    // let mx = p5.map(tx, 0, p5.width, 0, 5)
-    // let my = p5.map(ty, 0, p5.height, 0, 5)
-    // layer.scale(mx, my)
-    layer.text(txt, x, y)
-    // layer.pop()
-  }
-
   // hrm. still seems like this could be simpler
   const paintActions = (gridX, gridY, step, layer, params, txt) => {
     const cum = trText(layer, params.rotation)(gridX, gridY, 0, 0, txt)
@@ -723,6 +588,9 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
 
       img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
       if (!params.hardEdge) {
+        // literally this is using a mask image
+        // which is an interesting idea but the code here is broken
+        // and the option name and GUI display are not intuitive
         const mask2 = layers.p5.createImage(img.width, img.height)
         mask2.copy(imgMask, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
         img2.mask(mask2) // TODO: need to modify by size, as well
@@ -764,9 +632,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   // this smells, but is a start of separation
   pct.apx = apx
   pct.clearCanvas = clearCanvas
-  pct.drawCircle = drawCircle
-  pct.drawGrid = drawGrid
-  pct.drawRowCol = drawRowCol
   pct.guiControl = guiControl
   pct.layers = layers
   pct.nextDrawMode = nextDrawMode
