@@ -1,6 +1,6 @@
 {
   "name": "polychrome.p5",
-  "version": "1.0.65",
+  "version": "1.0.66",
   "description": "A colorful text painter",
   "main_orig": "index.html/sketch.js",
   "main": "src/index.js",
@@ -27,8 +27,7 @@
     "*.{js,vue}": "standard"
   },
   "husky": {
-    "hooks": {
-    }
+    "hooks": {}
   },
   "repository": {
     "type": "git",
