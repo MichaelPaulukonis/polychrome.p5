@@ -59,8 +59,13 @@ export function createCanvasTransforms ({
     const newLayer = mirrorCore(cfg.axis, tmp, layers)
     cfg.layer.image(newLayer, 0, 0)
     renderLayers({ layers })
-    newLayer.remove()
-    tmp.remove()
+    // Add defensive null check before removing - fix for parentNode error
+    if (newLayer && newLayer.canvas && newLayer.canvas.parentNode) {
+      newLayer.remove()
+    }
+    if (tmp && tmp.canvas && tmp.canvas.parentNode) {
+      tmp.remove()
+    }
     globals.updatedCanvas = true
   }
 

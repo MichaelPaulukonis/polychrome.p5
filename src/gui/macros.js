@@ -19,7 +19,7 @@ export default function Macros (pchrome) {
   }
 
   const gridHere = macroWrapper(function gridHere ({ params, layer }) {
-    drawGrid({ xPos: 20, params, width: layer.width, height: layer.height, layer })
+    drawGrid({ xPos: 20, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
   })
 
   const inset = macroWrapper(function inset ({ params, layer }) {
@@ -27,20 +27,20 @@ export default function Macros (pchrome) {
     const hOffset = layer.height / 2
     layer.translate(wOffset / 2, hOffset / 2)
     // drawGrid({ xPos: 20, params, width: layer.width - wOffset * 2, height: layer.height - hOffset * 2, layer })
-    drawGrid({ xPos: 20, params, width: wOffset, height: hOffset, layer })
+    drawGrid({ xPos: 20, params, width: wOffset, height: hOffset, layer, textManager: pchrome.textManager })
   })
 
   const fiveCircles = macroWrapper(function fiveCircles ({ params, layer }) {
-    drawCircle({ xPos: 80, yPos: 90, params, width: layer.width, height: layer.height, layer })
-    drawCircle({ xPos: 50, yPos: 50, params, width: layer.width, height: layer.height, layer })
-    drawCircle({ xPos: 40, yPos: 40, params, width: layer.width, height: layer.height, layer })
-    drawCircle({ xPos: 30, yPos: 30, params, width: layer.width, height: layer.height, layer })
-    drawCircle({ xPos: 100, yPos: 100, params, width: layer.width, height: layer.height, layer })
+    drawCircle({ xPos: 80, yPos: 90, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
+    drawCircle({ xPos: 50, yPos: 50, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
+    drawCircle({ xPos: 40, yPos: 40, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
+    drawCircle({ xPos: 30, yPos: 30, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
+    drawCircle({ xPos: 100, yPos: 100, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
   })
 
   const manyCircles = macroWrapper(function manyCircles ({ params, layer }) {
     for (let i = 1; i < layer.width; i += 10) {
-      drawCircle({ xPos: i, yPos: i, params, width: layer.width, height: layer.height, layer })
+      drawCircle({ xPos: i, yPos: i, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
     }
   })
 
@@ -50,17 +50,17 @@ export default function Macros (pchrome) {
     params.invert = true
     for (let i = layer.width; i > layer.width / 2; i -= 80) {
       if (i < ((layer.width / 3) * 2)) { params.rotation = 90 }
-      drawGrid({ xPos: i, params, width: layer.width, height: layer.height, layer })
+      drawGrid({ xPos: i, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
     }
   })
 
   const macro5 = macroWrapper(function macro5 ({ params, layer }) {
-    drawGrid({ xPos: 4, params, width: layer.width, height: layer.height, layer })
+    drawGrid({ xPos: 4, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
   })
 
   const macro6 = macroWrapper(function macro6 ({ params, layer }) {
     for (let i = 1; i < layer.width; i += 5) {
-      drawGrid({ xPos: i, params, width: layer.width, height: layer.height, layer })
+      drawGrid({ xPos: i, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
     }
   })
 
@@ -74,7 +74,7 @@ export default function Macros (pchrome) {
     const x = p5.mouseX
     layer.translate(0, 0)
     layer.resetMatrix()
-    drawGrid({ xPos: x, params, width: layer.width, height: layer.height, layer })
+    drawGrid({ xPos: x, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
   })
 
   const macro8 = macroWrapper(function macro8 ({ params }) {
@@ -87,7 +87,7 @@ export default function Macros (pchrome) {
     const x = p5.mouseX
     const y = p5.mouseY
     layer.translate(x, y)
-    drawGrid({ xPos: x, params, width, height, layer })
+    drawGrid({ xPos: x, params, width, height, layer, textManager: pchrome.textManager })
   })
 
   // works GREAT with cumulativeRotation
@@ -173,7 +173,7 @@ export default function Macros (pchrome) {
       // STILL: pollution
       // const dg = stats => gridFunc(stats.x, stats.y, { ...params, ...stats }, width, height, layer)
 
-      const dg = stats => gridFunc({ xPos: stats.x, params: { ...params, ...stats }, width, height, layer })
+      const dg = stats => gridFunc({ xPos: stats.x, params: { ...params, ...stats }, width, height, layer, textManager: pchrome.textManager })
       // drawGrid({ xPos: 20, params, width: layer.width / 2, height: layer.height / 2, layer })
 
       // const dg = (stats) => drawCircle(width - stats.x, height - stats.y, { ...params, ...stats }, width, height, layer)
@@ -193,7 +193,7 @@ export default function Macros (pchrome) {
     // NOTE: params are set correctly. But the layer hasn't had it set (makes no sense)
     // TODO: fittext needs to be implemented - there's nothing in rowcol for words
     // which can be ugly, but.. .well, you know, so what!
-    drawRowCol({ params, width: layer.width, height: layer.height, layer })
+    drawRowCol({ params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
   })
 
   const doubleMirror = macroWrapper(function doubleMirror ({ p5 }) {
@@ -222,7 +222,7 @@ export default function Macros (pchrome) {
     params.nextCharMode = 'Sequential'
     // TODO: fittext needs to be implemented - there's nothing in rowcol for words
     // which can be ugly, but.. .well, you know, so what!
-    drawRowCol({ params, width: layer.width, height: layer.height, layer })
+    drawRowCol({ params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
   })
 
   // NOTE: the first parameter is the X-position
@@ -232,7 +232,7 @@ export default function Macros (pchrome) {
     let exp = 1
     for (let radius = 0; radius < layer.width / 2; radius += 10 * exp) {
       exp = exp * 1.2
-      drawCircle({ xPos: radius, yPos: radius, params, width: layer.width, height: layer.height, layer })
+      drawCircle({ xPos: radius, yPos: radius, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
     }
   })
 
@@ -242,7 +242,7 @@ export default function Macros (pchrome) {
     let exp = 1
     for (let radius = 0; radius < maxRadius; radius += 20 * exp) {
       exp = exp * 1.1
-      drawCircle({ xPos: radius, yPos: radius, params, width: maxRadius, height: layer.height, layer })
+      drawCircle({ xPos: radius, yPos: radius, params, width: maxRadius, height: layer.height, layer, textManager: pchrome.textManager })
     }
   })
 
@@ -253,7 +253,7 @@ export default function Macros (pchrome) {
       exp = exp * 1.2
       if (p5.random() > 0.5) {
         const yPos = layer.width - (radius * 2) || 1 // for color
-        drawCircle({ xPos: radius, yPos, params, width: layer.width, height: layer.height, layer })
+        drawCircle({ xPos: radius, yPos, params, width: layer.width, height: layer.height, layer, textManager: pchrome.textManager })
       }
     }
   })
@@ -270,7 +270,7 @@ export default function Macros (pchrome) {
     for (let radius = 0; radius < layer.width; radius += textSize) {
       if (p5.random() > 0.5) {
         const yPos = layer.width - (radius * 2) || 1 // for color
-        drawCircle({ xPos: radius, yPos, params, width: maxRadius, height: maxRadius, layer, textSize, arcOffset, arcPercent })
+        drawCircle({ xPos: radius, yPos, params, width: maxRadius, height: maxRadius, layer, textSize, arcOffset, arcPercent, textManager: pchrome.textManager })
         // arcOffset += 20
       }
     }
@@ -287,7 +287,7 @@ export default function Macros (pchrome) {
     for (let radius = 0; radius < layer.width; radius += textSize) {
       if (p5.random() > 0.5) {
         const yPos = layer.width - (radius * 2) || 1 // for color
-        drawCircle({ xPos: radius, yPos, params, width: maxRadius, height: maxRadius, layer, textSize, arcOffset, arcPercent })
+        drawCircle({ xPos: radius, yPos, params, width: maxRadius, height: maxRadius, layer, textSize, arcOffset, arcPercent, textManager: pchrome.textManager })
         arcOffset += 20
       }
     }
@@ -303,7 +303,7 @@ export default function Macros (pchrome) {
     for (let radius = 0; radius < maxRadius; radius += textSize) {
       if (p5.random() > 0.5) {
         const yPos = layer.width - (radius * 2) || 1 // for color
-        drawCircle({ xPos: radius, yPos, params, width: maxRadius * 2, height: maxRadius * 2, layer, textSize, center })
+        drawCircle({ xPos: radius, yPos, params, width: maxRadius * 2, height: maxRadius * 2, layer, textSize, center, textManager: pchrome.textManager })
       }
     }
   })
@@ -313,7 +313,7 @@ export default function Macros (pchrome) {
   const someCircles = macroWrapper(function someCircles ({ params, layer, p5 }) {
     p5.push()
     // layer.translate(layer.width / 3, 0)
-    drawCircle({ xPos: 850, yPos: 50, params, width: layer.width * 2, height: layer.height * 2, layer, textSize: 15 })
+    drawCircle({ xPos: 850, yPos: 50, params, width: layer.width * 2, height: layer.height * 2, layer, textSize: 15, textManager: pchrome.textManager })
     p5.pop()
   })
 

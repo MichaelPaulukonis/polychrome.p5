@@ -403,106 +403,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     layer.drawingContext.shadowColor = params.shadowColor
   }
 
-  // alternatively http://happycoding.io/examples/processing/for-loops/letters
-  // cleaner?
-  const drawGrid = ({ xPos, params, width, height, layer }) => {
-    xPos = xPos < 5 ? 5 : xPos // prevent negatives and too-too tiny letters
-
-    setShadows(layer, params)
-
-    layer.push()
-    layer.translate(params.inset, params.inset)
-    width = width - (params.inset * 2)
-    height = height - (params.inset * 2)
-
-    // THIS SHOULD ALL BE DEFAULT STUFF DONE COMONLY
-    const gridParams = params.invert ? invertGridParm(xPos, height, width) : defaultGridParm(xPos, height, width)
-    layer.textSize(gridParams.step)
-    // layer.textSize(18)
-    layers.p5.textSize(gridParams.step) // this is .... weird. Look at the p5js code. Something funky with textAscent going to the parent, which is set to 12
-
-    const sw = params.useOutline
-      ? params.outline.strokeWeight
-        ? params.outline.strokeWeight
-        : (gridParams.step / 5)
-      : 0
-    layer.strokeWeight(sw / 4)
-    layer.strokeJoin(params.outline.strokeJoin)
-
-    // TODO: there is something fundamentally different from the "original" implementation
-    // unless original ONLY had fixed-width? (May be the case!)
-    if (params.fixedWidth) {
-      layer.textAlign(layer.CENTER, layer.CENTER)
-    } else {
-      layer.textAlign(layer.LEFT, layer.BOTTOM)
-    }
-
-    const nextText = textGetter(params.nextCharMode, textManager)
-    const fill = bloc => colorSystem.setFillMode(bloc.x, bloc.y, params.fill, hexStringToColors)
-    const outline = params.useOutline ? bloc => colorSystem.setOutlineMode(bloc.x, bloc.y, params.outline, hexStringToColors) : () => { }
-    const step = (params.fixedWidth) ? gridParams.step : 0
-    const paint = ((step, layer, params) => bloc => paintActions(bloc.x, bloc.y, step, layer, params, bloc.text))(step, layer, params)
-    const yOffset = getYoffset(layer.textAscent(), 0) // only used for TextWidth
-    // TODO: also the alignments above. ugh
-    const blocGen = (params.fixedWidth)
-      ? blocGeneratorFixedWidth(gridParams, nextText)
-      : blocGeneratorTextWidth(nextText, { width, height }, yOffset, layer) // whonly needs to be reworked
-    apx(fill, outline, paint)(blocGen)
-    renderLayers({ layers })
-    layer.pop()
-  }
-
-  const blocGeneratorFixedWidth = function * (gridParams, nextText) {
-    for (let gridY = gridParams.initY; gridParams.condy(gridY); gridY = gridParams.changey(gridY)) {
-      for (let gridX = gridParams.initX; gridParams.condx(gridX); gridX = gridParams.changex(gridX)) {
-        const t = nextText()
-        yield { x: gridX, y: gridY, text: t }
-      }
-    }
-    return 'done'
-  }
-
-  const blocGeneratorTextWidth = function * (nextText, gridSize, yOffset, layer) {
-    let t = nextText()
-    let coords = { x: 0, y: yOffset }
-    const offsets = { x: 0, y: yOffset }
-    while (hasNextCoord(coords, gridSize, yOffset)) {
-      yield { x: coords.x, y: coords.y, text: t }
-      offsets.x = layer.textWidth(t)
-      coords = nextCoord(coords, offsets, gridSize.width)
-      t = nextText()
-      if (t === ' ' && coords.x === 0) { t = nextText() }
-    }
-    return 'done'
-  }
-
-  const getYoffset = (textAscent, heightOffset) => {
-    let yOffset = textAscent + heightOffset
-    yOffset = (yOffset > 2) ? yOffset : 3
-    return yOffset
-  }
-
-  const hasNextCoord = (coords, gridSize, yOffset) => {
-    return coords.x < gridSize.width && (coords.y - yOffset) < gridSize.height
-  }
-
-  const nextCoord = (coords, offsets, gridWidth) => {
-    const nc = { ...coords }
-    nc.x = nc.x + offsets.x
-    if (nc.x + (0.25 * offsets.x) > gridWidth) {
-      nc.x = 0
-      nc.y = nc.y + offsets.y
-    }
-    return nc
-  }
-
-  // hrm. still seems like this could be simpler
-  const paintActions = (gridX, gridY, step, layer, params, txt) => {
-    const cum = trText(layer, params.rotation)(gridX, gridY, 0, 0, txt)
-    const norm = pushpop(layer)(trText(layer, params.rotation)(0, 0, gridX + step / 4, gridY + step / 5, txt))
-    params.cumulativeRotation ? cum() : norm()
-  }
-
   // TODO: hah this will not work
   const nextDrawMode = (direction, params) => {
     let drawMode = params.drawMode
@@ -537,21 +437,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
       return nbr.length >= width ? nbr : new Array(width - nbr.length + 1).join(fill) + nbr
     }
     p5.saveCanvas(`${params.name}.${getDateFormatted()}.png`)
-  }
-
-  // not used, and params not defined
-  // .... these are from that other project ???
-  pct.saveAnimationFrames = () => {
-    if (params.capturing) {
-      params.captureOverride = false
-      p5.frameRate(params.p5frameRate)
-    } else {
-      namer = filenamer('polychrometext.' + datestring())
-      params.captureCount = 0
-      params.captureOverride = true
-      p5.frameRate(params.captureFrameRate)
-    }
-    params.capturing = !params.capturing
   }
 
   const coinflip = () => pct.p5.random() > 0.5
@@ -656,6 +541,7 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   pct.globals = globals
   pct.skewCollection = []
   pct.savit = savit
+  pct.textManager = textManager
 
   return pct
 }

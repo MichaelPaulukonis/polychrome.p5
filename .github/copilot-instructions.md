@@ -107,7 +107,7 @@ globs: *
 
 - Create a concise overview `.md` file for each major module.
 - Optimize the overview to provide context for AI-assisted development rather than human readers.
-- Place into  '../notes/src/' in a folder structure that parallels the module.
+- Place into  '../notes/src/' in a folder structure that parallels the module structure.
 - Create documentation structure that parallels the module structure.
 
 # Dependencies
@@ -127,6 +127,7 @@ globs: *
 - Prioritize visual consistency during refactoring. Unit tests for parameter handling will be created after refactoring is complete.
 - Start with `drawGrid` as a proof of concept, focusing on shared utilities first.
 - Proceed with circle mode next, after the grid mode is extracted. Then proceed with rowcol mode.
+
 
 ---
 
