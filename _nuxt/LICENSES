@@ -1,16 +1,16 @@
 /*!
+ * Vue.js v2.7.16
+ * (c) 2014-2023 Evan You
+ * Released under the MIT License.
+ */
+
+
+/*!
  * Find the differences between two objects and push to a new object
  * (c) 2019 Chris Ferdinandi & Jascha Brinkmann, MIT License, https://gomakethings.com & https://twitter.com/jaschaio
  * @param  {Object} obj1 The original object
  * @param  {Object} obj2 The object to compare against it
  * @return {Object}      An object of differences between the two
- */
-
-
-/*!
- * Vue.js v2.7.16
- * (c) 2014-2023 Evan You
- * Released under the MIT License.
  */
 
 
