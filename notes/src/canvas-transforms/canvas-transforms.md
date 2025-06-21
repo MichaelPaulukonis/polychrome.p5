@@ -167,7 +167,7 @@ Pure function that creates a mirrored half-image.
 - Uses `flipCore` to create flipped version
 - Copies appropriate half of flipped image back to source
 - Handles both horizontal and vertical mirroring
-- Cleans up temporary graphics objects
+- Cleans up temporary graphics objects with defensive null checks
 
 ## Integration with Application Systems
 
@@ -229,8 +229,9 @@ const flipped = flipCore(VERTICAL, sourceGraphics, mockLayers)
 
 ### Memory Management
 - Transform functions clean up temporary graphics objects
-- Uses `remove()` method to prevent memory leaks
+- Uses `remove()` method to prevent memory leaks with defensive null checks
 - Efficient copying and cloning strategies
+- Prevents graphics removal errors during canvas operations
 
 ### ImageData Operations
 - Shift function uses ImageData API for pixel-level operations
@@ -258,6 +259,7 @@ const flipped = flipCore(VERTICAL, sourceGraphics, mockLayers)
 - Rotation operations require current canvas dimensions
 - Some transforms may not work correctly with empty or very small canvases
 - Pixel-level operations may be slow on very large canvases
+- **Graphics Cleanup:** Improved error handling prevents crashes during temporary graphics removal
 
 ## Future Enhancements
 
@@ -284,4 +286,8 @@ This module was extracted from `sketch.js` as part of the codebase modularizatio
 - **Consistent API:** Standardized parameter patterns and return values
 - **Enhanced Documentation:** Comprehensive function documentation and usage examples
 
-The refactor maintains complete backward compatibility while improving maintainability and testability.
+The refactor maintains complete backward compatibility while improving maintainability and testability. Recent improvements include:
+
+- **Error Handling:** Added defensive null checks for graphics object removal
+- **Memory Safety:** Prevents crashes when cleaning up temporary graphics objects
+- **Autopaint Compatibility:** Enhanced stability during automated canvas operations

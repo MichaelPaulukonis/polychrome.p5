@@ -361,32 +361,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     }
   }
 
-  const defaultGridParm = (xPos, height, width) => {
-    const step = xPos + 5
-    return {
-      step,
-      condy: y => y < height,
-      condx: x => x < width,
-      changey: y => y + step,
-      changex: x => x + step,
-      initY: 0,
-      initX: 0
-    }
-  }
-
-  const invertGridParm = (xPos, height, width) => {
-    const step = width - xPos + 5
-    return {
-      step,
-      condy: y => y > 0,
-      condx: x => x > 0,
-      changey: y => y - step,
-      changex: x => x - step,
-      initY: height,
-      initX: width
-    }
-  }
-
   const shadowDefault = {
     shadowOffsetX: 0,
     shadowOffsetY: 0,
