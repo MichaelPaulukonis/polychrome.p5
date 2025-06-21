@@ -83,3 +83,36 @@ The refactor maintains complete backward compatibility while improving maintaina
 
 ---
 
+_**User**_
+
+I've made a couple more changes - removing unused code from src/canvas-transforms/index.js and src/sketch.js
+
+Please create a commit message reflecting all of these changes
+
+---
+
+_**Assistant**_
+
+Based on the changes you've described, here's a commit message following the Conventional Commits format:
+
+```
+refactor: clean up canvas-transforms module and sketch.js unused code
+
+- Remove unused code exports from src/canvas-transforms/index.js
+- Clean up unused canvas transform references in src/sketch.js
+- Streamline module interface after successful extraction and integration
+- Maintain clean separation of concerns between modules
+- Remove technical debt from modularization process
+
+This cleanup follows the successful extraction of canvas transforms into a dedicated module with factory pattern and dependency injection.
+```
+
+This commit message:
+- Uses the `refactor:` type since you're cleaning up code structure
+- Describes the main changes (removing unused code from both files)
+- Explains the context (cleanup after successful module extraction)
+- Notes the benefit (streamlined interface, reduced technical debt)
+- References the broader modularization effort
+
+---
+

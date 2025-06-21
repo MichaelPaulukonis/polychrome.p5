@@ -17,7 +17,6 @@ import { createColorFunctions, createGammaAdjustment, initializeColorMode } from
 import { createCanvasTransforms } from '@/src/canvas-transforms'
 import { createDrawingModes } from '@/src/drawing-modes'
 import { apx, pushpop } from '@/src/utils'
-import { trText } from '@/src/drawing-modes/drawing-utils'
 
 const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
