@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { playback } from '@/src/playback'
+import { playback } from '@/src/scripting/playback'
 // import recording from '@/assets/scripts/rotate.circle.js'
 import recording from '@/assets/scripts/repeat.js'
 

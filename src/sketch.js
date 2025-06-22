@@ -9,7 +9,7 @@ import {
 } from '@/src/params.js'
 import { hexStringToColors } from '@/src/gui/gui.color.control'
 import { setupGui } from '@/src/gui/gui'
-import { recordAction, recordConfig, output, clear as clearRecording } from '@/src/record'
+import { recordAction, recordConfig, output, clear as clearRecording } from '@/src/scripting/record'
 import saveAs from 'file-saver'
 import { datestring, filenamer } from './filelib'
 import { setupActions } from '@/src/gui/actions'

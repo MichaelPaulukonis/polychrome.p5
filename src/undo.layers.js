@@ -2,23 +2,65 @@
 
 export default class UndoLayers {
   constructor (layers, renderFunc, levels) {
-    // Number of currently available undo and redo snapshots
-    let undoSteps = 0
-    let redoSteps = 0
-    const images = new CircImgCollection(layers, renderFunc, levels)
+    // Simplified state tracking
+    let currentPosition = -1        // Current position in history (-1 = no history)
+    let newestPosition = -1         // Newest stored position
+    let availableStates = 0         // Number of states actually stored
+    const maxStates = levels        // Maximum buffer size
+    const images = new CircImgCollection(layers, maxStates)
     let temp
-    // const density = layers.drawingLayer.pixelDensity()
+
+    // State validation helper
+    const validateState = () => {
+      if (currentPosition < -1 || currentPosition >= maxStates) {
+        console.warn('Invalid currentPosition:', currentPosition)
+      }
+      if (newestPosition < -1 || newestPosition >= maxStates) {
+        console.warn('Invalid newestPosition:', newestPosition)
+      }
+      if (availableStates < 0 || availableStates > maxStates) {
+        console.warn('Invalid availableStates:', availableStates)
+      }
+    }
+
+    // Helper to get oldest position when buffer is full
+    const getOldestPosition = () => {
+      if (availableStates < maxStates) return 0
+      return (newestPosition + 1) % maxStates
+    }
+
+    // Clear helper functions for undo/redo logic
+    const canUndo = () => {
+      if (availableStates <= 1) return false // Need at least 2 states to undo
+
+      if (availableStates < maxStates) {
+        // Buffer not full - can undo if not at first position
+        return currentPosition > 0
+      } else {
+        // Buffer full - can undo if not at oldest position
+        return currentPosition !== getOldestPosition()
+      }
+    }
+
+    const canRedo = () => {
+      return availableStates > 0 && currentPosition !== newestPosition
+    }
 
     this.takeSnapshot = () => {
-      undoSteps = Math.min(undoSteps + 1, levels - 1)
-      // each time we draw we disable redo
-      redoSteps = 0
-      images.store(layers.copy())
-      images.next()
+      // Move to next position and store
+      const nextPosition = (newestPosition + 1) % maxStates
+      images.store(layers.copy(), nextPosition)
+
+      // Update state tracking
+      newestPosition = nextPosition
+      availableStates = Math.min(availableStates + 1, maxStates)
+      currentPosition = newestPosition
+
+      validateState()
     }
 
     this.storeTemp = () => {
-      temp = layers.copy() // Fixed: was this.layers.copy()
+      temp = layers.copy()
       return temp
     }
 
@@ -27,58 +69,114 @@ export default class UndoLayers {
     }
 
     this.undo = () => {
-      if (undoSteps > 0) {
-        undoSteps--
-        redoSteps++
-        images.prev()
-        images.show()
+      if (!canUndo()) return
+
+      if (currentPosition === newestPosition) {
+        // First undo - go to previous state
+        if (availableStates < maxStates) {
+          // Buffer not full - go to previous position
+          currentPosition = availableStates - 2 // Go to previous state
+        } else {
+          // Buffer full - go to previous position in circular buffer
+          currentPosition = (newestPosition - 1 + maxStates) % maxStates
+        }
+      } else {
+        // Subsequent undos - move backward
+        if (availableStates < maxStates) {
+          // Buffer not full - simple decrement
+          currentPosition--
+        } else {
+          // Buffer full - circular navigation backward
+          currentPosition = (currentPosition - 1 + maxStates) % maxStates
+        }
       }
+
+      this.show()
+      validateState()
     }
+
     this.redo = () => {
-      if (redoSteps > 0) {
-        undoSteps++
-        redoSteps--
-        images.next()
-        images.show()
-      }
-    }
-    this.history = () => images.all().slice(0, undoSteps)
-  }
-}
+      if (!canRedo()) return
 
-class CircImgCollection {
-  constructor (layers, renderFunc, amountOfImages) {
-    let current = 0
-    const imgs = []
-    const amount = amountOfImages
+      // Move forward one position
+      currentPosition = (currentPosition + 1) % maxStates
 
-    this.all = () => imgs
+      this.show()
+      validateState()
+    }
 
-    this.next = () => {
-      const nextIndex = (current + 1) % amount
-      // Use layers.dispose() for proper cleanup
-      if (imgs[nextIndex]) {
-        layers.dispose(imgs[nextIndex])
-      }
-      current = nextIndex
-    }
-    this.prev = () => {
-      current = (current - 1 + amount) % amount
-    }
-    this.store = (layer) => {
-      imgs[current] = layer
-    }
+    // Separated rendering concern - now handled in UndoLayers
     this.show = () => {
-      // TODO: if w/h does NOT match current, then should rotate canvas
-      // ouch. this is a heavy undo layer
-      // maybe just store images - leave the rendering and rotating to something in the sketch
+      if (currentPosition === -1 || !images.hasImage(currentPosition)) {
+        console.warn('No image available at position:', currentPosition)
+        return
+      }
 
+      const image = images.getImage(currentPosition)
+      if (!image) {
+        console.warn('Image is null at position:', currentPosition)
+        return
+      }
+
+      // Handle rendering with proper graphics state management
       layers.drawingLayer.push()
       layers.drawingLayer.translate(0, 0)
       layers.drawingLayer.resetMatrix()
-      layers.drawingLayer.image(imgs[current], 0, 0)
+      layers.drawingLayer.image(image, 0, 0)
       renderFunc({ layers })
       layers.drawingLayer.pop()
     }
+
+    this.history = () => {
+      const result = []
+      for (let i = 0; i < availableStates; i++) {
+        const pos = (newestPosition - i + maxStates) % maxStates
+        const image = images.getImage(pos)
+        if (image) {
+          result.push(image)
+        }
+      }
+      return result
+    }
+
+    // Debug helpers
+    this._getState = () => ({
+      currentPosition,
+      newestPosition,
+      availableStates,
+      maxStates,
+      oldestPosition: getOldestPosition(),
+      canUndo: canUndo(),
+      canRedo: canRedo()
+    })
+  }
+}
+
+// Simplified CircImgCollection - pure storage/retrieval
+class CircImgCollection {
+  constructor (layers, amountOfImages) {
+    const imgs = new Array(amountOfImages).fill(null)
+    const amount = amountOfImages
+
+    this.store = (layer, position) => {
+      // Clean up existing image at position
+      if (imgs[position]) {
+        layers.dispose(imgs[position])
+      }
+      imgs[position] = layer
+    }
+
+    this.hasImage = (position) => {
+      return position >= 0 && position < amount && imgs[position] !== null
+    }
+
+    this.getImage = (position) => {
+      if (position >= 0 && position < amount) {
+        return imgs[position]
+      }
+      return null
+    }
+
+    this.all = () => imgs
   }
 }

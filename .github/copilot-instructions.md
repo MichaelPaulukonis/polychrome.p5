@@ -13,16 +13,28 @@ globs: *
 
 # Documentation
 
-- For project architecture and features, reference: `../notes/master.md`
-- Module documentation should be placed into  '../notes/src/' in a folder structure that parallels the module. These should be concise overviews to provide context for AI-assisted development rather than human readers.
-- Refactor plans should be placed into `notes/plans/`. For example: `notes/plans/drawing-modes-refactor.md`
+- **Project Architecture and Features:**  
+  Reference `../notes/master.md`.
+- **Module Documentation:**  
+  Place concise, context-focused overviews for AI-assisted development in `../notes/src/`, mirroring the module folder structure.
+- **Plans and Refactor Documentation:**  
+  Save all refactor plans, implementation outlines, and significant design changes in `notes/plans/` (e.g., `notes/plans/drawing-modes-refactor.md`).  
+  - When a plan changes during implementation, append the reasons and changes to the same markdown file; do not erase the original plan.
 
 # Copilot Guidance
 
-- Do not assume missing context. If unsure, ask the user for specifics.
-- Always state the target file for any code response.
-- Write modular, reusable code—split logic into components and modules.
-- All code must be fully optimized: maximize algorithmic efficiency (runtime and memory), follow project style conventions, and avoid unnecessary code (no technical debt).
+- **Never assume missing context or make guesses. If any part of the request is unclear or ambiguous, ask the user for clarification before proceeding.**
+- **Always specify the target file or files for any code or modification suggestions.**
+- **Write modular, reusable code.** Split logic into distinct functions, classes, or modules as appropriate.
+- **All code must be fully optimized:**  
+  - Maximize algorithmic efficiency (runtime and memory).  
+  - Follow project style conventions.  
+  - Avoid unnecessary code and technical debt.
+- **Do not agree with me by default.** Your role is to assist by providing the best technical guidance, even if it means constructively challenging my assumptions or requests.
+- **When generating code, first outline your plan in pseudocode or comments, then provide the code.**  
+  - Save these plans and any refactor documentation according to the Documentation section above.
+- **Keep responses concise and focused.** Use Markdown formatting for clarity.
+- **Never generate or suggest code that violates copyright or project policies.**
 
 # Technology Preferences
 
@@ -31,12 +43,14 @@ globs: *
 - Follow **Nuxt 2** patterns (until v3 upgrade).
 - Use **Conventional Commits** for commit messages.
 - Use Node.js v22 LTS for best compatibility.
+  - Current date: Sunday, June 22, 2025, 12:45 PM EDT
 
 # Code Style
 
 - Use TypeScript for all new/updated files.
 - Use p5.js idioms: instance mode, `setup()`/`draw()` lifecycle, event handlers (`mousePressed`, `keyPressed`), `createGraphics()` for multiple canvases, HSB color mode.
 - Prefer pure functions and immutable data.
+  - use the Ramda library where appropriate
 - Use `~/` for project root imports.
 - Type all function parameters and return values.
 - camelCase for variables/functions, PascalCase for classes/components.
