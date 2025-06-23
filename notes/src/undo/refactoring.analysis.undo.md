@@ -141,6 +141,7 @@ class HybridUndoSystem {
 3. **Add Branching Support**
    - Allow multiple redo paths when user makes new changes after undo
    - Store undo tree instead of linear history
+   - interesting idea. I don't really need this, but it might be an interesting feature to implement
 
 ### Long-term Architectural Changes
 
@@ -152,6 +153,7 @@ class HybridUndoSystem {
 2. **Add Persistence Layer**
    - Save undo history to IndexedDB for session recovery
    - Enable cross-session undo capability
+   - hah-hah no
 
 ## Risk Assessment
 
