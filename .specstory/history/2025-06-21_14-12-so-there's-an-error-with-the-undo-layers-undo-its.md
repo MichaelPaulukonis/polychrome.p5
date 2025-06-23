@@ -3513,3 +3513,913 @@ This commit message:
 
 ---
 
+_**User**_
+
+Thanks! I made a WIP git commit without a good commit mesage. I would like to remove/overwrite that commit with this commit. That is, I want these changes, and the most recently-committed changes to be in one single commit. I'm thinking this involves a squash or a rebase, but I'm unclear on the git process, here. Please advise.
+
+---
+
+_**Assistant**_
+
+You're right that this involves either a squash or rebase. Since you want to combine your most recent commit with these new changes into a single commit, here are the best approaches:
+
+## Option 1: Reset and Re-commit (Simplest)
+
+If you haven't pushed the WIP commit to a remote repository yet, this is the cleanest approach:
+
+```bash
+# Reset to before the WIP commit but keep all changes staged
+git reset --soft HEAD~1
+
+# Add your new changes
+git add .
+
+# Make a single commit with both sets of changes
+git commit -m "refactor: improve undo system reliability and maintainability
+
+- Simplify state management with clear position tracking (currentPosition, newestPosition, availableStates)
+- Replace complex counter logic with intuitive helper functions (canUndo, canRedo, getOldestPosition)
+- Separate rendering concerns by moving show() logic from CircImgCollection to UndoLayers
+- Add comprehensive state validation with console warnings for debugging
+- Fix circular buffer edge cases that caused intermittent redo failures
+- Enhance test coverage for buffer wraparound scenarios and rapid undo/redo sequences
+- Add debug helper _getState() for development troubleshooting
+- Document refactor process and architectural analysis in notes/plans/undo-refactor.md
+
+This resolves intermittent redo failures reported in space key and DEL operations while maintaining
+backward compatibility and improving code maintainability for future enhancements."
+```
+
+## Option 2: Interactive Rebase (More Advanced)
+
+If you want to practice with rebase or have multiple commits to squash:
+
+```bash
+# Interactive rebase for the last 2 commits
+git rebase -i HEAD~2
+
+# In the editor that opens, change the second line from "pick" to "squash" (or "s")
+# Save and close, then edit the commit message in the next editor
+```
+
+## Option 3: Amend (If No New Files)
+
+If your new changes are just modifications to existing files:
+
+```bash
+# Stage your new changes
+git add .
+
+# Amend the previous commit
+git commit --amend -m "your new commit message here"
+```
+
+## Recommendation
+
+I recommend **Option 1** (reset and re-commit) because:
+- It's the simplest and clearest
+- It completely replaces the WIP commit with a proper commit message
+- It's safe and easy to understand
+- It works regardless of what files were changed
+
+**Important Note**: Only do this if you haven't pushed the WIP commit to a shared repository. If you've already pushed, you'd need to force push (`git push --force`), which can be problematic for shared repositories.
+
+Would you like me to walk through any of these options in more detail?
+
+---
+
+_**User**_
+
+Based on the refactorings done above, do we need to make changes to the undo.md overview?
+
+---
+
+_**Assistant**_
+
+Yes, the undo.md overview needs significant updates to reflect the refactoring changes. The current documentation describes the old implementation with complex state tracking that we've simplified.
+
+### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/src/undo/undo.md)
+
+Update the documentation to reflect the refactored implementation with simplified state management and separated concerns.
+
+````markdown
+# Undo System Module
+
+## Architecture Overview
+
+**Location**: `src/undo.layers.js`  
+**Purpose**: Canvas state history management with circular buffer implementation  
+**Pattern**: Class-based with private closure variables and simplified position tracking
+
+## Core Components
+
+### UndoLayers Class
+Main interface for undo/redo operations with configurable history depth.
+
+**Constructor Parameters:**
+- `layers` - Layer management object with `copy()` and `dispose()` methods
+- `renderFunc` - Function to render layers to canvas (typically `renderLayers`)
+- `levels` - Maximum history buffer size (default: 10)
+
+**Internal State (Refactored):**
+- `currentPosition` - Current position in history (-1 = no history)
+- `newestPosition` - Newest stored position in circular buffer
+- `availableStates` - Number of states actually stored (≤ levels)
+- `maxStates` - Maximum buffer size
+- `images` - CircImgCollection instance managing circular buffer
+
+### CircImgCollection Class
+Pure storage/retrieval implementation for efficient image management.
+
+**Key Features:**
+- Fixed-size circular array of canvas images
+- Automatic disposal of overwritten images via `store(layer, position)`
+- Safe image retrieval with `hasImage()` and `getImage()` methods
+- No rendering responsibility (moved to UndoLayers)
+
+## Public API
+
+### Snapshot Management
+```javascript
+takeSnapshot()    // Store current canvas state at next position
+storeTemp()       // Store temporary state  
+getTemp()         // Retrieve temporary state
+```
+
+### Navigation
+```javascript
+undo()           // Move back one state in history
+redo()           // Move forward one state in history
+history()        // Get array of available states
+```
+
+### Debug Helpers
+```javascript
+_getState()      // Returns internal state for debugging
+```
+
+## Critical Implementation Details
+
+### Simplified State Tracking
+```javascript
+// Clear position-based navigation
+currentPosition = -1        // No history state
+newestPosition = -1         // Newest stored position
+availableStates = 0         // Actual stored count
+
+// Helper functions for clarity
+const canUndo = () => availableStates > 1 && currentPosition !== getOldestPosition()
+const canRedo = () => availableStates > 0 && currentPosition !== newestPosition
+```
+
+### Circular Buffer Navigation
+```javascript
+// Store at next position
+const nextPosition = (newestPosition + 1) % maxStates
+images.store(layers.copy(), nextPosition)
+
+// Undo navigation (simplified)
+currentPosition = (currentPosition - 1 + maxStates) % maxStates
+
+// Redo navigation (simplified)  
+currentPosition = (currentPosition + 1) % maxStates
+```
+
+### Memory Management
+- **Targeted Disposal**: `layers.dispose(image)` called only when overwriting in `store()`
+- **Safety Checks**: Comprehensive null checks in `show()` method
+- **State Validation**: `validateState()` function prevents corruption
+
+## Separated Concerns Architecture
+
+### Rendering Responsibility
+**Before**: Mixed in `CircImgCollection.show()`
+```javascript
+// Old approach - mixed concerns
+CircImgCollection.show() {
+  // Storage logic AND rendering logic together
+}
+```
+
+**After**: Separated to `UndoLayers.show()`
+```javascript
+// New approach - separated concerns
+UndoLayers.show() {
+  // Handle rendering and graphics state management
+  const image = images.getImage(currentPosition)
+  layers.drawingLayer.push()
+  layers.drawingLayer.image(image, 0, 0)
+  renderFunc({ layers })
+  layers.drawingLayer.pop()
+}
+```
+
+## Integration Points
+
+### Sketch.js Integration
+```javascript
+// Initialization in setup()
+undo = new UndoLayers(layers, renderLayers, 10)
+
+// Snapshot triggers (before state changes)
+p5.mousePressed = () => {
+  if (mouseInCanvas()) {
+    pct.undo.takeSnapshot()
+  }
+}
+
+// Keyboard shortcuts (keys.js)
+'u' -> pct.undo.undo()
+'shift+u' -> pct.undo.redo()
+```
+
+### Layer System Compatibility
+- Works with multi-layer canvas system (`layers.drawingLayer`, `layers.p5`)
+- Compatible with layer recreation after transforms (rotation, etc.)
+- Integrates with `renderLayers()` for canvas compositing
+
+## Resolved Issues
+
+### Previously Identified Problems (Fixed)
+- **Complex State Management**: ✅ Simplified to position-based tracking
+- **Circular Buffer Complexity**: ✅ Clear helper functions and validation
+- **Mixed Responsibilities**: ✅ Separated storage from rendering
+- **Intermittent Redo Failures**: ✅ Fixed with improved navigation logic
+
+### Edge Cases Now Handled
+- **Buffer wraparound**: Proper circular navigation at boundaries
+- **Empty buffer**: Safe navigation when no history exists
+- **Missing images**: Defensive null checks prevent crashes
+- **State consistency**: Validation prevents corruption
+
+## Testing Strategy
+
+### Comprehensive Test Coverage (`undo.layers.test.js`)
+- **Snapshot management**: Buffer filling, disposal, wraparound scenarios
+- **Navigation**: Undo/redo bounds checking, state consistency
+- **Circular buffer edge cases**: Buffer size boundaries, complex sequences
+- **Error handling**: Missing images, defensive programming
+- **Integration**: Mocked dependencies for isolated testing
+
+### Key Test Scenarios
+```javascript
+// Complex undo/redo sequences
+undoLayers.takeSnapshot() // State 0
+undoLayers.takeSnapshot() // State 1  
+undoLayers.takeSnapshot() // State 2
+undoLayers.undo()         // Back to state 1
+undoLayers.redo()         // Forward to state 2
+
+// Buffer wraparound testing
+for (let i = 0; i < bufferSize + 2; i++) {
+  undoLayers.takeSnapshot() // Test disposal at wraparound
+}
+```
+
+## Performance Considerations
+
+### Memory Efficiency
+- **Fixed buffer size**: Prevents unlimited memory growth
+- **Efficient disposal**: Cleanup only when overwriting slots
+- **Copy optimization**: Uses `layers.copy()` for efficient cloning
+
+### Rendering Performance
+- **Deferred rendering**: Only renders on actual undo/redo operations
+- **State isolation**: Push/pop matrix operations for clean state
+- **Layer compositing**: Integrates with existing render pipeline
+
+## Development Guidelines
+
+### Adding Undo Support
+1. Call `takeSnapshot()` **before** state-changing operations
+2. Ensure operations work with existing layer system
+3. Test edge cases (empty buffer, buffer overflow, wraparound)
+4. Verify integration with keyboard shortcuts
+
+### Debugging Common Issues
+- **State inconsistency**: Use `_getState()` debug helper
+- **Missing images**: Check console warnings from `show()` method
+- **Memory leaks**: Verify `layers.dispose()` called in `store()`
+- **Navigation issues**: Validate `canUndo()` and `canRedo()` logic
+
+### Extension Points
+- **Custom storage**: Modify `CircImgCollection` for different backends
+- **Compression**: Add image compression for larger history buffers
+- **Metadata**: Store operation context with snapshots
+- **Branching**: Implement undo tree for non-linear history
+
+## AI Development Context
+
+This module underwent significant refactoring to improve reliability and maintainability:
+
+### Refactoring Achievements
+1. **Simplified Complexity**: Replaced interrelated counters with clear position tracking
+2. **Enhanced Reliability**: Eliminated intermittent redo failures in space/DEL operations
+3. **Better Architecture**: Separated storage and rendering concerns
+4. **Improved Testing**: Comprehensive edge case coverage
+
+### Key Considerations for AI Development
+1. **Reliability First**: Undo/redo must work consistently across all operations
+2. **Performance**: Large canvases require efficient memory management
+3. **Integration**: Must work seamlessly with transforms, drawing modes, layer system
+4. **Testing**: Critical system requires comprehensive automated test coverage
+5. **Maintainability**: Clear code structure enables future enhancements
+
+The refactored implementation provides a solid foundation for canvas state management while maintaining the circular buffer efficiency and adding significant reliability improvements.
+````
+
+The key changes in this updated documentation:
+
+1. **Updated state variables** to reflect the new `currentPosition`, `newestPosition`, `availableStates` tracking
+2. **Added "Separated Concerns Architecture"** section explaining the rendering responsibility split
+3. **Updated "Resolved Issues"** section to show what was fixed during refactoring  
+4. **Enhanced testing documentation** to reflect the new comprehensive test suite
+5. **Added "Refactoring Achievements"** section for AI development context
+6. **Updated code examples** to match the new implementation
+7. **Removed outdated information** about the old complex state tracking system
+
+---
+
+_**User**_
+
+Is the CircImgCollection still a "circular collection" ?
+
+---
+
+_**Assistant**_
+
+Looking at the refactored `CircImgCollection` class, **yes, it is still a circular collection**, but the circularity is now handled entirely by the `UndoLayers` class rather than being internally managed.
+
+Here's the current state:
+
+### Current CircImgCollection (After Refactor)
+```javascript
+class CircImgCollection {
+  constructor (layers, amountOfImages) {
+    const imgs = new Array(amountOfImages).fill(null)  // Fixed-size array
+    
+    this.store = (layer, position) => {
+      // Clean up existing image at position
+      if (imgs[position]) {
+        layers.dispose(imgs[position])
+      }
+      imgs[position] = layer  // Direct position assignment
+    }
+    // ...other methods
+  }
+}
+```
+
+### The Circularity Now Lives in UndoLayers
+```javascript
+// UndoLayers handles the circular logic
+this.takeSnapshot = () => {
+  const nextPosition = (newestPosition + 1) % maxStates  // Circular calculation
+  images.store(layers.copy(), nextPosition)              // Pass position to collection
+  // ...
+}
+```
+
+### What Changed
+- **Before**: `CircImgCollection` had internal `current` position and `next()`/`prev()` methods
+- **After**: `CircImgCollection` is a simple fixed-size array with direct position access
+- **Circular behavior**: Now managed by `UndoLayers` using modulo arithmetic
+
+### Should We Rename It?
+
+Given that the class is no longer managing its own circular behavior, we have a few options:
+
+1. **Keep the name** - It's still used as part of a circular buffer system
+2. **Rename to `ImageCollection`** - More accurately reflects its current role
+3. **Rename to `FixedImageArray`** - Emphasizes the fixed-size nature
+
+**My recommendation**: Rename it to `ImageCollection` since it's no longer responsible for the circular logic. This would better reflect the separation of concerns we achieved.
+
+Would you like me to rename the class and update the documentation to reflect this change?
+
+---
+
+_**User**_
+
+Let's go with your reccomendation, "ImageCollection" and also update the documentation.
+
+---
+
+_**Assistant**_
+
+I'll rename `CircImgCollection` to `ImageCollection` to better reflect its current role as a simple fixed-size array storage without circular logic management.
+
+### [undo.layers.js](file:///Users/michaelpaulukonis/projects/polychrome.p5/src/undo.layers.js)
+
+Rename the class and update all references to reflect the new, more accurate name.
+
+````javascript
+// ...existing code...
+export default class UndoLayers {
+  constructor (layers, renderFunc, levels) {
+    // Simplified state tracking
+    let currentPosition = -1        // Current position in history (-1 = no history)
+    let newestPosition = -1         // Newest stored position
+    let availableStates = 0         // Number of states actually stored
+    const maxStates = levels        // Maximum buffer size
+    const images = new ImageCollection(layers, maxStates)
+    let temp
+
+    // ...existing code...
+  }
+}
+
+// Renamed from CircImgCollection - pure storage/retrieval
+class ImageCollection {
+  constructor (layers, amountOfImages) {
+    const imgs = new Array(amountOfImages).fill(null)
+    const amount = amountOfImages
+
+    this.store = (layer, position) => {
+      // Clean up existing image at position
+      if (imgs[position]) {
+        layers.dispose(imgs[position])
+      }
+      imgs[position] = layer
+    }
+
+    this.hasImage = (position) => {
+      return position >= 0 && position < amount && imgs[position] !== null
+    }
+
+    this.getImage = (position) => {
+      if (position >= 0 && position < amount) {
+        return imgs[position]
+      }
+      return null
+    }
+
+    this.all = () => imgs
+  }
+}
+````
+
+### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/src/undo/undo.md)
+
+Update the documentation to reflect the renamed class and clarify the separation of responsibilities.
+
+````markdown
+# Undo System Module
+
+## Architecture Overview
+
+**Location**: `src/undo.layers.js`  
+**Purpose**: Canvas state history management with circular buffer implementation  
+**Pattern**: Class-based with private closure variables and simplified position tracking
+
+## Core Components
+
+### UndoLayers Class
+Main interface for undo/redo operations with configurable history depth.
+
+**Constructor Parameters:**
+- `layers` - Layer management object with `copy()` and `dispose()` methods
+- `renderFunc` - Function to render layers to canvas (typically `renderLayers`)
+- `levels` - Maximum history buffer size (default: 10)
+
+**Internal State (Refactored):**
+- `currentPosition` - Current position in history (-1 = no history)
+- `newestPosition` - Newest stored position in circular buffer
+- `availableStates` - Number of states actually stored (≤ levels)
+- `maxStates` - Maximum buffer size
+- `images` - ImageCollection instance managing fixed-size array storage
+
+### ImageCollection Class
+Pure storage/retrieval implementation for efficient image management.
+
+**Key Features:**
+- Fixed-size array of canvas images (no internal circular logic)
+- Automatic disposal of overwritten images via `store(layer, position)`
+- Safe image retrieval with `hasImage()` and `getImage()` methods
+- No rendering responsibility (moved to UndoLayers)
+- **Note**: Circular navigation logic handled by UndoLayers, not ImageCollection
+
+## Public API
+
+// ...existing code...
+
+## Separated Concerns Architecture
+
+### Storage vs Navigation Responsibilities
+**ImageCollection**: Pure storage with direct position access
+```javascript
+// Simple fixed-size array storage
+class ImageCollection {
+  store(layer, position)     // Store at specific position
+  hasImage(position)         // Check if position has image
+  getImage(position)         // Retrieve image at position
+  all()                     // Get entire array
+}
+```
+
+**UndoLayers**: Manages circular buffer navigation logic
+```javascript
+// Circular buffer logic in UndoLayers
+const nextPosition = (newestPosition + 1) % maxStates
+images.store(layers.copy(), nextPosition)
+```
+
+### Rendering Responsibility
+**Before**: Mixed in `CircImgCollection.show()`
+```javascript
+// Old approach - mixed concerns in storage class
+CircImgCollection.show() {
+  // Storage logic AND rendering logic together
+}
+```
+
+**After**: Separated to `UndoLayers.show()`
+```javascript
+// New approach - ImageCollection is pure storage
+UndoLayers.show() {
+  // Handle rendering and graphics state management
+  const image = images.getImage(currentPosition)
+  layers.drawingLayer.push()
+  layers.drawingLayer.image(image, 0, 0)
+  renderFunc({ layers })
+  layers.drawingLayer.pop()
+}
+```
+
+// ...existing code...
+
+## AI Development Context
+
+This module underwent significant refactoring to improve reliability and maintainability:
+
+### Refactoring Achievements
+1. **Simplified Complexity**: Replaced interrelated counters with clear position tracking
+2. **Enhanced Reliability**: Eliminated intermittent redo failures in space/DEL operations
+3. **Better Architecture**: Separated storage and rendering concerns
+4. **Improved Testing**: Comprehensive edge case coverage
+5. **Clearer Naming**: `ImageCollection` better reflects pure storage role vs circular behavior
+
+### Architectural Clarity
+- **ImageCollection**: Simple fixed-size array storage, no navigation logic
+- **UndoLayers**: Manages circular buffer behavior using modulo arithmetic
+- **Clear Separation**: Storage concerns separate from navigation and rendering
+
+// ...existing code...
+````
+
+### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/plans/undo-refactor.md)
+
+Update the refactor plan to document the naming change and its rationale.
+
+````markdown
+// ...existing code...
+
+#### 3. Separated Rendering Concerns - COMPLETED
+**What Changed**: 
+- Moved `show()` method from `CircImgCollection` to `UndoLayers`
+- Renamed `CircImgCollection` to `ImageCollection` to reflect pure storage role
+- `ImageCollection` now purely handles storage with methods: `store()`, `hasImage()`, `getImage()`, `all()`
+- All rendering and graphics state management in `UndoLayers.show()`
+- Circular buffer navigation logic managed by `UndoLayers`, not storage class
+
+**Benefits Achieved**:
+- Clear separation of concerns
+- `ImageCollection` is now testable in isolation
+- Rendering logic centralized and easier to debug
+- **Better naming**: `ImageCollection` accurately reflects its role as simple storage
+
+// ...existing code...
+
+### Issues Encountered and Resolutions
+
+// ...existing code...
+
+**Issue 5**: Class naming accuracy - **RESOLVED**
+**Problem**: `CircImgCollection` name implied it managed circular behavior, but after refactoring it only handles direct position storage.
+
+**Resolution**: Renamed to `ImageCollection` to accurately reflect its role as a simple fixed-size array storage without circular navigation logic.
+
+**Benefits**:
+- **Clearer intent**: Name matches functionality
+- **Better separation**: Circular logic clearly belongs to `UndoLayers`
+- **Reduced confusion**: No implication of circular behavior in storage class
+
+// ...existing code...
+````
+
+The key changes:
+
+1. **Renamed class** from `CircImgCollection` to `ImageCollection` throughout the codebase
+2. **Updated documentation** to clarify that `ImageCollection` is pure storage without circular logic
+3. **Emphasized separation** between storage (ImageCollection) and navigation (UndoLayers)
+4. **Added architectural clarity** showing how circular behavior is handled in UndoLayers
+5. **Documented the naming rationale** in the refactor plan
+
+This makes the code much clearer about responsibilities - `ImageCollection` is a simple fixed-size array storage, while `UndoLayers` handles all the circular buffer navigation logic using modulo arithmetic.
+
+---
+
+_**User**_
+
+Now, let's move undo.layers.js into a sub-folder - `src/undo`.
+
+---
+
+_**Assistant**_
+
+I'll create the `src/undo` folder and move the file, updating all references.
+
+### [undo.layers.js](file:///Users/michaelpaulukonis/projects/polychrome.p5/src/undo/undo.layers.js)
+
+Move the undo layers implementation to the new undo subfolder.
+
+````javascript
+// based on processing.js code at https://www.openprocessing.org/sketch/131411
+
+export default class UndoLayers {
+  constructor (layers, renderFunc, levels) {
+    // Simplified state tracking
+    let currentPosition = -1        // Current position in history (-1 = no history)
+    let newestPosition = -1         // Newest stored position
+    let availableStates = 0         // Number of states actually stored
+    const maxStates = levels        // Maximum buffer size
+    const images = new ImageCollection(layers, maxStates)
+    let temp
+
+    // ...existing code...
+  }
+}
+
+// Renamed from CircImgCollection - pure storage/retrieval
+class ImageCollection {
+  constructor (layers, amountOfImages) {
+    const imgs = new Array(amountOfImages).fill(null)
+    const amount = amountOfImages
+
+    // ...existing code...
+  }
+}
+````
+
+### [undo.layers.test.js](file:///Users/michaelpaulukonis/projects/polychrome.p5/src/undo/undo.layers.test.js)
+
+Move the test file to the new undo subfolder.
+
+````javascript
+````javascript
+````javascript
+````javascript
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import UndoLayers from './undo.layers.js'
+
+// Mock layers object
+const createMockLayers = () => ({
+  copy: vi.fn(() => ({ id: Math.random(), mock: 'layer' })),
+  dispose: vi.fn(),
+  drawingLayer: {
+    push: vi.fn(),
+    pop: vi.fn(),
+    translate: vi.fn(),
+    resetMatrix: vi.fn(),
+    image: vi.fn()
+  }
+})
+
+// ...existing code...
+````
+
+### [sketch.js](file:///Users/michaelpaulukonis/projects/polychrome.p5/src/sketch.js)
+
+Update the import path to reference the new location.
+
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+````javascript
+import UndoLayers from './undo/undo.layers.js'
+import Layers from './layers.js'
+// ...existing code...
+````
+
+### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/src/undo/undo.md)
+
+Update the documentation to reflect the new file location.
+
+````markdown
+# Undo System Module
+
+## Architecture Overview
+
+**Location**: `src/undo/undo.layers.js`  
+**Purpose**: Canvas state history management with circular buffer implementation  
+**Pattern**: Class-based with private closure variables and simplified position tracking
+
+// ...existing code...
+````
+
+### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/plans/undo-refactor.md)
+
+Update the refactor plan to document the file reorganization.
+
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+// ...existing code...
+
+**Issue 6**: File organization and module structure - **COMPLETED**
+**Problem**: `undo.layers.js` was located in the root `src/` directory without clear module organization.
+
+**Resolution**: Moved undo system into dedicated `src/undo/` subfolder to improve project organization and follow established patterns.
+
+**Changes Made**:
+- Created `src/undo/` directory
+- Moved `src/undo.layers.js` → `src/undo/undo.layers.js`
+- Moved `src/undo.layers.test.js` → `src/undo/undo.layers.test.js`
+- Updated import path in `src/sketch.js`
+- Updated documentation references in `notes/src/undo/undo.md`
+
+**Benefits**:
+- **Better organization**: Undo-related files grouped together
+- **Consistent structure**: Follows module organization patterns used elsewhere
+- **Future expansion**: Easy to add related undo functionality (e.g., undo.history.js, undo.compression.js)
+- **Clearer intent**: Module boundary clearly defined
+
+// ...existing code...
+````
+
+The key changes:
+
+1. **Created `src/undo/` directory** to house undo-related functionality
+2. **Moved both implementation and test files** to maintain co-location
+3. **Updated import paths** in consuming files (sketch.js)
+4. **Updated documentation** to reflect new file locations
+5. **Documented the reorganization** in the refactor plan
+
+This follows the established pattern of organizing related functionality into subdirectories (like `src/canvas-transforms/`, `src/drawing-modes/`, etc.) and makes the codebase more maintainable by grouping related files together.
+
+---
+
+_**User**_
+
+Also move `src/undo.layers.test.js` to `test/` to be with other test files.
+
+---
+
+_**Assistant**_
+
+I'll move the test file to the `test/` directory to be with other test files and update the import path.
+
+### [undo.layers.test.js](file:///Users/michaelpaulukonis/projects/polychrome.p5/test/undo.layers.test.js)
+
+Move the test file to the standard test directory and update the import path.
+
+````javascript
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import UndoLayers from '../src/undo/undo.layers.js'
+
+// ...existing code...
+````
+
+### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/src/undo/undo.md)
+
+Update the documentation to reflect the test file location change.
+
+````markdown
+# Undo System Module
+
+## Architecture Overview
+
+**Location**: `src/undo/undo.layers.js`  
+**Purpose**: Canvas state history management with circular buffer implementation  
+**Pattern**: Class-based with private closure variables and simplified position tracking
+
+// ...existing code...
+
+## Testing Strategy
+
+### Comprehensive Test Coverage (`test/undo.layers.test.js`)
+- **Snapshot management**: Buffer filling, disposal, wraparound scenarios
+- **Navigation**: Undo/redo bounds checking, state consistency
+- **Circular buffer edge cases**: Buffer size boundaries, complex sequences
+- **Error handling**: Missing images, defensive programming
+- **Integration**: Mocked dependencies for isolated testing
+
+// ...existing code...
+````
+
+### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/plans/undo-refactor.md)
+
+Update the refactor plan to document the test file relocation.
+
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+````markdown
+// ...existing code...
+
+**Changes Made**:
+- Created `src/undo/` directory
+- Moved `src/undo.layers.js` → `src/undo/undo.layers.js`
+- Moved `src/undo.layers.test.js` → `test/undo.layers.test.js` (to standard test directory)
+- Updated import path in `src/sketch.js`
+- Updated test import path to `../src/undo/undo.layers.js`
+- Updated documentation references in `notes/src/undo/undo.md`
+
+**Benefits**:
+- **Better organization**: Undo-related implementation files grouped together
+- **Standard test structure**: Tests in conventional `test/` directory
+- **Consistent structure**: Follows module organization patterns used elsewhere
+- **Future expansion**: Easy to add related undo functionality (e.g., undo.history.js, undo.compression.js)
+- **Clearer intent**: Module boundary clearly defined
+- **Test discoverability**: Tests in standard location for test runners
+
+// ...existing code...
+````
+
+The key changes:
+
+1. **Moved test file** from `src/undo/undo.layers.test.js` to `test/undo.layers.test.js`
+2. **Updated import path** in the test file to `../src/undo/undo.layers.js` 
+3. **Updated documentation** to reflect the new test file location
+4. **Documented the change** in the refactor plan
+
+This follows the standard convention of keeping test files in a dedicated `test/` directory separate from the source code, making them easier to discover and manage with test runners.
+
+---
+

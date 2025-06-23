@@ -206,13 +206,16 @@ this.redo = () => {
 #### 3. Separated Rendering Concerns - COMPLETED
 **What Changed**: 
 - Moved `show()` method from `CircImgCollection` to `UndoLayers`
-- `CircImgCollection` now purely handles storage with methods: `store()`, `hasImage()`, `getImage()`, `all()`
+- Renamed `CircImgCollection` to `ImageCollection` to reflect pure storage role
+- `ImageCollection` now purely handles storage with methods: `store()`, `hasImage()`, `getImage()`, `all()`
 - All rendering and graphics state management in `UndoLayers.show()`
+- Circular buffer navigation logic managed by `UndoLayers`, not storage class
 
 **Benefits Achieved**:
 - Clear separation of concerns
-- `CircImgCollection` is now testable in isolation
+- `ImageCollection` is now testable in isolation
 - Rendering logic centralized and easier to debug
+- **Better naming**: `ImageCollection` accurately reflects its role as simple storage
 
 #### 4. Added State Validation - COMPLETED
 **What Added**:
@@ -267,6 +270,37 @@ currentPosition = currentPosition === 0 ?
 - Rapid undo/redo sequences function as expected
 - State validation prevents corruption
 
+**Issue 5**: Class naming accuracy - **RESOLVED**
+**Problem**: `CircImgCollection` name implied it managed circular behavior, but after refactoring it only handles direct position storage.
+
+**Resolution**: Renamed to `ImageCollection` to accurately reflect its role as a simple fixed-size array storage without circular navigation logic.
+
+**Benefits**:
+- **Clearer intent**: Name matches functionality
+- **Better separation**: Circular logic clearly belongs to `UndoLayers`
+- **Reduced confusion**: No implication of circular behavior in storage class
+
+**Issue 6**: File organization and module structure - **COMPLETED**
+**Problem**: `undo.layers.js` was located in the root `src/` directory without clear module organization.
+
+**Resolution**: Moved undo system into dedicated `src/undo/` subfolder to improve project organization and follow established patterns.
+
+**Changes Made**:
+- Created `src/undo/` directory
+- Moved `src/undo.layers.js` → `src/undo/undo.layers.js`
+- Moved `src/undo.layers.test.js` → `test/undo.layers.test.js` (to standard test directory)
+- Updated import path in `src/sketch.js`
+- Updated test import path to `../src/undo/undo.layers.js`
+- Updated documentation references in `notes/src/undo/undo.md`
+
+**Benefits**:
+- **Better organization**: Undo-related implementation files grouped together
+- **Standard test structure**: Tests in conventional `test/` directory
+- **Consistent structure**: Follows module organization patterns used elsewhere
+- **Future expansion**: Easy to add related undo functionality (e.g., undo.history.js, undo.compression.js)
+- **Clearer intent**: Module boundary clearly defined
+- **Test discoverability**: Tests in standard location for test runners
+
 ### Phase 1 Success Criteria - COMPLETED ✅
 
 - [x] All existing tests pass
@@ -287,7 +321,8 @@ The immediate fixes have been successfully implemented with:
 
 2. **Separated Concerns** ✅  
    - Moved rendering from `CircImgCollection.show()` to `UndoLayers.show()`
-   - `CircImgCollection` now purely handles storage: `store()`, `hasImage()`, `getImage()`, `all()`
+   - Renamed `CircImgCollection` to `ImageCollection` to reflect pure storage role
+   - `ImageCollection` now purely handles storage: `store()`, `hasImage()`, `getImage()`, `all()`
    - Clear separation between buffer management and canvas operations
 
 3. **Added State Validation** ✅

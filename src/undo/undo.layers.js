@@ -7,7 +7,7 @@ export default class UndoLayers {
     let newestPosition = -1         // Newest stored position
     let availableStates = 0         // Number of states actually stored
     const maxStates = levels        // Maximum buffer size
-    const images = new CircImgCollection(layers, maxStates)
+    const images = new ImageCollection(layers, maxStates)
     let temp
 
     // State validation helper
@@ -152,8 +152,8 @@ export default class UndoLayers {
   }
 }
 
-// Simplified CircImgCollection - pure storage/retrieval
-class CircImgCollection {
+// Renamed from CircImgCollection - pure storage/retrieval
+class ImageCollection {
   constructor (layers, amountOfImages) {
     const imgs = new Array(amountOfImages).fill(null)
     const amount = amountOfImages

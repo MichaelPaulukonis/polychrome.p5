@@ -1,5 +1,5 @@
-import UndoLayers from './undo.layers.js'
-import Layers from './layers.js'
+import UndoLayers from '@/src/undo/undo.layers.js'
+import Layers from '@/src/layers.js'
 import {
   allParams,
   fillParams,
@@ -11,7 +11,7 @@ import { hexStringToColors } from '@/src/gui/gui.color.control'
 import { setupGui } from '@/src/gui/gui'
 import { recordAction, recordConfig, output, clear as clearRecording } from '@/src/scripting/record'
 import saveAs from 'file-saver'
-import { datestring, filenamer } from './filelib'
+import { datestring, filenamer } from '@/src//filelib'
 import { setupActions } from '@/src/gui/actions'
 import { createColorFunctions, createGammaAdjustment, initializeColorMode } from '@/src/color/color-system'
 import { createCanvasTransforms } from '@/src/canvas-transforms'
