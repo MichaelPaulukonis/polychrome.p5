@@ -11,7 +11,9 @@ describe('Canvas Transforms - Core Functions', () => {
   })
 
   describe('flipCore', () => {
-    let mockGraphics, mockLayers, mockClonedGraphics
+    let mockGraphics
+    let mockLayers
+    let mockClonedGraphics
 
     beforeEach(() => {
       // Mock p5.Graphics object
@@ -70,7 +72,9 @@ describe('Canvas Transforms - Core Functions', () => {
   })
 
   describe('mirrorCore', () => {
-    let mockGraphics, mockLayers, mockClonedGraphics
+    let mockGraphics
+    let mockLayers
+    let mockClonedGraphics
 
     beforeEach(() => {
       mockGraphics = {
@@ -146,13 +150,16 @@ describe('Canvas Transforms - Core Functions', () => {
 })
 
 describe('Canvas Transforms - Factory Function', () => {
-  let mockDependencies, mockLayers, mockP5
+  let mockDependencies
+  let mockLayers
+  let mockP5
 
   beforeEach(() => {
     // Mock p5 instance
     mockP5 = {
       radians: vi.fn().mockReturnValue(Math.PI / 2),
-      createGraphics: vi.fn()
+      createGraphics: vi.fn(),
+      resizeCanvas: vi.fn()
     }
 
     // Mock layers object
@@ -161,11 +168,21 @@ describe('Canvas Transforms - Factory Function', () => {
         image: vi.fn(),
         remove: vi.fn()
       }),
-      clone: vi.fn(),
+      clone: vi.fn().mockReturnValue({
+        push: vi.fn(),
+        pop: vi.fn(),
+        translate: vi.fn(),
+        resetMatrix: vi.fn(),
+        scale: vi.fn(),
+        image: vi.fn(),
+        remove: vi.fn()
+      }),
       drawingLayer: {
         width: 100,
         height: 200,
-        remove: vi.fn()
+        remove: vi.fn(),
+        resetMatrix: vi.fn(),
+        image: vi.fn()
       },
       p5: mockP5
     }
@@ -176,7 +193,14 @@ describe('Canvas Transforms - Factory Function', () => {
       recordAction: vi.fn(),
       globals: { updatedCanvas: false },
       renderLayers: vi.fn(),
-      initDrawingLayer: vi.fn(),
+      initDrawingLayer: vi.fn().mockReturnValue({
+        push: vi.fn(),
+        pop: vi.fn(),
+        translate: vi.fn(),
+        rotate: vi.fn(),
+        image: vi.fn(),
+        remove: vi.fn()
+      }),
       getAppMode: vi.fn().mockReturnValue('STANDARD_DRAW'),
       APP_MODES: {
         STANDARD_DRAW: 'STANDARD_DRAW',
@@ -219,7 +243,7 @@ describe('Canvas Transforms - Factory Function', () => {
   })
 
   describe('flip method', () => {
-    test.skip('should record action and update canvas', () => {
+    test('should record action and update canvas', () => {
       const transforms = createCanvasTransforms(mockDependencies)
       const mockLayer = { image: vi.fn() }
 
@@ -235,7 +259,7 @@ describe('Canvas Transforms - Factory Function', () => {
   })
 
   describe('rotateWrapped method', () => {
-    test.skip('should call rotateCanvas with correct parameters', () => {
+    test('should call rotateCanvas with correct parameters', () => {
       const transforms = createCanvasTransforms(mockDependencies)
 
       // Mock createGraphics to return a proper mock
@@ -251,11 +275,11 @@ describe('Canvas Transforms - Factory Function', () => {
 
       transforms.rotateWrapped(-1)
 
-      expect(mockP5.createGraphics).toHaveBeenCalledWith(200, 100) // swapped dimensions
+      expect(mockDependencies.initDrawingLayer).toHaveBeenCalledWith(200, 100) // swapped dimensions
       expect(mockDependencies.globals.updatedCanvas).toBe(true)
     })
 
-    test.skip('should default to clockwise rotation (direction=1)', () => {
+    test('should default to clockwise rotation (direction=1)', () => {
       const transforms = createCanvasTransforms(mockDependencies)
 
       const mockNewGraphics = {
@@ -270,12 +294,12 @@ describe('Canvas Transforms - Factory Function', () => {
 
       transforms.rotateWrapped() // no direction argument
 
-      expect(mockP5.createGraphics).toHaveBeenCalledWith(200, 100) // swapped for clockwise
+      expect(mockDependencies.initDrawingLayer).toHaveBeenCalledWith(200, 100) // swapped for clockwise
     })
   })
 
   describe('integration with recording system', () => {
-    test.skip('should not record actions when in playback mode', () => {
+    test('should not record actions when in playback mode', () => {
       mockDependencies.getAppMode.mockReturnValue('PLAYBACK')
       const transforms = createCanvasTransforms(mockDependencies)
       const mockLayer = { image: vi.fn() }
