@@ -60,10 +60,10 @@ export function createCanvasTransforms ({
     cfg.layer.image(newLayer, 0, 0)
     renderLayers({ layers })
     // Add defensive null check before removing - fix for parentNode error
-    if (newLayer && newLayer.canvas && newLayer.canvas.parentNode) {
+    if (newLayer?.canvas?.parentNode) {
       newLayer.remove()
     }
-    if (tmp && tmp.canvas && tmp.canvas.parentNode) {
+    if (tmp?.canvas?.parentNode) {
       tmp.remove()
     }
     globals.updatedCanvas = true

@@ -30,7 +30,7 @@
   button(@click="about") About
   button(@click="playback") Playback
   Counter(
-    v-if="pchrome && pchrome.params && pchrome.params.capturing"
+    v-if="pchrome?.params?.capturing"
     :count="pchrome.params.globals.captureCount"
     :total="pchrome.params.captureLimit"
   )

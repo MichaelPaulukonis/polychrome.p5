@@ -39,7 +39,7 @@ export default class Layers {
    * @param {p5.Graphics} graphics The graphics object to dispose
    */
   dispose (graphics) {
-    if (graphics && graphics.canvas) {
+    if (graphics?.canvas) {
       graphics.remove()
       this.createdGraphics.delete(graphics) // Remove from tracking if it was tracked
     }
@@ -50,7 +50,7 @@ export default class Layers {
    */
   cleanup () {
     for (const graphics of this.createdGraphics) {
-      if (graphics && graphics.canvas) {
+      if (graphics?.canvas) {
         graphics.remove()
       }
     }
