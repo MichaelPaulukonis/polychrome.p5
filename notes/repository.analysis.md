@@ -58,9 +58,11 @@ Recording System ←→ Undo System ←→ State Management ←→ Canvas Transf
 ### **External Dependencies**
 - **p5.js**: Core creative coding library
 - **Vue.js/Nuxt.js**: Application framework
+- **vue-js-modal**: modal dialog library tied to Vue 2
 - **Ramda**: Functional programming utilities
 - **file-saver**: Canvas export functionality
 - **hotkeys-js**: Keyboard interaction
+- **quicksettings.js**: customized version of GUI library
 - **No external APIs or databases**
 
 ### **Design Patterns**
@@ -167,6 +169,7 @@ npm run dev
 - **Linting**: StandardJS with Vitest globals configured
 - **Testing**: Vitest with jsdom environment for DOM testing
 - **Hot Reload**: Nuxt dev server with automatic rebuilding
+  - NOTE: hot-reload often (always?) results in no canvas. F5 reload is required.
 - **Modular Development**: Well-separated modules with clear interfaces
 
 ### **Testing Strategy**
@@ -253,8 +256,7 @@ Comprehensive test suite with 89 tests across 7 test files:
 
 ### **Scalability Issues**
 1. **Large Canvas Support**: Performance degradation with very large canvases
-2. **Animation Export**: Manual frame stitching process for video creation
-3. **Mobile Support**: Touch interaction and responsive design needs improvement
+2. **Mobile Support**: Touch interaction and responsive design needs improvement
 
 ### **Dependency Management**
 - **Outdated Dependencies**: Many packages significantly behind current versions
@@ -307,6 +309,7 @@ Comprehensive test suite with 89 tests across 7 test files:
 1. **Target Mode**: Complete the incomplete area selection feature
 2. **DSL Enhancement**: Improve scripting language capabilities
 3. **Export Options**: Add more export formats and direct video generation
+  - Rather than animate/video in-browser, connect to a local-server (or... AWS?) for storage and stitching?
 
 ### **Infrastructure** (Low Priority)
 1. **CI/CD Pipeline**: Add automated testing and deployment
@@ -333,6 +336,7 @@ Comprehensive test suite with 89 tests across 7 test files:
 ### **Project Roadmap**
 Based on code analysis and documentation:
 1. **Immediate**: Dependency updates and mobile optimization
+  - mobile is not much of a consideration based on keyboard input
 2. **Short-term**: Nuxt 3 migration and TypeScript adoption
 3. **Medium-term**: Feature completion and UI overhaul
 4. **Long-term**: Framework exploration (q5.js) and advanced features
