@@ -166,7 +166,11 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   }
 
   const saver = (canvas, name) => {
-    canvas.toBlob(blob => saveAs(blob, name))
+    try {
+      canvas.toBlob(blob => saveAs(blob, name))
+    } catch (e) {
+      console.error('Error saving file:', e)
+    }
   }
 
   const savit = ({ params }) => {

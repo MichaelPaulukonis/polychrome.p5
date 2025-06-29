@@ -3,10 +3,10 @@
 export default class UndoLayers {
   constructor (layers, renderFunc, levels) {
     // Simplified state tracking
-    let currentPosition = -1        // Current position in history (-1 = no history)
-    let newestPosition = -1         // Newest stored position
-    let availableStates = 0         // Number of states actually stored
-    const maxStates = levels        // Maximum buffer size
+    let currentPosition = -1 // Current position in history (-1 = no history)
+    let newestPosition = -1 // Newest stored position
+    let availableStates = 0 // Number of states actually stored
+    const maxStates = levels // Maximum buffer size
     const images = new ImageCollection(layers, maxStates)
     let temp
 

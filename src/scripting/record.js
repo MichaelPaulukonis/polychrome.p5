@@ -1,20 +1,24 @@
 import diff from './diff'
-import { mergeAll, clone, is, map, when, pipe } from 'ramda'
+import { mergeAll, clone, is, map, pipe } from 'ramda'
 
 let recs = []
 
 const dehydrate = val => typeof (val) === 'object' ? val.constructor.name : val
 
 // Ramda-based deep clone
-const deepClone = pipe(
-  when(is(Array), map(deepClone)),
-  when(is(Object), pipe(
-    Object.entries,
-    map(([k, v]) => [k, deepClone(v)]),
-    Object.fromEntries
-  )),
-  clone // Ramda's shallow clone for primitives/dates
-)
+const deepClone = (val) => {
+  if (is(Array, val)) {
+    return map(deepClone, val)
+  }
+  if (is(Object, val)) {
+    return pipe(
+      Object.entries,
+      map(([k, v]) => [k, deepClone(v)]),
+      Object.fromEntries
+    )(val)
+  }
+  return clone(val)
+}
 
 const store = ({ action, config, params: props }) => {
   let params
