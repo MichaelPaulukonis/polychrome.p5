@@ -16,7 +16,7 @@ describe('Font Application System', () => {
 
     // Mock layer system
     mockLayers = {
-      p5instance: mockP5,
+      p5: mockP5,
       drawingLayer: createMockLayer(),
       tempLayer: createMockLayer(),
       setFont: vi.fn(),
@@ -95,7 +95,7 @@ describe('Font Application System', () => {
 
       // Simulate Layers.setFont method
       const layersSetFont = (fontName) => {
-        mockLayers.p5instance.textFont(fontName)
+        mockLayers.p5.textFont(fontName)
         mockLayers.drawingLayer.textFont(fontName)
       }
 
@@ -113,8 +113,8 @@ describe('Font Application System', () => {
         if (mockLayers.drawingLayer) {
           mockLayers.drawingLayer.textFont(fontName)
         }
-        if (mockLayers.p5instance) {
-          mockLayers.p5instance.textFont(fontName)
+        if (mockLayers.p5) {
+          mockLayers.p5.textFont(fontName)
         }
       }
 
@@ -128,15 +128,15 @@ describe('Font Application System', () => {
       const font = 'Times'
       const nullLayers = {
         drawingLayer: null,
-        p5instance: null
+        p5: null
       }
 
       const safeSetFont = (fontName) => {
         if (nullLayers.drawingLayer) {
           nullLayers.drawingLayer.textFont(fontName)
         }
-        if (nullLayers.p5instance) {
-          nullLayers.p5instance.textFont(fontName)
+        if (nullLayers.p5) {
+          nullLayers.p5.textFont(fontName)
         }
       }
 

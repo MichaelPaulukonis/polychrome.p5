@@ -22,9 +22,10 @@ Central manager for multiple p5.Graphics canvases with ownership tracking.
   p5,                    // Main canvas (p5.js instance)
   drawingLayer,          // Active drawing surface (p5.Graphics)
   tempLayer,             // Temporary operations layer (p5.Graphics)
-  createdGraphics        // Set tracking created graphics for cleanup
 }
 ```
+
+**Note**: The `p5` property maintains compatibility with existing code. While the property name could be more descriptive (e.g., `p5instance`), the current name ensures stability across the codebase.
 
 ## Multi-Canvas Architecture
 
@@ -65,8 +66,6 @@ layers.dispose(graphics)          // Handles null checks, removes canvas
 ```
 
 ### Resource Tracking
-- **Created Graphics Set**: Tracks graphics objects for bulk cleanup
-- **Automatic Cleanup**: `cleanup()` disposes all tracked graphics
 - **Safe Disposal**: `dispose()` method handles null checks and canvas removal
 
 ## Core Methods
@@ -76,7 +75,6 @@ layers.dispose(graphics)          // Handles null checks, removes canvas
 copy()                  // Copy main canvas -> new p5.Graphics (caller owns)
 clone(img)             // Clone image/graphics -> new p5.Graphics (caller owns)  
 dispose(graphics)      // Safe graphics disposal with null checks
-cleanup()              // Dispose all tracked graphics objects
 ```
 
 ### Text Configuration
@@ -166,7 +164,6 @@ const rotateCanvas = () => {
 ### Cleanup Considerations
 - Graphics objects must be explicitly disposed via `dispose()` or `.remove()`
 - Caller responsibility for graphics returned by `copy()` and `clone()`
-- Automatic cleanup available via `cleanup()` for bulk disposal
 
 ## Performance Characteristics
 
@@ -177,7 +174,7 @@ const rotateCanvas = () => {
 
 ### Memory Efficiency  
 - **Explicit Ownership**: Clear responsibility for graphics disposal
-- **Resource Tracking**: Prevents memory leaks through systematic cleanup
+- **Safe Disposal**: Prevents memory leaks through systematic resource management
 - **Reusable Layers**: `tempLayer` available for temporary operations
 
 ## Development Patterns

@@ -26,7 +26,7 @@ describe('Font System Integration', () => {
 
     // Mock layer system
     mockLayers = {
-      p5instance: mockP5,
+      p5: mockP5,
       drawingLayer: createMockLayer(),
       tempLayer: createMockLayer()
     }

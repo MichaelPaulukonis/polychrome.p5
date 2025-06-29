@@ -1,6 +1,6 @@
 export default class Layers {
   constructor (p5, dl, temp) {
-    this.p5instance = p5 // TODO: rename
+    this.p5 = p5
     this.drawingLayer = dl // p5.Graphics
     this.tempLayer = temp
   }
@@ -11,9 +11,9 @@ export default class Layers {
    * @returns {p5.Graphics} A new graphics object containing a copy of the current drawing
    */
   copy () {
-    const layer = this.p5instance.createGraphics(this.p5instance.width, this.p5instance.height)
-    layer.pixelDensity(this.p5instance.pixelDensity())
-    layer.image(this.p5instance, 0, 0)
+    const layer = this.p5.createGraphics(this.p5.width, this.p5.height)
+    layer.pixelDensity(this.p5.pixelDensity())
+    layer.image(this.p5, 0, 0)
     return layer
   }
 
@@ -24,8 +24,8 @@ export default class Layers {
    * @returns {p5.Graphics} A new graphics object containing a copy of the input image
    */
   clone (img) {
-    const g = this.p5instance.createGraphics(img.width, img.height)
-    g.pixelDensity(this.p5instance.pixelDensity())
+    const g = this.p5.createGraphics(img.width, img.height)
+    g.pixelDensity(this.p5.pixelDensity())
     g.image(img, 0, 0)
     return g
   }
@@ -47,7 +47,7 @@ export default class Layers {
    * @param {p5.Font|string} font The font to use for text rendering
    */
   setFont (font) {
-    this.p5instance.textFont(font)
+    this.p5.textFont(font)
     this.drawingLayer.textFont(font)
   }
 
@@ -57,7 +57,7 @@ export default class Layers {
    * @param {number} size The size of text in pixels
    */
   textSize (size) {
-    this.p5instance.textSize(size)
+    this.p5.textSize(size)
     this.drawingLayer.textSize(size)
   }
 }
