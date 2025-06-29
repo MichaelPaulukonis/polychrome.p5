@@ -1,0 +1,503 @@
+# E2E Testing Plan: Playwright Integration for PolychromeText
+
+## Overview
+
+This plan outlines the implementation of end-to-end (E2E) testing using Playwright to catch runtime issues that unit tests miss, particularly focusing on canvas rendering, p5.js integration, and visual element verification.
+
+## Problem Statement
+
+Unit tests can pass while the application fails in the browser due to:
+- Canvas instantiation errors
+- p5.js initialization failures
+- Missing DOM elements (hidden/invisible canvas)
+- Runtime JavaScript errors after successful build
+- Integration issues between Vue components and p5.js
+
+## Solution: Playwright E2E Testing
+
+### Why Playwright?
+
+1. **Browser Automation**: Real browser testing (Chromium, Firefox, Safari)
+2. **Canvas Support**: Can interact with and screenshot canvas elements
+3. **Visual Testing**: Screenshot comparison for regression testing
+4. **Modern Tooling**: Built-in debugging, tracing, and reporting
+5. **TypeScript Ready**: Aligns with project's TypeScript migration goals
+6. **CI/CD Friendly**: Excellent GitHub Actions integration
+
+## Test Architecture
+
+### Test Categories
+
+#### 1. Smoke Tests (Critical Path)
+- **App Launch**: Verify application loads without errors
+- **Canvas Visibility**: Ensure main canvas is visible and interactive
+- **Core Functionality**: Basic drawing operations work
+
+#### 2. Integration Tests
+- **Drawing Modes**: Grid, Circle, RowCol modes function correctly
+- **Color Systems**: Paint modes render expected colors
+- **UI Controls**: Parameter sliders and buttons respond correctly
+
+#### 3. Visual Regression Tests
+- **Canvas Output**: Screenshot comparison for drawing operations
+- **UI Consistency**: Component layout and styling verification
+
+#### 4. Performance Tests
+- **Load Time**: Application startup performance
+- **Canvas Rendering**: Frame rate during drawing operations
+
+## Implementation Strategy
+
+### Phase 1: Foundation Setup
+
+#### 1.1 Dependencies Installation
+```json
+{
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "@playwright/test-runner": "^1.44.0"
+  }
+}
+```
+
+#### 1.2 Configuration Files
+- `playwright.config.js`: Main configuration
+- `e2e/` directory structure
+- CI/CD integration setup
+
+#### 1.3 Basic Test Infrastructure
+- Test helpers and utilities
+- Custom assertions for canvas elements
+- Screenshot management system
+
+### Phase 2: Critical Smoke Tests
+
+#### 2.1 Application Launch Test
+```javascript
+// tests/e2e/smoke/app-launch.spec.js
+import { test, expect } from '@playwright/test';
+import { waitForP5Ready, waitForNuxtReady } from '../utils/canvas-utils.js';
+
+test('application loads successfully', async ({ page }) => {
+  await page.goto('/');
+  
+  // Verify no console errors
+  const consoleErrors = [];
+  page.on('console', msg => {
+    if (msg.type() === 'error') consoleErrors.push(msg.text());
+  });
+  
+  // Wait for Nuxt to be ready
+  await waitForNuxtReady(page);
+  
+  // Wait for p5.js to initialize completely
+  await waitForP5Ready(page);
+  
+  // Verify canvas is visible
+  const canvas = page.locator('canvas').first();
+  await expect(canvas).toBeVisible();
+  
+  // Verify p5.js instance exists and is ready
+  const p5Ready = await page.evaluate(() => {
+    return window.p5Instance && 
+           window.p5Instance._setupDone &&
+           typeof window.p5Instance.draw === 'function';
+  });
+  expect(p5Ready).toBe(true);
+  
+  // Verify no critical errors occurred
+  expect(consoleErrors).toHaveLength(0);
+});
+```
+
+#### 2.2 Canvas Visibility Test
+```javascript
+// tests/e2e/smoke/canvas-visibility.spec.js
+import { test, expect } from '@playwright/test';
+import { waitForP5Ready, waitForFontsLoaded } from '../utils/canvas-utils.js';
+
+test('main canvas is visible and interactive', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForLoadState('networkidle');
+  
+  // Wait for fonts to load (critical for text-based p5.js app)
+  await waitForFontsLoaded(page);
+  
+  // Wait for p5.js to be fully ready
+  await waitForP5Ready(page);
+  
+  // Verify canvas exists and is visible
+  const canvas = page.locator('canvas').first();
+  await expect(canvas).toBeVisible();
+  
+  // Verify canvas has proper dimensions
+  const canvasSize = await canvas.boundingBox();
+  expect(canvasSize.width).toBeGreaterThan(0);
+  expect(canvasSize.height).toBeGreaterThan(0);
+  
+  // Verify canvas is interactive (not covered by other elements)
+  await canvas.click();
+  
+  // Verify p5.js mouse events are working
+  const mousePressed = await page.evaluate(() => {
+    return window.p5Instance && 
+           typeof window.p5Instance.mousePressed === 'function';
+  });
+  expect(mousePressed).toBe(true);
+});
+```
+
+### Phase 3: Drawing Mode Tests
+
+#### 3.1 Grid Mode Test
+```javascript
+// tests/e2e/drawing-modes/grid-mode.spec.js
+test('grid drawing mode renders correctly', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => window.p5Instance !== undefined);
+  
+  // Set grid mode
+  await page.selectOption('[data-testid="paint-mode"]', 'grid');
+  
+  // Perform drawing action
+  const canvas = page.locator('canvas').first();
+  await canvas.click({ position: { x: 100, y: 100 } });
+  
+  // Verify visual output (screenshot comparison)
+  await expect(canvas).toHaveScreenshot('grid-mode-basic.png');
+});
+```
+
+#### 3.2 Circle and RowCol Mode Tests
+Similar structure for other drawing modes with mode-specific assertions.
+
+### Phase 4: Visual Regression Testing
+
+#### 4.1 Screenshot Comparison System
+- Baseline screenshots for each drawing mode
+- Automated comparison with tolerance settings
+- Failed test artifact collection
+
+#### 4.2 Color System Verification
+```javascript
+// tests/e2e/visual/color-systems.spec.js
+test('rainbow paint mode produces expected colors', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => window.p5Instance !== undefined);
+  
+  // Set rainbow mode
+  await page.selectOption('[data-testid="color-mode"]', 'rainbow1');
+  
+  // Draw test pattern
+  await drawTestPattern(page);
+  
+  // Screenshot comparison
+  const canvas = page.locator('canvas').first();
+  await expect(canvas).toHaveScreenshot('rainbow-mode-pattern.png', {
+    threshold: 0.2 // Allow for minor rendering differences
+  });
+});
+```
+
+### Phase 5: UI Integration Tests
+
+#### 5.1 Parameter Control Tests
+```javascript
+// tests/e2e/ui/parameter-controls.spec.js
+test('text size slider affects canvas rendering', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => window.p5Instance !== undefined);
+  
+  // Take baseline screenshot
+  const canvas = page.locator('canvas').first();
+  await canvas.screenshot({ path: 'baseline.png' });
+  
+  // Adjust text size
+  await page.locator('[data-testid="text-size-slider"]').fill('24');
+  
+  // Draw text
+  await canvas.click({ position: { x: 100, y: 100 } });
+  
+  // Verify size change is reflected
+  await expect(canvas).not.toHaveScreenshot('baseline.png');
+});
+```
+
+#### 5.2 Keyboard Shortcut Tests
+Verify that keyboard shortcuts work correctly in the browser environment.
+
+## File Structure
+
+```
+tests/
+  e2e/
+    smoke/
+      app-launch.spec.js
+      canvas-visibility.spec.js
+    drawing-modes/
+      grid-mode.spec.js
+      circle-mode.spec.js
+      rowcol-mode.spec.js
+    visual/
+      color-systems.spec.js
+      canvas-transforms.spec.js
+    ui/
+      parameter-controls.spec.js
+      keyboard-shortcuts.spec.js
+    utils/
+      test-helpers.js
+      canvas-utils.js
+    fixtures/
+      test-patterns.js
+playwright.config.js
+```
+
+## Configuration Details
+
+### Playwright Configuration (`playwright.config.js`)
+```javascript
+module.exports = {
+  testDir: './tests/e2e',
+  timeout: 30000,
+  expect: {
+    timeout: 5000,
+    toHaveScreenshot: {
+      threshold: 0.2,
+      mode: 'pixel'
+    }
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] }
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] }
+    }
+  ],
+  webServer: {
+    command: 'npm run dev',
+    port: 3000,
+    reuseExistingServer: !process.env.CI
+  },
+  use: {
+    baseURL: 'http://localhost:3000',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure'
+  }
+};
+```
+
+## Custom Utilities
+
+### Canvas Testing Helpers
+```javascript
+// tests/e2e/utils/canvas-utils.js
+
+// Wait for p5.js instance to be fully initialized
+export async function waitForP5Ready(page) {
+  await page.waitForFunction(() => {
+    return window.p5Instance && 
+           window.p5Instance._setupDone && 
+           window.p5Instance.canvas &&
+           window.p5Instance.canvas.style.display !== 'none';
+  });
+}
+
+export async function waitForCanvasRender(page) {
+  await page.waitForFunction(() => {
+    const canvas = document.querySelector('canvas');
+    return canvas && canvas.width > 0 && canvas.height > 0;
+  });
+}
+
+// p5.js-specific drawing pattern for testing
+export async function drawTestPattern(page) {
+  await waitForP5Ready(page);
+  
+  const canvas = page.locator('canvas').first();
+  
+  // Draw a simple test pattern
+  await canvas.click({ position: { x: 50, y: 50 } });
+  await canvas.click({ position: { x: 150, y: 50 } });
+  await canvas.click({ position: { x: 100, y: 100 } });
+  
+  // Wait for p5.js to process the drawing
+  await page.waitForTimeout(100);
+}
+
+export async function getCanvasPixelData(page, x, y) {
+  return await page.evaluate((coords) => {
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(coords.x, coords.y, 1, 1);
+    return Array.from(imageData.data);
+  }, { x, y });
+}
+
+// Check if p5.js is in a specific drawing mode
+export async function getCurrentDrawingMode(page) {
+  return await page.evaluate(() => {
+    return window.p5Instance?.allParams?.paintMode || 'unknown';
+  });
+}
+
+// Trigger p5.js keyboard shortcuts
+export async function triggerP5Shortcut(page, key) {
+  await page.keyboard.press(key);
+  // Wait for p5.js to process the shortcut
+  await page.waitForTimeout(50);
+}
+
+// Wait for fonts to load (important for text-based p5.js apps)
+export async function waitForFontsLoaded(page) {
+  await page.waitForFunction(() => {
+    return document.fonts.ready;
+  });
+}
+```
+
+### Vue 2 + Nuxt 2 Specific Helpers
+```javascript
+// tests/e2e/utils/vue-utils.js
+
+// Wait for Nuxt client-side hydration
+export async function waitForNuxtReady(page) {
+  await page.waitForFunction(() => {
+    return window.$nuxt && window.$nuxt.$store;
+  });
+}
+
+// Access Vue component data via Nuxt
+export async function getVueComponentData(page, selector) {
+  return await page.evaluate((sel) => {
+    const element = document.querySelector(sel);
+    return element?.__vue__?.$data || null;
+  }, selector);
+}
+```
+
+## CI/CD Integration
+
+### GitHub Actions Workflow
+```yaml
+# .github/workflows/e2e-tests.yml
+name: E2E Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+```
+
+## Test Data Management
+
+### Screenshot Management
+- Store baseline screenshots in `tests/e2e/screenshots/`
+- Use meaningful naming convention: `{test-name}-{browser}-{viewport}.png`
+- Version control baseline images
+- Update baselines only when visual changes are intentional
+
+### Test Fixtures
+- Create reusable test data for common scenarios
+- Mock complex interactions when needed
+- Maintain test isolation
+
+## Debugging and Development
+
+### Local Development
+```bash
+# Run tests in headed mode
+npx playwright test --headed
+
+# Debug specific test
+npx playwright test --debug tests/e2e/smoke/app-launch.spec.js
+
+# Update screenshots
+npx playwright test --update-snapshots
+```
+
+### Visual Debugging
+- Use Playwright's trace viewer for failed tests
+- Screenshot diffs for visual regression failures
+- Video recordings for complex interaction debugging
+
+## Performance Considerations
+
+### Test Optimization
+- Use `page.waitForLoadState('networkidle')` appropriately
+- Implement smart waiting strategies for p5.js initialization
+- Parallel test execution where possible
+- Screenshot comparison with appropriate thresholds
+
+### Resource Management
+- Clean up screenshots and videos after successful runs
+- Use appropriate test timeouts
+- Optimize for CI/CD pipeline performance
+
+## Maintenance Strategy
+
+### Regular Updates
+- Keep Playwright version current
+- Update baseline screenshots when UI changes
+- Review and update test scenarios as features evolve
+
+### Test Review Process
+- Code review for new E2E tests
+- Regular audit of test effectiveness
+- Remove or update obsolete tests
+
+## Success Metrics
+
+### Coverage Goals
+- 100% of critical user paths tested
+- All drawing modes covered
+- Key UI interactions verified
+- Visual regression detection for core features
+
+### Quality Metrics
+- Zero false positives in CI/CD
+- Fast test execution (< 5 minutes for full suite)
+- Clear failure reporting and debugging information
+
+## Implementation Timeline
+
+### Week 1: Foundation
+- Install and configure Playwright
+- Create basic test structure
+- Implement app launch smoke test
+
+### Week 2: Core Tests
+- Canvas visibility verification
+- Basic drawing mode tests
+- Parameter control integration
+
+### Week 3: Visual Testing
+- Screenshot comparison system
+- Color system verification
+- UI regression tests
+
+### Week 4: Polish and CI/CD
+- GitHub Actions integration
+- Test optimization
+- Documentation and team training
+
+## Conclusion
+
+This E2E testing strategy will provide comprehensive coverage for runtime issues that unit tests cannot catch, particularly focusing on the visual and interactive nature of the PolychromeText application. The implementation will be phased to provide immediate value while building toward comprehensive coverage.
+
+The use of Playwright ensures modern, reliable testing with excellent debugging capabilities, while the focus on visual regression testing addresses the unique challenges of testing a creative coding application.
