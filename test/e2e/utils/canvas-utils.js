@@ -143,26 +143,22 @@ export function setupConsoleErrorTracking(page) {
 
 /**
  * Change drawing mode via GUI dropdown
- * @param {Page} page - Playwright page object
- * @param {string} mode - Drawing mode ('Grid', 'Circle', 'Grid2')
+ * QuickSettings creates: bindDropDown('drawMode', drawModes, params)
+ * drawModes = ['Grid', 'Circle', 'Grid2']
  */
 export async function setDrawingMode(page, mode) {
   await waitForP5Ready(page)
+  await waitForQuickSettingsReady(page)
+  await expandAllGuiPanels(page)
 
-  // Find the drawMode dropdown by looking for the dropdown that contains the mode options
-  const dropdown = await page.locator('select').evaluateAll((selects) => {
-    return selects.find(select => {
-      const options = Array.from(select.options)
-      return options.some(option => ['Grid', 'Circle', 'Grid2'].includes(option.value))
-    })
+  // QuickSettings creates select elements for dropdowns
+  // Find the select that has the drawing mode options
+  const drawModeSelect = page.locator('select').filter({
+    has: page.locator('option', { hasText: 'Grid' })
   })
 
-  if (dropdown) {
-    await page.selectOption(dropdown, mode)
-    await page.waitForTimeout(100) // Wait for p5.js to process the change
-  } else {
-    throw new Error(`Could not find drawMode dropdown`)
-  }
+  await drawModeSelect.selectOption({ label: mode })
+  await page.waitForTimeout(100)
 }
 
 /**
@@ -173,6 +169,8 @@ export async function setDrawingMode(page, mode) {
  */
 export async function setPaintMode(page, mode, target = 'fill') {
   await waitForP5Ready(page)
+  await waitForQuickSettingsReady(page)
+  await expandAllGuiPanels(page)
 
   // Find the appropriate paintMode dropdown
   const dropdown = await page.locator('select').evaluateAll((selects, targetType) => {
@@ -218,6 +216,8 @@ export async function setPaintMode(page, mode, target = 'fill') {
  */
 export async function setParameter(page, parameter, value) {
   await waitForP5Ready(page)
+  await waitForQuickSettingsReady(page)
+  await expandAllGuiPanels(page)
 
   // Try to find the parameter input by looking for inputs near labels
   const input = await page.locator('input').evaluateAll((inputs, paramName) => {
@@ -246,14 +246,15 @@ export async function setParameter(page, parameter, value) {
 }
 
 /**
- * Click a GUI button
- * @param {Page} page - Playwright page object
- * @param {string} buttonText - Button text (e.g., 'clear', 'save')
+ * Click a QuickSettings button
+ * QuickSettings buttons are input[type="button"] elements with class "qs_button"
  */
 export async function clickGuiButton(page, buttonText) {
   await waitForP5Ready(page)
+  await waitForQuickSettingsReady(page)
+  await expandAllGuiPanels(page)
 
-  const button = page.locator('button').filter({ hasText: buttonText })
+  const button = page.locator(`input[type="button"][value="${buttonText}"].qs_button`)
   await button.click()
   await page.waitForTimeout(100)
 }
@@ -317,9 +318,73 @@ export async function canvasHasContent(page) {
 
 /**
  * Clear the canvas using the GUI button
- * @param {Page} page - Playwright page object
+ * Updated based on actual DOM structure validation
  */
 export async function clearCanvas(page) {
-  await clickGuiButton(page, 'clear')
-  await page.waitForTimeout(200) // Wait for clear to complete
+  await waitForQuickSettingsReady(page)
+  await expandAllGuiPanels(page)
+
+  // Try the expected QuickSettings selector first
+  let clearButton = page.locator('input[type="button"][value="clear"].qs_button')
+  let buttonCount = await clearButton.count()
+
+  if (buttonCount === 0) {
+    // Fallback: look for any button with "clear" value
+    clearButton = page.locator('input[type="button"][value="clear"]')
+    buttonCount = await clearButton.count()
+  }
+
+  if (buttonCount === 0) {
+    // Last resort: look for button with "clear" text
+    clearButton = page.locator('button:has-text("clear")')
+    buttonCount = await clearButton.count()
+  }
+
+  if (buttonCount > 0) {
+    await clearButton.first().click()
+    await page.waitForTimeout(200)
+  } else {
+    throw new Error('Could not find clear button with any known selector')
+  }
+}
+
+/**
+ * Wait for QuickSettings GUI to be fully initialized
+ * This is crucial because GUI panels are created after p5 setup and are collapsed by default
+ */
+export async function waitForQuickSettingsReady(page) {
+  await page.waitForFunction(() => {
+    // Check for QuickSettings panel elements (even if collapsed)
+    const panels = document.querySelectorAll('.qs_panel')
+    const titleBars = document.querySelectorAll('.qs_title_bar')
+
+    // Should have multiple panels with title bars
+    return panels.length > 0 && titleBars.length > 0
+  }, { timeout: 30000 })
+
+  // Give a moment for all panels to fully render
+  await page.waitForTimeout(500)
+}
+
+/**
+ * Expand all collapsed QuickSettings panels
+ * CRITICAL: Panels are collapsed by default and controls are not accessible until expanded
+ */
+export async function expandAllGuiPanels(page) {
+  await page.evaluate(() => {
+    const titleBars = document.querySelectorAll('.qs_title_bar')
+    console.log(`Expanding ${titleBars.length} QuickSettings panels`)
+
+    titleBars.forEach((titleBar, i) => {
+      const panel = titleBar.closest('.qs_panel')
+      if (panel) {
+        const panelTitle = titleBar.textContent?.trim() || `Panel ${i}`
+        console.log(`Expanding panel: ${panelTitle}`)
+        titleBar.click()
+      }
+    })
+  })
+
+  // Wait for expansion animations to complete
+  await page.waitForTimeout(500)
 }
