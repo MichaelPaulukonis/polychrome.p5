@@ -81,3 +81,7 @@ playwright-report/
 playwright/.cache/
 
 .env
+enhanced-validation-results.txt
+gui-validation-results.txt
+COMMIT_STRATEGY.md
+COMMIT_MESSAGE.md
