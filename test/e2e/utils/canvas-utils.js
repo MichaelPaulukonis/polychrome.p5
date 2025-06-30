@@ -135,3 +135,191 @@ export function setupConsoleErrorTracking(page) {
   })
   return errors
 }
+
+/**
+ * GUI Interaction Utilities for PolychromeText
+ * These functions help interact with the QuickSettings GUI controls
+ */
+
+/**
+ * Change drawing mode via GUI dropdown
+ * @param {Page} page - Playwright page object
+ * @param {string} mode - Drawing mode ('Grid', 'Circle', 'Grid2')
+ */
+export async function setDrawingMode(page, mode) {
+  await waitForP5Ready(page)
+
+  // Find the drawMode dropdown by looking for the dropdown that contains the mode options
+  const dropdown = await page.locator('select').evaluateAll((selects) => {
+    return selects.find(select => {
+      const options = Array.from(select.options)
+      return options.some(option => ['Grid', 'Circle', 'Grid2'].includes(option.value))
+    })
+  })
+
+  if (dropdown) {
+    await page.selectOption(dropdown, mode)
+    await page.waitForTimeout(100) // Wait for p5.js to process the change
+  } else {
+    throw new Error(`Could not find drawMode dropdown`)
+  }
+}
+
+/**
+ * Change paint mode via GUI dropdown
+ * @param {Page} page - Playwright page object
+ * @param {string} mode - Paint mode ('Rainbow1', 'Black', 'solid', etc.)
+ * @param {string} target - Target control ('fill' or 'outline')
+ */
+export async function setPaintMode(page, mode, target = 'fill') {
+  await waitForP5Ready(page)
+
+  // Find the appropriate paintMode dropdown
+  const dropdown = await page.locator('select').evaluateAll((selects, targetType) => {
+    return selects.find(select => {
+      const options = Array.from(select.options)
+      // Look for dropdowns with paint mode options
+      const hasPaintModes = options.some(option =>
+        ['Rainbow1', 'Rainbow2', 'Black', 'White', 'solid', 'lerp-scheme'].includes(option.value)
+      )
+      if (!hasPaintModes) {
+        return false
+      }
+
+      // Try to identify if this is fill or outline based on nearby GUI elements
+      const parent = select.closest('.qs_container')
+      if (parent) {
+        const title = parent.querySelector('.qs_title')
+        if (title && targetType === 'fill') {
+          return title.textContent.toLowerCase().includes('fill')
+        } else if (title && targetType === 'outline') {
+          return title.textContent.toLowerCase().includes('outline')
+        }
+      }
+
+      // If we can't identify, assume the first match is fill
+      return targetType === 'fill'
+    })
+  }, target)
+
+  if (dropdown) {
+    await page.selectOption(dropdown, mode)
+    await page.waitForTimeout(100)
+  } else {
+    throw new Error(`Could not find ${target} paintMode dropdown`)
+  }
+}
+
+/**
+ * Adjust a parameter slider/input
+ * @param {Page} page - Playwright page object
+ * @param {string} parameter - Parameter name (e.g., 'rows', 'columns', 'textSize')
+ * @param {number} value - New value
+ */
+export async function setParameter(page, parameter, value) {
+  await waitForP5Ready(page)
+
+  // Try to find the parameter input by looking for inputs near labels
+  const input = await page.locator('input').evaluateAll((inputs, paramName) => {
+    return inputs.find(input => {
+      // Check if input is associated with a label containing the parameter name
+      const parent = input.closest('.qs_container')
+      if (parent) {
+        const label = parent.querySelector('.qs_label')
+        if (label && label.textContent.toLowerCase().includes(paramName.toLowerCase())) {
+          return true
+        }
+      }
+
+      // Check if input has an id or name that matches
+      return input.id === paramName || input.name === paramName
+    })
+  }, parameter)
+
+  if (input) {
+    await input.fill(value.toString())
+    await page.keyboard.press('Enter') // Trigger change event
+    await page.waitForTimeout(100)
+  } else {
+    throw new Error(`Could not find parameter input for ${parameter}`)
+  }
+}
+
+/**
+ * Click a GUI button
+ * @param {Page} page - Playwright page object
+ * @param {string} buttonText - Button text (e.g., 'clear', 'save')
+ */
+export async function clickGuiButton(page, buttonText) {
+  await waitForP5Ready(page)
+
+  const button = page.locator('button').filter({ hasText: buttonText })
+  await button.click()
+  await page.waitForTimeout(100)
+}
+
+/**
+ * Get current parameter value
+ * @param {Page} page - Playwright page object
+ * @param {string} parameter - Parameter name
+ * @returns {Promise<any>} Current parameter value
+ */
+export async function getParameterValue(page, parameter) {
+  return await page.evaluate((paramName) => {
+    const app = document.querySelector('#app')
+    if (!app || !app.__vue__) {
+      return null
+    }
+    const rootVue = app.__vue__
+    const params = rootVue.$data?.pchrome?.params
+    if (!params) {
+      return null
+    }
+
+    // Handle nested parameters (e.g., 'fill.paintMode')
+    const path = paramName.split('.')
+    let value = params
+    for (const key of path) {
+      value = value?.[key]
+      if (value === undefined) {
+        return null
+      }
+    }
+    return value
+  }, parameter)
+}
+
+/**
+ * Verify canvas has content (not blank)
+ * @param {Page} page - Playwright page object
+ * @returns {Promise<boolean>} True if canvas has content
+ */
+export async function canvasHasContent(page) {
+  return await page.evaluate(() => {
+    const canvas = document.querySelector('canvas')
+    if (!canvas) {
+      return false
+    }
+
+    const ctx = canvas.getContext('2d')
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    const data = imageData.data
+
+    // Check if any pixel is not fully transparent
+    for (let i = 3; i < data.length; i += 4) {
+      if (data[i] !== 0) { // Alpha channel
+        return true
+      }
+    }
+    return false
+  })
+}
+
+/**
+ * Clear the canvas using the GUI button
+ * @param {Page} page - Playwright page object
+ */
+export async function clearCanvas(page) {
+  await clickGuiButton(page, 'clear')
+  await page.waitForTimeout(200) // Wait for clear to complete
+}
