@@ -1,5 +1,6 @@
 // tests/e2e/smoke/basic-load.spec.js
 import { test, expect } from '@playwright/test'
+import { waitForP5Ready } from '../utils/canvas-utils.js'
 
 test.describe('Basic Application Load', () => {
   test('page loads and title is correct', async ({ page }) => {
@@ -15,13 +16,15 @@ test.describe('Basic Application Load', () => {
 
   test('check what global variables are available', async ({ page }) => {
     await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await waitForP5Ready(page)
 
     // Let's see what's actually available in the global scope
     const globals = await page.evaluate(() => {
+      const app = document.querySelector('#app')
+      const p5Instance = app?.__vue__?.$data?.pchrome?.p5
       return {
         hasWindow: typeof window !== 'undefined',
-        hasP5Instance: typeof window.p5Instance !== 'undefined',
+        hasP5Instance: !!p5Instance,
         hasNuxt: typeof window.$nuxt !== 'undefined',
         hasP5: typeof window.p5 !== 'undefined',
         canvasCount: document.querySelectorAll('canvas').length,

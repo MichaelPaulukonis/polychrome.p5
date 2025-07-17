@@ -5,16 +5,12 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [vue()],
   test: {
-    environment: 'jsdom',
-    setupFiles: ['./test/setup.js'],
     globals: true,
-    include: [
-      'test/**/*.test.{js,ts}',
-    ],
+    environment: 'jsdom',
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
-      '**/test/e2e/**'
+      '**/test/e2e/**' // Ensure Playwright tests are excluded
     ]
   },
   resolve: {

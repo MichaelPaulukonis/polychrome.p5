@@ -5,7 +5,7 @@
  * This is crucial for PolychromeText since the app depends on p5.js
  * PolychromeText stores the p5 instance in a Sketch class in the root Vue component
  */
-export async function waitForP5Ready(page) {
+export async function waitForP5Ready (page) {
   await page.waitForFunction(() => {
     // Check if there's a canvas element (p5 creates this)
     const canvas = document.querySelector('canvas')
@@ -105,7 +105,7 @@ export async function waitForFontsLoaded(page) {
  * Wait for Nuxt client-side hydration
  * Important for Vue/Nuxt apps
  */
-export async function waitForNuxtReady(page) {
+export async function waitForNuxtReady (page) {
   await page.waitForFunction(() => {
     return window.$nuxt && window.$nuxt.$store
   })

@@ -5,7 +5,6 @@ import { waitForP5Ready, waitForFontsLoaded } from '../utils/canvas-utils.js'
 test.describe('Canvas Visibility', () => {
   test('main canvas is visible and interactive', async ({ page }) => {
     await page.goto('/')
-    await page.waitForLoadState('networkidle')
 
     // Wait for fonts to load (critical for text-based p5.js app)
     await waitForFontsLoaded(page)
@@ -27,8 +26,11 @@ test.describe('Canvas Visibility', () => {
 
     // Verify p5.js mouse events are working
     const mousePressed = await page.evaluate(() => {
-      return window.p5Instance &&
-             typeof window.p5Instance.mousePressed === 'function'
+      const app = document.querySelector('#app')
+      if (!app || !app.__vue__) return false
+      const instance = app.__vue__.$data.pchrome.p5
+      return instance &&
+             typeof instance.mousePressed === 'function'
     })
     expect(mousePressed).toBe(true)
   })

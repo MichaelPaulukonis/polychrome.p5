@@ -22,9 +22,12 @@ test.describe('Application Launch', () => {
 
     // Verify p5.js instance exists and is ready
     const p5Ready = await page.evaluate(() => {
-      return window.p5Instance &&
-             window.p5Instance._setupDone &&
-             typeof window.p5Instance.draw === 'function'
+      const app = document.querySelector('#app')
+      if (!app || !app.__vue__) return false
+      const instance = app.__vue__.$data.pchrome.p5
+      return instance &&
+             instance._setupDone &&
+             typeof instance.draw === 'function'
     })
     expect(p5Ready).toBe(true)
 
@@ -38,7 +41,10 @@ test.describe('Application Launch', () => {
 
     // Check that p5.js instance has the expected properties for PolychromeText
     const p5Properties = await page.evaluate(() => {
-      const instance = window.p5Instance
+      const app = document.querySelector('#app')
+      if (!app || !app.__vue__) return null
+      const instance = app.__vue__.$data.pchrome.p5
+      if (!instance) return null
       return {
         hasCanvas: !!instance.canvas,
         hasDrawMethod: typeof instance.draw === 'function',
