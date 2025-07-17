@@ -35,7 +35,7 @@ _**Assistant**_
 
 I'll create a master.md file in the notes folder that serves as the main project documentation following your specified structure.
 
-### [master.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/master.md)
+### [master.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/master.md)
 
 ```markdown
 # Polychrome - Master Documentation

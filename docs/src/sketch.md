@@ -113,7 +113,7 @@ The sketch integrates with the external color system module via:
 
 The color system automatically references the current `layers.drawingLayer`, ensuring compatibility with dynamic layer replacement after operations like canvas rotation.
 
-For detailed color system documentation, see: `notes/src/color/color-system.md`
+For detailed color system documentation, see: `docs/src/color/color-system.md`
 
 ## Utility Functions
 

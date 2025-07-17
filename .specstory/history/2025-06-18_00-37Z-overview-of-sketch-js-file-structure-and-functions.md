@@ -474,7 +474,7 @@ Sets font on layer, using loaded font objects or fallback
 
 _**User**_
 
-Please create a commit message for this file, which has been added to notes/src
+Please create a commit message for this file, which has been added to docs/src
 
 ---
 

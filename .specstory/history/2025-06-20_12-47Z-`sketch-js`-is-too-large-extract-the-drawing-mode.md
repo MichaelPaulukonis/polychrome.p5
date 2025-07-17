@@ -12,7 +12,7 @@ _**User**_
 - Keep functions testable for future automated testing
 
 **Tasks:**
-1. Create `notes/plans/drawing-modes-refactor.md` with:
+1. Create `docs/plans/drawing-modes-refactor.md` with:
    - Step-by-step refactor plan
    - Potential breaking points
    - Testing steps to verify functionality
@@ -507,7 +507,7 @@ Thanks! Now, last step:
 
 - Create a concise overview `.md` file for this new module.
 - Optimize the overview to provide context for AI-assisted development rather than human readers.
-- Place into  '../notes/src/' in a folder structure that parallels the module.
+- Place into  '../docs/src/' in a folder structure that parallels the module.
 
 ---
 
@@ -525,7 +525,7 @@ I'll create concise documentation for the new drawing modes module structure to 
 ### **Documentation Structure:**
 
 ```
-notes/src/
+docs/src/
 ├── drawing-modes/
 │   └── README.md          # Drawing modes module overview
 ├── utils/

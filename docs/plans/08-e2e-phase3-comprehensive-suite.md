@@ -1,4 +1,7 @@
-# E2E Testing Phase 3: Comprehensive Suite & CI Integration
+# ⚪️ E2E Testing Phase 3: Comprehensive Suite & CI Integration (Superseded)
+
+**This plan has been superseded by [09-e2e-action-plan.md](./09-e2e-action-plan.md).**
+
 
 ## Date: June 29, 2025
 

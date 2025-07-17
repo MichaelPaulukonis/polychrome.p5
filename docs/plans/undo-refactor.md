@@ -291,7 +291,7 @@ currentPosition = currentPosition === 0 ?
 - Moved `src/undo.layers.test.js` → `test/undo.layers.test.js` (to standard test directory)
 - Updated import path in `src/sketch.js`
 - Updated test import path to `../src/undo/undo.layers.js`
-- Updated documentation references in `notes/src/undo/undo.md`
+- Updated documentation references in `docs/src/undo/undo.md`
 
 **Benefits**:
 - **Better organization**: Undo-related implementation files grouped together

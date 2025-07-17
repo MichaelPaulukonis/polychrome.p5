@@ -33,7 +33,7 @@ Let me update the canvas-transforms documentation to reflect this improvement:
 2. Update the error handling section to mention this specific improvement
 3. Add this to the performance considerations and limitations sections
 
-### [canvas-transforms.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/src/canvas-transforms/canvas-transforms.md)
+### [canvas-transforms.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/src/canvas-transforms/canvas-transforms.md)
 
 Add defensive null check information to the mirrorCore function documentation and update error handling sections.
 

@@ -5,7 +5,7 @@
 _**User**_
 
 Create a concise overview params.md file for the parameter system (covering params.js, sketch.js, and any other files that may be referenced in the code but not mentioned here)
-Place into '../notes/src/'
+Place into '../docs/src/'
 Optimize the overview to prioritize context for AI-assisted development over human readers.
 Documentation should cover (but is not limited to)
   - parameter structure and types
@@ -22,7 +22,7 @@ Looking at the code, I need to analyze the parameter system structure across `pa
 
 Let me create a concise overview optimized for AI-assisted development:
 
-### ../notes/src/params.md
+### ../docs/src/params.md
 
 Parameter system documentation for AI context and development guidance.
 
@@ -185,7 +185,7 @@ Main configuration object combining:
 _**User**_
 
 Create a concise overview layers.md file for the layer system (covering layers.js, sketch.js, and any other files that may be referenced in the code but not mentioned here)
-Place into '../notes/src/'
+Place into '../docs/src/'
 Optimize the overview to prioritize context for AI-assisted development over human readers.
 Documentation should cover (but is not limited to)
 
@@ -221,7 +221,7 @@ _**Assistant**_
 
 Based on the provided files, I can now create comprehensive documentation for the layer system. Let me analyze the `Layers` class, its integration points, and relationships with other systems.
 
-### ../notes/src/layers.md
+### ../docs/src/layers.md
 
 Layer system documentation for AI context and development guidance.
 
@@ -490,7 +490,7 @@ layers.textSize(newSize)   // Sets on both p5 and drawingLayer
 _**User**_
 
 Create a concise overview file-save.md file for the file save system (covering filelib.js, sketch.js, use of the file-save library, and any other files that may be referenced in the code but not mentioned here)
-Place into '../notes/src/'
+Place into '../docs/src/'
 Optimize the overview to prioritize context for AI-assisted development over human readers.
 
 If anything is unclear, please ask me.
@@ -501,7 +501,7 @@ _**Assistant**_
 
 Based on the provided files, I can see the file save system spans multiple components including `filelib.js`, `sketch.js`, the `file-saver` library, and integration with the recording/capture system. Let me create comprehensive documentation for this system.
 
-### ../notes/src/file-save.md
+### ../docs/src/file-save.md
 
 File save system documentation for AI context and development guidance.
 

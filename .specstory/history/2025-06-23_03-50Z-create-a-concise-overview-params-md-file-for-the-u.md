@@ -6,7 +6,7 @@ _**User**_
 
 Create a concise overview params.md file for the undo system params.js, and any other files that need to be referenced)
 Optimize the overview to prioritize context for AI-assisted development over human readers.
-Place into '../notes/src/'
+Place into '../docs/src/'
 If anything is unclear, please ask me.
 
 ---

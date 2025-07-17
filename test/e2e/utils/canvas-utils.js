@@ -148,8 +148,6 @@ export function setupConsoleErrorTracking(page) {
  */
 export async function setDrawingMode(page, mode) {
   await waitForP5Ready(page)
-  await waitForQuickSettingsReady(page)
-  await expandAllGuiPanels(page)
 
   // QuickSettings creates select elements for dropdowns
   // Find the select that has the drawing mode options
@@ -169,8 +167,6 @@ export async function setDrawingMode(page, mode) {
  */
 export async function setPaintMode(page, mode, target = 'fill') {
   await waitForP5Ready(page)
-  await waitForQuickSettingsReady(page)
-  await expandAllGuiPanels(page)
 
   // Find the appropriate paintMode dropdown
   const dropdown = await page.locator('select').evaluateAll((selects, targetType) => {
@@ -216,8 +212,6 @@ export async function setPaintMode(page, mode, target = 'fill') {
  */
 export async function setParameter(page, parameter, value) {
   await waitForP5Ready(page)
-  await waitForQuickSettingsReady(page)
-  await expandAllGuiPanels(page)
 
   // Try to find the parameter input by looking for inputs near labels
   const input = await page.locator('input').evaluateAll((inputs, paramName) => {
@@ -251,8 +245,6 @@ export async function setParameter(page, parameter, value) {
  */
 export async function clickGuiButton(page, buttonText) {
   await waitForP5Ready(page)
-  await waitForQuickSettingsReady(page)
-  await expandAllGuiPanels(page)
 
   const button = page.locator(`input[type="button"][value="${buttonText}"].qs_button`)
   await button.click()
@@ -350,16 +342,16 @@ export async function clearCanvas(page) {
 
 /**
  * Wait for QuickSettings GUI to be fully initialized
- * This is crucial because GUI panels are created after p5 setup and are collapsed by default
+ * This is crucial because GUI panels are created after p5 setup
  */
 export async function waitForQuickSettingsReady(page) {
   await page.waitForFunction(() => {
-    // Check for QuickSettings panel elements (even if collapsed)
+    // Check for QuickSettings panel elements
     const panels = document.querySelectorAll('.qs_panel')
-    const titleBars = document.querySelectorAll('.qs_title_bar')
+    const containers = document.querySelectorAll('.qs_container')
 
-    // Should have multiple panels with title bars
-    return panels.length > 0 && titleBars.length > 0
+    // Should have multiple panels (mainGui, fontGui, shadowGui, etc.)
+    return panels.length > 0 && containers.length > 0
   }, { timeout: 30000 })
 
   // Give a moment for all panels to fully render
@@ -368,23 +360,19 @@ export async function waitForQuickSettingsReady(page) {
 
 /**
  * Expand all collapsed QuickSettings panels
- * CRITICAL: Panels are collapsed by default and controls are not accessible until expanded
+ * Panels are collapsed by default, need to expand to access controls
  */
 export async function expandAllGuiPanels(page) {
   await page.evaluate(() => {
-    const titleBars = document.querySelectorAll('.qs_title_bar')
-    console.log(`Expanding ${titleBars.length} QuickSettings panels`)
-
-    titleBars.forEach((titleBar, i) => {
-      const panel = titleBar.closest('.qs_panel')
-      if (panel) {
-        const panelTitle = titleBar.textContent?.trim() || `Panel ${i}`
-        console.log(`Expanding panel: ${panelTitle}`)
+    const panels = document.querySelectorAll('.qs_panel')
+    panels.forEach(panel => {
+      const titleBar = panel.querySelector('.qs_title_bar')
+      if (titleBar && panel.classList.contains('qs_collapsed')) {
         titleBar.click()
       }
     })
   })
 
-  // Wait for expansion animations to complete
-  await page.waitForTimeout(500)
+  // Wait for expansion animations
+  await page.waitForTimeout(300)
 }

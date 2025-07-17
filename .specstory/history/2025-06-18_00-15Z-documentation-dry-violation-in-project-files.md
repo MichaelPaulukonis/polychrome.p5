@@ -21,7 +21,7 @@ Yes, this is a documentation DRY violation. You have significant duplication bet
 
 ## Project Documentation Reference
 
-For comprehensive project context, architecture, and features, see: [Project Master Documentation](../notes/master.md)
+For comprehensive project context, architecture, and features, see: [Project Master Documentation](../docs/master.md)
 
 ## Copilot-Specific Guidelines
 

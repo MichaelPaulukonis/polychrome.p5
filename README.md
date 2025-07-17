@@ -11,6 +11,8 @@ This web-app plays with those boundaries, providing an polychromatic text painti
 > Although the word polychrome is created from the combining of two Greek words, it was not used in ancient Greece. The term was coined in the early nineteenth century by Antoine Chrysostôme Quatremère de Quincy. ([source](https://en.wikipedia.org/wiki/Ancient_Greek_art#Polychromy))
 
 
+![screenshot of polychrometext showing the classic palette and the fill menu](./docs/images/polychrome_screenshot.00.png)
+
 ## Animations
 
 Output multiple images

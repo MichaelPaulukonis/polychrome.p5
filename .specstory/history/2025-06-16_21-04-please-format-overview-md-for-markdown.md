@@ -18,7 +18,7 @@ I'll format the overview.md file to be properly structured markdown with appropr
 3. Add spacing and formatting for better readability
 4. Structure the content hierarchically
 
-### [overview.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/overview.md)
+### [overview.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/overview.md)
 
 Format the content with proper markdown headers, lists, code blocks, and structure for better readability.
 
@@ -252,7 +252,7 @@ _**Assistant**_
 
 I'll consolidate these three files into a comprehensive documentation file, noting contradictions and including all levels of detail.
 
-### [consolidated-documentation.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/consolidated-documentation.md)
+### [consolidated-documentation.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/consolidated-documentation.md)
 
 Create a comprehensive consolidated documentation file combining all three sources, with contradictions noted and all technical details included.
 
@@ -517,7 +517,7 @@ You're right to question this - "event-driven" is not the most accurate term for
 2. Evaluate what the application actually uses
 3. Replace with more accurate terminology
 
-### [consolidated-documentation.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/consolidated-documentation.md)
+### [consolidated-documentation.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/consolidated-documentation.md)
 
 Update the architecture description to use more accurate terminology instead of "event-driven programming model".
 
@@ -533,7 +533,7 @@ Update the architecture description to use more accurate terminology instead of 
 // ...existing code...
 ````
 
-### [master.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/master.md)
+### [master.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/master.md)
 
 Update the architecture section to be more accurate.
 
@@ -550,7 +550,7 @@ Update the architecture section to be more accurate.
 // ...existing code...
 ````
 
-### [Polychrome - Project Documentation.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/Polychrome%20-%20Project%20Documentation.md)
+### [Polychrome - Project Documentation.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/Polychrome%20-%20Project%20Documentation.md)
 
 Update the technical architecture description.
 

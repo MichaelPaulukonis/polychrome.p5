@@ -88,7 +88,7 @@ polychrome.p5/
 ├── assets/                # Static assets (fonts, images, styles)
 ├── pages/                 # Vue pages (single page app)
 ├── components/            # Vue components
-├── notes/                 # Comprehensive documentation
+├── docs/                 # Comprehensive documentation
 │   ├── src/               # Module documentation
 │   └── plans/             # Refactoring plans and ADRs
 ├── test/                  # Comprehensive test suite
@@ -99,7 +99,7 @@ polychrome.p5/
 - **`src/sketch.js`**: Main p5.js application entry point and initialization
 - **`src/params.js`**: Global configuration and parameter definitions
 - **`pages/index.vue`**: Main Vue component and application setup
-- **`notes/master.md`**: Comprehensive project documentation
+- **`docs/master.md`**: Comprehensive project documentation
 - **`vitest.config.js`**: Test configuration with jsdom environment
 
 ### **Configuration Files**
@@ -191,9 +191,9 @@ Comprehensive test suite with 89 tests across 7 test files:
 
 **Strengths:**
 - **Comprehensive README**: Clear project purpose and setup instructions
-- **Extensive Internal Documentation**: `notes/master.md` provides excellent technical overview
-- **Module Documentation**: `notes/src/` mirrors code structure with AI-focused documentation
-- **Planning Documentation**: `notes/plans/` contains refactoring plans and architectural decisions
+- **Extensive Internal Documentation**: `docs/master.md` provides excellent technical overview
+- **Module Documentation**: `docs/src/` mirrors code structure with AI-focused documentation
+- **Planning Documentation**: `docs/plans/` contains refactoring plans and architectural decisions
 - **AI Coding Guidelines**: Detailed Copilot instructions for consistent development
 
 **Areas for Improvement:**

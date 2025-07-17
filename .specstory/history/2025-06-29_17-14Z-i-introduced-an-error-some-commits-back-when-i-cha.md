@@ -10,7 +10,111 @@ I introduced an error some commits back when I changed a property name in the La
 
 _**Assistant**_
 
-I need to see the current state of the Layers class to understand what property name was changed and then update the documentation accordingly. Let me first examine the actual layers.js file to see the current property names. Now let me check the git history to see what property name was changed recently: Let me check more recent commits to see the property change: Let me check the diff of the layers refactor commit to see what property was changed: 
+I need to see the current state of the Layers class to understand what property name was changed and then update the documentation accordingly. Let me first examine the actual layers.js file to see the current property names. Now let me check the git history to see what property name was changed recently: Let me check more recent commits to see the property change: Let me check the diff of the layers refactor commit to see what property was changed: Now let me see the actual diff to understand what property was renamed: Now let me check if the property was reverted back from `p5instance` to `p5`: I can see from the current `layers.js` file that the property is named `p5` (not `p5instance`), but the commit `fcaad46` shows it was renamed to `p5instance`. This suggests it was reverted back to `p5`. Let me check if there were uncommitted changes or if this was reverted in a later commit.
+
+Let me search for any references to `p5instance` in the codebase to see if there are any remaining: Now I understand! The property was renamed from `p5` to `p5instance` in commit `fcaad46`, but this change broke code in the browser because other parts of the codebase were still using the original `p5` property name. The user has since reverted the property name back to `p5` and updated tests and fixtures accordingly.
+
+Looking at the current `layers.js` file, I can see the property is indeed back to `p5`. Now I need to update the documentation to reflect the correct property name. The documentation currently shows `p5` in the properties section, which is correct now, but I should also update any references to make sure they're consistent and note that this property was temporarily renamed but reverted.
+
+Let me update the documentation to ensure accuracy: The documentation is already correct with the `p5` property name. Let me check if there are any inconsistencies in the documentation that need to be fixed by looking at the sections that reference the cleanup method, since that was also removed: I can see the documentation still references the `cleanup()` method which was removed in the refactor. Let me update the documentation to remove references to the removed `cleanup()` method and any mention of automatic resource tracking that no longer exists: 
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+Now let me also add a note in the documentation about the property naming to provide context for future development: 
+```
+
+```
+I've updated the documentation to reflect the current state of the Layers class:
+
+## Changes Made
+
+1. **Removed references to `cleanup()` method** - This method was removed in the refactor commit and no longer exists in the class.
+
+2. **Updated Resource Tracking section** - Removed mention of "Automatic Cleanup" since the automatic resource tracking system was removed.
+
+3. **Updated Core Methods section** - Removed the `cleanup()` method from the API documentation.
+
+4. **Updated Cleanup Considerations** - Removed reference to the `cleanup()` method for bulk disposal.
+
+5. **Updated Memory Efficiency section** - Changed "Resource Tracking" to "Safe Disposal" to reflect the current implementation.
+
+6. **Added Property Naming Note** - Added context about the `p5` property name being maintained for compatibility, acknowledging that while it could be more descriptive, it ensures stability across the codebase.
+
+The documentation now accurately reflects the current implementation where:
+- The property is named `p5` (not `p5instance`) 
+- There is no automatic resource tracking or `cleanup()` method
+- Memory management relies on explicit caller responsibility for disposing graphics objects returned by `copy()` and `clone()`
+- The `dispose()` method provides safe disposal with null checks
+
+This ensures the documentation matches the actual code behavior and won't mislead developers about available methods or automatic cleanup features that no longer exist.
+
+---
+
+_**User**_
+
+Thanks! Please commit these changes with an appropriate message.
+
+---
+
+_**Assistant**_
+
+I'll commit these documentation changes with an appropriate conventional commit message that reflects the fixes made. Perfect! I've committed the documentation changes with a clear conventional commit message that explains:
+
+1. **Type**: `docs(layers)` - Documentation change for the layers module
+2. **Summary**: Indicates this fixes documentation after a property name reversion
+3. **Details**: Lists the specific changes made:
+   - Removed references to the non-existent `cleanup()` method
+   - Updated memory management documentation to reflect current implementation
+   - Added context about the `p5` property name choice
+   - Corrected the API documentation to match the actual code
+
+The commit message follows the project's conventional commit standards and provides clear context for future developers about why these documentation changes were necessary.
+
+---
+
+_**User**_
+
+Whoops, the commit message only references the documentation changes, not all the changes I made to the Layers class, tests, and other code. Let's generate a new message that covers all of that - with emphasis on the code and tests, that still mentions that docs were changed. And amend the last commit.
+
+---
+
+_**Assistant**_
+
+I need to see what other changes were made beyond the documentation to create a comprehensive commit message. Let me check what files were actually changed in the last commit. I can see there were changes to `layers.js` and font test files as well. Let me check what changes were made to the `layers.js` file and the test files to understand the full scope of changes: Now I understand the full scope of changes! The commit actually includes:
+
+1. **Reverting the property name** from `p5instance` back to `p5` in the Layers class
+2. **Updating all method calls** to use `this.p5` instead of `this.p5instance`
+3. **Fixing test files** to use the correct property name in mocks
+4. **Updating documentation** to reflect the changes
+
+Let me amend the commit with a more comprehensive message: Perfect! I've amended the commit with a comprehensive message that properly reflects all the changes made:
+
+## New Commit Message Structure:
+
+1. **Type & Scope**: `fix(layers)` - This is a fix for the layers module
+2. **Summary**: Clear indication this reverts the property name change
+3. **Detailed Changes**:
+   - Reverted the Layers class property name for compatibility
+   - Updated all internal method calls
+   - Fixed test mocks that were broken by the property name change
+   - Updated documentation 
+   - Added context note for future development
+
+4. **Context**: Explains why this was necessary - browser runtime errors occurred even though tests passed, highlighting the importance of this fix for actual application functionality.
+
+The new message emphasizes the code and test changes while still mentioning the documentation updates, giving proper priority to the functional fixes that resolved the browser runtime issues.
 
 ---
 

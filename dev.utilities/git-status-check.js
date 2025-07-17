@@ -1,11 +1,4 @@
-/**
- * Git Status Check Utility
- *
- * A development utility to check git repository status when terminal output
- * is not working properly (e.g., during Playwright/Jest conflicts).
- *
- * Usage: node dev.utilities/git-status-check.js
- */
+// Quick script to check git status
 const { execSync } = require('child_process')
 
 try {

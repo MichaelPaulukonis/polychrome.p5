@@ -1112,7 +1112,7 @@ _**User**_
 
 - Create a concise overview `undo.md` file for the undo system (including undo.layers, undo.layers.test, and any other files that need to be referenced)
 - Optimize the overview to provide context for AI-assisted development rather than human readers.
-- Place into  '../notes/src/undo'
+- Place into  '../docs/src/undo'
 
 If anything is unclear, please ask me.
 
@@ -1123,7 +1123,7 @@ _**Assistant**_
 
 Looking at the code and test files, I'll create a comprehensive overview of the undo system for AI development context.
 
-### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/src/undo/undo.md)
+### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/src/undo/undo.md)
 
 Create documentation for the undo system module focusing on AI development context and technical implementation details.
 
@@ -1504,7 +1504,7 @@ _**User**_
 
 Thank you! Let's start with the immediate fixes you suggested. As we make all changes, make sure we run/update tests as required.
 
-Before you begin., please create a markdown file as "notes/plans/undo-refactor.md' with a detailed plan of how you will take the next actions. If your plan changes during implementation, append the reasons and changes to the markdown file, without erasing the original plan.
+Before you begin., please create a markdown file as "docs/plans/undo-refactor.md' with a detailed plan of how you will take the next actions. If your plan changes during implementation, append the reasons and changes to the markdown file, without erasing the original plan.
 
 ---
 
@@ -1512,7 +1512,7 @@ _**Assistant**_
 
 I'll create a detailed refactor plan and then implement the immediate fixes with comprehensive testing.
 
-### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/plans/undo-refactor.md)
+### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/plans/undo-refactor.md)
 
 Create a detailed plan for implementing the immediate fixes to the undo system based on the technical analysis.
 
@@ -2205,7 +2205,7 @@ class CircImgCollection {
 
 Now let's update the plan with what we've implemented:
 
-### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/plans/undo-refactor.md)
+### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/plans/undo-refactor.md)
 
 Update the plan with implementation details and any changes made.
 
@@ -2518,7 +2518,7 @@ Looking at the failing tests, the issue is with the undo/redo logic in my refact
 
 First, let me update the plan to document this issue:
 
-### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/plans/undo-refactor.md)
+### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/plans/undo-refactor.md)
 
 ````markdown
 // ...existing code...
@@ -2836,7 +2836,7 @@ Looking at the failing tests, I can see that my undo/redo logic is still not cor
 
 Let me update the plan to document this ongoing issue and then fix the logic:
 
-### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/plans/undo-refactor.md)
+### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/plans/undo-refactor.md)
 
 ````markdown
 // ...existing code...
@@ -3198,7 +3198,7 @@ Actually, let me first check the logic more carefully. The issue might be in my 
 
 Both should render. Let me debug by updating the plan first, then looking at the specific logic:
 
-### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/plans/undo-refactor.md)
+### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/plans/undo-refactor.md)
 
 ````markdown
 ````markdown
@@ -3379,7 +3379,7 @@ _**Assistant**_
 
 Excellent! I'm glad all the tests are now passing. You're absolutely right about the snapshot being called in a loop - that's a great observation. Let me update the plan to document the successful completion of this phase:
 
-### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/plans/undo-refactor.md)
+### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/plans/undo-refactor.md)
 
 ````markdown
 // ...existing code...
@@ -3497,7 +3497,7 @@ refactor: improve undo system reliability and maintainability
 - Fix circular buffer edge cases that caused intermittent redo failures
 - Enhance test coverage for buffer wraparound scenarios and rapid undo/redo sequences
 - Add debug helper _getState() for development troubleshooting
-- Document refactor process and architectural analysis in notes/plans/undo-refactor.md
+- Document refactor process and architectural analysis in docs/plans/undo-refactor.md
 
 This resolves intermittent redo failures reported in space key and DEL operations while maintaining
 backward compatibility and improving code maintainability for future enhancements.
@@ -3544,7 +3544,7 @@ git commit -m "refactor: improve undo system reliability and maintainability
 - Fix circular buffer edge cases that caused intermittent redo failures
 - Enhance test coverage for buffer wraparound scenarios and rapid undo/redo sequences
 - Add debug helper _getState() for development troubleshooting
-- Document refactor process and architectural analysis in notes/plans/undo-refactor.md
+- Document refactor process and architectural analysis in docs/plans/undo-refactor.md
 
 This resolves intermittent redo failures reported in space key and DEL operations while maintaining
 backward compatibility and improving code maintainability for future enhancements."
@@ -3598,7 +3598,7 @@ _**Assistant**_
 
 Yes, the undo.md overview needs significant updates to reflect the refactoring changes. The current documentation describes the old implementation with complex state tracking that we've simplified.
 
-### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/src/undo/undo.md)
+### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/src/undo/undo.md)
 
 Update the documentation to reflect the refactored implementation with simplified state management and separated concerns.
 
@@ -3959,7 +3959,7 @@ class ImageCollection {
 }
 ````
 
-### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/src/undo/undo.md)
+### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/src/undo/undo.md)
 
 Update the documentation to reflect the renamed class and clarify the separation of responsibilities.
 
@@ -4067,7 +4067,7 @@ This module underwent significant refactoring to improve reliability and maintai
 // ...existing code...
 ````
 
-### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/plans/undo-refactor.md)
+### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/plans/undo-refactor.md)
 
 Update the refactor plan to document the naming change and its rationale.
 
@@ -4218,7 +4218,7 @@ import Layers from './layers.js'
 // ...existing code...
 ````
 
-### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/src/undo/undo.md)
+### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/src/undo/undo.md)
 
 Update the documentation to reflect the new file location.
 
@@ -4234,7 +4234,7 @@ Update the documentation to reflect the new file location.
 // ...existing code...
 ````
 
-### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/plans/undo-refactor.md)
+### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/plans/undo-refactor.md)
 
 Update the refactor plan to document the file reorganization.
 
@@ -4288,7 +4288,7 @@ Update the refactor plan to document the file reorganization.
 - Moved `src/undo.layers.js` → `src/undo/undo.layers.js`
 - Moved `src/undo.layers.test.js` → `src/undo/undo.layers.test.js`
 - Updated import path in `src/sketch.js`
-- Updated documentation references in `notes/src/undo/undo.md`
+- Updated documentation references in `docs/src/undo/undo.md`
 
 **Benefits**:
 - **Better organization**: Undo-related files grouped together
@@ -4332,7 +4332,7 @@ import UndoLayers from '../src/undo/undo.layers.js'
 // ...existing code...
 ````
 
-### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/src/undo/undo.md)
+### [undo.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/src/undo/undo.md)
 
 Update the documentation to reflect the test file location change.
 
@@ -4359,7 +4359,7 @@ Update the documentation to reflect the test file location change.
 // ...existing code...
 ````
 
-### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/notes/plans/undo-refactor.md)
+### [undo-refactor.md](file:///Users/michaelpaulukonis/projects/polychrome.p5/docs/plans/undo-refactor.md)
 
 Update the refactor plan to document the test file relocation.
 
@@ -4399,7 +4399,7 @@ Update the refactor plan to document the test file relocation.
 - Moved `src/undo.layers.test.js` → `test/undo.layers.test.js` (to standard test directory)
 - Updated import path in `src/sketch.js`
 - Updated test import path to `../src/undo/undo.layers.js`
-- Updated documentation references in `notes/src/undo/undo.md`
+- Updated documentation references in `docs/src/undo/undo.md`
 
 **Benefits**:
 - **Better organization**: Undo-related implementation files grouped together

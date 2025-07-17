@@ -669,7 +669,7 @@ _**User**_
 
 This now seems to work, thanks!
 
-Please updae the notes/src/sketch.md with the changes. This should be the removal of color functions and the inclusion of the color module. Please also create a new file, notes/src/color/color-system.md with a similar format to sketch.md. 
+Please updae the docs/src/sketch.md with the changes. This should be the removal of color functions and the inclusion of the color module. Please also create a new file, docs/src/color/color-system.md with a similar format to sketch.md. 
 
 Please ask any questions if this is unclear.
 
@@ -772,8 +772,8 @@ BREAKING CHANGE: Color functions are no longer directly available in sketch.js s
 
 docs: update documentation for color system refactoring
 
-- Update notes/src/sketch.md to reflect color module integration
-- Create comprehensive notes/src/color/color-system.md documentation
+- Update docs/src/sketch.md to reflect color module integration
+- Create comprehensive docs/src/color/color-system.md documentation
 - Document factory pattern, paint modes, and integration points
 - Remove obsolete color function references from sketch documentation
 ```
