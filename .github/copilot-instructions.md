@@ -440,37 +440,53 @@ describe('State persistence', () => {
 
 ### 10.5 End-to-End Tests
 
-* Use **Playwright** to validate basic user flows in the UI.
+* Use **Playwright** to validate user flows, especially for canvas interactions.
+* Follow the patterns established in `test/e2e/utils/canvas-utils.js`.
 
-```js
+```javascript
 import { test, expect } from '@playwright/test'
-import { waitForP5Ready, waitForNuxtReady, setupConsoleErrorTracking } from '../utils/canvas-utils.js'
+import {
+  waitForP5Ready,
+  expandTargetGuiPanel,
+  simulatePaintGesture,
+  canvasHasContent,
+  clearCanvas
+} from '../utils/canvas-utils.js'
 
-test.describe('Application Launch', () => {
-  test('application loads successfully without errors', async ({ page }) => {
-    // Setup console error tracking before navigation
-    const consoleErrors = setupConsoleErrorTracking(page)
-    // Navigate to the application
+test.describe('Canvas Drawing', () => {
+  test('should draw a line on the canvas', async ({ page }) => {
+    // 1. Standard setup
     await page.goto('/')
-    // Wait for Nuxt to be ready (client-side hydration)
-    await waitForNuxtReady(page)
-    // Wait for p5.js to initialize completely
     await waitForP5Ready(page)
-    // Verify canvas is visible
+
+    // 2. Get the canvas locator
     const canvas = page.locator('canvas').first()
-    await expect(canvas).toBeVisible()
-    // Verify p5.js instance exists and is ready
-    const p5Ready = await page.evaluate(() => {
-      const app = document.querySelector('#app')
-      if (!app || !app.__vue__) return false
-      const instance = app.__vue__.$data.pchrome.p5
-      return instance &&
-             instance._setupDone &&
-             typeof instance.draw === 'function'
-    })
-    expect(p5Ready).toBe(true)
-    // Verify no critical errors occurred during load
-    expect(consoleErrors).toHaveLength(0)
+
+    // 3. (Optional) Get initial state for comparison
+    const initialImageData = await page.evaluate(() => {
+      const canvas = document.querySelector('canvas');
+      if (!canvas) return null;
+      const ctx = canvas.getContext('2d');
+      return ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    });
+
+    // 4. Use the gesture simulator for drawing, not .click()
+    const line = [[{ x: 50, y: 50 }, { x: 200, y: 100 }]];
+    await simulatePaintGesture(canvas, line);
+
+    // 5. Verify that the canvas has changed
+    const hasContent = await canvasHasContent(page, initialImageData);
+    expect(hasContent).toBe(true);
+
+    // 6. Use targeted panel expansion to interact with the GUI
+    await expandTargetGuiPanel(page, 'PolychromeText');
+    
+    // 7. Use a utility to interact with a control
+    await clearCanvas(page);
+
+    // 8. Verify the canvas is now cleared (back to initial state)
+    const hasContentAfterClear = await canvasHasContent(page, initialImageData);
+    expect(hasContentAfterClear).toBe(false);
   })
 })
 ```
