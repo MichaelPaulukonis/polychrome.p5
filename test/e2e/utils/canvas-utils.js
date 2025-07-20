@@ -5,7 +5,7 @@
  * This is crucial for PolychromeText since the app depends on p5.js
  * PolychromeText stores the p5 instance in a Sketch class in the root Vue component
  */
-export async function waitForP5Ready (page) {
+export async function waitForP5Ready(page) {
   await page.waitForFunction(() => {
     // Check if there's a canvas element (p5 creates this)
     const canvas = document.querySelector('canvas')
@@ -105,7 +105,7 @@ export async function waitForFontsLoaded(page) {
  * Wait for Nuxt client-side hydration
  * Important for Vue/Nuxt apps
  */
-export async function waitForNuxtReady (page) {
+export async function waitForNuxtReady(page) {
   await page.waitForFunction(() => {
     return window.$nuxt && window.$nuxt.$store
   })
@@ -141,22 +141,28 @@ export function setupConsoleErrorTracking(page) {
  * These functions help interact with the QuickSettings GUI controls
  */
 
+
+
 /**
  * Change drawing mode via GUI dropdown
  * QuickSettings creates: bindDropDown('drawMode', drawModes, params)
  * drawModes = ['Grid', 'Circle', 'Grid2']
  */
 export async function setDrawingMode(page, mode) {
-  await waitForP5Ready(page)
+  await waitForQuickSettingsReady(page);
+  await expandAllGuiPanels(page);
 
-  // QuickSettings creates select elements for dropdowns
-  // Find the select that has the drawing mode options
-  const drawModeSelect = page.locator('select').filter({
-    has: page.locator('option', { hasText: 'Grid' })
-  })
+  await page.evaluate((newMode) => {
+    const drawModeSelect = document.querySelector('.qs_main select');
+    if (drawModeSelect) {
+      drawModeSelect.value = newMode;
+      drawModeSelect.dispatchEvent(new Event('change'));
+    } else {
+      throw new Error('Could not find the drawing mode dropdown.');
+    }
+  }, mode);
 
-  await drawModeSelect.selectOption({ label: mode })
-  await page.waitForTimeout(100)
+  await page.waitForTimeout(100);
 }
 
 /**
@@ -211,32 +217,36 @@ export async function setPaintMode(page, mode, target = 'fill') {
  * @param {number} value - New value
  */
 export async function setParameter(page, parameter, value) {
-  await waitForP5Ready(page)
+  await waitForP5Ready(page);
+  await expandAllGuiPanels(page);
 
-  // Try to find the parameter input by looking for inputs near labels
-  const input = await page.locator('input').evaluateAll((inputs, paramName) => {
-    return inputs.find(input => {
-      // Check if input is associated with a label containing the parameter name
-      const parent = input.closest('.qs_container')
+  const success = await page.evaluate(({ paramName, newValue }) => {
+    const inputs = Array.from(document.querySelectorAll('.qs_main input'));
+    const input = inputs.find(inp => {
+      const parent = inp.closest('.qs_container');
       if (parent) {
-        const label = parent.querySelector('.qs_label')
+        const label = parent.querySelector('.qs_label');
         if (label && label.textContent.toLowerCase().includes(paramName.toLowerCase())) {
-          return true
+          return true;
         }
       }
+      return inp.id === paramName || inp.name === paramName;
+    });
 
-      // Check if input has an id or name that matches
-      return input.id === paramName || input.name === paramName
-    })
-  }, parameter)
+    if (input) {
+      input.value = newValue;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    }
+    return false;
+  }, { paramName: parameter, newValue: value });
 
-  if (input) {
-    await input.fill(value.toString())
-    await page.keyboard.press('Enter') // Trigger change event
-    await page.waitForTimeout(100)
-  } else {
-    throw new Error(`Could not find parameter input for ${parameter}`)
+  if (!success) {
+    throw new Error(`Could not find parameter input for ${parameter}`);
   }
+
+  await page.waitForTimeout(100);
 }
 
 /**
@@ -247,7 +257,7 @@ export async function clickGuiButton(page, buttonText) {
   await waitForP5Ready(page)
 
   const button = page.locator(`input[type="button"][value="${buttonText}"].qs_button`)
-  await button.click()
+  await button.click({ force: true });
   await page.waitForTimeout(100)
 }
 
@@ -282,30 +292,71 @@ export async function getParameterValue(page, parameter) {
   }, parameter)
 }
 
+
+
+
+
 /**
  * Verify canvas has content (not blank)
  * @param {Page} page - Playwright page object
  * @returns {Promise<boolean>} True if canvas has content
  */
-export async function canvasHasContent(page) {
-  return await page.evaluate(() => {
-    const canvas = document.querySelector('canvas')
-    if (!canvas) {
-      return false
+export async function canvasHasContent(page, initialImageData) {
+  const currentImageData = await page.evaluate(() => {
+    const canvas = document.querySelector('canvas#defaultCanvas0');
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d');
+    return ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  });
+
+  if (!currentImageData) return false;
+
+  // If no initial image data is provided, just check for non-transparent pixels.
+  if (!initialImageData) {
+    for (let i = 3; i < currentImageData.length; i += 4) {
+      if (currentImageData[i] !== 0) return true;
     }
+    return false;
+  }
 
-    const ctx = canvas.getContext('2d')
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    const data = imageData.data
+  // Compare current image data to the initial snapshot.
+  if (currentImageData.length !== initialImageData.length) return true; // Different sizes means canvas size has changed.
 
-    // Check if any pixel is not fully transparent
-    for (let i = 3; i < data.length; i += 4) {
-      if (data[i] !== 0) { // Alpha channel
-        return true
+  for (let i = 0; i < currentImageData.length; i++) {
+    if (currentImageData[i] !== initialImageData[i]) {
+      return true; // Pixel data has changed.
+    }
+  }
+
+  return false; // No change from initial state.
+}
+
+// Expand all collapsed GUI panels
+export async function expandAllGuiPanels(page) {
+  await page.evaluate(() => {
+    const panels = document.querySelectorAll('.qs_main')
+    panels.forEach(panel => {
+      if (!panel.querySelector('.qs_content')) {
+        panel.querySelector('.qs_title_bar').dispatchEvent(new MouseEvent("dblclick"))
       }
-    }
-    return false
+    })
   })
+}
+
+export async function expandTargetGuiPanel(page, panelTitle) {
+  // Locate the specific panel by its title text.
+  const panel = page.locator(`.qs_main:has(.qs_title_bar:has-text("${panelTitle}"))`);
+
+  // A panel is collapsed if it does not have a .qs_content element.
+  const isCollapsed = (await panel.locator('.qs_content').count()) === 0;
+
+  if (isCollapsed) {
+    // Find the title bar within that specific panel and double-click it.
+    const titleBar = panel.locator('.qs_title_bar');
+    await titleBar.dblclick({ force: true }); // Use force to avoid pointer event issues.
+    // Wait for the content to appear, confirming the panel is expanded.
+    await panel.locator('.qs_content').waitFor({ state: 'visible', timeout: 5000 });
+  }
 }
 
 /**
@@ -313,31 +364,16 @@ export async function canvasHasContent(page) {
  * Updated based on actual DOM structure validation
  */
 export async function clearCanvas(page) {
-  await waitForQuickSettingsReady(page)
-  await expandAllGuiPanels(page)
+  await waitForQuickSettingsReady(page);
+  await expandTargetGuiPanel(page, 'PolychromeText')
 
-  // Try the expected QuickSettings selector first
-  let clearButton = page.locator('input[type="button"][value="clear"].qs_button')
-  let buttonCount = await clearButton.count()
+  // This locator is now specific to the clear button within a QS panel.
+  const clearButton = page.locator('.qs_main input.qs_button[value="clear"]');
+  // Force the click to bypass Playwright's actionability checks, which is
+  // necessary when another element is intercepting pointer events.
+  await clearButton.click({ force: true });
 
-  if (buttonCount === 0) {
-    // Fallback: look for any button with "clear" value
-    clearButton = page.locator('input[type="button"][value="clear"]')
-    buttonCount = await clearButton.count()
-  }
-
-  if (buttonCount === 0) {
-    // Last resort: look for button with "clear" text
-    clearButton = page.locator('button:has-text("clear")')
-    buttonCount = await clearButton.count()
-  }
-
-  if (buttonCount > 0) {
-    await clearButton.first().click()
-    await page.waitForTimeout(200)
-  } else {
-    throw new Error('Could not find clear button with any known selector')
-  }
+  await page.waitForTimeout(200);
 }
 
 /**
@@ -345,34 +381,56 @@ export async function clearCanvas(page) {
  * This is crucial because GUI panels are created after p5 setup
  */
 export async function waitForQuickSettingsReady(page) {
-  await page.waitForFunction(() => {
-    // Check for QuickSettings panel elements
-    const panels = document.querySelectorAll('.qs_panel')
-    const containers = document.querySelectorAll('.qs_container')
-
-    // Should have multiple panels (mainGui, fontGui, shadowGui, etc.)
-    return panels.length > 0 && containers.length > 0
-  }, { timeout: 30000 })
-
-  // Give a moment for all panels to fully render
-  await page.waitForTimeout(500)
+  await page.waitForFunction(() => !!window.quicksettings_loaded, null, { timeout: 30000 })
+  // Give a moment for all panels to fully render after the flag is set
+  await page.waitForTimeout(1000)
 }
 
 /**
- * Expand all collapsed QuickSettings panels
- * Panels are collapsed by default, need to expand to access controls
+ * Simulates one or more painting gestures on a canvas.
+ *
+ * @param canvas Playwright Locator pointing to a canvas element
+ * @param paths Array of stroke paths. Each path is an array of {x, y} points relative to the canvas.
+ * @param options Optional: { steps } for interpolation smoothness between points
  */
-export async function expandAllGuiPanels(page) {
-  await page.evaluate(() => {
-    const panels = document.querySelectorAll('.qs_panel')
-    panels.forEach(panel => {
-      const titleBar = panel.querySelector('.qs_title_bar')
-      if (titleBar && panel.classList.contains('qs_collapsed')) {
-        titleBar.click()
-      }
-    })
-  })
+export async function simulatePaintGesture(
+  canvas,
+  paths,
+  options,
+  page // optional if needed for page.mouse access
+) {
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error('Canvas not found or not visible');
+  const steps = options?.steps ?? 10;
 
-  // Wait for expansion animations
-  await page.waitForTimeout(300)
+  for (const path of paths) {
+    if (path.length === 0) continue;
+
+    // Offset path to absolute screen coordinates
+    const absPath = path.map(p => ({
+      x: box.x + p.x,
+      y: box.y + p.y,
+    }));
+
+    // Move to first point and press mouse down
+    await canvas.page().mouse.move(absPath[0].x, absPath[0].y);
+    await canvas.page().mouse.down();
+
+    // Move through rest of the points with interpolation
+    for (let i = 1; i < absPath.length; i++) {
+      const from = absPath[i - 1];
+      const to = absPath[i];
+
+      for (let step = 1; step <= steps; step++) {
+        const t = step / steps;
+        const x = from.x + (to.x - from.x) * t;
+        const y = from.y + (to.y - from.y) * t;
+        await canvas.page().mouse.move(x, y);
+      }
+    }
+
+    await canvas.page().mouse.up();
+  }
 }
+
+

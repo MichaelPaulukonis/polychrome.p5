@@ -18,7 +18,7 @@ test.describe('Grid Drawing Mode', () => {
   test.beforeEach(async ({ page }) => {
     const consoleErrors = setupConsoleErrorTracking(page)
     await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
     await waitForFontsLoaded(page)
     await waitForP5Ready(page)
 

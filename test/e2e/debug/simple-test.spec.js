@@ -6,5 +6,5 @@ test('basic test', async ({ page }) => {
   await page.waitForLoadState('load')
   const title = await page.title()
   console.log('Page title:', title)
-  expect(title).toContain('Polychrome')
+  expect(title).toContain('polychrome.p5')
 })

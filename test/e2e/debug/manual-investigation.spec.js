@@ -12,7 +12,7 @@ test('manual GUI investigation', async ({ page }) => {
   await page.waitForTimeout(5000)
 
   // Take a screenshot for debugging
-  await page.screenshot({ path: 'gui-screenshot.png', fullPage: true })
+  await page.screenshot({ path: 'test-results/gui-screenshot.png', fullPage: true })
 
   expect(await page.title()).toBeTruthy()
 })

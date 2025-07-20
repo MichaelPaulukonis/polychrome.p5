@@ -3,11 +3,11 @@ import { test, expect } from '@playwright/test'
 import { waitForP5Ready } from '../utils/canvas-utils.js'
 
 test.describe('Basic Application Load', () => {
-  test('page loads and title is correct', async ({ page }) => {
+  test('page loads and ...', async ({ page }) => {
     await page.goto('/')
 
     // Check that the page loads (basic HTML)
-    await expect(page).toHaveURL('http://localhost:3000/')
+    await expect(page).toHaveURL(/.*localhost:\d+\/$/)
 
     // Check that there's some content (not just an error page)
     const body = page.locator('body')

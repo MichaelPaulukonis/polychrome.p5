@@ -185,7 +185,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .addButton('removeColor', () => removeColor({ panel: outlineGui, prefix: 'lq', params: outlineParams }))
     .setGlobalChangeHandler(setFocus)
   addMultiColor({ gui: outlineGui, prefix: 'lq', params: outlineParams })
-  outlineGui.collapse()
+  // outlineGui.collapse()
 
   const panels = [mainGui, fontGui, shadowGui, fillGui, outlineGui]
   let presets = {}
@@ -292,7 +292,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .addButton('update', update)
     .addButton('new', saveNew)
     .setGlobalChangeHandler(setFocus)
-  rememberPanel.collapse()
+  // rememberPanel.collapse()
 
   if (presetNames[0]) {
     getSetting(presetNames[0])
@@ -300,6 +300,9 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
 
   // hack to allow setting focus
   document.getElementsByTagName('canvas')[0].tabIndex = 0
+
+  // Signal that all QuickSettings panels have been created
+  window.quicksettings_loaded = true
 
   return {
     shiftFillColors,

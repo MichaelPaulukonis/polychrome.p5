@@ -36,7 +36,7 @@ async function validateGUI() {
       const p5Ready = rootVue.$data && rootVue.$data.pchrome && rootVue.$data.pchrome.p5
 
       // Check for QuickSettings panels (even if collapsed)
-      const qsPanels = document.querySelectorAll('.qs_panel')
+      const qsPanels = document.querySelectorAll('.qs_main')
       console.log(`Found ${qsPanels.length} QS panels`)
 
       return p5Ready && qsPanels.length > 0

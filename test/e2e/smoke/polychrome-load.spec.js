@@ -36,49 +36,11 @@ test.describe('Polychrome Load Test', () => {
   test('try waiting for p5 with our utility', async ({ page }) => {
     await page.goto('/')
 
-    try {
-      // Try to wait for p5 to be ready (with shorter timeout for testing)
-      await page.waitForFunction(() => {
-        const canvas = document.querySelector('canvas')
-        if (!canvas) {
-          return false
-        }
+    // Use the centralized utility to wait for p5
+    await waitForP5Ready(page)
 
-        const app = document.querySelector('#app')
-        if (!app || !app.__vue__) {
-          return false
-        }
-
-        const vue = app.__vue__.$children[0]
-        return vue && vue.pchrome && vue.pchrome.p5
-      }, { timeout: 10000 }) // 10 second timeout
-
-      // If we get here, p5 is ready!
-      const canvas = page.locator('canvas').first()
-      await expect(canvas).toBeVisible()
-
-    } catch (error) {
-      console.log('P5 not ready within timeout:', error.message)
-
-      // Let's see what we do have
-      const debugState = await page.evaluate(() => {
-        const app = document.querySelector('#app')
-        const vue = app && app.__vue__ && app.__vue__.$children[0]
-
-        return {
-          hasVue: !!vue,
-          vueKeys: vue ? Object.keys(vue) : [],
-          pchromeExists: !!(vue && vue.pchrome),
-          pchromeKeys: vue && vue.pchrome ? Object.keys(vue.pchrome) : [],
-          hasP5: !!(vue && vue.pchrome && vue.pchrome.p5),
-          errors: vue && vue.$data ? vue.$data.errors : 'no vue data'
-        }
-      })
-
-      console.log('Debug state:', JSON.stringify(debugState, null, 2))
-
-      // Fail the test but with information
-      expect(debugState.hasVue).toBe(true)
-    }
+    // If we get here, p5 is ready!
+    const canvas = page.locator('canvas').first()
+    await expect(canvas).toBeVisible()
   })
 })

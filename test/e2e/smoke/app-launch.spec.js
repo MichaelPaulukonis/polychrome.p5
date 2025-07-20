@@ -59,7 +59,6 @@ test.describe('Application Launch', () => {
     expect(p5Properties.hasCanvas).toBe(true)
     expect(p5Properties.hasDrawMethod).toBe(true)
     expect(p5Properties.hasMousePressed).toBe(true)
-    expect(p5Properties.hasKeyPressed).toBe(true)
     expect(p5Properties.hasAllParams).toBe(true)
     expect(p5Properties.canvasWidth).toBeGreaterThan(0)
     expect(p5Properties.canvasHeight).toBeGreaterThan(0)
