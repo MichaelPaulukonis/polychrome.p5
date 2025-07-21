@@ -23,7 +23,7 @@ test.describe('Basic UI Interaction', () => {
     await expect(canvas).toBeVisible()
 
     // Test multiple clicks to see if content accumulates
-    await simulatePaintGesture(canvas, [[{ x: 50, y: 50 }, { x: 200, y: 100 }]])
+    await simulatePaintGesture(canvas, page, [[{ x: 50, y: 50 }, { x: 200, y: 100 }]])
     await page.waitForTimeout(200)
 
     const hasContent1 = await canvasHasContent(page)
@@ -55,7 +55,7 @@ test.describe('Basic UI Interaction', () => {
     await setParameter(page, 'columns', 3);
 
     // Draw something first
-    await simulatePaintGesture(canvas, [[{ x: 50, y: 50 }, { x: 200, y: 100 }]])
+    await simulatePaintGesture(canvas, page, [[{ x: 50, y: 50 }, { x: 200, y: 100 }]])
 
     await page.waitForTimeout(200)
 

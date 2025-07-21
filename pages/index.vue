@@ -67,7 +67,7 @@ export default {
     Playback,
     Counter
   },
-  data () {
+  data() {
     return {
       currentText: 'placeholder',
       corpus,
@@ -76,7 +76,7 @@ export default {
       textManager: {}
     }
   },
-  mounted () {
+  mounted() {
     const keypress = require('keypress.js')
     this.textManager = new TextManager()
     this.textManager.randomPost = randomPost
@@ -113,6 +113,27 @@ export default {
       const textManager = this.textManager
       const pchrome = new Sketch({ p5Instance, textManager, keypress, setupCallback }) // eslint-disable-line no-new
       this.pchrome = pchrome
+
+      // Only expose testing hooks in non-production environments
+      if (process.env.NODE_ENV !== 'production') {
+        window.pchrome = pchrome
+        window.setPolychromeParams = (newParams) => {
+          for (const key in newParams) {
+            if (Object.prototype.hasOwnProperty.call(newParams, key)) {
+              if (typeof newParams[key] === 'object' && newParams[key] !== null && !Array.isArray(newParams[key]) && pchrome.params[key]) {
+                Object.assign(pchrome.params[key], newParams[key])
+              } else {
+                pchrome.params[key] = newParams[key]
+              }
+            }
+          }
+          pchrome.clearCanvas({ layers: pchrome.layers, params: pchrome.params })
+          pchrome.undo.takeSnapshot()
+        }
+        window.setPolychromeText = (text) => {
+          this.textManager.setText(text)
+        }
+      }
     }
 
     // TODO: this can take a while
@@ -129,40 +150,40 @@ export default {
       })
   },
   methods: {
-    randomText () {
+    randomText() {
       const text = randElem(this.corpus)
       this.textManager.setText(text)
       this.currentText = text
     },
-    resetTextPosition () {
+    resetTextPosition() {
       this.textManager.setText(this.currentText)
     },
-    setFocus () {
+    setFocus() {
       this.canvas().focus()
     },
-    canvas () {
+    canvas() {
       return document.getElementsByTagName('canvas')[0]
     },
-    start () {
+    start() {
       this.pchrome.start()
     },
-    show () {
+    show() {
       this.pchrome.stop()
       this.$modal.show('textmanager')
     },
-    hide () {
+    hide() {
       this.$modal.hide('textmanager')
       this.pchrome.start()
     },
-    about () {
+    about() {
       this.pchrome.stop()
       this.$modal.show('about')
     },
-    playback () {
+    playback() {
       // this.pchrome.stop()
       this.$modal.show('playback')
     },
-    help () {
+    help() {
       this.pchrome.stop()
       this.$modal.show('help')
     }

@@ -395,6 +395,24 @@ export async function waitForQuickSettingsReady(page) {
   await page.waitForTimeout(1000)
 }
 
+export async function basicSetup(page) {
+  await page.getByRole('button', { name: 'textManager' }).click();
+  await page.locator('#bodycopy').click();
+  await page.locator('#bodycopy').press('ControlOrMeta+a');
+  await page.locator('#bodycopy').fill('This is the text we are looking for.');
+  await page.getByRole('button', { name: 'Apply text' }).click();
+  await page.getByRole('button', { name: 'Apply text' }).press('Escape');
+
+  await page.getByText('PolychromeText').click();
+  await page.locator('#qs_1').click();
+  await page.locator('#qs_1').press('ControlOrMeta+a');
+  await page.locator('#qs_1').fill('400');
+  await page.locator('#qs_1').press('Tab');
+  await page.locator('#qs_2').fill('400');
+  await page.locator('#qs_2').press('Tab');
+  await page.getByRole('button', { name: 'clear' }).click()
+}
+
 /**
  * Simulates one or more painting gestures on a canvas.
  *
@@ -404,9 +422,9 @@ export async function waitForQuickSettingsReady(page) {
  */
 export async function simulatePaintGesture(
   canvas,
+  page,
   paths,
   options,
-  page // optional if needed for page.mouse access
 ) {
   const box = await canvas.boundingBox();
   if (!box) throw new Error('Canvas not found or not visible');
@@ -434,7 +452,9 @@ export async function simulatePaintGesture(
         const t = step / steps;
         const x = from.x + (to.x - from.x) * t;
         const y = from.y + (to.y - from.y) * t;
+        console.log(`Moving to (${x}, ${y})`);
         await canvas.page().mouse.move(x, y);
+        await page.waitForTimeout(50)
       }
     }
 

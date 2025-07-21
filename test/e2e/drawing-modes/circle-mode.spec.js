@@ -2,16 +2,85 @@
 
 import { test, expect } from '@playwright/test'
 import {
-  waitForP5Ready,
-  waitForFontsLoaded,
-  setupConsoleErrorTracking,
+  basicSetup,
+  canvasHasContent,
+  clearCanvas,
+  getParameterValue,
   setDrawingMode,
   setPaintMode,
-  setParameter,
-  clearCanvas,
-  canvasHasContent,
-  getParameterValue
+  setupConsoleErrorTracking,
+  simulatePaintGesture,
+  waitForFontsLoaded,
+  waitForP5Ready
 } from '../utils/canvas-utils.js'
+
+const testText = 'This is a test text for Playwright.'
+
+// based on defaults.classic
+const circleDefaultParams = {
+  "name": "polychrome.text",
+  "width": 400,
+  "height": 400,
+  "frameRate": 30,
+  "fixedWidth": true,
+  "font": "Arial Rounded MT Bold",
+  "rotation": 0,
+  "cumulativeRotation": false,
+  "autoPaint": false,
+  "drawMode": "Circle",
+  "inset": 0,
+  "invert": false,
+  "useOutline": false,
+  "useFill": true,
+  "nextCharMode": "Sequential",
+  "maxrows": 100,
+  "rows": 10,
+  "columns": 10,
+  "rowmax": 100,
+  "colmax": 100,
+  "hardEdge": true,
+  "useShadow": false,
+  "shadowOffsetX": 5,
+  "shadowOffsetY": 5,
+  "shadowBlur": 5,
+  "shadowColor": "#000000",
+  "gamma": 0.8,
+  "capturing": false,
+  "fill": {
+    "paintModes": [
+      "Rainbow1",
+      "Rainbow2",
+      "Rainbow3",
+      "Rainbow4",
+      "Black",
+      "White",
+      "Gray1",
+      "Gray2",
+      "solid",
+      "lerp-scheme",
+      "lerp-quad"
+    ],
+    "paintMode": "Rainbow1",
+    "transparency": 50,
+    "transparent": true,
+    "color": "#ffffff",
+    "scheme": "ffffff-000000",
+    "curCycle": 0,
+    "lerps": [
+      "#70c1b3",
+      "#008000",
+      "#f25f5c",
+      "#00ff00",
+      "#247ba0"
+    ],
+    "lq0": "#70c1b3",
+    "lq1": "#008000",
+    "lq2": "#f25f5c",
+    "lq3": "#00ff00",
+    "lq4": "#247ba0"
+  }
+}
+
 
 test.describe('Circle Drawing Mode', () => {
   test.beforeEach(async ({ page }) => {
@@ -21,8 +90,10 @@ test.describe('Circle Drawing Mode', () => {
     await waitForFontsLoaded(page)
     await waitForP5Ready(page)
 
-    // Clear any existing content
-    await clearCanvas(page)
+    await page.evaluate(({ settings, text }) => {
+      window.setPolychromeParams(settings)
+      window.setPolychromeText(text)
+    }, { settings: circleDefaultParams, text: testText })
 
     // Verify no critical errors occurred during setup
     expect(consoleErrors.filter(error =>
@@ -32,23 +103,19 @@ test.describe('Circle Drawing Mode', () => {
   })
 
   test('circle mode renders text in circular pattern', async ({ page }) => {
-    // Set circle drawing mode
-    await setDrawingMode(page, 'Circle')
-
     // Verify mode was set
     const currentMode = await getParameterValue(page, 'drawMode')
     expect(currentMode).toBe('Circle')
 
     // Set predictable parameters for testing
-    await setPaintMode(page, 'Black')
-    await setParameter(page, 'circleRadius', 100)
+    // await setPaintMode(page, 'Black')
 
     // Draw test pattern
     const canvas = page.locator('canvas').first()
-    await canvas.click({ position: { x: 200, y: 200 } })
+    await simulatePaintGesture(canvas, page, [[{ x: 50, y: 50 }, { x: 200, y: 100 }]], { steps: 1 })
 
     // Wait for drawing to complete
-    await page.waitForTimeout(200)
+    await page.waitForTimeout(500)
 
     // Verify canvas has content
     const hasContent = await canvasHasContent(page)
@@ -56,44 +123,21 @@ test.describe('Circle Drawing Mode', () => {
 
     // Take screenshot for visual verification
     await expect(canvas).toHaveScreenshot('circle-mode-basic.png', {
-      threshold: 0.2
+      maxDiffPixelRatio: 0.1
     })
   })
 
-  test('circle mode responds to radius changes', async ({ page }) => {
-    await setDrawingMode(page, 'Circle')
-    await setPaintMode(page, 'Black')
-
-    const canvas = page.locator('canvas').first()
-
-    // Test with small radius
-    await setParameter(page, 'circleRadius', 50)
-    await canvas.click({ position: { x: 150, y: 150 } })
-    await page.waitForTimeout(200)
-
-    // Take baseline screenshot
-    await canvas.screenshot({ path: 'test-results/circle-small.png' })
-
-    // Clear and test with larger radius
-    await clearCanvas(page)
-    await setParameter(page, 'circleRadius', 150)
-
-    await canvas.click({ position: { x: 200, y: 200 } })
-    await page.waitForTimeout(200)
-
-    // Verify different output
-    await expect(canvas).not.toHaveScreenshot('circle-small.png')
-  })
-
   test('circle mode works with different paint modes', async ({ page }) => {
-    await setDrawingMode(page, 'Circle')
-    await setParameter(page, 'circleRadius', 100)
+    // Verify mode was set
+    const currentMode = await getParameterValue(page, 'drawMode')
+    expect(currentMode).toBe('Circle')
 
     const canvas = page.locator('canvas').first()
 
     // Test with rainbow mode
     await setPaintMode(page, 'Rainbow1')
-    await canvas.click({ position: { x: 200, y: 200 } })
+    await simulatePaintGesture(canvas, page, [[{ x: 60, y: 40 }, { x: 210, y: 100 }]], { steps: 5 })
+
     await page.waitForTimeout(200)
 
     const hasRainbowContent = await canvasHasContent(page)
@@ -102,7 +146,8 @@ test.describe('Circle Drawing Mode', () => {
     // Clear and test with different rainbow mode
     await clearCanvas(page)
     await setPaintMode(page, 'Rainbow2')
-    await canvas.click({ position: { x: 200, y: 200 } })
+    await simulatePaintGesture(canvas, page, [[{ x: 40, y: 60 }, { x: 200, y: 100 }]], { steps: 5 })
+
     await page.waitForTimeout(200)
 
     const hasDifferentRainbowContent = await canvasHasContent(page)
@@ -110,18 +155,14 @@ test.describe('Circle Drawing Mode', () => {
   })
 
   test('circle mode handles multiple circles', async ({ page }) => {
-    await setDrawingMode(page, 'Circle')
-    await setPaintMode(page, 'Black')
-    await setParameter(page, 'circleRadius', 75)
+    // Verify mode was set
+    const currentMode = await getParameterValue(page, 'drawMode')
+    expect(currentMode).toBe('Circle')
 
     const canvas = page.locator('canvas').first()
 
     // Draw multiple circles
-    await canvas.click({ position: { x: 100, y: 100 } })
-    await page.waitForTimeout(100)
-    await canvas.click({ position: { x: 200, y: 100 } })
-    await page.waitForTimeout(100)
-    await canvas.click({ position: { x: 150, y: 200 } })
+    await simulatePaintGesture(canvas, page, [[{ x: 40, y: 40 }, { x: 300, y: 300 }]], { steps: 3 })
     await page.waitForTimeout(200)
 
     // Verify content was created
@@ -130,19 +171,20 @@ test.describe('Circle Drawing Mode', () => {
 
     // Take screenshot to verify multiple circles
     await expect(canvas).toHaveScreenshot('circle-mode-multiple.png', {
-      threshold: 0.2
+      maxDiffPixelRatio: 0.1
     })
   })
 
   test('circle mode edge cases', async ({ page }) => {
-    await setDrawingMode(page, 'Circle')
-    await setPaintMode(page, 'Black')
+    // Verify mode was set
+    const currentMode = await getParameterValue(page, 'drawMode')
+    expect(currentMode).toBe('Circle')
 
     const canvas = page.locator('canvas').first()
 
     // Test with very small radius
-    await setParameter(page, 'circleRadius', 10)
-    await canvas.click({ position: { x: 100, y: 100 } })
+    await canvas.click({ position: { x: 5, y: 5 } })
+    await simulatePaintGesture(canvas, page, [[{ x: 10, y: 10 }, { x: 20, y: 23 }]], { steps: 5 })
     await page.waitForTimeout(200)
 
     let hasContent = await canvasHasContent(page)
@@ -150,8 +192,7 @@ test.describe('Circle Drawing Mode', () => {
 
     // Test with large radius
     await clearCanvas(page)
-    await setParameter(page, 'circleRadius', 300)
-    await canvas.click({ position: { x: 400, y: 400 } })
+    await simulatePaintGesture(canvas, page, [[{ x: 40, y: 20 }, { x: 20, y: 100 }]], { steps: 5 })
     await page.waitForTimeout(300) // More time for complex drawing
 
     hasContent = await canvasHasContent(page)

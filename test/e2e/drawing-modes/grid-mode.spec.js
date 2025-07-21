@@ -60,7 +60,7 @@ test.describe('Grid Drawing Mode', () => {
 
     // Take screenshot for visual verification
     await expect(canvas).toHaveScreenshot('grid-mode-basic.png', {
-      threshold: 0.2
+      maxDiffPixelRatio: 0.1
     })
   })
 

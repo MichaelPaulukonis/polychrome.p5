@@ -299,6 +299,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
   }
 
   // hack to allow setting focus
+  // TODO: better selector
   document.getElementsByTagName('canvas')[0].tabIndex = 0
 
   // Signal that all QuickSettings panels have been created

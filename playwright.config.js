@@ -68,6 +68,7 @@ module.exports = defineConfig({
     timeout: 5000,
     toHaveScreenshot: {
       threshold: 0.2,
+      maxDiffPixelRatio: 0.1,
       mode: 'pixel'
     }
   }

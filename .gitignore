@@ -72,8 +72,10 @@ sw.*
 split.troubles.txt
 sketch.jan31.js
 ./eslintcache
+
 # SpecStory explanation file
 .specstory/.what-is-this.md
+.specstory/history/2025-07-21_12-20Z-barbara-remington-s-illustration-career.md
 
 # Playwright Test Results
 test-results/
