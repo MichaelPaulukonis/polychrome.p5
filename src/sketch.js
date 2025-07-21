@@ -380,7 +380,7 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     layer.drawingContext.shadowColor = params.shadowColor
   }
 
-  // TODO: hah this will not work
+  // TODO: hah this does not work
   const nextDrawMode = (direction, params) => {
     let drawMode = params.drawMode
     drawMode = (drawMode + direction) % drawModes.length

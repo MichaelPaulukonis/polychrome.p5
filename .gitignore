@@ -79,5 +79,5 @@ sketch.jan31.js
 test-results/
 playwright-report/
 playwright/.cache/
-
+test/e2e/**/*-snapshots/
 .env

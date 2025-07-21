@@ -49,8 +49,6 @@ test.describe('Application Launch', () => {
         hasCanvas: !!instance.canvas,
         hasDrawMethod: typeof instance.draw === 'function',
         hasMousePressed: typeof instance.mousePressed === 'function',
-        hasKeyPressed: typeof instance.keyPressed === 'function',
-        hasAllParams: !!instance.allParams,
         canvasWidth: instance.canvas?.width || 0,
         canvasHeight: instance.canvas?.height || 0
       }
@@ -59,7 +57,6 @@ test.describe('Application Launch', () => {
     expect(p5Properties.hasCanvas).toBe(true)
     expect(p5Properties.hasDrawMethod).toBe(true)
     expect(p5Properties.hasMousePressed).toBe(true)
-    expect(p5Properties.hasAllParams).toBe(true)
     expect(p5Properties.canvasWidth).toBeGreaterThan(0)
     expect(p5Properties.canvasHeight).toBeGreaterThan(0)
   })

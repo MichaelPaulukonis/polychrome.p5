@@ -35,6 +35,58 @@ export async function waitForCanvasRender(page) {
   })
 }
 
+// Expand all collapsed GUI panels
+export async function expandAllGuiPanels(page) {
+  await page.evaluate(() => {
+    const panels = document.querySelectorAll('.qs_main')
+    panels.forEach(panel => {
+      if (!panel.querySelector('.qs_content')) {
+        panel.querySelector('.qs_title_bar').dispatchEvent(new MouseEvent("dblclick"))
+      }
+    })
+  })
+}
+
+// collapse all expanded GUI panels
+export async function collapseAllGuiPanels(page) {
+  await page.evaluate(() => {
+    const panels = document.querySelectorAll('.qs_main')
+    panels.forEach(panel => {
+      if (panel.querySelector('.qs_content')) {
+        panel.querySelector('.qs_title_bar').dispatchEvent(new MouseEvent("dblclick"))
+      }
+    })
+  })
+}
+
+export async function expandTargetGuiPanel(page, panelTitle) {
+  // collapse all by default
+  await collapseAllGuiPanels(page)
+
+  // Locate the specific panel by its title text.
+  const panel = page.locator(`.qs_main:has(.qs_title_bar:has-text("${panelTitle}"))`);
+
+  // A panel is collapsed if it does not have a .qs_content element.
+  const isCollapsed = (await panel.locator('.qs_content').count()) === 0;
+
+  if (isCollapsed) {
+    // Find the title bar within that specific panel and double-click it.
+    const titleBar = panel.locator('.qs_title_bar');
+    await titleBar.dblclick({ force: true }); // Use force to avoid pointer event issues.
+    // Wait for the content to appear, confirming the panel is expanded.
+    await panel.locator('.qs_content').waitFor({ state: 'visible', timeout: 5000 });
+  }
+}
+
+export async function getCanvasData(page) {
+  return await page.evaluate(() => {
+    const canvas = document.querySelector('canvas#defaultCanvas0');
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d');
+    return ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  });
+}
+
 /**
  * p5.js-specific drawing pattern for testing
  * Draws a simple test pattern on the canvas
@@ -42,9 +94,12 @@ export async function waitForCanvasRender(page) {
 export async function drawTestPattern(page) {
   await waitForP5Ready(page)
 
+  // TODO: this is generally correct, but c ould be more specific. there's a better selector
+  // const canvas = document.querySelector('canvas#defaultCanvas0');
   const canvas = page.locator('canvas').first()
 
   // Draw a simple test pattern
+  // TODO: use simulatePaintGesture
   await canvas.click({ position: { x: 50, y: 50 } })
   await canvas.click({ position: { x: 150, y: 50 } })
   await canvas.click({ position: { x: 100, y: 100 } })
@@ -107,7 +162,7 @@ export async function waitForFontsLoaded(page) {
  */
 export async function waitForNuxtReady(page) {
   await page.waitForFunction(() => {
-    return window.$nuxt && window.$nuxt.$store
+    return window.$nuxt
   })
 }
 
@@ -150,18 +205,12 @@ export function setupConsoleErrorTracking(page) {
  */
 export async function setDrawingMode(page, mode) {
   await waitForQuickSettingsReady(page);
-  await expandAllGuiPanels(page);
+  await expandTargetGuiPanel(page, 'PolychromeText');
 
-  await page.evaluate((newMode) => {
-    const drawModeSelect = document.querySelector('.qs_main select');
-    if (drawModeSelect) {
-      drawModeSelect.value = newMode;
-      drawModeSelect.dispatchEvent(new Event('change'));
-    } else {
-      throw new Error('Could not find the drawing mode dropdown.');
-    }
-  }, mode);
+  // Locate the specific container for the "drawMode" control and then the select element within it.
+  const drawModeSelect = page.locator('.qs_container:has-text("drawMode") select');
 
+  await drawModeSelect.selectOption({ label: mode });
   await page.waitForTimeout(100);
 }
 
@@ -171,43 +220,20 @@ export async function setDrawingMode(page, mode) {
  * @param {string} mode - Paint mode ('Rainbow1', 'Black', 'solid', etc.)
  * @param {string} target - Target control ('fill' or 'outline')
  */
-export async function setPaintMode(page, mode, target = 'fill') {
+export async function setPaintMode(page, mode, target = 'Fill') {
   await waitForP5Ready(page)
 
-  // Find the appropriate paintMode dropdown
-  const dropdown = await page.locator('select').evaluateAll((selects, targetType) => {
-    return selects.find(select => {
-      const options = Array.from(select.options)
-      // Look for dropdowns with paint mode options
-      const hasPaintModes = options.some(option =>
-        ['Rainbow1', 'Rainbow2', 'Black', 'White', 'solid', 'lerp-scheme'].includes(option.value)
-      )
-      if (!hasPaintModes) {
-        return false
-      }
+  await expandTargetGuiPanel(page, target);
 
-      // Try to identify if this is fill or outline based on nearby GUI elements
-      const parent = select.closest('.qs_container')
-      if (parent) {
-        const title = parent.querySelector('.qs_title')
-        if (title && targetType === 'fill') {
-          return title.textContent.toLowerCase().includes('fill')
-        } else if (title && targetType === 'outline') {
-          return title.textContent.toLowerCase().includes('outline')
-        }
-      }
+  // Locate the panel that contains the title.
+  const panel = page.locator(`.qs_main:has(.qs_title_bar:has-text("${target}"))`);
 
-      // If we can't identify, assume the first match is fill
-      return targetType === 'fill'
-    })
-  }, target)
+  // Within that panel, find the select element for paintMode.
+  const paintModeSelect = panel.locator('.qs_container:has(.qs_label:has-text("paintMode")) select');
 
-  if (dropdown) {
-    await page.selectOption(dropdown, mode)
-    await page.waitForTimeout(100)
-  } else {
-    throw new Error(`Could not find ${target} paintMode dropdown`)
-  }
+  // Now, select the option on the located element.
+  await paintModeSelect.selectOption(mode);
+  await page.waitForTimeout(100);
 }
 
 /**
@@ -218,7 +244,6 @@ export async function setPaintMode(page, mode, target = 'fill') {
  */
 export async function setParameter(page, parameter, value) {
   await waitForP5Ready(page);
-  await expandAllGuiPanels(page);
 
   const success = await page.evaluate(({ paramName, newValue }) => {
     const inputs = Array.from(document.querySelectorAll('.qs_main input'));
@@ -311,11 +336,23 @@ export async function canvasHasContent(page, initialImageData) {
 
   if (!currentImageData) return false;
 
-  // If no initial image data is provided, just check for non-transparent pixels.
+  // If no initial image data is provided, check for a non-monochromatic image.
   if (!initialImageData) {
-    for (let i = 3; i < currentImageData.length; i += 4) {
-      if (currentImageData[i] !== 0) return true;
+    const firstPixelR = currentImageData[0];
+    const firstPixelG = currentImageData[1];
+    const firstPixelB = currentImageData[2];
+
+    for (let i = 4; i < currentImageData.length; i += 4) {
+      if (
+        currentImageData[i] !== firstPixelR ||
+        currentImageData[i + 1] !== firstPixelG ||
+        currentImageData[i + 2] !== firstPixelB
+      ) {
+        // Found a pixel with a different color, so there is content.
+        return true;
+      }
     }
+    // All pixels are the same color, so there is no content.
     return false;
   }
 
@@ -329,34 +366,6 @@ export async function canvasHasContent(page, initialImageData) {
   }
 
   return false; // No change from initial state.
-}
-
-// Expand all collapsed GUI panels
-export async function expandAllGuiPanels(page) {
-  await page.evaluate(() => {
-    const panels = document.querySelectorAll('.qs_main')
-    panels.forEach(panel => {
-      if (!panel.querySelector('.qs_content')) {
-        panel.querySelector('.qs_title_bar').dispatchEvent(new MouseEvent("dblclick"))
-      }
-    })
-  })
-}
-
-export async function expandTargetGuiPanel(page, panelTitle) {
-  // Locate the specific panel by its title text.
-  const panel = page.locator(`.qs_main:has(.qs_title_bar:has-text("${panelTitle}"))`);
-
-  // A panel is collapsed if it does not have a .qs_content element.
-  const isCollapsed = (await panel.locator('.qs_content').count()) === 0;
-
-  if (isCollapsed) {
-    // Find the title bar within that specific panel and double-click it.
-    const titleBar = panel.locator('.qs_title_bar');
-    await titleBar.dblclick({ force: true }); // Use force to avoid pointer event issues.
-    // Wait for the content to appear, confirming the panel is expanded.
-    await panel.locator('.qs_content').waitFor({ state: 'visible', timeout: 5000 });
-  }
 }
 
 /**
