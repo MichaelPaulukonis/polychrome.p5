@@ -1,7 +1,7 @@
-@import 'utilities/functions';
-@import 'utilities/variables';
+@use 'utilities/functions';
+@use 'utilities/variables';
 
-@import 'base/grid';
-@import 'base/fonts';
-@import 'base/general';
-@import 'base/links';
+@use 'base/grid';
+@use 'base/fonts';
+@use 'base/general';
+@use 'base/links';

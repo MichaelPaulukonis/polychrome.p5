@@ -15,6 +15,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use '~/assets/css/utilities/variables' as *;
+
 #counter {
   display: inline-block;
   padding: 1rem 2rem;

@@ -53,18 +53,8 @@ export default {
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    '@nuxtjs/style-resources',
     'nuxt-webfontloader'
   ],
-
-  styleResources: {
-    scss: [
-      '@/assets/css/utilities/_variables.scss',
-      '@/assets/css/utilities/_helpers.scss',
-      '@/assets/css/base/_grid.scss',
-      '@/assets/css/base/_buttons.scss'
-    ]
-  },
 
   webfontloader: {
     custom: {

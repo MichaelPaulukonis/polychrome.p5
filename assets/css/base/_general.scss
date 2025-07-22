@@ -1,3 +1,6 @@
+@use "../utilities/variables";
+@use "grid";
+
 * { box-sizing: border-box; }
 
 html{
@@ -5,20 +8,20 @@ html{
 }
 
 body {
-  background-color: $background-primary;
+  background-color: variables.$background-primary;
 	min-width: 320px;
 	height: 100%;
   overflow-x: hidden;
   transition: transform .5s ease-out;
 
-  @media (min-width: $grid-breakpoint){
+  @media (min-width: grid.$grid-breakpoint){
     padding-left: 0;
     padding-right: 0;
   }
 
   &.open-menu{
-    @media (max-width: $grid-breakpoint - 1){
-      transform: translateX($nav-responsive-width);
+    @media (max-width: grid.$grid-breakpoint - 1){
+      transform: translateX(variables.$nav-responsive-width);
     }
   }
 }
@@ -44,25 +47,25 @@ body {
 }
 
 .text-negative {
-  color: $text-negative;
+  color: variables.$text-negative;
 }
 
 .wrapper{
   position: relative;
   padding-left: 0;
-  top: $header-height-breakpoint;
-  height: calc(100% - #{$header-height-breakpoint});
+  top: variables.$header-height-breakpoint;
+  height: calc(100% - #{variables.$header-height-breakpoint});
   -webkit-overflow-scrolling: touch;
   overflow-y: auto;
 
-  @media (min-width: $grid-breakpoint){
+  @media (min-width: grid.$grid-breakpoint){
     height: auto;
     top: initial;
   }
 }
 
 ::selection { 
-  background: $primary;
+  background: variables.$primary;
   color: white;
 }
 
@@ -101,7 +104,7 @@ section {
     padding: 0;
   }
   
-  @media (min-width: $screen-sm){
+  @media (min-width: grid.$screen-sm){
     margin-bottom: 7.2rem;
   }
 }
@@ -111,7 +114,7 @@ section {
   padding: 1rem 2rem;
   margin: 0 1rem 1rem 0;
   height: 3rem;
-  background-color: $primary;
+  background-color: variables.$primary;
   text-decoration: none;
   color: #ffffff;
   cursor: pointer;
@@ -145,7 +148,7 @@ button:active {
 
   &__field {
     transition: border .1s ease;
-    border: 1px solid $grey-3;
+    border: 1px solid variables.$grey-3;
     background-color: white;
     padding: 0 8px;
     height: 36px;
@@ -154,12 +157,12 @@ button:active {
     &:active,
     &:hover {
       outline: none;
-      border: 1px solid $primary;
+      border: 1px solid variables.$primary;
     }
 
     &:focus {
       outline-offset: 0;
-      border: 1px solid $primary;
+      border: 1px solid variables.$primary;
     }
 
     &:disabled {
