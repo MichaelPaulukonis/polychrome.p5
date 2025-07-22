@@ -1,8 +1,9 @@
 // Modern SASS functions to replace deprecated ones
 @use "sass:math";
+@use "sass:color";
 
 @function safe-percentage($value) {
-  @return percentage($value);
+  @return math.percentage($value);
 }
 
 @function safe-divide($dividend, $divisor) {
@@ -13,5 +14,5 @@
 }
 
 @function safe-lighten($color, $amount) {
-  @return lighten($color, $amount);
+  @return color.adjust($color, $lightness: $amount);
 }
