@@ -179,7 +179,89 @@ I can't remember how sequencing of all of this works - I want to bump the minor 
 
 _**Assistant**_
 
+Here’s the recommended sequence for a minor version bump and release:
 
+### **Release Workflow**
+
+1. **Update `package.json` Version**
+   - Change `"version": "1.1.1"` to `"1.2.0"`.
+
+2. **Update `CHANGELOG.md`**
+   - Move all `[Unreleased]` entries to a new section:
+     ```
+     ## [1.2.0] - 2025-07-23
+     ```
+   - Add today’s date.
+   - Leave an empty `[Unreleased]` section at the top for future changes.
+
+3. **Commit Changes**
+   - Stage and commit both `package.json` and `CHANGELOG.md`:
+     ```
+     git add `package.json` `CHANGELOG.md`
+     git commit -m "chore(release): bump version to 1.2.0 and update changelog"
+     ```
+
+4. **Tag the Release (optional but recommended)**
+   ```
+   git tag v1.2.0
+   ```
+
+5. **Push Changes and Tag**
+   ```
+   git push
+   git push --tags
+   ```
+
+6. **Publish/Deploy**
+   - Run your publish script:
+     ```
+     npm run publish
+     ```
+
+---
+
+Would you like me to generate the updated `CHANGELOG.md` section for version `1.2.0`?---
+
+Would you like me to generate the updated `CHANGELOG.md` section for version `1.2.0`?
+
+---
+
+_**User**_
+
+I forgot to update package.json w/ the version - I committed everything, merged into main, and pushed to remote. Is there any way I can amend the commit with the package.json version update?
+
+---
+
+_**Assistant**_
+
+Yes, you can amend your last commit to include the updated `package.json` version, even after pushing to remote. Here’s how:
+
+### 1. Update `package.json`
+Change the version to `1.2.0` (if not already done).
+
+### 2. Stage the change
+```sh
+git add package.json
+```
+
+### 3. Amend the last commit
+```sh
+git commit --amend --no-edit
+```
+This adds the staged change to your previous commit without changing the commit message.
+
+### 4. Force-push to remote
+Since you’ve already pushed, you’ll need to force-push:
+```sh
+git push --force
+```
+
+**Note:**  
+Force-pushing rewrites history for others, so only do this if you’re the only one working on the branch, or coordinate with collaborators.
+
+---
+
+Let me know if you want a safer alternative (e.g., a new commit instead of amend/force-push).
 
 ---
 
