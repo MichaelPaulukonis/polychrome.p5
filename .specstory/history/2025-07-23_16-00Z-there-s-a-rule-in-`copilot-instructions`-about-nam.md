@@ -34,6 +34,151 @@ _**User**_
 
 _**Assistant**_
 
+The attempted renames failed because the destination filenames were the same as the source (the files were already named correctly or the script didn't match the intended files). 
+
+Here's a better approach:
+- Only rename files that lack a numeric prefix (e.g., `drawing-modes-refactor.md` → `0A.drawing-modes-refactor.md`)
+- For files with a number and hyphen (e.g., `01-e2e-phase1-complete.md`), change the hyphen to a dot (→ `01.e2e-phase1-complete.md`).
+
+Would you like to see a preview of the exact rename commands before running them, or should I proceed with the corrected renames?
+
+---
+
+_**User**_
+
+As far as I'm concerned, it worked. Looks like the last rename command included not just nn- prefixes but also nn. prefixes - and obvs those did not need renaming. But all of the nn- and non-number prefixed plans have been updated.
+
+I've added the files to stage, Let's make a small commit for this info. And a small changelog entry. 
+
+Files: ✗ git status --porcelain
+A  .specstory/history/2025-07-23_15-53Z-there-s-a-rule-it-`copilot-instructions`-about-nam.md
+A  .specstory/history/2025-07-23_16-00Z-there-s-a-rule-in-`copilot-instructions`-about-nam.md
+R  docs/plans/00-e2e-master-plan.md -> docs/plans/00.e2e-master-plan.md
+R  docs/plans/01-e2e-phase1-complete.md -> docs/plans/01.e2e-phase1-complete.md
+R  docs/plans/02-e2e-phase2-foundation-complete.md -> docs/plans/02.e2e-phase2-foundation-complete.md
+R  docs/plans/03-e2e-gui-validation-results.md -> docs/plans/03.e2e-gui-validation-results.md
+R  docs/plans/04-e2e-phase2-gui-debug-session.md -> docs/plans/04.e2e-phase2-gui-debug-session.md
+R  docs/plans/05-e2e-critical-discovery-resolution.md -> docs/plans/05.e2e-critical-discovery-resolution.md
+R  docs/plans/06-e2e-phase2-critical-discovery.md -> docs/plans/06.e2e-phase2-critical-discovery.md
+R  docs/plans/07-e2e-phase2-implementation-complete.md -> docs/plans/07.e2e-phase2-implementation-complete.md
+R  docs/plans/08-e2e-phase3-comprehensive-suite.md -> docs/plans/08.e2e-phase3-comprehensive-suite.md
+R  docs/plans/09-e2e-action-plan.md -> docs/plans/09.e2e-action-plan.md
+R  docs/plans/drawing-modes-refactor.md -> docs/plans/0A.drawing-modes-refactor.md
+R  docs/plans/font-system-testing-plan.md -> docs/plans/0A.font-system-testing-plan.md
+R  docs/plans/undo-refactor.md -> docs/plans/0A.undo-refactor.md
+R  docs/plans/10-typescript-migration-plan.md -> docs/plans/10.typescript-migration-plan.md
+
+---
+
+_**Assistant**_
+
+
+```
+
+```
+- All plan files in `` have been renamed to follow the numeric-dot prefix convention (e.g., `01-e2e-phase1-complete.md` → `01.e2e-phase1-complete.md`, `drawing-modes-refactor.md` → `0A.drawing-modes-refactor.md`).
+- The changes have been committed with a clear message.
+- A changelog entry has been added under "Changed" in the Unreleased section.
+
+This completes the requested update.
+
+---
+
+_**User**_
+
+What are your guidelines for adding to the CHANGELOG file? I am asking about both explicit instructions I have added, but also your general "best practices" that you implement.
+
+---
+
+_**Assistant**_
+
+Here are my guidelines for adding to the `CHANGELOG.md` file, combining your explicit instructions and general best practices:
+
+---
+
+### **Explicit User Instructions**
+
+- **Always ask before creating a changelog entry for any git commit.**
+- For substantial non-commit changes, prompt the user about adding a changelog entry.
+- **Include in changelog:**
+  - API endpoint changes
+  - Frontend features or UI changes
+  - User-facing bug fixes
+  - Documentation that affects end users
+  - Breaking changes or security fixes
+- **Exclude from changelog:**
+  - Internal refactoring, tests, build changes
+  - LLM instruction updates
+  - Code comments or internal docs
+- Use [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format:
+  - Sections: `Added`, `Changed`, `Fixed`, `Security`
+  - Entries should be clear, user-focused, and specific.
+- Default to PATCH version bump for changelog entries; ask user to confirm MINOR/MAJOR bumps.
+- Avoid vague entries (e.g., "Updated some stuff").
+
+---
+
+### **General Best Practices**
+
+- **Write for end users:** Focus on what changed from a user's perspective, not just technical details.
+- **Be concise and specific:** Each entry should clearly describe the change and its impact.
+- **Group related changes:** Use section headers to organize by type (`Added`, `Changed`, `Fixed`, etc.).
+- **Chronological order:** List changes in the order they were made, most recent first.
+- **Reference affected files or features:** When possible, mention the module, feature, or file.
+- **Use consistent language and formatting:** Follow the established style for readability.
+- **Document breaking changes clearly:** Highlight any changes that require user action or may affect compatibility.
+
+---
+
+**Summary:**  
+I follow your explicit rules for when and what to include, use the Keep a Changelog format, and apply best practices for clarity, specificity, and user focus. I always confirm with you before adding or updating changelog entries.
+
+---
+
+_**User**_
+
+There are no dates or version in the changelog - is this because we have not merged with main or published since we started the log?
+
+---
+
+_**Assistant**_
+
+Yes, that's correct. The absence of dates and version numbers in your `CHANGELOG.md` is because all entries are currently under the `[Unreleased]` section. This means the changes have not yet been merged into `main` or published as a new release. 
+
+When you publish or tag a new release, you should:
+- Move the relevant entries from `[Unreleased]` to a new version section (e.g., `## [1.1.0] - 2025-07-23`)
+- Add the release date next to the version.
+
+Until then, all ongoing changes remain grouped under `[Unreleased]` as per Keep a Changelog best practices.
+
+---
+
+_**User**_
+
+My goal with the most recent branch was to get e2e tests working. I currently have more than half passing, compared to just 2 passing when I started. I feel good about the progress and understand many of the reasons why remaining tests fail. Instead of finishing the tests, I would like to merge and publish - and then move on to some other tasks and plans, revisitng e2e tests periodically. Does this sound reasonable?
+
+---
+
+_**Assistant**_
+
+Yes, that sounds reasonable. Merging and publishing after substantial progress on E2E test stability is a good practice, especially since you now have a much higher pass rate and understand the remaining issues. This allows you to capture and share improvements, then iterate on the tests in future cycles without blocking other work.
+
+Before merging, consider:
+- Documenting the current E2E test status in the changelog (already present).
+- Optionally, add a note in the changelog or release notes about ongoing E2E test improvements and known limitations.
+
+Would you like help preparing the release section in `CHANGELOG.md` (with version and date), or do you want to keep everything under `[Unreleased]` until after merge?
+
+---
+
+_**User**_
+
+I can't remember how sequencing of all of this works - I want to bump the minor version of the app (in package.json) from 1.1.1 to 1.2.0 - there's isn't big user-facing changes, but the e2e tests and scss cleanup and worthy of a minor bump. We will need to commit changes, like changelog, as well.
+
+---
+
+_**Assistant**_
+
 
 
 ---
