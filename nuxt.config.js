@@ -1,3 +1,5 @@
+const { version } = require('./package.json')
+
 // only add `router.base = '/<repository-name>/'` if `DEPLOY_ENV` is `GH_PAGES`
 const routerBase = {
   router: {
@@ -8,6 +10,9 @@ const routerBase = {
 export default {
   ...routerBase,
   ssr: false,
+  env: {
+    appVersion: version
+  },
   /*
   ** Headers of the page
   */
@@ -19,7 +24,7 @@ export default {
       { hid: 'description', name: 'description', content: process.env.npm_package_description || '' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: `${routerBase.router.base.replace(/\/$/, '')}/favicon.ico` }
     ]
   },
   /*
