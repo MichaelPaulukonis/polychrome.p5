@@ -1,195 +1,129 @@
 # sketch.js Overview
 
 ## Imports
-- `fonts` - Dynamic import context for TTF font files from assets
 - `UndoLayers` - Canvas history/undo functionality management
-- `Layers` - Multi-canvas layer management system  
-- `fitTextOnCanvas` - Utility for auto-sizing text to fit canvas areas
-- `allParams, fillParams, outlineParams, drawModes, globals` - Configuration parameters
-- `hexStringToColors` - Color string parsing utility
-- `setupGui` - GUI initialization and controls
-- `recordAction, recordConfig, output, clearRecording` - Recording/playback system
-- `saveAs` - File saving utility from file-saver library
-- `datestring, filenamer` - File naming utilities
-- `setupActions` - Action/macro system setup
-- `createColorSystem` - Color system factory from color module
+- `Layers` - Multi-canvas layer management system
+- `allParams, fillParams, outlineParams, drawModes, globals` - Configuration parameters from `@/src/params.js`
+- `hexStringToColors` - Color string parsing utility from `@/src/gui/gui.color.control`
+- `setupGui` - GUI initialization and controls from `@/src/gui/gui`
+- `recordAction, recordConfig, output, clear as clearRecording` - Recording/playback system from `@/src/scripting/record`
+- `saveAs` - File saving utility from `file-saver` library
+- `datestring, filenamer` - File naming utilities from `@/src/filelib`
+- `setupActions` - Action/macro system setup from `@/src/gui/actions`
+- `createColorFunctions, createGammaAdjustment, initializeColorMode` - Color system factories from `@/src/color/color-system`
+- `createCanvasTransforms` - Factory for canvas transformation functions from `@/src/canvas-transforms`
+- `createDrawingModes` - Factory for drawing mode functions from `@/src/drawing-modes`
+- `apx, pushpop` - Utility functions from `@/src/utils`
+- `fonts` - Dynamic import context for TTF font files from `assets/fonts`
 
 ## Global Variables
 - `namer` - File naming helper instance
 - `density` - Pixel density setting (set to 2 for high-DPI displays)
-- `layers` - Multi-layer canvas system instance
-- `colorSystem` - Color system instance created from factory with p5 and layers
-- `undo` - Undo/redo system instance
-- `fontList` - Object containing loaded p5.js font objects
-- `loadedFonts` - Array of available font names extracted from font context
-- `imgMask` - Gradient mask image for visual effects
-- `APP_MODES` - Drawing mode constants object
+- `layers` - `Layers` class instance for managing drawing layers.
+- `colorSystem` - Object containing color functions, created by `createColorFunctions`.
+- `adjustGamma` - Function for gamma adjustment, created by `createGammaAdjustment`.
+- `canvasTransforms` - Object containing canvas transformation functions, created by `createCanvasTransforms`.
+- `drawingModes` - Object containing drawing mode functions, created by `createDrawingModes`.
+- `undo` - `UndoLayers` class instance for undo/redo functionality.
+- `fontList` - Object containing loaded p5.js font objects.
+- `loadedFonts` - Array of available font names.
+- `imgMask` - Gradient mask image for visual effects.
+- `APP_MODES` - Drawing mode constants object.
 
 ## Core Setup/Lifecycle Functions
 
 ### `preload()`
-- Loads TTF fonts from assets folder using dynamic context
-- Loads gradient mask image for visual effects
-- Calls `invertMask()` to prepare mask for use
+- Loads TTF fonts from the `assets/fonts` folder.
+- Loads a gradient mask image for visual effects.
+- Calls `invertMask()` to prepare the mask for use.
 
 ### `setup()`
-- Initializes canvas with pixel density and dimensions
-- Creates drawing layer and temp layer via `initDrawingLayer()` and `initDefaultLayer()`
-- Initializes color system with p5 instance and layers object
-- Sets up GUI controls and color shift functions
-- Initializes undo system with 10-state history
-- Sets HSB color mode and configures initial state
-- Records initial configuration
+- Initializes the main p5.js canvas.
+- Initializes the `Layers` system with a drawing layer and a temp layer.
+- Initializes core modules by calling their respective factory functions:
+  - `createColorFunctions`
+  - `createGammaAdjustment`
+  - `createCanvasTransforms`
+  - `createDrawingModes`
+- Sets up the GUI using `setupGui`.
+- Initializes the `UndoLayers` system.
+- Assigns the functions from the initialized modules to the main `pct` object, which is exposed to the rest of the application.
+- Records the initial configuration for the scripting/playback system.
 
 ### `draw()`
-Main render loop with mode switching:
-- Handles auto-paint mode vs standard drawing
-- Increments animated parameters via `increment()`
-- Calls `savit()` for capture/playback saving
+The main render loop, which:
+- Handles automated painting via `autoDraw()` if `params.autoPaint` is true.
+- Increments animated parameters.
+- Handles script playback.
+- Calls `standardDraw()` for interactive drawing.
+- Handles saving frames for capture/playback.
 
 ### `mousePressed()`
-Takes undo snapshot when mouse pressed within canvas bounds
+Takes an undo snapshot when the mouse is pressed within the canvas bounds.
 
-## Drawing Mode Functions
+## Drawing and Painting
 
-### `drawGrid({ xPos, params, width, height, layer })`
-Renders text in grid patterns with configurable spacing:
-- Supports fixed-width or text-width based layouts using generators
-- Handles inversion and rotation parameters
-- Applies shadows and stroke settings using color system
-- Uses `blocGeneratorFixedWidth` or `blocGeneratorTextWidth`
+### `paint(xPos, yPos, params)`
+The main painting function. It sets the current font and then delegates to the appropriate drawing mode function (`drawGrid`, `drawCircle`, or `drawRowCol`) from the `drawingModes` object based on `params.drawMode`.
 
-### `drawCircle({ xPos, yPos, params, width, layer, ... })`
-Arranges text along circular/arc paths:
-- Calculates circumference-based text placement via `circlePainter()`
-- Supports arc percentage and offset parameters
-- Handles radius inversion and cumulative rotation
-- Uses color system for fill and stroke operations
-- Uses `blocGeneratorCircle` for coordinate generation
+### `standardDraw({ x, y, override, params })`
+Handles normal interactive painting with mouse input. It checks if the mouse is within the canvas, records the action, and calls `paint()`.
 
-### `drawRowCol({ params, width, height, layer })`
-Simple row/column text layout:
-- Divides canvas into grid cells based on rows/columns
-- Fits text size to cell dimensions
-- Supports outline stroke settings via color system
-- Uses `textGetter()` for character/word selection
+### `autoDraw(minX, minY, maxX, maxY)`
+Handles the automated random painting mode. It can randomly apply macros, actions, or call `standardDraw()` with random coordinates.
+
+## Module Integration
+
+The `sketch.js` file acts as a central coordinator that initializes and integrates several external modules.
+
+### Drawing Modes
+Drawing logic is handled by the `drawing-modes` module. The `createDrawingModes` factory returns an object with `drawGrid`, `drawCircle`, and `drawRowCol` functions. These functions are called from `paint()` and are responsible for rendering the different visual patterns.
+
+### Canvas Transforms
+Canvas transformations like `flip`, `mirror`, and `rotateCanvas` are provided by the `canvas-transforms` module. The `createCanvasTransforms` factory returns an object containing these functions, which are then attached to the `pct` object.
+
+### Color System
+Color management is handled by the `color-system` module. The `createColorFunctions` factory provides functions for handling fill and stroke colors. The `createGammaAdjustment` factory provides the `adjustGamma` function.
 
 ## Canvas Operations
 
-### `paint(xPos, yPos, params)`
-Main painting function that delegates to drawing modes based on `params.drawMode`
-
 ### `clearCanvas({ layers, params })`
-- Records action for playback
-- Clears canvas with background color
-- Resets layer properties and color mode
+- Records the clear action.
+- Clears the drawing layer and main canvas with the background color.
+- Re-initializes the color mode.
 
 ### `renderLayers({ layers })`
-Composites drawing layer onto main canvas via `renderTarget()` and clears drawing layer
-
-## Transform Operations
-
-### `rotateCanvas({ direction, height, width, layers, p5 })`
-Rotates entire canvas 90 degrees in specified direction using pixel manipulation
-
-### `flip({ axis, layer })`
-Mirrors canvas horizontally (`VERTICAL`) or vertically (`HORIZONTAL`) using `flipCore()`
-
-### `mirror(cfg)`
-Creates mirrored half-images along specified axis using `mirrorCore()`
-
-### `shift(cfg)`
-Shifts pixels with wrapping using canvas ImageData API
-
-### `adjustGamma(props)`
-Applies gamma correction to adjust brightness/contrast via pixel manipulation
-
-## Color System Integration
-
-### Color System Usage
-The sketch integrates with the external color system module via:
-- `colorSystem.setFillMode(params, colorAlpha, hexStringToColors)` - Applies fill colors based on paint mode
-- `colorSystem.setOutlineMode(params, colorAlpha, hexStringToColors)` - Applies stroke colors based on paint mode
-
-The color system automatically references the current `layers.drawingLayer`, ensuring compatibility with dynamic layer replacement after operations like canvas rotation.
-
-For detailed color system documentation, see: `docs/src/color/color-system.md`
-
-## Utility Functions
-
-### `standardDraw({ x, y, override, params })`
-Handles normal interactive painting with mouse input and canvas bounds checking
-
-### `autoDraw(minX, minY, maxX, maxY)`
-Automated random painting mode that applies actions or random operations
-
-### `textGetter(textMode, textManager)`
-Returns appropriate text generation function:
-- `sequential` → `getchar`
-- `random` → `getcharRandom` 
-- default → `getWord`
-
-### `randomLayer(cfg)`
-Places random historical layer with optional rotation, transparency, and masking effects
-
-### `increment(params)`
-Updates animated parameters using `skewCollection` array
-
-## File Operations
-
-### `save_sketch()`
-Exports current canvas as PNG with timestamp using `saver()` helper
-
-### `saveAnimationFrames()`
-Toggles animation frame capture mode (incomplete implementation)
-
-### `savit({ params })`
-Handles automatic saving during playback/capture modes
-
-## Generator Functions
-
-### `blocGeneratorFixedWidth(gridParams, nextText)`
-Yields coordinate/text blocks for fixed-width grid layouts
-
-### `blocGeneratorTextWidth(nextText, gridSize, yOffset, layer)`
-Yields coordinate/text blocks based on actual text width measurements
-
-### `blocGeneratorCircle({ radius, circumference, arcOffset })`
-Yields theta/text blocks for circular text placement along arc length
-
-## Helper Functions
-
-### `mouseInCanvas()`
-Checks if mouse position is within canvas bounds
-
-### `coinflip()`
-Returns random boolean value using `p5.random()`
-
-### `trText(layer, rotation)`
-Higher-order function for translate/rotate/text operations
-
-### `pushpop(layer)`
-Higher-order function that wraps operations in push/pop matrix calls
-
-### `apx(...fns)`
-Applies array of functions to a list using forEach
+Composites the drawing layer onto the main canvas and then clears the drawing layer.
 
 ## Layer Management Functions
 
 ### `initDefaultLayer(w, h)`
-Creates graphics layer with specified dimensions and pixel density
+Creates a new p5.js graphics layer with the specified dimensions and pixel density.
 
 ### `initDrawingLayer(w, h)`
-Creates drawing layer with font, alignment, and color mode configuration
+Creates the main drawing layer, sets the default font and text alignment, and initializes the color mode.
 
 ### `setFont(font, layer)`
-Sets font on layer, using loaded font objects or fallback
+Sets the `textFont` on a given layer.
 
-## Action System
+## Other Key Functions
 
-### Exposed via `pct` object:
-- `stop(mode)` / `start(mode)` - Control application modes
-- Various transform operations (`flip`, `mirror`, `shift`, `rotateCanvas`)
-- Drawing functions (`paint`, `clearCanvas`, `drawGrid`, `drawCircle`, `drawRowCol`)
-- Utility functions and constants (`HORIZONTAL`, `VERTICAL`, `APP_MODES`)
-- Recording system
+### `randomLayer(cfg)`
+Places an image from the undo history onto the canvas at a random location with optional rotation, transparency, and masking effects.
+
+### `increment(params)`
+Updates animated parameters for effects like skewing.
+
+### `savit({ params })`
+Handles automatic saving of frames during playback or capture modes.
+
+## Action System (`pct` object)
+
+The `pct` object serves as the main API for the sketch, exposing its functionality to other parts of the application, including the GUI. It contains:
+- Core p5.js instance (`p5`)
+- `Layers` instance (`layers`)
+- Application parameters (`params`)
+- Functions from the various modules (e.g., `flip`, `drawGrid`, `clearCanvas`)
+- Application mode state (`appMode`, `APP_MODES`)
+- Undo manager (`undo`)
+- Scripting and recording functions.

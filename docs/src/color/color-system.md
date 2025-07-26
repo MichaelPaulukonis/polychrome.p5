@@ -92,6 +92,27 @@ Simple single-color fills:
 - `black` - Pure black (#000000)
 - `white` - Pure white (#FFFFFF)
 
+## `createGammaAdjustment(dependencies)`
+
+This factory creates the `adjustGamma` function, which applies gamma correction to the canvas.
+
+**Dependencies:**
+
+-   `layers`: The application's `Layers` management object.
+-   `recordAction`: A function to record an action for the scripting/playback system.
+-   `globals`: The application's global state object.
+-   `renderLayers`: A function to render the drawing layer to the main canvas.
+-   `appMode`: The current application mode.
+-   `APP_MODES`: An object containing the application mode constants.
+
+**Returned Function:**
+
+-   `adjustGamma(props)`: Applies gamma correction to the main canvas based on the `props.gamma` value.
+
+## `initializeColorMode(layer, p5Instance, params)`
+
+This is a utility function that sets the color mode of a given `layer` to HSB. It uses the canvas `width` and `height` from the `params` object to set the range for the HSB values, which is a key part of how the rainbow paint modes work.
+
 ## Internal Functions
 
 ### `setPaintMode(props)`

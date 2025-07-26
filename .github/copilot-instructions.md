@@ -210,6 +210,7 @@ Follow the creative coding architecture with clear separation:
 - **When generating code, first outline your plan in pseudocode or comments, then provide the code.**  
   - Save these plans and any refactor documentation according to the Documentation section.
 - **Keep responses concise and focused.** Use Markdown formatting for clarity.
+- **After implementing new features or completing a refactoring task, ask the user if the documentation in `docs/` needs to be updated to reflect the changes.**
 - **Never generate or suggest code that violates copyright or project policies.**
 
 ## 7. Canvas and p5.js Best Practices

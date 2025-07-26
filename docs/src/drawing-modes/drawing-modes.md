@@ -61,15 +61,28 @@ const result = painter.paint(params, dimensions)
 - **Key Features**: Invert mode, fixed/dynamic width, text alignment
 - **Generators**: Uses `blocGeneratorFixedWidth` or `blocGeneratorTextWidth`
 
+Renders text in a grid pattern. It supports two main modes determined by `params.fixedWidth`:
+
+-   **Fixed Width:** Creates a grid with equally sized cells, and text is centered within each cell. It uses the `blocGeneratorFixedWidth` generator.
+-   **Text Width:** Creates a grid where the cell width is determined by the width of the text itself, allowing for a more organic, flowing layout. It uses the `blocGeneratorTextWidth` generator.
+
+It also handles inversion (drawing from bottom-right to top-left) and rotation.
+
 ### Circle Painter  
 - **Pattern**: Radial text arrangement in concentric circles
 - **Key Features**: Custom center, angle distribution, text sizing
 - **Generators**: Uses `blocGeneratorCircle`
 
+Arranges text along a circular or arc-shaped path. The radius of the circle is typically controlled by the `xPos` (mouse position). It uses the `blocGeneratorCircle` to calculate the position of each character along the circumference.
+
+Key parameters include `arcPercent` (the percentage of the circle to fill) and `arcOffset` (the starting angle).
+
 ### RowCol Painter
 - **Pattern**: Matrix-based row/column layout
 - **Key Features**: Cell-based positioning, space skipping, image rendering
 - **Rendering**: Calls `renderLayers()` directly (unique behavior)
+
+Renders text in a simple row and column layout. It divides the canvas into a grid based on `params.rows` and `params.columns`. It then uses the `fitTextOnCanvas` utility to size the text to fit within each cell. Unlike the other painters, this one calls `renderLayers` itself.
 
 ## Integration Points
 

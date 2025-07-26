@@ -1,74 +1,46 @@
-# Utils Module
+# Utilities Module
 
-## Architecture Overview
+The `utils` module provides general-purpose, higher-order utility functions that are used throughout the application to simplify common patterns.
 
-**Location**: `src/utils/`  
-**Purpose**: General-purpose utility functions used across the application  
-**Pattern**: Pure functions, no side effects, highly reusable
+---
 
-## Module Structure
+## `apx(...fns)`
 
-```
-utils/
-└── index.js              # General utilities export
-```
+The `apx` function (short for "apply") is a higher-order function that allows you to apply one or more functions to each item in a list or generator.
 
-## Core Utilities
+**Signature:** `apx(...fns)(list)`
 
-### `apx(value)`
-**Purpose**: Rounds pixel values to integers for crisp canvas rendering  
-**Usage**: `apx(12.7)` → `13`  
-**Context**: Prevents sub-pixel rendering artifacts in canvas graphics
+**Parameters:**
 
-### `pushpop(layer)(callback)`  
-**Purpose**: Graphics state management with automatic push/pop  
-**Usage**: 
+-   `...fns`: A variable number of functions to be applied.
+-   `list`: An array or a generator that yields items.
+
+**Returns:** A new array containing the results of the original list (it's used for its side effects).
+
+**Usage:**
+
+It's primarily used in the drawing modes to apply the `fill`, `outline`, and `paint` functions to each coordinate block yielded by a generator, without needing to write an explicit loop.
+
 ```javascript
-const withState = pushpop(layer)
-withState(() => {
-  // Graphics transformations here
-  layer.rotate(45)
-  layer.text('Hello', 0, 0)
-})
-// State automatically restored
-```
-**Context**: Ensures graphics transformations don't leak between operations
-
-## Integration Points
-
-### Canvas Rendering
-- `apx()`: Used throughout drawing modes for pixel-perfect positioning
-- `pushpop()`: Used in text rotation and transformation operations
-
-### Drawing Modes Integration
-Both utilities are imported by drawing mode painters:
-```javascript
-import { apx, pushpop } from '~/src/utils'
+// Example from grid-painter.js
+apx(fill, outline, paint)(blocGen)
 ```
 
-## Testing
+---
 
-### Unit Tests (`test/utils.test.js`)
-- **apx()**: Tests rounding behavior, edge cases, type handling
-- **pushpop()**: Tests state preservation, callback execution, layer methods
+## `pushpop(layer)`
 
-## Development Notes
+The `pushpop` function is a higher-order function that wraps another function within a `layer.push()` and `layer.pop()` call.
 
-### Adding New Utilities
-1. Keep functions pure (no side effects)
-2. Add comprehensive unit tests
-3. Document performance characteristics
-4. Consider canvas/p5.js specific optimizations
+**Signature:** `pushpop(layer)(f)`
 
-### Performance Considerations
-- `apx()`: Lightweight integer conversion
-- `pushpop()`: Minimal overhead wrapper for graphics state
+**Parameters:**
 
-## AI Development Context
+-   `layer`: The p5.js graphics layer object that has `push` and `pop` methods.
+-   `f`: The function to be wrapped.
 
-This module contains foundational utilities extracted during drawing modes refactoring. Key considerations:
+**Returns:** A new function that, when called, will execute the original function `f` within a `push`/`pop` context.
 
-1. **Purity**: Functions should remain side-effect free
-2. **Canvas Focus**: Utilities optimized for canvas/p5.js workflows
-3. **Reusability**: Design for use across multiple drawing modes
-4. **Testing**: Maintain comprehensive test coverage for reliability
+**Usage:**
+
+This utility ensures that any transformations (like `translate`, `rotate`, `scale`) applied within the function `f` are localized and do not affect subsequent drawing operations, as the graphics state is automatically restored by `layer.pop()`. It's used extensively to keep drawing operations modular and predictable.
