@@ -22,7 +22,7 @@ const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
 let namer = null
 
-export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback }) {
+export default function Sketch({ p5Instance: p5, guiControl, textManager, setupCallback }) {
   const params = allParams
   const pct = {}
 
@@ -34,6 +34,11 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   let canvasTransforms
   let drawingModes
   let undo
+
+  let isDefiningZone = false
+  let isZonePaintingActive = false
+  let zoneStartPos = null
+  let activeZone = null
 
   const fontList = {}
 
@@ -83,7 +88,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       recordAction,
       globals,
       renderLayers,
-      get appMode () { return pct.appMode },
+      get appMode() { return pct.appMode },
       APP_MODES
     })
 
@@ -96,7 +101,9 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       initDrawingLayer,
       getAppMode: () => pct.appMode,
       APP_MODES,
-      params
+      params,
+      getActiveZone: () => activeZone,
+      isZonePaintingActive: () => isZonePaintingActive
     })
 
     // Initialize drawing modes with dependencies
@@ -157,10 +164,22 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   }
 
   const standardDraw = ({ x, y, override, params } = { x: p5.mouseX, y: p5.mouseY, override: false, params: pct.params }) => {
-    if (override || (p5.mouseIsPressed && mouseInCanvas())) {
+    if (override || (p5.mouseIsPressed && mouseInCanvas() && !isDefiningZone)) {
+      let paintX = x
+      let paintY = y
+
+      // Only apply zone constraints when zone painting is active
+      if (isZonePaintingActive && activeZone) {
+        if (x > activeZone.x && x < activeZone.x + activeZone.width && y > activeZone.y && y < activeZone.y + activeZone.height) {
+          paintX = x - activeZone.x
+          paintY = y - activeZone.y
+        } else {
+          return
+        }
+      }
       recordConfig(params, pct.appMode !== APP_MODES.STANDARD_DRAW)
-      recordAction({ x, y, action: 'paint' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-      paint(x, y, params)
+      recordAction({ x: paintX, y: paintY, action: 'paint' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+      paint(paintX, paintY, params)
       globals.updatedCanvas = true
     }
   }
@@ -213,6 +232,30 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       }
     }
     savit({ params: pct.params })
+
+    if (isZonePaintingActive && activeZone) {
+      p5.image(activeZone.graphics, activeZone.x, activeZone.y)
+      p5.push()
+      p5.noFill()
+      p5.strokeWeight(isZonePaintingActive ? 2 : 1)
+      p5.stroke(255, 255, 255, isZonePaintingActive ? 200 : 100)
+      if (!isZonePaintingActive) {
+        p5.drawingContext.setLineDash([5, 5])
+      }
+      p5.rect(activeZone.x, activeZone.y, activeZone.width, activeZone.height)
+      p5.pop()
+    }
+
+    if (isDefiningZone && zoneStartPos) {
+      p5.image(undo.getTemp(), 0, 0)
+      p5.push()
+      p5.stroke(255, 255, 255, 150)
+      p5.strokeWeight(2)
+      p5.noFill()
+      p5.drawingContext.setLineDash([5, 5])
+      p5.rect(zoneStartPos.x, zoneStartPos.y, p5.mouseX - zoneStartPos.x, p5.mouseY - zoneStartPos.y)
+      p5.pop()
+    }
   }
 
   /**
@@ -242,7 +285,48 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
 
   p5.mousePressed = () => {
     if (mouseInCanvas()) {
+      if (isDefiningZone) {
+        zoneStartPos = { x: p5.mouseX, y: p5.mouseY }
+        return
+      }
       pct.undo.takeSnapshot()
+    }
+  }
+
+  p5.mouseDragged = () => {
+    if (isDefiningZone) {
+      return
+    }
+  }
+
+  p5.mouseReleased = () => {
+    if (isDefiningZone && zoneStartPos) {
+      const x = Math.min(zoneStartPos.x, p5.mouseX)
+      const y = Math.min(zoneStartPos.y, p5.mouseY)
+      const w = Math.abs(p5.mouseX - zoneStartPos.x)
+      const h = Math.abs(p5.mouseY - zoneStartPos.y)
+
+      if (w > 10 && h > 10) {
+        const zoneGraphics = p5.createGraphics(w, h)
+        zoneGraphics.pixelDensity(density)
+        setFont(params.font, zoneGraphics)
+        zoneGraphics.textAlign(p5.CENTER, p5.CENTER)
+        initializeColorMode(zoneGraphics, p5, params)
+        colorSystem.setFillMode(0, 0, params.fill, hexStringToColors, zoneGraphics)
+        colorSystem.setOutlineMode(0, 0, params.outline, hexStringToColors, zoneGraphics)
+
+        activeZone = {
+          graphics: zoneGraphics,
+          x,
+          y,
+          width: w,
+          height: h
+        }
+        isZonePaintingActive = true
+      }
+
+      isDefiningZone = false
+      zoneStartPos = null
     }
   }
 
@@ -269,24 +353,15 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     globals.updatedCanvas = true
   }
 
-  // this was a POC-WIP for picking the center for various operations
-  // never finished
-  const target = () => {
-    const layer = layers.copy()
-
-    p5.image(layer)
-    // layers.tempLayer.clear()
-    const x = p5.mouseX
-    const y = p5.mouseY
-    p5.line(0, y, p5.width, y) // line(0, y, width, y);
-    p5.line(x, 0, x, p5.height) // line(0, y, width, y);
-    layer.remove()
-  }
-
   const renderLayers = ({ layers }) => {
     renderTarget({ layers })
   }
 
+  // TODO: do we have docs on layers and renderLayers?
+  // zonal painting should probably be another layer in here
+  // which suggests that ALL layers have coordinated?
+  // which would be 0,0,width,height for most cases
+  // but that allows for ... things
   const renderTarget = ({ layers }) => {
     layers.p5.image(layers.drawingLayer, 0, 0)
     layers.drawingLayer.clear()
@@ -297,6 +372,10 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     const color = params.fill.color
     clear(layers.drawingLayer, color)
     clear(layers.p5, color)
+
+    if (activeZone) {
+      clear(activeZone.graphics, color)
+    }
 
     initializeColorMode(layers.drawingLayer, p5, params)
   }
@@ -329,38 +408,38 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   }
 
   const paint = (xPos, yPos, params) => {
-    setFont(params.font, layers.drawingLayer)
+    // Paint to the active zone only when zone painting is active, otherwise paint to main canvas
+    const target = (isZonePaintingActive && activeZone) ? activeZone.graphics : layers.drawingLayer
+    setFont(params.font, target)
+
+    const paintParams = {
+      params,
+      width: target.width,
+      height: target.height,
+      layer: target,
+      textManager
+    }
 
     if (params.drawMode === 'Grid') {
       drawingModes.drawGrid({
-        xPos,
-        params,
-        width: params.width,
-        height: params.height,
-        layer: layers.drawingLayer,
-        textManager
+        ...paintParams,
+        xPos
       })
-      renderLayers({ layers })
+      // Only render layers when zone painting is inactive
+      if (!isZonePaintingActive) renderLayers({ layers })
     } else if (params.drawMode === 'Circle') {
       drawingModes.drawCircle({
+        ...paintParams,
         xPos,
-        yPos,
-        params,
-        width: params.width,
-        height: params.height,
-        layer: layers.drawingLayer,
-        textManager
+        yPos
       })
-      renderLayers({ layers })
+      // Only render layers when zone painting is inactive
+      if (!isZonePaintingActive) renderLayers({ layers })
     } else {
       // Use modular RowCol painter
-      drawingModes.drawRowCol({
-        params,
-        width: params.width,
-        height: params.height,
-        layer: layers.drawingLayer,
-        textManager
-      })
+      drawingModes.drawRowCol(paintParams)
+      // Only render layers when zone painting is inactive
+      if (!isZonePaintingActive) renderLayers({ layers })
     }
   }
 
@@ -480,6 +559,32 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
     return size
   }
 
+  pct.defineZone = () => {
+    isDefiningZone = true
+  }
+  pct.clearZone = () => {
+    if (activeZone && activeZone.graphics) {
+      activeZone.graphics.remove()
+    }
+    activeZone = null
+    isZonePaintingActive = false
+  }
+  pct.toggleZonePainting = () => {
+    isZonePaintingActive = !isZonePaintingActive
+    if (!isZonePaintingActive) {
+      // render zone to target
+      // clear graphics
+      // s/b common function not here
+      p5.image(activeZone.graphics, activeZone.x, activeZone.y)
+      activeZone.graphics.remove()
+      // which means when we restart need to redefine the graphics
+      // see code in p5.mouseReleased (ugh, s/b refactored)
+    }
+  }
+  pct.isDefiningZone = () => isDefiningZone
+  pct.isZonePaintingActive = () => isZonePaintingActive
+  pct.getActiveZone = () => activeZone
+
   pct.stop = (mode = APP_MODES.NO_DRAW) => {
     pct.appMode = mode
     if (mode === APP_MODES.PLAYBACK) return
@@ -506,7 +611,6 @@ for (; i < 16777216; ++i) { // this is a BIG loop, will freeze/crash a browser!
   pct.renderLayers = renderLayers
   pct.reset = reset
   pct.setFont = setFont
-  pct.target = target
   pct.textManager = textManager
   pct.mouseInCanvas = mouseInCanvas
   pct.draw = standardDraw

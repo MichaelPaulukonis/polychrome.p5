@@ -53,7 +53,6 @@ const invertGridParm = (xPos, height, width) => {
  */
 export const createGridPainter = (dependencies) => {
   const {
-    layers,
     colorSystem,
     hexStringToColors,
     p5
@@ -87,7 +86,7 @@ export const createGridPainter = (dependencies) => {
 
     layer.textSize(gridParams.step)
     // This is weird - textAscent goes to the parent p5 instance which is set to 12
-    layers.p5.textSize(gridParams.step)
+    p5.textSize(gridParams.step)
 
     // Configure stroke
     const sw = params.useOutline

@@ -17,7 +17,6 @@ import { fitTextOnCanvas } from '@/src/fit.text'
  */
 export const createRowColPainter = (dependencies) => {
   const {
-    layers,
     colorSystem,
     hexStringToColors
   } = dependencies
@@ -74,19 +73,11 @@ export const createRowColPainter = (dependencies) => {
       }
     }
 
-    // Call renderLayers to display results
-    const renderLayers = ({ layers }) => {
-      layers.p5.image(layers.drawingLayer, 0, 0)
-      layers.drawingLayer.clear()
-    }
-    renderLayers({ layers })
-
     // Return any parameter modifications (none in this case)
     return {
       modifiedParams: null,
       sideEffects: [
-        'Modified layer graphics state (text alignment, stroke properties)',
-        'Called renderLayers() to display results'
+        'Modified layer graphics state (text alignment, stroke properties)'
       ]
     }
   }

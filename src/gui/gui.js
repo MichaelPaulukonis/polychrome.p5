@@ -99,6 +99,10 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .bindNumber('height', _, _, params.height, _, params)
     .addButton('clear', () => sketch.clearCanvas({ layers: sketch.layers, params }))
     .addButton('save', sketch.save_sketch)
+    .addHTML('Zonal Painting', '')
+    .addButton('Define Zone', () => sketch.defineZone())
+    .addButton('Clear Zone', () => sketch.clearZone())
+    .addButton('Activate/Deactivate Zone', () => sketch.toggleZonePainting())
     .addRange('frameRate', 1, 30, params.frameRate, 1, setFrameRate(p5))
     .bindBoolean('autoPaint', params.autoPaint, params)
     .bindDropDown('drawMode', drawModes, params)
@@ -114,9 +118,9 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     // params.capturing
     .addButton('Capture frames', () => { params.capturing = !params.capturing })
     .bindNumber('captureLimit', _, _, params.captureLimit, _, params)
-    // .bindNumber('captureCount', _, _, params.captureCount, _, params)
+  // .bindNumber('captureCount', _, _, params.captureCount, _, params)
 
-  mainGui.collapse()
+  // mainGui.collapse()
 
   const fontGui = QuickSettings.create(p5.windowWidth - 220, 60, 'Font', pDoc)
     .bindBoolean('fixedWidth', params.fixedWidth, params)
@@ -185,7 +189,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .addButton('removeColor', () => removeColor({ panel: outlineGui, prefix: 'lq', params: outlineParams }))
     .setGlobalChangeHandler(setFocus)
   addMultiColor({ gui: outlineGui, prefix: 'lq', params: outlineParams })
-  // outlineGui.collapse()
+  outlineGui.collapse()
 
   const panels = [mainGui, fontGui, shadowGui, fillGui, outlineGui]
   let presets = {}
@@ -292,7 +296,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .addButton('update', update)
     .addButton('new', saveNew)
     .setGlobalChangeHandler(setFocus)
-  // rememberPanel.collapse()
+  rememberPanel.collapse()
 
   if (presetNames[0]) {
     getSetting(presetNames[0])

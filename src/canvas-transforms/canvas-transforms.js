@@ -18,6 +18,8 @@ import { flipCore, mirrorCore, newCorner, HORIZONTAL, VERTICAL } from './core-tr
  * @param {Function} dependencies.getAppMode - Function that returns current app mode
  * @param {Object} dependencies.APP_MODES - App mode constants
  * @param {Object} dependencies.params - Global parameters object
+ * @param {Function} dependencies.getActiveZone - Function to get the active zone
+ * @param {Function} dependencies.isZonePaintingActive - Function to check if zone painting is active
  * @returns {Object} Object containing transform functions
  */
 export function createCanvasTransforms ({
@@ -28,7 +30,9 @@ export function createCanvasTransforms ({
   initDrawingLayer,
   getAppMode,
   APP_MODES,
-  params
+  params,
+  getActiveZone,
+  isZonePaintingActive
 }) {
   /**
    * Flips canvas along specified axis
@@ -37,11 +41,14 @@ export function createCanvasTransforms ({
    * @param {Object} config.layer - Target layer to flip
    */
   const flip = ({ axis, layer }) => {
-    recordAction({ axis, layer, action: 'flip' }, getAppMode() !== APP_MODES.STANDARD_DRAW)
+    const targetLayer = getActiveZone && getActiveZone() && isZonePaintingActive && isZonePaintingActive() ? getActiveZone().graphics : layer
+    recordAction({ axis, layer: 'targetLayer', action: 'flip' }, getAppMode() !== APP_MODES.STANDARD_DRAW)
 
-    const newLayer = flipCore(axis, layers.copy(), layers)
-    layer.image(newLayer, 0, 0)
-    renderLayers({ layers })
+    const newLayer = flipCore(axis, layers.copy(targetLayer), layers)
+    targetLayer.image(newLayer, 0, 0)
+    if (!getActiveZone || !getActiveZone() || !isZonePaintingActive || !isZonePaintingActive()) {
+      renderLayers({ layers })
+    }
     newLayer.remove()
     globals.updatedCanvas = true
   }
@@ -53,12 +60,15 @@ export function createCanvasTransforms ({
    * @param {Object} cfg.layer - Target layer (default: layers.p5)
    */
   const mirror = (cfg = { axis: VERTICAL, layer: layers.p5 }) => {
-    recordAction({ ...cfg, action: 'mirror' }, getAppMode() !== APP_MODES.STANDARD_DRAW)
+    const targetLayer = getActiveZone && getActiveZone() && isZonePaintingActive && isZonePaintingActive() ? getActiveZone().graphics : cfg.layer
+    recordAction({ ...cfg, layer: 'targetLayer', action: 'mirror' }, getAppMode() !== APP_MODES.STANDARD_DRAW)
 
-    const tmp = layers.copy()
+    const tmp = layers.copy(targetLayer)
     const newLayer = mirrorCore(cfg.axis, tmp, layers)
-    cfg.layer.image(newLayer, 0, 0)
-    renderLayers({ layers })
+    targetLayer.image(newLayer, 0, 0)
+    if (!getActiveZone || !getActiveZone() || !isZonePaintingActive || !isZonePaintingActive()) {
+      renderLayers({ layers })
+    }
     // Add defensive null check before removing - fix for parentNode error
     if (newLayer?.canvas?.parentNode) {
       newLayer.remove()
@@ -78,8 +88,8 @@ export function createCanvasTransforms ({
   const shift = (cfg = { verticalOffset: 0, horizontalOffset: 0 }) => {
     recordAction({ ...cfg, action: 'shift' }, getAppMode() !== APP_MODES.STANDARD_DRAW)
 
-    // TODO: has to be pointing to the drawingLayer
-    const context = layers.p5.drawingContext
+    const targetLayer = getActiveZone && getActiveZone() && isZonePaintingActive && isZonePaintingActive() ? getActiveZone().graphics : layers.p5
+    const context = targetLayer.drawingContext
     const imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
     const cw = (cfg.horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
@@ -93,7 +103,9 @@ export function createCanvasTransforms ({
       context.putImageData(imageData, 0 + cfg.horizontalOffset, 0 + cfg.verticalOffset - ch)
     }
     context.putImageData(imageData, 0 - cw + cfg.horizontalOffset, 0 - ch + cfg.verticalOffset)
-    renderLayers({ layers })
+    if (!getActiveZone || !getActiveZone() || !isZonePaintingActive || !isZonePaintingActive()) {
+      renderLayers({ layers })
+    }
     globals.updatedCanvas = true
   }
 
@@ -107,6 +119,24 @@ export function createCanvasTransforms ({
    * @param {Object} config.p5 - p5.js instance
    */
   const rotateCanvas = ({ direction = 1, height, width, layers: layersArg, p5 }) => {
+    const zone = getActiveZone && getActiveZone()
+    const isZoneActive = isZonePaintingActive && isZonePaintingActive()
+
+    if (zone && isZoneActive) {
+      const newPG = initDrawingLayer(zone.width, zone.height)
+      newPG.push()
+      newPG.translate(zone.width / 2, zone.height / 2)
+      newPG.rotate(p5.radians(90 * direction))
+      newPG.translate(-zone.width / 2, -zone.height / 2)
+      newPG.image(zone.graphics, 0, 0)
+      newPG.pop()
+      zone.graphics.clear()
+      zone.graphics.image(newPG, 0, 0)
+      newPG.remove()
+      globals.updatedCanvas = true
+      return
+    }
+
     recordAction({ action: 'rotateCanvas', direction, height, width }, getAppMode() !== APP_MODES.STANDARD_DRAW)
 
     // Store current canvas content in drawing layer before resize

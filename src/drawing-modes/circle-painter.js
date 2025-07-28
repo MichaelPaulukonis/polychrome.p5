@@ -61,7 +61,8 @@ const circlePainter = ({ params, layer, xPos, nextText, width, arcOffset, arcPer
 export const createCirclePainter = (dependencies) => {
   const {
     colorSystem,
-    hexStringToColors
+    hexStringToColors,
+    p5
   } = dependencies
 
   /**
@@ -79,6 +80,7 @@ export const createCirclePainter = (dependencies) => {
     const textSizer = sizer || textSizeCircle
     const ts = textSize || textSizer(xPos)
     layer.textSize(ts)
+    p5.textSize(ts)
 
     layer.push()
 
