@@ -38,7 +38,7 @@ const setupActions = (pct) => {
     {
       action: ({ layers }) => {
         pct.undo.takeSnapshot()
-        pct.newCorner(layers.drawingLayer)
+        pct.newCorner(layers.drawingCanvas)
       }
     },
     {
@@ -78,16 +78,16 @@ const setupActions = (pct) => {
       }
     },
     {
-      action: ({ params }) => {
+      action: ({ params, layers }) => {
         pct.undo.takeSnapshot()
-        pct.rotateCanvas({ direction: 1, height: params.height, width: params.width, layers: pct.layers })
+        pct.rotateCanvas({ direction: 1, height: params.height, width: params.width, layers })
         pct.globals.updatedCanvas = true
       }
     },
     {
-      action: ({ params }) => {
+      action: ({ params, layers }) => {
         pct.undo.takeSnapshot()
-        pct.rotateCanvas({ direction: -1, height: params.height, width: params.width, layers: pct.layers })
+        pct.rotateCanvas({ direction: -1, height: params.height, width: params.width, layers })
         pct.globals.updatedCanvas = true
       }
     },

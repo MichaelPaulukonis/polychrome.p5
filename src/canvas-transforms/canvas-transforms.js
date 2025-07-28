@@ -14,7 +14,6 @@ import { flipCore, mirrorCore, newCorner, HORIZONTAL, VERTICAL } from './core-tr
  * @param {Function} dependencies.recordAction - Function to record actions for playback
  * @param {Object} dependencies.globals - Global state object
  * @param {Function} dependencies.renderLayers - Function to render layers to main canvas
- * @param {Function} dependencies.initDrawingLayer - Function to create new drawing layers
  * @param {Function} dependencies.getAppMode - Function that returns current app mode
  * @param {Object} dependencies.APP_MODES - App mode constants
  * @param {Object} dependencies.params - Global parameters object
@@ -25,7 +24,6 @@ export function createCanvasTransforms ({
   recordAction,
   globals,
   renderLayers,
-  initDrawingLayer,
   getAppMode,
   APP_MODES,
   params
@@ -35,12 +33,13 @@ export function createCanvasTransforms ({
    * @param {Object} config - Configuration object
    * @param {number} config.axis - HORIZONTAL or VERTICAL
    * @param {Object} config.layer - Target layer to flip
+   * TODO: except it does not use the passed-in layer sigh
    */
   const flip = ({ axis, layer }) => {
     recordAction({ axis, layer, action: 'flip' }, getAppMode() !== APP_MODES.STANDARD_DRAW)
 
     const newLayer = flipCore(axis, layers.copy(), layers)
-    layer.image(newLayer, 0, 0)
+    layers.drawingCanvas.image(newLayer, 0, 0)
     renderLayers({ layers })
     newLayer.remove()
     globals.updatedCanvas = true
@@ -52,12 +51,12 @@ export function createCanvasTransforms ({
    * @param {number} cfg.axis - HORIZONTAL or VERTICAL (default: VERTICAL)
    * @param {Object} cfg.layer - Target layer (default: layers.p5)
    */
-  const mirror = (cfg = { axis: VERTICAL, layer: layers.p5 }) => {
+  const mirror = (cfg = { axis: VERTICAL }) => {
     recordAction({ ...cfg, action: 'mirror' }, getAppMode() !== APP_MODES.STANDARD_DRAW)
 
     const tmp = layers.copy()
     const newLayer = mirrorCore(cfg.axis, tmp, layers)
-    cfg.layer.image(newLayer, 0, 0)
+    layers.drawingCanvas.image(newLayer, 0, 0)
     renderLayers({ layers })
     // Add defensive null check before removing - fix for parentNode error
     if (newLayer?.canvas?.parentNode) {
@@ -78,8 +77,7 @@ export function createCanvasTransforms ({
   const shift = (cfg = { verticalOffset: 0, horizontalOffset: 0 }) => {
     recordAction({ ...cfg, action: 'shift' }, getAppMode() !== APP_MODES.STANDARD_DRAW)
 
-    // TODO: has to be pointing to the drawingLayer
-    const context = layers.p5.drawingContext
+    const context = layers.drawingCanvas.drawingContext
     const imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
     const cw = (cfg.horizontalOffset > 0 ? context.canvas.width : -context.canvas.width)
@@ -106,12 +104,11 @@ export function createCanvasTransforms ({
    * @param {Object} config.layers - Layers object
    * @param {Object} config.p5 - p5.js instance
    */
-  const rotateCanvas = ({ direction = 1, height, width, layers: layersArg, p5 }) => {
+  const rotateCanvas = ({ direction = 1, height, width, layers }) => {
     recordAction({ action: 'rotateCanvas', direction, height, width }, getAppMode() !== APP_MODES.STANDARD_DRAW)
 
-    // Store current canvas content in drawing layer before resize
-    layersArg.drawingLayer.resetMatrix()
-    layersArg.drawingLayer.image(p5, 0, 0)
+    // because resize (below) will clear the canvas
+    const tempLayer = layers.copy()
 
     // Swap dimensions for 90-degree rotation
     const newWidth = height
@@ -121,11 +118,9 @@ export function createCanvasTransforms ({
     params.width = newWidth
     params.height = newHeight
 
-    // Resize main canvas (this clears it as a side-effect)
-    p5.resizeCanvas(newWidth, newHeight)
+    layers.resize(newWidth, newHeight)
 
-    // Create new graphics layer for rotated content
-    const newPG = initDrawingLayer(newWidth, newHeight)
+    const newPG = layers.drawingCanvas
     newPG.push()
 
     // Set rotation origin based on direction
@@ -136,16 +131,14 @@ export function createCanvasTransforms ({
     }
 
     // Apply 90-degree rotation and draw stored content
-    newPG.rotate(p5.radians(90 * direction))
-    newPG.image(layersArg.drawingLayer, 0, 0)
+    newPG.rotate(layers.p5.radians(90 * direction))
+    newPG.image(tempLayer, 0, 0)
     newPG.pop()
 
-    // Replace old drawing layer with rotated version
-    layersArg.drawingLayer.remove()
-    layersArg.drawingLayer = newPG
+    layers.dispose(tempLayer)
 
     // Note: Undo system doesn't track rotation operations
-    renderLayers({ layers: layersArg })
+    renderLayers({ layers })
     globals.updatedCanvas = true
   }
 

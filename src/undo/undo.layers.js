@@ -118,13 +118,18 @@ export default class UndoLayers {
         return
       }
 
-      // Handle rendering with proper graphics state management
-      layers.drawingLayer.push()
-      layers.drawingLayer.translate(0, 0)
-      layers.drawingLayer.resetMatrix()
-      layers.drawingLayer.image(image, 0, 0)
-      renderFunc({ layers })
-      layers.drawingLayer.pop()
+      layers.drawingCanvas.push()
+      layers.drawingCanvas.translate(0, 0)
+      layers.drawingCanvas.resetMatrix()
+      layers.drawingCanvas.image(image, 0, 0)
+      layers.drawingCanvas.pop()
+    }
+
+    this.clear = () => {
+      currentPosition = -1
+      newestPosition = -1
+      availableStates = 0
+      images.clear()
     }
 
     this.history = () => {
@@ -178,5 +183,14 @@ class ImageCollection {
     }
 
     this.all = () => imgs
+
+    this.clear = () => {
+      for (let i = 0; i < amount; i++) {
+        if (imgs[i]) {
+          layers.dispose(imgs[i])
+          imgs[i] = null
+        }
+      }
+    }
   }
 }

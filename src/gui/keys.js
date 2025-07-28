@@ -42,7 +42,7 @@ const setupHotkeys = (pct) => {
       keys: 'a',
       action: ({ layers }) => {
         pct.undo.takeSnapshot()
-        pct.newCorner(layers.drawingLayer)
+        pct.newCorner(layers.drawingCanvas)
       }
     },
     {
@@ -73,10 +73,6 @@ const setupHotkeys = (pct) => {
         pct.undo.takeSnapshot()
         pct.adjustGamma({ gamma: params.gamma })
       }
-    },
-    {
-      keys: 'alt+t',
-      action: () => pct.target() // this doesn't really do anything yet....
     },
     {
       keys: ['f', 'shift+f'].join(','),
@@ -113,12 +109,6 @@ const setupHotkeys = (pct) => {
       }
     },
     {
-      keys: ['p'].join(','),
-      action: ({ params }) => {
-        params.target = !params.target
-      }
-    },
-    {
       keys: ['q'].join(','),
       action: ({ params, layers }) => {
         pct.undo.takeSnapshot()
@@ -136,7 +126,7 @@ const setupHotkeys = (pct) => {
     {
       keys: ['r', 'shift+r'].join(','),
       action: ({ params, layers }) => {
-        pct.reset(params, layers.drawingLayer)
+        pct.reset(params, layers.drawingCanvas)
       }
     },
     // {
@@ -151,7 +141,7 @@ const setupHotkeys = (pct) => {
       keys: ['t'].join(','),
       action: ({ layers }) => {
         pct.undo.takeSnapshot()
-        pct.mirror({ axis: VERTICAL, layer: layers.p5 })
+        pct.mirror({ axis: VERTICAL, layers })
       }
     },
     {

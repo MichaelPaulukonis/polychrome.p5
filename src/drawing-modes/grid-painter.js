@@ -87,6 +87,8 @@ export const createGridPainter = (dependencies) => {
 
     layer.textSize(gridParams.step)
     // This is weird - textAscent goes to the parent p5 instance which is set to 12
+    // TODO: document this weirdness (source I mean, in the code? still?)
+    // used below: const yOffset = getYoffset(layer.textAscent(), 0)
     layers.p5.textSize(gridParams.step)
 
     // Configure stroke

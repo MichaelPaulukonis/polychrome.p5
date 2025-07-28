@@ -8,7 +8,7 @@
 /**
  * Creates a color functions object with p5 instance and layers object captured in closure
  * @param {Object} p5Instance - The p5.js instance
- * @param {Object} layers - The layers object containing drawingLayer
+ * @param {Object} layers - The layers object containing drawingCanvas
  * @returns {Object} Object containing color functions
  */
 export function createColorFunctions (p5Instance, layers) {
@@ -34,7 +34,7 @@ export function createColorFunctions (p5Instance, layers) {
    */
   const setPaintMode = (props) => {
     const { func, gridX, gridY, params, hexStringToColors } = props
-    const layer = layers.drawingLayer
+    const layer = layers.drawingCanvas
     const boundFunc = func.bind(layer)
     const transparency = params.transparent ? parseInt(params.transparency, 10) / 100 : 1
 
@@ -145,7 +145,7 @@ export function createColorFunctions (p5Instance, layers) {
    * @param {Function} hexStringToColors - Function to parse hex color strings
    */
   const setFillMode = (xPos, yPos, params, hexStringToColors) =>
-    setPaintMode({ gridX: xPos, gridY: yPos, params, func: layers.drawingLayer.fill, hexStringToColors })
+    setPaintMode({ gridX: xPos, gridY: yPos, params, func: layers.drawingCanvas.fill, hexStringToColors })
 
   /**
    * Creates outline mode function for the layer
@@ -155,7 +155,7 @@ export function createColorFunctions (p5Instance, layers) {
    * @param {Function} hexStringToColors - Function to parse hex color strings
    */
   const setOutlineMode = (xPos, yPos, params, hexStringToColors) =>
-    setPaintMode({ gridX: xPos, gridY: yPos, params, func: layers.drawingLayer.stroke, hexStringToColors })
+    setPaintMode({ gridX: xPos, gridY: yPos, params, func: layers.drawingCanvas.stroke, hexStringToColors })
 
   return {
     colorAlpha,
@@ -210,7 +210,7 @@ export function createGammaAdjustment (dependencies) {
  * @param {Object} params - Parameters object with width/height
  * @returns {Object} The layer (for chaining)
  */
-export function initializeColorMode (layer, p5Instance, params) {
-  layer.colorMode(p5Instance.HSB, params.width, params.height, 100, 1)
-  return layer
-}
+// export function initializeColorMode (layer, p5Instance, params) {
+//   layer.colorMode(p5Instance.HSB, params.width, params.height, 100, 1)
+//   return layer
+// }

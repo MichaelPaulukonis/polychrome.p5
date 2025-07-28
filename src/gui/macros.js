@@ -9,7 +9,7 @@ export default function Macros (pchrome) {
   // TODO: record needs to happen here
   const macroWrapper = m => (pct) => {
     pct.undo.takeSnapshot()
-    const { params, layers: { drawingLayer: layer }, p5, defaultParams } = pct
+    const { params, layers: { drawingCanvas: layer }, p5, defaultParams } = pct
     layer.push()
     m({ params: JSON.parse(JSON.stringify(params)), layer, p5, defaultParams })
     if (m.name) {

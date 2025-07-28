@@ -156,20 +156,20 @@ Follow the creative coding architecture with clear separation:
 
 3. **Plan-File Naming Convention**  
    ```
-   Format: NN.semantic-name.md
+   Format: NN.semantic-name.md or XA.semantic-name.md
    
    Examples:
-   - 01.drawing-modes-refactor.md
-   - 02.canvas-transforms-extraction.md
-   - 03.typescript-migration.md
-   - 04.performance-optimization.md
+   - 0A.drawing-modes-refactor.md (renamed historical plan)
+   - 10.typescript-migration-plan.md (sequential numbering)
+   - 15.offscreen-rendering-enhancement.md (current plan)
    
    Rules:
-   - Two-digit prefix (01-99) for ordering
-   - Dot separator after number
+   - Two-digit prefix (01-99) for ordering, or XA for historical plans
+   - Dot separator after number/letter combination
    - Kebab-case for semantic name
    - .md extension
    - Sequential numbering for chronological order
+   - Use XA prefix for plans that pre-date e2e planning (temporal primacy indicator)
    ```
 
 4. **Required Plan Contents**  

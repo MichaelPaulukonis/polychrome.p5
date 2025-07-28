@@ -96,7 +96,8 @@ describe('Canvas Transforms - Core Functions', () => {
       }
 
       mockLayers = {
-        clone: vi.fn().mockReturnValue(mockClonedGraphics)
+        clone: vi.fn().mockReturnValue(mockClonedGraphics),
+        copy: vi.fn().mockReturnValue(mockGraphics) // Add this mock
       }
     })
 
@@ -104,13 +105,13 @@ describe('Canvas Transforms - Core Functions', () => {
       const result = mirrorCore(VERTICAL, mockGraphics, mockLayers)
 
       // Should call flipCore first
-      expect(mockLayers.clone).toHaveBeenCalledWith(mockGraphics)
+      expect(mockLayers.copy).toHaveBeenCalled()
 
       // Should copy flipped content to original graphics (vertical mirror)
       expect(mockGraphics.image).toHaveBeenCalledWith(
         mockClonedGraphics,
         50, 0, 50, 200, // dest: x=width/2, y=0, w=width/2, h=height
-        50, 0, 50 // src: x=width/2, y=0, w=width/2 (height omitted in call)
+        50, 0, 50, 200 // src: x=width/2, y=0, w=width/2, h=height
       )
 
       expect(mockClonedGraphics.remove).toHaveBeenCalled()
@@ -177,14 +178,20 @@ describe('Canvas Transforms - Factory Function', () => {
         image: vi.fn(),
         remove: vi.fn()
       }),
-      drawingLayer: {
+      drawingCanvas: {
         width: 100,
         height: 200,
         remove: vi.fn(),
         resetMatrix: vi.fn(),
-        image: vi.fn()
+        image: vi.fn(),
+        push: vi.fn(),
+        pop: vi.fn(),
+        translate: vi.fn(),
+        rotate: vi.fn()
       },
-      p5: mockP5
+      p5: mockP5,
+      resize: vi.fn(), // Add mock for resize
+      dispose: vi.fn()
     }
 
     // Mock dependencies
@@ -193,14 +200,6 @@ describe('Canvas Transforms - Factory Function', () => {
       recordAction: vi.fn(),
       globals: { updatedCanvas: false },
       renderLayers: vi.fn(),
-      initDrawingLayer: vi.fn().mockReturnValue({
-        push: vi.fn(),
-        pop: vi.fn(),
-        translate: vi.fn(),
-        rotate: vi.fn(),
-        image: vi.fn(),
-        remove: vi.fn()
-      }),
       getAppMode: vi.fn().mockReturnValue('STANDARD_DRAW'),
       APP_MODES: {
         STANDARD_DRAW: 'STANDARD_DRAW',
@@ -253,6 +252,7 @@ describe('Canvas Transforms - Factory Function', () => {
         { axis: VERTICAL, layer: mockLayer, action: 'flip' },
         false // not in playback mode
       )
+      expect(mockLayers.drawingCanvas.image).toHaveBeenCalled()
       expect(mockDependencies.renderLayers).toHaveBeenCalledWith({ layers: mockLayers })
       expect(mockDependencies.globals.updatedCanvas).toBe(true)
     })
@@ -262,39 +262,18 @@ describe('Canvas Transforms - Factory Function', () => {
     test('should call rotateCanvas with correct parameters', () => {
       const transforms = createCanvasTransforms(mockDependencies)
 
-      // Mock createGraphics to return a proper mock
-      const mockNewGraphics = {
-        push: vi.fn(),
-        pop: vi.fn(),
-        translate: vi.fn(),
-        rotate: vi.fn(),
-        image: vi.fn(),
-        remove: vi.fn()
-      }
-      mockP5.createGraphics.mockReturnValue(mockNewGraphics)
-
       transforms.rotateWrapped(-1)
 
-      expect(mockDependencies.initDrawingLayer).toHaveBeenCalledWith(200, 100) // swapped dimensions
+      expect(mockLayers.resize).toHaveBeenCalledWith(200, 100) // swapped dimensions
       expect(mockDependencies.globals.updatedCanvas).toBe(true)
     })
 
     test('should default to clockwise rotation (direction=1)', () => {
       const transforms = createCanvasTransforms(mockDependencies)
 
-      const mockNewGraphics = {
-        push: vi.fn(),
-        pop: vi.fn(),
-        translate: vi.fn(),
-        rotate: vi.fn(),
-        image: vi.fn(),
-        remove: vi.fn()
-      }
-      mockP5.createGraphics.mockReturnValue(mockNewGraphics)
-
       transforms.rotateWrapped() // no direction argument
 
-      expect(mockDependencies.initDrawingLayer).toHaveBeenCalledWith(200, 100) // swapped for clockwise
+      expect(mockLayers.resize).toHaveBeenCalledWith(200, 100) // swapped for clockwise
     })
   })
 

@@ -17,6 +17,7 @@ export const VERTICAL = 1 // left=>right
  * @returns {Object} New flipped graphics object
  */
 export const flipCore = (axis = VERTICAL, sourceGraphics, layers) => {
+  // this default is ... stupid? because the first parameter cannot be optional
   const tmp = layers.clone(sourceGraphics)
   tmp.push()
   tmp.translate(0, 0)
@@ -43,12 +44,12 @@ export const flipCore = (axis = VERTICAL, sourceGraphics, layers) => {
  * @returns {Object} New mirrored graphics object
  */
 export const mirrorCore = (axis = VERTICAL, sourceGraphics, layers) => {
-  const tmp = flipCore(axis, sourceGraphics, layers)
+  const tmp = flipCore(axis, layers.copy(), layers)
 
   if (axis === HORIZONTAL) {
     sourceGraphics.image(tmp, 0, sourceGraphics.height / 2, sourceGraphics.width, sourceGraphics.height / 2, 0, sourceGraphics.height / 2, sourceGraphics.width, sourceGraphics.height / 2)
   } else {
-    sourceGraphics.image(tmp, sourceGraphics.width / 2, 0, sourceGraphics.width / 2, sourceGraphics.height, sourceGraphics.width / 2, 0, sourceGraphics.width / 2)
+    sourceGraphics.image(tmp, sourceGraphics.width / 2, 0, sourceGraphics.width / 2, sourceGraphics.height, sourceGraphics.width / 2, 0, sourceGraphics.width / 2, sourceGraphics.height) // 8th & 9th params are optional
   }
 
   tmp.remove()

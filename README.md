@@ -27,11 +27,7 @@ See below for some ffmpeg notes
 ## Previous version
 Conversion of my Processing.js text-app from [WebText sketches](https://github.com/MichaelPaulukonis/WebText)
 
-Previous version online @ http://www.xradiograph.com/netart/024.html
-
-## Dev notes
-THIS IS A HORRIBLE MISH-MASH of procedural code, wannabe-functional-light code, and un-planned cowboy coding
-GUI and core function are intermingled (although less so than originally)
+Previous version used to be online @ http://www.xradiograph.com/netart/024.html
 
 
 ## Macros
