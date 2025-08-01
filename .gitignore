@@ -17,12 +17,6 @@ coverage
 # nyc test coverage
 .nyc_output
 
-# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-
-# node-waf configuration
-.lock-wscript
-
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
 
@@ -38,8 +32,6 @@ build
 # Optional REPL history
 .node_repl_history
 
-.DS_Store
-
 # Vscode folder
 .vscode
 !.vscode/launch.json
@@ -52,12 +44,6 @@ build
 
 # Nuxt generate
 dist
-
-# vuepress build output
-.vuepress/dist
-
-# Serverless directories
-.serverless
 
 # IDE / Editor
 .idea
@@ -72,6 +58,10 @@ sw.*
 split.troubles.txt
 sketch.jan31.js
 ./eslintcache
+.env
+
+# memory-mcp
+data/
 
 # SpecStory explanation file
 .specstory/.what-is-this.md
@@ -82,4 +72,4 @@ test-results/
 playwright-report/
 playwright/.cache/
 test/e2e/**/*-snapshots/
-.env
+
