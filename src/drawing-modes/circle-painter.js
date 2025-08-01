@@ -97,8 +97,8 @@ export const createCirclePainter = (dependencies) => {
     layer.strokeJoin(params.outline.strokeJoin)
 
     // Apply colors
-    colorSystem.setFillMode(xPos, yPos, params.fill, hexStringToColors)
-    colorSystem.setOutlineMode(xPos, yPos, params.outline, hexStringToColors)
+    colorSystem.setFillMode(xPos, yPos, params.fill, hexStringToColors, layer)
+    colorSystem.setOutlineMode(xPos, yPos, params.outline, hexStringToColors, layer)
 
     // Generate and paint text
     const nextText = textGetter(params.nextCharMode, textManager)

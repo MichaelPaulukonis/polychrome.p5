@@ -90,7 +90,7 @@ const setFrameRate = p5 => (value) => {
 
 const _ = null
 
-const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
+const setupGui = ({ p5, sketch, params, fillParams, outlineParams, handleResize }) => {
   const pDoc = p5.canvas.parentElement
 
   const mainGui = QuickSettings.create(p5.windowWidth - 220, 20, 'PolychromeText', pDoc)
@@ -117,6 +117,12 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     // .bindNumber('captureCount', _, _, params.captureCount, _, params)
 
   mainGui.collapse()
+
+  const zoneGui = QuickSettings.create(p5.windowWidth - 440, 180, 'Zonal Painting', pDoc)
+    .addButton('Define Zone', sketch.defineZone)
+    .addButton('Clear Zone', sketch.clearZone)
+    .addButton('Toggle Zone', sketch.toggleZone)
+  zoneGui.collapse()
 
   const fontGui = QuickSettings.create(p5.windowWidth - 220, 60, 'Font', pDoc)
     .bindBoolean('fixedWidth', params.fixedWidth, params)
@@ -185,7 +191,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .addButton('removeColor', () => removeColor({ panel: outlineGui, prefix: 'lq', params: outlineParams }))
     .setGlobalChangeHandler(setFocus)
   addMultiColor({ gui: outlineGui, prefix: 'lq', params: outlineParams })
-  // outlineGui.collapse()
+  outlineGui.collapse()
 
   const panels = [mainGui, fontGui, shadowGui, fillGui, outlineGui]
   let presets = {}
@@ -292,7 +298,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams }) => {
     .addButton('update', update)
     .addButton('new', saveNew)
     .setGlobalChangeHandler(setFocus)
-  // rememberPanel.collapse()
+  rememberPanel.collapse()
 
   if (presetNames[0]) {
     getSetting(presetNames[0])

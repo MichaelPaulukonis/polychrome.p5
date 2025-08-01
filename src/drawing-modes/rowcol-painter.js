@@ -58,8 +58,8 @@ export const createRowColPainter = (dependencies) => {
         pixelX += cellWidth / 2
         pixelY += cellHeight / 2
 
-        colorSystem.setFillMode(pixelX, pixelY, params.fill, hexStringToColors)
-        colorSystem.setOutlineMode(pixelX, pixelY, params.outline, hexStringToColors)
+        colorSystem.setFillMode(pixelX, pixelY, params.fill, hexStringToColors, layer)
+        colorSystem.setOutlineMode(pixelX, pixelY, params.outline, hexStringToColors, layer)
 
         let txt = fetchText()
         if (cols === 1 && txt.trim() === '') {

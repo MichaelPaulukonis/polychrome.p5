@@ -109,9 +109,9 @@ export const createGridPainter = (dependencies) => {
 
     // Setup text and paint functions
     const nextText = textGetter(params.nextCharMode, textManager)
-    const fill = bloc => colorSystem.setFillMode(bloc.x, bloc.y, params.fill, hexStringToColors)
+    const fill = bloc => colorSystem.setFillMode(bloc.x, bloc.y, params.fill, hexStringToColors, layer)
     const outline = params.useOutline
-      ? bloc => colorSystem.setOutlineMode(bloc.x, bloc.y, params.outline, hexStringToColors)
+      ? bloc => colorSystem.setOutlineMode(bloc.x, bloc.y, params.outline, hexStringToColors, layer)
       : () => {}
 
     const step = params.fixedWidth ? gridParams.step : 0

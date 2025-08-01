@@ -11,7 +11,7 @@
  * @param {Object} layers - The layers object containing drawingCanvas
  * @returns {Object} Object containing color functions
  */
-export function createColorFunctions (p5Instance, layers) {
+export function createColorFunctions (p5Instance) {
   /**
    * Creates a color with specified alpha transparency
    * @param {string|Object} aColor - The base color
@@ -33,8 +33,7 @@ export function createColorFunctions (p5Instance, layers) {
    * @param {Function} props.hexStringToColors - Function to parse hex color strings
    */
   const setPaintMode = (props) => {
-    const { func, gridX, gridY, params, hexStringToColors } = props
-    const layer = layers.drawingCanvas
+    const { func, gridX, gridY, params, hexStringToColors, layer } = props
     const boundFunc = func.bind(layer)
     const transparency = params.transparent ? parseInt(params.transparency, 10) / 100 : 1
 
@@ -144,8 +143,8 @@ export function createColorFunctions (p5Instance, layers) {
    * @param {Object} params - Fill parameters
    * @param {Function} hexStringToColors - Function to parse hex color strings
    */
-  const setFillMode = (xPos, yPos, params, hexStringToColors) =>
-    setPaintMode({ gridX: xPos, gridY: yPos, params, func: layers.drawingCanvas.fill, hexStringToColors })
+  const setFillMode = (xPos, yPos, params, hexStringToColors, layer) =>
+    setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.fill, hexStringToColors, layer })
 
   /**
    * Creates outline mode function for the layer
@@ -154,8 +153,8 @@ export function createColorFunctions (p5Instance, layers) {
    * @param {Object} params - Outline parameters
    * @param {Function} hexStringToColors - Function to parse hex color strings
    */
-  const setOutlineMode = (xPos, yPos, params, hexStringToColors) =>
-    setPaintMode({ gridX: xPos, gridY: yPos, params, func: layers.drawingCanvas.stroke, hexStringToColors })
+  const setOutlineMode = (xPos, yPos, params, hexStringToColors, layer) =>
+    setPaintMode({ gridX: xPos, gridY: yPos, params, func: layer.stroke, hexStringToColors, layer })
 
   return {
     colorAlpha,

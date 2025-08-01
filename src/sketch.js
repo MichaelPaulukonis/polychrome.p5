@@ -29,6 +29,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   let canvasTransforms
   let drawingModes
   let undo
+  let zone = null
+  let zoneStartPos = null
 
   const fontList = {}
 
@@ -79,7 +81,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
     pct.layers = layers = new Layers(p5, params, setFont)
 
-    colorSystem = createColorFunctions(p5, layers)
+    colorSystem = createColorFunctions(p5)
 
     adjustGamma = createGammaAdjustment({
       layers,
@@ -107,10 +109,6 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       p5
     })
 
-    const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: pct, params, fillParams: params.fill, outlineParams: params.outline, handleResize })
-    pct.shiftFillColors = shiftFillColors
-    pct.shiftOutlineColors = shiftOutlineColors
-
     pct.clearCanvas({ layers: pct.layers, params: pct.params })
     undo = new UndoLayers(layers, renderLayers, 10)
     pct.undo = undo
@@ -137,6 +135,10 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     pct.drawCircle = drawingModes.drawCircle
     pct.drawRowCol = drawingModes.drawRowCol
 
+    const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: pct, params, fillParams: params.fill, outlineParams: params.outline, handleResize })
+    pct.shiftFillColors = shiftFillColors
+    pct.shiftOutlineColors = shiftOutlineColors
+
     setupCallback(pct)
     recordConfig(pct.params, pct.appMode === APP_MODES.STANDARD_DRAW)
   }
@@ -152,13 +154,28 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   }
 
   const standardDraw = ({ x, y, override, params } = { x: p5.mouseX, y: p5.mouseY, override: false, params: pct.params }) => {
+    if (globals.isDefiningZone) return // Do not paint while defining a zone
+
     if (override || (p5.mouseIsPressed && mouseInCanvas())) {
       recordConfig(params, pct.appMode !== APP_MODES.STANDARD_DRAW)
       const offscreenX = x * scaleFactor
       const offscreenY = y * scaleFactor
-      recordAction({ x: offscreenX, y: offscreenY, action: 'paint' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
-      paint(offscreenX, offscreenY, params)
-      globals.updatedCanvas = true
+
+      if (globals.isZoneActive && globals.zoneExists) {
+        if (offscreenX >= zone.x && offscreenX <= zone.x + zone.width &&
+            offscreenY >= zone.y && offscreenY <= zone.y + zone.height) {
+          const relativeX = offscreenX - zone.x
+          const relativeY = offscreenY - zone.y
+          recordAction({ x: relativeX, y: relativeY, action: 'paint' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+          paint(relativeX, relativeY, params, zone.graphics, zone.width, zone.height)
+          layers.drawingCanvas.image(zone.graphics, zone.x, zone.y)
+          globals.updatedCanvas = true
+        }
+      } else {
+        recordAction({ x: offscreenX, y: offscreenY, action: 'paint' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
+        paint(offscreenX, offscreenY, params)
+        globals.updatedCanvas = true
+      }
     }
   }
 
@@ -193,6 +210,38 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   p5.draw = () => {
     p5.background(200)
     p5.image(layers.drawingCanvas, 0, 0, p5.width, p5.height)
+
+    // Zonal UI Rendering
+    if (globals.zoneExists) {
+      // Draw the zone's border on the uiCanvas.
+      const scaledZone = {
+        x: zone.x / scaleFactor,
+        y: zone.y / scaleFactor,
+        width: zone.width / scaleFactor,
+        height: zone.height / scaleFactor
+      }
+      layers.uiCanvas.push()
+      layers.uiCanvas.noFill()
+      layers.uiCanvas.strokeWeight(globals.isZoneActive ? 2 : 1)
+      layers.uiCanvas.stroke(globals.isZoneActive ? 'red' : 'gray')
+      if (!globals.isZoneActive) {
+        layers.uiCanvas.drawingContext.setLineDash([5, 5])
+      }
+      layers.uiCanvas.rect(scaledZone.x, scaledZone.y, scaledZone.width, scaledZone.height)
+      layers.uiCanvas.pop()
+    }
+    if (globals.isDefiningZone && zoneStartPos) {
+      const scaledMouseX = p5.mouseX
+      const scaledMouseY = p5.mouseY
+      layers.uiCanvas.push()
+      layers.uiCanvas.noFill()
+      layers.uiCanvas.strokeWeight(1)
+      layers.uiCanvas.stroke('gray')
+      layers.uiCanvas.drawingContext.setLineDash([5, 5])
+      layers.uiCanvas.rect(zoneStartPos.x / scaleFactor, zoneStartPos.y / scaleFactor, scaledMouseX - (zoneStartPos.x / scaleFactor), scaledMouseY - (zoneStartPos.y / scaleFactor))
+      layers.uiCanvas.pop()
+    }
+
     p5.image(layers.uiCanvas, 0, 0)
     layers.uiCanvas.clear()
 
@@ -224,7 +273,48 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
   p5.mousePressed = () => {
     if (mouseInCanvas()) {
-      pct.undo.takeSnapshot()
+      if (globals.isDefiningZone) {
+        zoneStartPos = { x: p5.mouseX * scaleFactor, y: p5.mouseY * scaleFactor }
+      } else {
+        pct.undo.takeSnapshot()
+      }
+    }
+  }
+
+  p5.mouseDragged = () => {
+    if (globals.isDefiningZone) {
+      // The drawing of the preview is handled in the draw() loop
+    }
+  }
+
+  p5.mouseReleased = () => {
+    if (globals.isDefiningZone && zoneStartPos) {
+      const startX = zoneStartPos.x
+      const startY = zoneStartPos.y
+      const endX = p5.mouseX * scaleFactor
+      const endY = p5.mouseY * scaleFactor
+
+      const x = Math.min(startX, endX)
+      const y = Math.min(startY, endY)
+      const width = Math.abs(endX - startX)
+      const height = Math.abs(endY - startY)
+
+      if (width > 0 && height > 0) {
+        zone = {
+          x,
+          y,
+          width,
+          height,
+          graphics: p5.createGraphics(width, height)
+        }
+        zone.graphics.pixelDensity(density)
+        layers.initializeColorMode(zone.graphics, { ...params, width, height })
+        zone.graphics.image(layers.drawingCanvas, 0, 0, width, height, x, y, width, height)
+        globals.isDefiningZone = false
+        globals.isZoneActive = true
+        globals.zoneExists = true
+      }
+      zoneStartPos = null
     }
   }
 
@@ -277,16 +367,15 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   }
 
   // s/b taking in a layer not assuming a layer
-  const paint = (xPos, yPos, params) => {
-    const layer = layers.drawingCanvas
+  const paint = (xPos, yPos, params, layer = layers.drawingCanvas, width = params.width, height = params.height) => {
     setFont(params.font, layer)
 
     if (params.drawMode === 'Grid') {
       drawingModes.drawGrid({
         xPos,
         params,
-        width: params.width,
-        height: params.height,
+        width,
+        height,
         layer,
         textManager
       })
@@ -295,16 +384,16 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
         xPos,
         yPos,
         params,
-        width: params.width,
-        height: params.height,
+        width,
+        height,
         layer,
         textManager
       })
     } else {
       drawingModes.drawRowCol({
         params,
-        width: params.width,
-        height: params.height,
+        width,
+        height,
         layer,
         textManager
       })
@@ -450,6 +539,34 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   pct.recordAction = recordAction
   pct.recordConfig = recordConfig
   pct.globals = globals
+
+  pct.defineZone = () => {
+    globals.isDefiningZone = true
+  }
+
+  pct.clearZone = () => {
+    if (globals.zoneExists) {
+      zone.graphics.remove()
+      zone = null
+      globals.isZoneActive = false
+      globals.zoneExists = false
+    }
+  }
+
+  pct.toggleZone = () => {
+    if (globals.zoneExists) {
+      globals.isZoneActive = !globals.isZoneActive
+      if (globals.isZoneActive) {
+        zone.graphics.image(layers.drawingCanvas, 0, 0, zone.width, zone.height, zone.x, zone.y, zone.width, zone.height)
+      }
+    }
+  }
+
+  // Zonal Painting State
+  globals.zoneExists = false
+  globals.isDefiningZone = false // Mode for dragging to create a zone
+  globals.isZoneActive = false // Mode for confining painting to the zone
+
   pct.skewCollection = [] // TODO: this is interesting, a stub I had forgotten about
   pct.savit = savit
   pct.textManager = textManager
