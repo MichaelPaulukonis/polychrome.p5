@@ -16,7 +16,7 @@ const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
 let namer = null
 
-export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback }) {
+export default function Sketch({ p5Instance: p5, guiControl, textManager, setupCallback }) {
   const params = allParams
   const pct = {}
 
@@ -75,6 +75,10 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       scaleFactor = 1
     }
 
+    const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: pct, params, fillParams: params.fill, outlineParams: params.outline, handleResize })
+    pct.shiftFillColors = shiftFillColors
+    pct.shiftOutlineColors = shiftOutlineColors
+
     const displayWidth = params.width / scaleFactor
     const displayHeight = params.height / scaleFactor
     p5.createCanvas(displayWidth, displayHeight)
@@ -88,7 +92,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       recordAction,
       globals,
       renderLayers,
-      get appMode () { return pct.appMode },
+      get appMode() { return pct.appMode },
       APP_MODES
     })
 
@@ -135,10 +139,6 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     pct.drawCircle = drawingModes.drawCircle
     pct.drawRowCol = drawingModes.drawRowCol
 
-    const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: pct, params, fillParams: params.fill, outlineParams: params.outline, handleResize })
-    pct.shiftFillColors = shiftFillColors
-    pct.shiftOutlineColors = shiftOutlineColors
-
     setupCallback(pct)
     recordConfig(pct.params, pct.appMode === APP_MODES.STANDARD_DRAW)
   }
@@ -163,7 +163,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
       if (globals.isZoneActive && globals.zoneExists) {
         if (offscreenX >= zone.x && offscreenX <= zone.x + zone.width &&
-            offscreenY >= zone.y && offscreenY <= zone.y + zone.height) {
+          offscreenY >= zone.y && offscreenY <= zone.y + zone.height) {
           const relativeX = offscreenX - zone.x
           const relativeY = offscreenY - zone.y
           recordAction({ x: relativeX, y: relativeY, action: 'paint' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
