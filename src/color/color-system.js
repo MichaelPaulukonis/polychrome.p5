@@ -187,7 +187,7 @@ export function createGammaAdjustment (dependencies) {
     recordAction({ action: 'adjustGamma', gamma: props.gamma }, appMode !== APP_MODES.STANDARD_DRAW)
 
     const gammaCorrection = 1 / props.gamma
-    const context = layers.p5.drawingContext
+    const context = layers.drawingCanvas.drawingContext
     const imageData = context.getImageData(0, 0, context.canvas.width, context.canvas.height)
 
     const data = imageData.data

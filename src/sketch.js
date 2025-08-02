@@ -21,7 +21,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
   const pct = {}
 
   const density = 2
-  let scaleFactor = 1
+  // scaleFactor is now always sourced from layers.scaleFactor
 
   let layers
   let colorSystem
@@ -63,25 +63,16 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     invertMask()
     p5.pixelDensity(density)
 
-    const maxDisplayWidth = 1025
-    const maxDisplayHeight = 650
-
-    const widthRatio = params.width / maxDisplayWidth
-    const heightRatio = params.height / maxDisplayHeight
-
-    if (params.width > maxDisplayWidth || params.height > maxDisplayHeight) {
-      scaleFactor = Math.max(widthRatio, heightRatio)
-    } else {
-      scaleFactor = 1
-    }
+    // scaling is now handled by Layers; do not set scaleFactor here
 
     const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: pct, params, fillParams: params.fill, outlineParams: params.outline, handleResize })
     pct.shiftFillColors = shiftFillColors
     pct.shiftOutlineColors = shiftOutlineColors
 
-    const displayWidth = params.width / scaleFactor
-    const displayHeight = params.height / scaleFactor
-    p5.createCanvas(displayWidth, displayHeight)
+    // Use Layers to determine display size and scaling
+    // The actual canvas is created in Layers
+    // p5.createCanvas is still needed for the main display
+    p5.createCanvas(params.width , params.height)
 
     pct.layers = layers = new Layers(p5, params, setFont)
 
@@ -158,8 +149,8 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
 
     if (override || (p5.mouseIsPressed && mouseInCanvas())) {
       recordConfig(params, pct.appMode !== APP_MODES.STANDARD_DRAW)
-      const offscreenX = x * scaleFactor
-      const offscreenY = y * scaleFactor
+      const offscreenX = x * layers.scaleFactor
+      const offscreenY = y * layers.scaleFactor
 
       if (globals.isZoneActive && globals.zoneExists) {
         if (offscreenX >= zone.x && offscreenX <= zone.x + zone.width &&
@@ -215,10 +206,10 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     if (globals.zoneExists) {
       // Draw the zone's border on the uiCanvas.
       const scaledZone = {
-        x: zone.x / scaleFactor,
-        y: zone.y / scaleFactor,
-        width: zone.width / scaleFactor,
-        height: zone.height / scaleFactor
+        x: zone.x / layers.scaleFactor,
+        y: zone.y / layers.scaleFactor,
+        width: zone.width / layers.scaleFactor,
+        height: zone.height / layers.scaleFactor
       }
       layers.uiCanvas.push()
       layers.uiCanvas.noFill()
@@ -238,7 +229,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
       layers.uiCanvas.strokeWeight(1)
       layers.uiCanvas.stroke('gray')
       layers.uiCanvas.drawingContext.setLineDash([5, 5])
-      layers.uiCanvas.rect(zoneStartPos.x / scaleFactor, zoneStartPos.y / scaleFactor, scaledMouseX - (zoneStartPos.x / scaleFactor), scaledMouseY - (zoneStartPos.y / scaleFactor))
+      layers.uiCanvas.rect(zoneStartPos.x / layers.scaleFactor, zoneStartPos.y / layers.scaleFactor, scaledMouseX - (zoneStartPos.x / layers.scaleFactor), scaledMouseY - (zoneStartPos.y / layers.scaleFactor))
       layers.uiCanvas.pop()
     }
 
@@ -274,7 +265,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
   p5.mousePressed = () => {
     if (mouseInCanvas()) {
       if (globals.isDefiningZone) {
-        zoneStartPos = { x: p5.mouseX * scaleFactor, y: p5.mouseY * scaleFactor }
+        zoneStartPos = { x: p5.mouseX * layers.scaleFactor, y: p5.mouseY * layers.scaleFactor }
       } else {
         pct.undo.takeSnapshot()
       }
@@ -291,8 +282,8 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     if (globals.isDefiningZone && zoneStartPos) {
       const startX = zoneStartPos.x
       const startY = zoneStartPos.y
-      const endX = p5.mouseX * scaleFactor
-      const endY = p5.mouseY * scaleFactor
+      const endX = p5.mouseX * layers.scaleFactor
+      const endY = p5.mouseY * layers.scaleFactor
 
       const x = Math.min(startX, endX)
       const y = Math.min(startY, endY)

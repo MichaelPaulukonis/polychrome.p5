@@ -21,3 +21,4 @@ This document outlines potential features, refactorings, and improvements for th
   - [ ] UI overhaul
   - [ ] More intuitive color picker.
   - [ ] Customizable hotkeys.
+- [ ] Parameter skewing (stubs exist in code)  
