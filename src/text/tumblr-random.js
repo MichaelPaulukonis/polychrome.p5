@@ -8,6 +8,9 @@ const cleanup = text => text
   .replace(/–/g, '--')
 
 const tumblrRandomPost = () => {
+  if (process.env.NODE_ENV === 'test') {
+    return Promise.resolve(['mocked response'])
+  }
   const settings = {
     blogName: 'poeticalbot.tumblr.com',
     appKey: 'soMpL6oJLZq5ovoVYVzU5Qhx5DE87MMrxou6J7tGYLec6XeT6L',

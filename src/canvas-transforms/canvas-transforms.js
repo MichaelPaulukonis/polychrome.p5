@@ -17,6 +17,7 @@ import { flipCore, mirrorCore, newCorner, HORIZONTAL, VERTICAL } from './core-tr
  * @param {Function} dependencies.getAppMode - Function that returns current app mode
  * @param {Object} dependencies.APP_MODES - App mode constants
  * @param {Object} dependencies.params - Global parameters object
+ * @param {Function} dependencies.getZone - Function that returns the current zone
  * @returns {Object} Object containing transform functions
  */
 export function createCanvasTransforms ({
@@ -26,7 +27,8 @@ export function createCanvasTransforms ({
   renderLayers,
   getAppMode,
   APP_MODES,
-  params
+  params,
+  getZone
 }) {
   /**
    * Flips canvas along specified axis
@@ -45,6 +47,15 @@ export function createCanvasTransforms ({
     globals.updatedCanvas = true
   }
 
+  const flipZone = ({ axis }) => {
+    const zone = getZone()
+    if (!globals.zoneExists || !zone) return
+    const newLayer = flipCore(axis, zone.graphics, layers)
+    zone.graphics.image(newLayer, 0, 0)
+    newLayer.remove()
+    globals.updatedCanvas = true
+  }
+
   /**
    * Creates mirrored half-image along specified axis
    * @param {Object} cfg - Configuration object with defaults
@@ -59,6 +70,21 @@ export function createCanvasTransforms ({
     layers.drawingCanvas.image(newLayer, 0, 0)
     renderLayers({ layers })
     // Add defensive null check before removing - fix for parentNode error
+    if (newLayer?.canvas?.parentNode) {
+      newLayer.remove()
+    }
+    if (tmp?.canvas?.parentNode) {
+      tmp.remove()
+    }
+    globals.updatedCanvas = true
+  }
+
+  const mirrorZone = (cfg = { axis: VERTICAL }) => {
+    const zone = getZone()
+    if (!globals.zoneExists || !zone) return
+    const tmp = layers.clone(zone.graphics)
+    const newLayer = mirrorCore(cfg.axis, tmp, layers)
+    zone.graphics.image(newLayer, 0, 0)
     if (newLayer?.canvas?.parentNode) {
       newLayer.remove()
     }
@@ -142,6 +168,38 @@ export function createCanvasTransforms ({
     globals.updatedCanvas = true
   }
 
+  const rotateZone = ({ direction = 1 }) => {
+    const zone = getZone()
+    if (!globals.zoneExists || !zone) return
+    const { width, height } = zone
+    const newWidth = height
+    const newHeight = width
+
+    const tempLayer = layers.clone(zone.graphics)
+    zone.graphics.remove()
+
+    zone.graphics = layers.p5.createGraphics(newWidth, newHeight)
+    zone.graphics.pixelDensity(layers.p5.pixelDensity())
+    layers.initializeColorMode(zone.graphics, { ...params, width: newWidth, height: newHeight })
+
+    zone.graphics.push()
+    if (direction === -1) {
+      zone.graphics.translate(0, newHeight)
+    } else {
+      zone.graphics.translate(newWidth, 0)
+    }
+    zone.graphics.rotate(layers.p5.radians(90 * direction))
+    zone.graphics.image(tempLayer, 0, 0)
+    zone.graphics.pop()
+
+    layers.dispose(tempLayer)
+
+    zone.width = newWidth
+    zone.height = newHeight
+
+    globals.updatedCanvas = true
+  }
+
   /**
    * Wrapper function that provides simplified interface for canvas rotation
    * @param {number} direction - 1 for clockwise, -1 for counter-clockwise (default: 1)
@@ -164,6 +222,9 @@ export function createCanvasTransforms ({
     rotateCanvas,
     rotateWrapped,
     newCorner,
+    flipZone,
+    mirrorZone,
+    rotateZone,
     HORIZONTAL,
     VERTICAL,
     // Export core functions for testing

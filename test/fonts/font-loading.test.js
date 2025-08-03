@@ -106,8 +106,8 @@ describe('Font Loading System', () => {
   describe('Font Resolution Priority', () => {
     it('should prioritize loaded TTF fonts over system fonts', () => {
       const fontRegistry = {
-        'Arial': { font: { familyName: 'Arial TTF' } },
-        'Helvetica': { font: { familyName: 'Helvetica TTF' } }
+        Arial: { font: { familyName: 'Arial TTF' } },
+        Helvetica: { font: { familyName: 'Helvetica TTF' } }
       }
 
       // Test font resolution logic (simulating setFont behavior)

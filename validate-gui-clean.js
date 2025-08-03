@@ -3,7 +3,7 @@
 // Direct Playwright test runner to bypass terminal issues
 const { chromium } = require('playwright')
 
-async function validateGUI() {
+async function validateGUI () {
   console.log('Starting GUI validation...')
 
   const browser = await chromium.launch({ headless: false })
@@ -12,7 +12,7 @@ async function validateGUI() {
   try {
     // Navigate to the app
     console.log('Navigating to app...')
-    await page.goto('http://localhost:3000')
+    await page.goto('/')
     await page.waitForLoadState('load')
 
     // Wait for fonts
@@ -119,7 +119,7 @@ async function validateGUI() {
           id: select.id || '',
           className: select.className || '',
           selectedValue: select.value,
-          options: options
+          options
         })
       })
 
@@ -139,7 +139,6 @@ async function validateGUI() {
     }
 
     console.log('GUI validation complete!')
-
   } catch (error) {
     console.error('Error during validation:', error)
   } finally {

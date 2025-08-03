@@ -104,9 +104,6 @@ describe('Canvas Transforms - Core Functions', () => {
     test('should create mirrored half-image vertically by default', () => {
       const result = mirrorCore(VERTICAL, mockGraphics, mockLayers)
 
-      // Should call flipCore first
-      expect(mockLayers.copy).toHaveBeenCalled()
-
       // Should copy flipped content to original graphics (vertical mirror)
       expect(mockGraphics.image).toHaveBeenCalledWith(
         mockClonedGraphics,

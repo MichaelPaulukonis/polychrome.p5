@@ -44,7 +44,7 @@ export const flipCore = (axis = VERTICAL, sourceGraphics, layers) => {
  * @returns {Object} New mirrored graphics object
  */
 export const mirrorCore = (axis = VERTICAL, sourceGraphics, layers) => {
-  const tmp = flipCore(axis, layers.copy(), layers)
+  const tmp = flipCore(axis, sourceGraphics, layers)
 
   if (axis === HORIZONTAL) {
     sourceGraphics.image(tmp, 0, sourceGraphics.height / 2, sourceGraphics.width, sourceGraphics.height / 2, 0, sourceGraphics.height / 2, sourceGraphics.width, sourceGraphics.height / 2)

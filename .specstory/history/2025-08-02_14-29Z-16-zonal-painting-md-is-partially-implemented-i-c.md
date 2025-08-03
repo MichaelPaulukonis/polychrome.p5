@@ -344,3 +344,66 @@ Would you like a patch to clarify and document this initialization sequence?
 
 ---
 
+_**User**_
+
+That's it, it is working, thank you! I've added all files to stage, please create a commit message in a single code-block. I also added a note into roadmap about another feature.
+
+---
+
+_**Assistant**_
+
+```markdown
+fix(zonal-painting): unify scaleFactor usage and ensure correct zone coordinate scaling
+
+- Removed duplicate scaleFactor variable from sketch.js; now always use layers.scaleFactor as the single source of truth for all scaling and coordinate transforms.
+- Updated all zone definition, painting, and UI rendering logic to reference layers.scaleFactor, ensuring correct alignment between display and drawing canvases.
+- Clarified initialization sequence: create p5 canvas with default size, then let Layers recalculate and resize as needed.
+- Confirmed that zone painting and UI overlays now remain visually consistent regardless of canvas scaling or resizing.
+```
+
+---
+
+_**User**_
+
+With the current implementation of zonal painting, could we erase the painted zone or drag the zone around the screen? Or is the zone painting compositied directly onto the drawingLayer on each mouse release?
+
+---
+
+_**Assistant**_
+
+With the current implementation, you cannot erase or drag the painted zone after painting. Here’s why:
+
+- **How it works now:**  
+  - When you paint inside the zone, the painted content is immediately composited onto the main `drawingCanvas` (the artwork layer) on each paint operation (see `layers.drawingCanvas.image(zone.graphics, zone.x, zone.y)` in `standardDraw`).
+  - The zone’s `graphics` buffer is just a temporary workspace for the current paint operation. Once composited, the artwork becomes part of the main canvas.
+  - The zone’s buffer is not preserved as a separate, movable or erasable layer after painting.
+
+- **Result:**  
+  - You cannot erase the zone as a whole after painting—erasing would require either undoing the compositing or tracking the zone’s content separately.
+  - You cannot drag the zone around after painting, because the painted pixels are now part of the main canvas, not a movable object.
+
+- **To support erasing or dragging:**  
+  - You would need to keep the zone’s content as a separate layer and only composite it onto the main canvas when finalized (or support non-destructive overlays).
+  - Alternatively, you’d need to implement a more advanced layer or history system.
+
+**Summary:**  
+Currently, zone painting is composited directly onto the drawing layer as you paint, so you cannot erase or move the zone after painting. The zone is not a persistent, independent layer.
+
+---
+
+_**User**_
+
+Let's add this idea to the roadmap. I like it, but not as part of the current plan.
+
+---
+
+_**Assistant**_
+
+
+```
+
+```
+The idea "Zone erasing and dragging (non-destructive zone overlays)" has been added to the roadmap under Zonal Painting Enhancements. Let me know if you want to expand on this or prioritize it in the future!
+
+---
+

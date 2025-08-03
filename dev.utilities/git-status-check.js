@@ -13,7 +13,6 @@ try {
   console.log('\n=== Staged Files ===')
   const staged = execSync('git diff --cached --name-only', { encoding: 'utf8' })
   console.log(staged || 'No files staged')
-
 } catch (error) {
   console.error('Error:', error.message)
 }

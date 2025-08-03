@@ -16,7 +16,7 @@ const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
 let namer = null
 
-export default function Sketch({ p5Instance: p5, guiControl, textManager, setupCallback }) {
+export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback }) {
   const params = allParams
   const pct = {}
 
@@ -72,7 +72,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     // Use Layers to determine display size and scaling
     // The actual canvas is created in Layers
     // p5.createCanvas is still needed for the main display
-    p5.createCanvas(params.width , params.height)
+    p5.createCanvas(params.width, params.height)
 
     pct.layers = layers = new Layers(p5, params, setFont)
 
@@ -83,7 +83,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
       recordAction,
       globals,
       renderLayers,
-      get appMode() { return pct.appMode },
+      get appMode () { return pct.appMode },
       APP_MODES
     })
 
@@ -94,7 +94,8 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
       renderLayers,
       getAppMode: () => pct.appMode,
       APP_MODES,
-      params
+      params,
+      getZone: () => zone
     })
 
     drawingModes = createDrawingModes({
@@ -123,6 +124,9 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     pct.rotateCanvas = canvasTransforms.rotateCanvas
     pct.rotateWrapped = canvasTransforms.rotateWrapped
     pct.shift = canvasTransforms.shift
+    pct.flipZone = canvasTransforms.flipZone
+    pct.mirrorZone = canvasTransforms.mirrorZone
+    pct.rotateZone = canvasTransforms.rotateZone
     pct.HORIZONTAL = canvasTransforms.HORIZONTAL
     pct.VERTICAL = canvasTransforms.VERTICAL
 
@@ -159,7 +163,6 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
           const relativeY = offscreenY - zone.y
           recordAction({ x: relativeX, y: relativeY, action: 'paint' }, pct.appMode !== APP_MODES.STANDARD_DRAW)
           paint(relativeX, relativeY, params, zone.graphics, zone.width, zone.height)
-          layers.drawingCanvas.image(zone.graphics, zone.x, zone.y)
           globals.updatedCanvas = true
         }
       } else {
@@ -201,6 +204,10 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
   p5.draw = () => {
     p5.background(200)
     p5.image(layers.drawingCanvas, 0, 0, p5.width, p5.height)
+
+    if (globals.zoneExists) {
+      p5.image(zone.graphics, zone.x / layers.scaleFactor, zone.y / layers.scaleFactor, zone.width / layers.scaleFactor, zone.height / layers.scaleFactor)
+    }
 
     // Zonal UI Rendering
     if (globals.zoneExists) {
@@ -296,7 +303,8 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
           y,
           width,
           height,
-          graphics: p5.createGraphics(width, height)
+          graphics: p5.createGraphics(width, height),
+          transformState: { rotation: 0, scale: 1 }
         }
         zone.graphics.pixelDensity(density)
         layers.initializeColorMode(zone.graphics, { ...params, width, height })
@@ -541,6 +549,13 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
       zone = null
       globals.isZoneActive = false
       globals.zoneExists = false
+    }
+  }
+
+  pct.commitZone = () => {
+    if (globals.zoneExists) {
+      layers.drawingCanvas.image(zone.graphics, zone.x, zone.y)
+      globals.updatedCanvas = true
     }
   }
 

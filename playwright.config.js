@@ -1,6 +1,7 @@
 const { defineConfig, devices } = require('@playwright/test')
 
-const PORT = process.env.PORT || 59975
+// Use a non-standard port to avoid conflicts with other services.
+const PORT = process.env.PORT || 59976
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -38,7 +39,7 @@ module.exports = defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] }
-    },
+    }
 
     // {
     //   name: 'firefox',

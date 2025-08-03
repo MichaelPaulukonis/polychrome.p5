@@ -7,6 +7,7 @@ This document outlines potential features, refactorings, and improvements for th
 - [ ] **Zonal Painting Enhancements:**
   - [ ] Zone transformations (rotation, scaling).
   - [ ] Zone dragging/moving/centering
+  - [ ] Zone erasing and dragging (non-destructive zone overlays)
   - [ ] Support for multiple active zones.
   - [ ] Non-rectangular zone shapes (e.g., circular, polygonal).
 - [ ] **Refactoring for Testability:**

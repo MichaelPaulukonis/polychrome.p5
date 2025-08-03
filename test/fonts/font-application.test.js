@@ -58,7 +58,7 @@ describe('Font Application System', () => {
 
     it('should handle font resolution with TTF priority', () => {
       const fontRegistry = {
-        'Arial': { font: { familyName: 'Arial TTF' } }
+        Arial: { font: { familyName: 'Arial TTF' } }
       }
 
       const setFont = (fontName, layer = mockLayers.drawingLayer) => {

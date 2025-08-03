@@ -122,6 +122,13 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams, handleResize 
     .addButton('Define Zone', sketch.defineZone)
     .addButton('Clear Zone', sketch.clearZone)
     .addButton('Toggle Zone', sketch.toggleZone)
+    .addButton('Commit Zone', sketch.commitZone)
+    .addButton('Flip Zone H', () => sketch.flipZone({ axis: sketch.HORIZONTAL }))
+    .addButton('Flip Zone V', () => sketch.flipZone({ axis: sketch.VERTICAL }))
+    .addButton('Mirror Zone H', () => sketch.mirrorZone({ axis: sketch.HORIZONTAL }))
+    .addButton('Mirror Zone V', () => sketch.mirrorZone({ axis: sketch.VERTICAL }))
+    .addButton('Rotate Zone CW', () => sketch.rotateZone({ direction: 1 }))
+    .addButton('Rotate Zone CCW', () => sketch.rotateZone({ direction: -1 }))
   zoneGui.collapse()
 
   const fontGui = QuickSettings.create(p5.windowWidth - 220, 60, 'Font', pDoc)

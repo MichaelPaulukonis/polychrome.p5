@@ -1,6 +1,5 @@
-import { beforeAll, describe, test, expect } from 'vitest'
+import { beforeAll, describe, test, expect, vi } from 'vitest'
 import { config } from '@vue/test-utils'
-import { vi } from 'vitest'
 
 // Manually set up the mock for this test file
 beforeAll(() => {

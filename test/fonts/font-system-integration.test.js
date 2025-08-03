@@ -347,10 +347,10 @@ describe('Font System Integration', () => {
 
     it('should support font aliasing', () => {
       const fontAliases = {
-        'retro': 'VT323-Regular',
-        'display': 'BlackCasper',
-        'body': 'Arial',
-        'heading': 'Helvetica'
+        retro: 'VT323-Regular',
+        display: 'BlackCasper',
+        body: 'Arial',
+        heading: 'Helvetica'
       }
 
       const resolveAlias = (fontName) => {

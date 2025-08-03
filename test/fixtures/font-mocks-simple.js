@@ -28,54 +28,60 @@ export const CUSTOM_FONTS = [
  * Simple mock DOM setup for font detection testing
  */
 export class MockDOMSetup {
-  constructor() {
+  constructor () {
     this.spans = []
     this.body = null
   }
 
-  setup() {
+  setup () {
     // Check if we're in a test environment with vi available
     const vi = globalThis.vi || null
 
     // Mock document.getElementsByTagName
     this.body = {
-      appendChild: vi ? vi.fn((element) => {
-        this.spans.push(element)
-      }) : (element) => {
-        this.spans.push(element)
-      },
-      removeChild: vi ? vi.fn((element) => {
-        const index = this.spans.indexOf(element)
-        if (index > -1) {
-          this.spans.splice(index, 1)
-        }
-      }) : (element) => {
-        const index = this.spans.indexOf(element)
-        if (index > -1) {
-          this.spans.splice(index, 1)
-        }
-      }
+      appendChild: vi
+        ? vi.fn((element) => {
+          this.spans.push(element)
+        })
+        : (element) => {
+            this.spans.push(element)
+          },
+      removeChild: vi
+        ? vi.fn((element) => {
+          const index = this.spans.indexOf(element)
+          if (index > -1) {
+            this.spans.splice(index, 1)
+          }
+        })
+        : (element) => {
+            const index = this.spans.indexOf(element)
+            if (index > -1) {
+              this.spans.splice(index, 1)
+            }
+          }
     }
 
     global.document = {
       getElementsByTagName: vi ? vi.fn(() => [this.body]) : () => [this.body],
-      createElement: vi ? vi.fn(() => ({
-        style: {},
-        innerHTML: '',
-        offsetWidth: 100,
-        offsetHeight: 20
-      })) : () => ({
-        style: {},
-        innerHTML: '',
-        offsetWidth: 100,
-        offsetHeight: 20
-      })
+      createElement: vi
+        ? vi.fn(() => ({
+          style: {},
+          innerHTML: '',
+          offsetWidth: 100,
+          offsetHeight: 20
+        }))
+        : () => ({
+            style: {},
+            innerHTML: '',
+            offsetWidth: 100,
+            offsetHeight: 20
+          })
     }
 
     return this
   }
 
-  cleanup() {
+  cleanup () {
     this.spans = []
     delete global.document
   }
@@ -84,7 +90,7 @@ export class MockDOMSetup {
 /**
  * Factory for creating test font parameters
  */
-export function createFontParams(overrides = {}) {
+export function createFontParams (overrides = {}) {
   return {
     font: 'Arial',
     fontList: [...SYSTEM_FONTS, ...CUSTOM_FONTS],
@@ -96,7 +102,7 @@ export function createFontParams(overrides = {}) {
 /**
  * Factory for creating mock layer objects
  */
-export function createMockLayer(overrides = {}) {
+export function createMockLayer (overrides = {}) {
   // Check if we're in a test environment with vi available
   const vi = globalThis.vi || null
 
