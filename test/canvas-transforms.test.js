@@ -151,13 +151,23 @@ describe('Canvas Transforms - Factory Function', () => {
   let mockDependencies
   let mockLayers
   let mockP5
+  let mockZone
 
   beforeEach(() => {
     // Mock p5 instance
     mockP5 = {
-      radians: vi.fn().mockReturnValue(Math.PI / 2),
-      createGraphics: vi.fn(),
-      resizeCanvas: vi.fn()
+      radians: vi.fn((deg) => deg * (Math.PI / 180)),
+      createGraphics: vi.fn().mockReturnValue({
+        pixelDensity: vi.fn(),
+        image: vi.fn(),
+        remove: vi.fn(),
+        push: vi.fn(),
+        pop: vi.fn(),
+        translate: vi.fn(),
+        rotate: vi.fn()
+      }),
+      resizeCanvas: vi.fn(),
+      pixelDensity: vi.fn().mockReturnValue(2)
     }
 
     // Mock layers object
@@ -187,15 +197,34 @@ describe('Canvas Transforms - Factory Function', () => {
         rotate: vi.fn()
       },
       p5: mockP5,
-      resize: vi.fn(), // Add mock for resize
-      dispose: vi.fn()
+      resize: vi.fn(),
+      dispose: vi.fn(),
+      initializeColorMode: vi.fn()
+    }
+
+    mockZone = {
+      x: 50,
+      y: 50,
+      width: 100,
+      height: 150,
+      graphics: {
+        width: 100,
+        height: 150,
+        image: vi.fn(),
+        remove: vi.fn(),
+        push: vi.fn(),
+        pop: vi.fn(),
+        translate: vi.fn(),
+        rotate: vi.fn(),
+        pixelDensity: vi.fn()
+      }
     }
 
     // Mock dependencies
     mockDependencies = {
       layers: mockLayers,
       recordAction: vi.fn(),
-      globals: { updatedCanvas: false },
+      globals: { updatedCanvas: false, zoneExists: true },
       renderLayers: vi.fn(),
       getAppMode: vi.fn().mockReturnValue('STANDARD_DRAW'),
       APP_MODES: {
@@ -205,7 +234,8 @@ describe('Canvas Transforms - Factory Function', () => {
       params: {
         width: 100,
         height: 200
-      }
+      },
+      getZone: vi.fn().mockReturnValue(mockZone)
     }
   })
 
@@ -218,6 +248,9 @@ describe('Canvas Transforms - Factory Function', () => {
     expect(transforms).toHaveProperty('rotateCanvas')
     expect(transforms).toHaveProperty('rotateWrapped')
     expect(transforms).toHaveProperty('newCorner')
+    expect(transforms).toHaveProperty('flipZone')
+    expect(transforms).toHaveProperty('mirrorZone')
+    expect(transforms).toHaveProperty('rotateZone')
     expect(transforms).toHaveProperty('HORIZONTAL')
     expect(transforms).toHaveProperty('VERTICAL')
     expect(transforms).toHaveProperty('flipCore')
@@ -229,6 +262,9 @@ describe('Canvas Transforms - Factory Function', () => {
     expect(typeof transforms.shift).toBe('function')
     expect(typeof transforms.rotateCanvas).toBe('function')
     expect(typeof transforms.rotateWrapped).toBe('function')
+    expect(typeof transforms.flipZone).toBe('function')
+    expect(typeof transforms.mirrorZone).toBe('function')
+    expect(typeof transforms.rotateZone).toBe('function')
   })
 
   test('should export constants correctly', () => {
@@ -271,6 +307,57 @@ describe('Canvas Transforms - Factory Function', () => {
       transforms.rotateWrapped() // no direction argument
 
       expect(mockLayers.resize).toHaveBeenCalledWith(200, 100) // swapped for clockwise
+    })
+  })
+
+  describe('flipZone', () => {
+    test('should flip the zone graphics', () => {
+      const transforms = createCanvasTransforms(mockDependencies)
+      transforms.flipZone({ axis: HORIZONTAL })
+
+      expect(mockDependencies.getZone).toHaveBeenCalled()
+      expect(mockLayers.clone).toHaveBeenCalledWith(expect.objectContaining(mockZone.graphics))
+      expect(mockZone.graphics.image).toHaveBeenCalled()
+      expect(mockDependencies.globals.updatedCanvas).toBe(true)
+    })
+
+    test('should not flip if zone does not exist', () => {
+      mockDependencies.globals.zoneExists = false
+      const transforms = createCanvasTransforms(mockDependencies)
+      transforms.flipZone({ axis: HORIZONTAL })
+
+      expect(mockLayers.clone).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('mirrorZone', () => {
+    test('should mirror the zone graphics', () => {
+      const transforms = createCanvasTransforms(mockDependencies)
+      transforms.mirrorZone({ axis: VERTICAL })
+
+      expect(mockDependencies.getZone).toHaveBeenCalled()
+      expect(mockLayers.clone).toHaveBeenCalledWith(expect.objectContaining(mockZone.graphics))
+      expect(mockZone.graphics.image).toHaveBeenCalled()
+      expect(mockDependencies.globals.updatedCanvas).toBe(true)
+    })
+  })
+
+  describe('rotateZone', () => {
+    test('should rotate the zone graphics and update dimensions', () => {
+      const transforms = createCanvasTransforms(mockDependencies)
+      const initialWidth = mockZone.width
+      const initialHeight = mockZone.height
+      const originalGraphics = mockZone.graphics
+
+      transforms.rotateZone({ direction: 1 })
+
+      expect(mockDependencies.getZone).toHaveBeenCalled()
+      expect(mockLayers.clone).toHaveBeenCalledWith(expect.objectContaining({ width: initialWidth, height: initialHeight }))
+      expect(originalGraphics.remove).toHaveBeenCalled()
+      expect(mockLayers.p5.createGraphics).toHaveBeenCalledWith(initialHeight, initialWidth)
+      expect(mockZone.width).toBe(initialHeight)
+      expect(mockZone.height).toBe(initialWidth)
+      expect(mockDependencies.globals.updatedCanvas).toBe(true)
     })
   })
 

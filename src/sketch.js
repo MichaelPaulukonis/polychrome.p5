@@ -11,6 +11,7 @@ import { createColorFunctions, createGammaAdjustment } from '@/src/color/color-s
 import { createCanvasTransforms } from '@/src/canvas-transforms'
 import { createDrawingModes } from '@/src/drawing-modes'
 import { apx, pushpop } from '@/src/utils'
+import { calculateZoneRect } from '@/src/zone/zone-manipulation'
 
 const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
@@ -308,15 +309,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     if (isDraggingZone) {
       isDraggingZone = false
     } else if (globals.isDefiningZone && zoneStartPos) {
-      const startX = zoneStartPos.x
-      const startY = zoneStartPos.y
-      const endX = p5.mouseX * layers.scaleFactor
-      const endY = p5.mouseY * layers.scaleFactor
-
-      const x = Math.min(startX, endX)
-      const y = Math.min(startY, endY)
-      const width = Math.abs(endX - startX)
-      const height = Math.abs(endY - startY)
+      const endPos = { x: p5.mouseX * layers.scaleFactor, y: p5.mouseY * layers.scaleFactor }
+      const { x, y, width, height } = calculateZoneRect(zoneStartPos, endPos)
 
       if (width > 0 && height > 0) {
         zone = {
