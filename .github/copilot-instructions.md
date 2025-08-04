@@ -208,6 +208,26 @@ Our recent work has highlighted a few ways we can improve our planning process f
 
 ## 6. Copilot Guidance
 
+### 6.1. Shell Command Safety: Escaping Special Characters
+
+**CRITICAL**: When using the `run_shell_command` tool, you **MUST** properly handle special characters within the `command` string to prevent shell injection vulnerabilities and command failures.
+
+#### **Backticks (`)**
+
+-   **Problem**: Unescaped backticks are executed as sub-commands by the shell.
+-   **Rule**: You **MUST** escape each backtick with a double backslash (`\\`).
+-   **Example**:
+    -   **INCORRECT**: `git commit -m 'feat: add `thing`'`
+    -   **CORRECT**: `git commit -m 'feat: add \`thing\`'`
+
+#### **Single Quotes (')**
+
+-   **Problem**: If the command string is enclosed in single quotes, any literal single quotes within it must be handled carefully.
+-   **Rule**: To include a single quote inside a single-quoted string, you must end the string, add an escaped single quote (`\'`), and then start a new single-quoted string.
+-   **Example**:
+    -   **INCORRECT**: `echo 'It's a nice day'`
+    -   **CORRECT**: `echo 'It'\''s a nice day'`
+
 - **Never assume missing context or make guesses. If any part of the request is unclear or ambiguous, ask the user for clarification before proceeding.**
 - **Always specify the target file or files for any code or modification suggestions.**
 - **Write modular, reusable code.** Split logic into distinct functions, classes, or modules as appropriate.
@@ -647,6 +667,24 @@ For changelog management and semantic versioning, see [Changelog Management Guid
 * Respond:
   "Here are the files in `/Users/michaelpaulukonis/projects/polychrome.p5`:"
 
+### 16.1. Filesystem Tool Selection: Local vs. Extra-Local
+
+**CRITICAL**: You have access to two sets of filesystem tools: built-in tools (like `read_file`, `write_file`, `run_shell_command`) and MCP `filesystem__*` tools. You MUST use the correct toolset based on the file's location.
+
+#### **Use Built-in Tools (Default)**
+
+-   **When:** For ALL operations on files and directories **within** the current project's root directory (`/Users/michaelpaulukonis/projects/polychrome.p5`).
+-   **Why:** These tools are optimized for local project work and use the host's native file paths.
+-   **Example:** To read `src/sketch.js`, you MUST use `read_file(absolute_path='/Users/michaelpaulukonis/projects/polychrome.p5/src/sketch.js')`.
+
+#### **Use `filesystem__*` MCP Tools (Exceptions)**
+
+-   **When:** ONLY when you need to access files or directories **OUTSIDE** of the current project's root directory.
+-   **Why:** The MCP server provides controlled access to the broader filesystem, which is otherwise sandboxed.
+-   **Path Convention:** Remember to use the container path prefix (`/app/projects/...`) for all `filesystem__*` tool arguments.
+-   **Example:** To read a config file from a sibling project, you MUST use `filesystem__read_file(path='/app/projects/another-project/config.json')`.
+
+
 ## 17. Dependencies and Environment
 
 - **Node.js**: Use v22 LTS for best compatibility
@@ -668,3 +706,16 @@ By following these guidelines, PolychromeText remains performant, maintainable, 
 ---
 
 **Note:** This file is for Copilot and other AI coding assistants only. Do not display to end users or include in documentation.
+
+
+---
+
+**Commit Message Format**
+
+All commit messages MUST follow the Conventional Commits specification.
+
+-   **Format:** `<type>(<scope>): <description>`
+-   **Common Types:** `feat` (new feature), `fix` (bug fix), `docs`, `style`, `refactor`, `test`, `chore`, `perf`.
+-   **Breaking Changes:** Use `!` after the type/scope (e.g., `feat(api)!:`) or add a `BREAKING CHANGE:` footer for major version changes.
+
+*Example:* `feat(zone): add unit tests for zone manipulation`
