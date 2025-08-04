@@ -181,6 +181,15 @@ Follow the creative coding architecture with clear separation:
    - **Risks & Mitigation**  
    - **Dependencies**
 
+### 5.1.1 How to Plan Better
+
+Our recent work has highlighted a few ways we can improve our planning process for the future:
+
+1.  **More Thorough Upfront Analysis:** Before creating a plan, we should do a thorough analysis of the existing code that will be affected. This will help us to identify potential issues and to create a more robust plan from the start.
+2.  **Consider the "What Ifs":** When creating a plan, we should try to consider all the possible "what ifs". For example, what if we want to add new features in the future? What if the user wants to undo an action? By considering these possibilities upfront, we can create a more flexible and extensible plan.
+3.  **Embrace Non-Destructive Workflows:** As a general principle, we should try to embrace non-destructive workflows whenever possible. This will make our code more flexible and easier to maintain in the long run.
+4.  **Iterate on the Plan:** It's okay to iterate on the plan as we learn more about the problem. Creating a separate analysis document, as we did with `zonal-analysis.md`, is a great way to do this. It allows us to correct the course of the project and to create a much better solution in the end.
+
 5. **Exceptions and Scope**  
    - **Plan-file creation itself**  
    - **Documentation updates** (README tweaks, comments)  

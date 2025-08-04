@@ -29,7 +29,7 @@ const result = painter.paint(params, dimensions)
 ### Dependencies Object
 ```javascript
 {
-  layers: { drawingLayer, p5 },
+  layers: { drawingCanvas, p5 },
   colorSystem: { setFillMode, setOutlineMode },
   hexStringToColors: fn,
   p5: p5Instance
@@ -38,8 +38,11 @@ const result = painter.paint(params, dimensions)
 
 ### Standard Parameters
 - `params`: Drawing configuration (immutable input)
-- `dimensions`: `{ width, height, xPos }` canvas bounds
-- Returns: `{ modifiedParams, sideEffects }` or `null`
+- `layer`: The target layer for the drawing operation
+- `width`: The width of the target layer
+- `height`: The height of the target layer
+- `xPos`: The x position of the drawing operation
+- `yPos`: The y position of the drawing operation
 
 ## Shared Utilities
 
@@ -80,9 +83,8 @@ Key parameters include `arcPercent` (the percentage of the circle to fill) and `
 ### RowCol Painter
 - **Pattern**: Matrix-based row/column layout
 - **Key Features**: Cell-based positioning, space skipping, image rendering
-- **Rendering**: Calls `renderLayers()` directly (unique behavior)
 
-Renders text in a simple row and column layout. It divides the canvas into a grid based on `params.rows` and `params.columns`. It then uses the `fitTextOnCanvas` utility to size the text to fit within each cell. Unlike the other painters, this one calls `renderLayers` itself.
+Renders text in a simple row and column layout. It divides the canvas into a grid based on `params.rows` and `params.columns`. It then uses the `fitTextOnCanvas` utility to size the text to fit within each cell.
 
 ## Integration Points
 
@@ -97,8 +99,7 @@ drawingModes[currentMode].paint(params, dimensions)
 All painters use `colorSystem.setFillMode()` and `setOutlineMode()` for consistent color handling.
 
 ### Layer Management
-- Grid/Circle: Modify `drawingLayer` graphics state
-- RowCol: Calls `renderLayers()` for immediate display
+All drawing modes operate on a target layer passed in the `paint` function.
 
 ## Testing Strategy
 

@@ -12,45 +12,37 @@
 Central manager for multiple p5.Graphics canvases with ownership tracking.
 
 **Constructor Parameters:**
-- `p5` - Main p5.js instance (canvas 1)
-- `dl` - Drawing layer p5.Graphics (canvas 2) 
-- `temp` - Temporary layer p5.Graphics (canvas 3)
+- `p5` - Main p5.js instance
+- `params` - Global parameters object
+- `setFont` - Function to set the font on a layer
 
 **Properties:**
 ```javascript
 {
   p5,                    // Main canvas (p5.js instance)
-  drawingLayer,          // Active drawing surface (p5.Graphics)
-  tempLayer,             // Temporary operations layer (p5.Graphics)
+  drawingCanvas,         // Off-screen canvas for high-resolution artwork
+  uiCanvas,              // On-screen canvas for UI elements
+  scaleFactor,           // Scale factor for rendering the drawingCanvas on the main canvas
+  width,                 // Width of the drawingCanvas
+  height                 // Height of the drawingCanvas
 }
 ```
-
-**Note**: The `p5` property maintains compatibility with existing code. While the property name could be more descriptive (e.g., `p5instance`), the current name ensures stability across the codebase.
 
 ## Multi-Canvas Architecture
 
 ### Canvas Hierarchy
 ```javascript
-// Canvas 1: Main display canvas
-p5.createCanvas(params.width, params.height)
-
-// Canvas 2: Drawing layer (where drawing operations occur)
-const drawingLayer = initDrawingLayer(params.width, params.height)
-
-// Canvas 3: Temporary layer (for overlays, previews)
-const tempLayer = initDefaultLayer(params.width, params.height)
+// Canvas 1: Main display canvas (the one visible on the screen)
+// Canvas 2: drawingCanvas (off-screen, high-resolution)
+// Canvas 3: uiCanvas (on-screen, for UI elements)
 ```
 
 ### Rendering Pipeline
 ```javascript
-// 1. Draw operations target drawingLayer
-paint(x, y, params) // -> drawingLayer
-
-// 2. Composite drawingLayer onto main canvas
-renderLayers({ layers }) // -> p5.image(drawingLayer, 0, 0)
-
-// 3. Clear drawingLayer for next operation
-drawingLayer.clear()
+// 1. A neutral background is drawn on the main (visible) canvas.
+// 2. The high-resolution `drawingCanvas` is drawn, scaled down to fit the viewport.
+// 3. The `uiCanvas` is drawn on top at a 1:1 scale for UI elements.
+// 4. The `uiCanvas` is cleared to prepare for the next frame.
 ```
 
 ## Memory Management System
@@ -75,12 +67,13 @@ layers.dispose(graphics)          // Handles null checks, removes canvas
 copy()                  // Copy main canvas -> new p5.Graphics (caller owns)
 clone(img)             // Clone image/graphics -> new p5.Graphics (caller owns)  
 dispose(graphics)      // Safe graphics disposal with null checks
+resize(newWidth, newHeight, copyContent)
 ```
 
 ### Text Configuration
 ```javascript
-setFont(font)          // Set font on both main canvas and drawing layer
-textSize(size)         // Set text size on both main canvas and drawing layer
+setFont(font)          // Set font on the drawingCanvas
+textSize(size)         // Set text size on the drawingCanvas
 ```
 
 ## Integration Points
@@ -88,30 +81,30 @@ textSize(size)         // Set text size on both main canvas and drawing layer
 ### Sketch.js Integration
 ```javascript
 // Initialization in setup()
-const drawingLayer = initDrawingLayer(params.width, params.height)
-const tempLayer = initDefaultLayer(params.width, params.height)
-pct.layers = layers = new Layers(p5, drawingLayer, tempLayer)
+const layers = new Layers(p5, params, setFont)
 
-// Drawing operations target drawingLayer
-paint(xPos, yPos, params) // -> layers.drawingLayer
+// Drawing operations target drawingCanvas
+paint(xPos, yPos, params) // -> layers.drawingCanvas
 
-// Composition pipeline
-renderLayers({ layers }) // -> p5.image(layers.drawingLayer, 0, 0)
+// Composition pipeline in draw()
+p5.image(layers.drawingCanvas, 0, 0, p5.width, p5.height)
+p5.image(layers.uiCanvas, 0, 0)
+layers.uiCanvas.clear()
 ```
 
 ### Drawing Modes Integration
-All drawing modes operate on `layers.drawingLayer`:
+All drawing modes operate on `layers.drawingCanvas`:
 ```javascript
-drawGrid({ layer: layers.drawingLayer, ... })
-drawCircle({ layer: layers.drawingLayer, ... })
-drawRowCol({ layer: layers.drawingLayer, ... })
+drawGrid({ layer: layers.drawingCanvas, ... })
+drawCircle({ layer: layers.drawingCanvas, ... })
+drawRowCol({ layer: layers.drawingCanvas, ... })
 ```
 
 ### Color System Integration
-Color system functions automatically reference `layers.drawingLayer`:
+Color system functions automatically reference `layers.drawingCanvas`:
 ```javascript
-colorSystem.setFillMode()     // -> layers.drawingLayer
-colorSystem.setOutlineMode()  // -> layers.drawingLayer
+colorSystem.setFillMode()     // -> layers.drawingCanvas
+colorSystem.setOutlineMode()  // -> layers.drawingCanvas
 ```
 
 ### Undo System Integration
@@ -122,133 +115,17 @@ undo = new UndoLayers(layers, renderLayers, 10)
 // Snapshot creation uses layers.copy()
 takeSnapshot() // -> layers.copy() -> store in history
 
-// Restoration renders to layers.drawingLayer
-show() // -> layers.drawingLayer.image(historicalState, 0, 0)
+// Restoration renders to layers.drawingCanvas
+show() // -> layers.drawingCanvas.image(historicalState, 0, 0)
 ```
 
 ### Canvas Transforms Integration
 Transform operations create new drawing layers:
 ```javascript
-// Rotation recreates drawingLayer with proper dimensions
-rotateCanvas() // -> layers.drawingLayer = initDrawingLayer(newW, newH)
+// Rotation recreates drawingCanvas with proper dimensions
+rotateCanvas() // -> layers.resize(newW, newH, true)
 
 // Flip/mirror operations work with layer copies
-flip({ axis, layer: layers.drawingLayer })
+flip({ axis, layer: layers.drawingCanvas })
 mirror() // -> uses layers.copy() for source material
 ```
-
-## Layer Lifecycle Management
-
-### Initialization Pattern
-```javascript
-// Create graphics with consistent settings
-const initDrawingLayer = (w, h) => {
-  const layer = initDefaultLayer(w, h)
-  setFont(params.font, layer)           // Configure font
-  layer.textAlign(p5.CENTER, p5.CENTER) // Set alignment
-  initializeColorMode(layer, p5, params) // Set color mode
-  return layer
-}
-```
-
-### Dynamic Layer Replacement
-```javascript
-// Transform operations may replace drawingLayer
-const rotateCanvas = () => {
-  // ... rotation logic ...
-  layers.drawingLayer = initDrawingLayer(newWidth, newHeight)
-  // Color system automatically adapts to new drawingLayer
-}
-```
-
-### Cleanup Considerations
-- Graphics objects must be explicitly disposed via `dispose()` or `.remove()`
-- Caller responsibility for graphics returned by `copy()` and `clone()`
-
-## Performance Characteristics
-
-### Rendering Efficiency
-- **Separation of Concerns**: Drawing operations isolated from display canvas
-- **Batch Composition**: Single `p5.image()` call composites drawing layer
-- **Layer Clearing**: `drawingLayer.clear()` after each composition cycle
-
-### Memory Efficiency  
-- **Explicit Ownership**: Clear responsibility for graphics disposal
-- **Safe Disposal**: Prevents memory leaks through systematic resource management
-- **Reusable Layers**: `tempLayer` available for temporary operations
-
-## Development Patterns
-
-### Safe Graphics Usage
-```javascript
-// Pattern: Create, use, dispose
-const workingLayer = layers.copy()
-// ... operations on workingLayer ...
-layers.dispose(workingLayer)  // Always clean up
-```
-
-### Layer Operation Pattern
-```javascript
-// Pattern: Draw to layer, composite, clear
-drawingOperation() // -> drawingLayer
-renderLayers()     // -> composite to main canvas  
-// drawingLayer automatically cleared in renderTarget()
-```
-
-### Font/Text Management
-```javascript
-// Pattern: Configure both canvases
-layers.setFont(newFont)    // Sets on both p5 and drawingLayer
-layers.textSize(newSize)   // Sets on both p5 and drawingLayer
-```
-
-## Critical Dependencies
-
-### Layer System Dependencies
-- **p5.js Graphics**: Core graphics object creation and manipulation
-- **Canvas API**: Pixel density, canvas dimensions, rendering context
-- **Memory Management**: Explicit disposal of graphics objects
-
-### Systems Dependent on Layers
-- **Drawing Modes**: All modes target `layers.drawingLayer`
-- **Color System**: Automatically references current drawing layer
-- **Undo System**: Uses `layers.copy()` for state snapshots
-- **Transform System**: May recreate `layers.drawingLayer` after operations
-- **Recording System**: Records layer states for playback
-
-## Edge Cases & Considerations
-
-### Transform Operations
-- Canvas rotation may change layer dimensions
-- Transform operations may recreate `drawingLayer` entirely
-- Color system must adapt to new layer instances automatically
-
-### Memory Constraints
-- Large canvases with high pixel density consume significant memory
-- Undo history multiplies memory usage (10 snapshots = 10x canvas memory)
-- Proper disposal critical for avoiding memory leaks
-
-### Thread Safety
-- p5.js is single-threaded, no concurrency concerns
-- Graphics operations are synchronous
-- Layer state changes are immediately visible
-
-## AI Development Context
-
-### Key Design Principles
-1. **Explicit Ownership**: Clear responsibility for graphics lifecycle
-2. **Separation of Concerns**: Drawing vs display canvas isolation
-3. **Automatic Adaptation**: Systems adapt to layer changes transparently
-4. **Memory Safety**: Systematic resource management prevents leaks
-
-### Integration Complexity
-- Layer system is central hub for all canvas operations
-- Changes to layer system affect multiple dependent systems
-- Transform operations create complex layer lifecycle scenarios
-- Memory management requires careful attention across all operations
-
-### Performance Considerations
-- Multi-canvas approach enables efficient compositing
-- Layer separation allows independent optimization of drawing vs display
-- Memory usage scales with canvas size, pixel density, and undo history depth
-- Graphics disposal must be systematic to prevent accumulation

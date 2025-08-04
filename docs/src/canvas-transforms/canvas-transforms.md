@@ -37,10 +37,10 @@ Creates a canvas transforms instance with injected dependencies.
 - `recordAction` - Function to record actions for playback system
 - `globals` - Global state object for tracking canvas updates
 - `renderLayers` - Function to render layers to main canvas
-- `initDrawingLayer` - Function to create new drawing layers
 - `getAppMode` - Function that returns current application mode
 - `APP_MODES` - Application mode constants
 - `params` - Global parameters object (width, height, etc.)
+- `getZone` - Function that returns the current zone
 
 **Returns:** Object with transformation methods and constants
 
@@ -51,7 +51,7 @@ Flips the canvas along the specified axis (horizontal or vertical).
 
 **Parameters:**
 - `axis` - `HORIZONTAL` (0) or `VERTICAL` (1)
-- `layer` - Target layer to flip (typically `layers.drawingLayer`)
+- `layer` - Target layer to flip (typically `layers.drawingCanvas`)
 
 **Behavior:**
 - Records action for playback system
@@ -113,6 +113,17 @@ Simplified wrapper for `rotateCanvas` using current parameters.
 **Behavior:**
 - Calls `rotateCanvas` with current width/height from params
 - Provides convenient interface for common rotation operations
+
+### Zone Transform Functions
+
+#### `flipZone({ axis })`
+Flips the zone's graphics along the specified axis.
+
+#### `mirrorZone({ axis })`
+Creates a mirrored half-image of the zone's graphics along the specified axis.
+
+#### `rotateZone({ direction })`
+Rotates the zone's graphics 90 degrees in the specified direction.
 
 ### Constants
 
@@ -179,7 +190,7 @@ All transform functions integrate with the recording system:
 
 ### Layer Management
 Transforms work seamlessly with the multi-layer system:
-- Operates on `layers.drawingLayer` by default
+- Operates on `layers.drawingCanvas` by default
 - Compatible with layer recreation after canvas operations
 - Maintains layer hierarchy and rendering order
 
@@ -199,17 +210,22 @@ const canvasTransforms = createCanvasTransforms({
   recordAction,
   globals,
   renderLayers,
-  initDrawingLayer,
   getAppMode: () => pct.appMode,
   APP_MODES,
-  params
+  params,
+  getZone: () => zone
 })
 
 // Use transforms
-canvasTransforms.flip({ axis: canvasTransforms.VERTICAL, layer: layers.drawingLayer })
-canvasTransforms.mirror({ axis: canvasTransforms.HORIZONTAL, layer: layers.drawingLayer })
+canvasTransforms.flip({ axis: canvasTransforms.VERTICAL, layer: layers.drawingCanvas })
+canvasTransforms.mirror({ axis: canvasTransforms.HORIZONTAL, layer: layers.drawingCanvas })
 canvasTransforms.rotateWrapped(1) // Clockwise rotation
-canvasTransforms.shift({ direction: { x: 10, y: 0 }, layer: layers.drawingLayer })
+canvasTransforms.shift({ direction: { x: 10, y: 0 }, layer: layers.drawingCanvas })
+
+// Use zone transforms
+canvasTransforms.flipZone({ axis: canvasTransforms.VERTICAL })
+canvasTransforms.mirrorZone({ axis: canvasTransforms.HORIZONTAL })
+canvasTransforms.rotateZone({ direction: 1 })
 ```
 
 ### Testing Pure Functions

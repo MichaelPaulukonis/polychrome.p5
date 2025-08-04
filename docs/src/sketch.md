@@ -8,9 +8,9 @@
 - `setupGui` - GUI initialization and controls from `@/src/gui/gui`
 - `recordAction, recordConfig, output, clear as clearRecording` - Recording/playback system from `@/src/scripting/record`
 - `saveAs` - File saving utility from `file-saver` library
-- `datestring, filenamer` - File naming utilities from `@/src/filelib`
+- `datestring, filenamer` - File naming utilities from `@/src//filelib`
 - `setupActions` - Action/macro system setup from `@/src/gui/actions`
-- `createColorFunctions, createGammaAdjustment, initializeColorMode` - Color system factories from `@/src/color/color-system`
+- `createColorFunctions, createGammaAdjustment` - Color system factories from `@/src/color/color-system`
 - `createCanvasTransforms` - Factory for canvas transformation functions from `@/src/canvas-transforms`
 - `createDrawingModes` - Factory for drawing mode functions from `@/src/drawing-modes`
 - `apx, pushpop` - Utility functions from `@/src/utils`
@@ -25,6 +25,8 @@
 - `canvasTransforms` - Object containing canvas transformation functions, created by `createCanvasTransforms`.
 - `drawingModes` - Object containing drawing mode functions, created by `createDrawingModes`.
 - `undo` - `UndoLayers` class instance for undo/redo functionality.
+- `zone` - The current zonal painting area.
+- `zoneStartPos` - The starting position of the zone definition.
 - `fontList` - Object containing loaded p5.js font objects.
 - `loadedFonts` - Array of available font names.
 - `imgMask` - Gradient mask image for visual effects.
@@ -39,7 +41,7 @@
 
 ### `setup()`
 - Initializes the main p5.js canvas.
-- Initializes the `Layers` system with a drawing layer and a temp layer.
+- Initializes the `Layers` system with a `drawingCanvas` and a `uiCanvas`.
 - Initializes core modules by calling their respective factory functions:
   - `createColorFunctions`
   - `createGammaAdjustment`
@@ -52,6 +54,7 @@
 
 ### `draw()`
 The main render loop, which:
+- Renders the `drawingCanvas` and the `uiCanvas`.
 - Handles automated painting via `autoDraw()` if `params.autoPaint` is true.
 - Increments animated parameters.
 - Handles script playback.
@@ -59,18 +62,39 @@ The main render loop, which:
 - Handles saving frames for capture/playback.
 
 ### `mousePressed()`
-Takes an undo snapshot when the mouse is pressed within the canvas bounds.
+- Takes an undo snapshot when the mouse is pressed within the canvas bounds.
+- Captures the starting position of a new zone if `isDefiningZone` is true.
+
+### `mouseReleased()`
+- Finalizes the zone definition and creates the `zone.graphics` buffer.
 
 ## Drawing and Painting
 
-### `paint(xPos, yPos, params)`
+### `paint(xPos, yPos, params, layer, width, height)`
 The main painting function. It sets the current font and then delegates to the appropriate drawing mode function (`drawGrid`, `drawCircle`, or `drawRowCol`) from the `drawingModes` object based on `params.drawMode`.
 
 ### `standardDraw({ x, y, override, params })`
-Handles normal interactive painting with mouse input. It checks if the mouse is within the canvas, records the action, and calls `paint()`.
+Handles normal interactive painting with mouse input. It checks if the mouse is within the canvas, records the action, and calls `paint()`. If a zone is active, it paints to the zone's graphics buffer.
 
 ### `autoDraw(minX, minY, maxX, maxY)`
 Handles the automated random painting mode. It can randomly apply macros, actions, or call `standardDraw()` with random coordinates.
+
+## Zonal Painting
+
+### `defineZone()`
+Sets the `isDefiningZone` flag to true, allowing the user to draw a new zone.
+
+### `clearZone()`
+Removes the current zone.
+
+### `toggleZone()`
+Toggles the `isZoneActive` flag.
+
+### `commitZone()`
+Merges the zone's graphics onto the main drawing canvas.
+
+### Zone Transformations
+The `canvas-transforms` module provides functions for flipping, mirroring, and rotating the zone's graphics.
 
 ## Module Integration
 
@@ -91,20 +115,6 @@ Color management is handled by the `color-system` module. The `createColorFuncti
 - Records the clear action.
 - Clears the drawing layer and main canvas with the background color.
 - Re-initializes the color mode.
-
-### `renderLayers({ layers })`
-Composites the drawing layer onto the main canvas and then clears the drawing layer.
-
-## Layer Management Functions
-
-### `initDefaultLayer(w, h)`
-Creates a new p5.js graphics layer with the specified dimensions and pixel density.
-
-### `initDrawingLayer(w, h)`
-Creates the main drawing layer, sets the default font and text alignment, and initializes the color mode.
-
-### `setFont(font, layer)`
-Sets the `textFont` on a given layer.
 
 ## Other Key Functions
 
