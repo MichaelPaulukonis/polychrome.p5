@@ -13,23 +13,31 @@ div#helpbox
 const keymap = [
   {
     keys: ['t'],
-    note: 'Mirror left-side to right'
+    note: 'Mirror canvas vertically'
   },
   {
-    keys: ['T'],
-    note: 'Mirror top to bottom'
+    keys: ['SHIFT+T'],
+    note: 'Mirror canvas horizontally'
   },
   {
     keys: ['DEL', 'BACKSPACE'],
     note: 'Clear canvas. Will repaint with default fill color, and resize to width/height'
   },
   {
-    keys: ['LEFT, RIGHT'],
+    keys: ['LEFT', 'SHIFT+LEFT', 'RIGHT', 'SHIFT+RIGHT'],
     note: 'Shift canvas left or right. Shift increases size.'
   },
   {
-    keys: ['UP, DOWN'],
+    keys: ['UP', 'SHIFT+UP', 'DOWN', 'SHIFT+DOWN'],
     note: 'Shift canvas up or down. Shift increases size.'
+  },
+  {
+    keys: ['z'],
+    note: 'Shift canvas left (small increment)'
+  },
+  {
+    keys: ['SHIFT+Z'],
+    note: 'Shift canvas right (small increment)'
   },
   {
     keys: ['a'],
@@ -41,11 +49,23 @@ const keymap = [
   },
   {
     keys: ['command+s'],
-    note: 'save sketch'
+    note: 'Save sketch'
+  },
+  {
+    keys: ['SHIFT+COMMAND+S'],
+    note: 'Toggle capturing'
+  },
+  {
+    keys: ['alt+s'],
+    note: 'Shift fill colors'
+  },
+  {
+    keys: ['alt+shift+s'],
+    note: 'Shift outline colors'
   },
   {
     keys: ['alt+g'],
-    note: 'adjust gamma (amount in PolychromeText panel)'
+    note: 'Adjust gamma (amount in PolychromeText panel)'
   },
   {
     keys: ['f', 'shift+f'],
@@ -53,39 +73,67 @@ const keymap = [
   },
   {
     keys: ['space'],
-    note: 'draw once at mouse location'
+    note: 'Draw once at mouse location'
+  },
+  {
+    keys: ['m'],
+    note: 'Next drawing mode'
+  },
+  {
+    keys: ['SHIFT+M'],
+    note: 'Previous drawing mode'
   },
   {
     keys: ['o', 'shift+o'],
     note: 'Switch outline on/off'
   },
   {
-    keys: ['q', 'Q'],
+    keys: ['q', 'SHIFT+Q'],
     note: 'Rotate canvas clockwise or counter-clockwise'
   },
   {
-    keys: ['o', 'shift+o'],
+    keys: ['r', 'SHIFT+R'],
     note: 'Reset parameters'
   },
   {
-    keys: ['u', 'U'],
-    note: 'undo, re-do'
+    keys: ['u', 'SHIFT+U'],
+    note: 'Undo, re-do'
   },
   {
     keys: ['g'],
     note: 'Overlay random history snapshot at random location, random rotation, random transparency (no snapshot taken)'
   },
   {
-    keys: ['G'],
+    keys: ['SHIFT+G'],
     note: 'Manual snapshot for history (for actions that don\'t take snapshots'
   },
   {
-    keys: ['alt-x, 0-9, 0-9, alt-x'],
-    note: 'predefined macros'
+    keys: ['alt+1'],
+    note: 'Macro: gridHere'
   },
   {
-    keys: ['alt + 0-9'],
-    note: 'predefined macros with less keystrokes'
+    keys: ['alt+2'],
+    note: 'Macro: manyRandoms'
+  },
+  {
+    keys: ['alt+3'],
+    note: 'Macro: smallRandomAtSomePlace'
+  },
+  {
+    keys: ['alt+4'],
+    note: 'Macro: largestCircleWidth'
+  },
+  {
+    keys: ['alt+5'],
+    note: 'Macro: thoseCircles'
+  },
+  {
+    keys: ['alt+6'],
+    note: 'Macro: thoseCirclesBig'
+  },
+  {
+    keys: ['alt+7'],
+    note: 'Macro: bigCircleLowerRightCenter'
   }
 ]
 
