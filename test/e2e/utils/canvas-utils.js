@@ -452,7 +452,7 @@ export async function simulatePaintGesture(
         const t = step / steps;
         const x = from.x + (to.x - from.x) * t;
         const y = from.y + (to.y - from.y) * t;
-        console.log(`Moving to (${x}, ${y})`);
+        // console.log(`Moving to (${x}, ${y})`);
         await canvas.page().mouse.move(x, y);
         await page.waitForTimeout(50)
       }

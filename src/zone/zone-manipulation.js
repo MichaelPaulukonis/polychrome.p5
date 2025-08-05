@@ -1,4 +1,3 @@
-
 export const isMouseInZone = (p5, layers, zone) => {
   const offscreenX = p5.mouseX * layers.scaleFactor
   const offscreenY = p5.mouseY * layers.scaleFactor

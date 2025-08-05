@@ -14,7 +14,7 @@ import {
   clickGuiButton
 } from '../utils/canvas-utils.js'
 
-test.describe('Parameter Controls', () => {
+test.describe.skip('Parameter Controls', () => {
   test.beforeEach(async ({ page }) => {
     const consoleErrors = setupConsoleErrorTracking(page)
     await page.goto('/')

@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { describe, test, expect, beforeEach } from 'vitest'
 import { isMouseInZone, setZoneX, setZoneY, centerZone, calculateZoneRect } from '../../src/zone/zone-manipulation'
 
 describe('Zone Manipulation Functions', () => {
@@ -6,7 +6,6 @@ describe('Zone Manipulation Functions', () => {
   let mockLayers
   let mockZone
   let mockParams
-  let mockGlobals
 
   beforeEach(() => {
     mockP5 = {
@@ -25,10 +24,6 @@ describe('Zone Manipulation Functions', () => {
     mockParams = {
       width: 800,
       height: 600
-    }
-    mockGlobals = {
-      zoneExists: true,
-      isZoneActive: true
     }
   })
 

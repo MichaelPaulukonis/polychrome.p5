@@ -70,7 +70,9 @@ test.describe('Basic UI Interaction', () => {
 
     await page.screenshot({ path: 'test-results/draw-after-clear.png', fullPage: true })
 
-    const hasContentAfter = await canvasHasContent(page, initialImageData)
+    // pass in no image so function looks only at page
+    // if canvas is monochrome, it counts as "no content"
+    const hasContentAfter = await canvasHasContent(page)
     console.log('Canvas has content after clear:', hasContentAfter)
 
     // Should be empty after clear

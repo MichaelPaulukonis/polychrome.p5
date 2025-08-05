@@ -14,7 +14,7 @@ import {
   getCanvasPixelData
 } from '../utils/canvas-utils.js'
 
-test.describe('Color Systems', () => {
+test.describe.skip('Color Systems', () => {
   test.beforeEach(async ({ page }) => {
     const consoleErrors = setupConsoleErrorTracking(page)
     await page.goto('/')

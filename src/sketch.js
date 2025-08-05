@@ -11,7 +11,7 @@ import { createColorFunctions, createGammaAdjustment } from '@/src/color/color-s
 import { createCanvasTransforms } from '@/src/canvas-transforms'
 import { createDrawingModes } from '@/src/drawing-modes'
 import { apx, pushpop } from '@/src/utils'
-import { calculateZoneRect } from '@/src/zone/zone-manipulation'
+import { calculateZoneRect, isMouseInZone, centerZone, setZoneX, setZoneY } from '@/src/zone/zone-manipulation'
 
 const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
@@ -150,17 +150,6 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     return p5.mouseY > 0 && p5.mouseY < p5.height && p5.mouseX > 0 && p5.mouseX < p5.width
   }
 
-  const isMouseInZone = () => {
-    const offscreenX = p5.mouseX * layers.scaleFactor
-    const offscreenY = p5.mouseY * layers.scaleFactor
-    return (
-      offscreenX >= zone.x &&
-      offscreenX <= zone.x + zone.width &&
-      offscreenY >= zone.y &&
-      offscreenY <= zone.y + zone.height
-    )
-  }
-
   const standardDraw = ({ x, y, override, params } = { x: p5.mouseX, y: p5.mouseY, override: false, params: pct.params }) => {
     if (globals.isDefiningZone || isDraggingZone) return // Do not paint while defining or dragging a zone
 
@@ -286,7 +275,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     if (mouseInCanvas()) {
       if (globals.isDefiningZone) {
         zoneStartPos = { x: p5.mouseX * layers.scaleFactor, y: p5.mouseY * layers.scaleFactor }
-      } else if (globals.zoneExists && globals.isZoneActive && isMouseInZone() && p5.keyIsDown(p5.ALT)) {
+      } else if (globals.zoneExists && globals.isZoneActive && isMouseInZone(p5, layers, zone) && p5.keyIsDown(p5.ALT)) {
         isDraggingZone = true
         zoneStartPos = { x: p5.mouseX * layers.scaleFactor, y: p5.mouseY * layers.scaleFactor }
       } else {
@@ -299,8 +288,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
     if (isDraggingZone) {
       const dx = (p5.mouseX * layers.scaleFactor) - zoneStartPos.x
       const dy = (p5.mouseY * layers.scaleFactor) - zoneStartPos.y
-      zone.x += dx
-      zone.y += dy
+      setZoneX(zone, zone.x + dx)
+      setZoneY(zone, zone.y + dy)
       zoneStartPos = { x: p5.mouseX * layers.scaleFactor, y: p5.mouseY * layers.scaleFactor }
     }
   }
@@ -327,6 +316,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
         globals.isDefiningZone = false
         globals.isZoneActive = true
         globals.zoneExists = true
+        pct.zone = zone
       }
       zoneStartPos = null
     }
@@ -576,20 +566,19 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
   pct.centerZone = () => {
     if (globals.zoneExists) {
-      zone.x = (params.width - zone.width) / 2
-      zone.y = (params.height - zone.height) / 2
+      centerZone(zone, params)
     }
   }
 
   pct.setZoneX = (x) => {
     if (globals.zoneExists) {
-      zone.x = x
+      setZoneX(zone, x)
     }
   }
 
   pct.setZoneY = (y) => {
     if (globals.zoneExists) {
-      zone.y = y
+      setZoneY(zone, y)
     }
   }
 

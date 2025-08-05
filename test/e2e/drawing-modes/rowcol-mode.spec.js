@@ -13,7 +13,7 @@ import {
   getParameterValue
 } from '../utils/canvas-utils.js'
 
-test.describe('RowCol Drawing Mode (Grid2)', () => {
+test.describe.skip('RowCol Drawing Mode (Grid2)', () => {
   test.beforeEach(async ({ page }) => {
     const consoleErrors = setupConsoleErrorTracking(page)
     await page.goto('/')

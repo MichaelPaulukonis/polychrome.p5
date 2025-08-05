@@ -27,3 +27,4 @@ This document outlines potential features, refactorings, and improvements for th
   - [ ] one that would have _all_ features apply to it as the active target. 
   - [ ] layers can be re-ordered
 - [ ] drawing scale option - not for drawing to display, but to scale in-canvas sizes
+- [ ] fix all `.skip` e2e tests
