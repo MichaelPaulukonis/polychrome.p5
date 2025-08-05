@@ -74,12 +74,6 @@ export const createRowColPainter = (dependencies) => {
       }
     }
 
-    // Call renderLayers to display results
-    const renderLayers = ({ layers }) => {
-      layers.p5.image(layers.drawingCanvas, 0, 0)
-    }
-    renderLayers({ layers })
-
     // Return any parameter modifications (none in this case)
     return {
       modifiedParams: null,

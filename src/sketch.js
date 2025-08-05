@@ -421,10 +421,11 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   }
 
   const nextDrawMode = (direction, params) => {
-    let drawMode = params.drawMode
-    drawMode = (drawMode + direction) % drawModes.length
-    if (drawMode < 0) { drawMode = drawModes.length - 1 }
-    params.drawMode = drawMode
+    let modeIdx = params.drawModes.indexOf(params.drawMode)
+    if (modeIdx < 0) { modeIdx = 0 }
+    modeIdx = (modeIdx + direction) % params.drawModes.length
+    if (modeIdx < 0) { modeIdx = params.drawModes.length - 1 }
+    params.drawMode = params.drawModes[modeIdx]
   }
 
   const nextRotation = (direction, params) => {
