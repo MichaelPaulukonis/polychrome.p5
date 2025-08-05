@@ -1,9 +1,9 @@
 <template lang="pug">
 div#helpbox
-    p Mouse click and drag to paint with text.
-    p Color and size are based on mouse position.
-    p Edit canvas size, fill color, outlines, font choice etc. with panels to the right
-    h3 Keys
+    p.intro-paragraph Mouse click and drag to paint with text.
+    p.intro-paragraph Color and size are based on mouse position.
+    p.intro-paragraph Edit canvas size, fill color, outlines, font choice etc. with panels to the right
+    h3.section-header Keys
     #keys(v-for="key in keymap" v-bind:key='key.key')
         span #[span.key {{ key.keys.join(', ') }} ] {{ key.note }}
 
@@ -151,5 +151,13 @@ export default {
 
 .key {
   font-family: monospace;
+}
+
+.intro-paragraph {
+  margin: 0;
+}
+
+.section-header {
+  margin-top: 1rem;
 }
 </style>
