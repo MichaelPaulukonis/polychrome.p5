@@ -17,7 +17,7 @@ const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
 
 let namer = null
 
-export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback }) {
+export default function Sketch({ p5Instance: p5, guiControl, textManager, setupCallback }) {
   const params = allParams
   const pct = {}
 
@@ -85,7 +85,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
       recordAction,
       globals,
       renderLayers,
-      get appMode () { return pct.appMode },
+      get appMode() { return pct.appMode },
       APP_MODES
     })
 
@@ -460,45 +460,47 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   const coinflip = () => pct.p5.random() > 0.5
 
   const randomLayer = (cfg = {}) => {
-    const img = pct.p5.random(pct.undo.history())
+    const buff = pct.p5.random(pct.undo.history())
     layers.drawingCanvas.push()
-    pct.p5.push()
+    // layers.drawingCanvas.push()
 
     try {
       layers.drawingCanvas.resetMatrix()
 
       const pctSize = cfg.percentSize || percentSize()
-      const size = { width: pct.p5.width * pctSize, height: pct.p5.height * pctSize }
+      const size = { width: layers.drawingCanvas.width * pctSize, height: layers.drawingCanvas.height * pctSize }
       const offsetSize = { width: size.width * 0.75, height: size.height * 0.75 }
-      const originX = cfg.originX || pct.p5.random(-offsetSize.width, pct.p5.width + offsetSize.width)
-      const originY = cfg.originY || pct.p5.random(-offsetSize.height, pct.p5.height + offsetSize.height)
+      const originX = cfg.originX || layers.drawingCanvas.random(-offsetSize.width, layers.drawingCanvas.width + offsetSize.width)
+      const originY = cfg.originY || layers.drawingCanvas.random(-offsetSize.height, layers.drawingCanvas.height + offsetSize.height)
       layers.drawingCanvas.translate(originX, originY)
 
       const rotateP = cfg.rotateP || coinflip()
       const radians = cfg.radians || pct.p5.random(360)
       if (rotateP) { layers.drawingCanvas.rotate(pct.p5.radians(radians)) }
 
-      const alpha = cfg.alpha || pct.p5.random(255)
+      // HSB mode is 0..1,
+      // TODO: check the mode and set appropriately
+      const alpha = cfg.alpha || pct.p5.random(1)
 
-      const img2 = layers.p5.createGraphics(img.width, img.height)
+      let w = buff.width * pctSize;
+      let h = buff.height * pctSize;
+      let img = layers.p5.createImage(w, h);
+      img.copy(buff, 0, 0, buff.width, buff.height, 0, 0, w, h);
 
-      img2.copy(img, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
       if (!params.hardEdge) {
-        const mask2 = layers.p5.createImage(img.width, img.height)
-        mask2.copy(imgMask, 0, 0, img.width, img.height, 0, 0, img.width * pctSize, img.height * pctSize)
-        img2.mask(mask2)
+        const mask2 = layers.p5.createImage(buff.width, buff.height)
+        mask2.copy(imgMask, 0, 0, buff.width, buff.height, 0, 0, buff.width * pctSize, buff.height * pctSize)
+        img.mask(mask2)
       }
 
-      pct.p5.tint(255, alpha)
       setShadows(layers.drawingCanvas, params)
-
-      layers.drawingCanvas.image(img2, 0, 0)
+      layers.drawingCanvas.tint(255, alpha)
+      layers.drawingCanvas.image(img, 0, 0)
 
       recordAction({ action: 'randomLayer', percentSize: pctSize, originX, originY, rotateP, radians, alpha }, pct.appMode !== APP_MODES.STANDARD_DRAW)
     } catch (e) {
       console.log(e)
     } finally {
-      pct.p5.pop()
       layers.drawingCanvas.pop()
     }
     globals.updatedCanvas = true

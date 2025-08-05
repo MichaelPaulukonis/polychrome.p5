@@ -311,10 +311,10 @@ export default function Macros (pchrome) {
   // centered on lower-right
   // now that drawCircle centers on width/height params (and not layer)
   const someCircles = macroWrapper(function someCircles ({ params, layer, p5 }) {
-    p5.push()
+    layer.push()
     // layer.translate(layer.width / 3, 0)
     drawCircle({ xPos: 850, yPos: 50, params, width: layer.width * 2, height: layer.height * 2, layer, textSize: 15, textManager: pchrome.textManager })
-    p5.pop()
+    layer.pop()
   })
 
   const manyRandoms = macroWrapper(function manyRandoms () {
@@ -357,17 +357,20 @@ export default function Macros (pchrome) {
   //   // TODO: random quadritlateral with no fade (maybe)
   // })
 
+  // TODO: no longer works (throws errors, even!)
+  // need to fix to work with new layers model
   const flipOverlay = macroWrapper(function flipOverlay ({ layer, p5 }) {
-    p5.push()
+    layer.push()
     layer.translate(0, 0)
     layer.resetMatrix()
     const newLayer = flipCore(VERTICAL, layers.copy())
+    // TODO: HSB mode (our default) accepts 0..1
     const alpha = (0.5 * 255)
-    p5.tint(255, alpha)
+    layer.tint(255, alpha)
     layer.blendMode(p5.MULTIPLY) // on or off ???
     layer.image(newLayer, 0, 0)
     renderLayers({ layers })
-    p5.pop()
+    layer.pop()
   })
 
   return {
