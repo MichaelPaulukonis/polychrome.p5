@@ -1,86 +1,168 @@
-# Polychrome Text - p5.js version
-Online @ https://michaelpaulukonis.github.io/polychrome.p5/
+# PolychromeText
 
 ## Poly-WHAT???
 Polychrome - or many colors.
 
+**A creative coding tool for painting with colorful text.**
+
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/MichaelPaulukonis/polychrome.p5)
+![Version](https://img.shields.io/badge/version-1.4.1-blue)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+
 Traditionally, text and image are segregated in Western Art.
 
-This web-app plays with those boundaries, providing an polychromatic text painting environment.
+PolychromeText is a web-app that plays with those boundaries, providing a many-colored text painting environment. Different from other text painting environments.
+
+![screenshot of polychrometext showing the fill menu](./docs/images/polychrome_screenshot.00.png)
+
+
+**[Live Demo](https://michaelpaulukonis.github.io/polychrome.p5/)**
+
 
 > Although the word polychrome is created from the combining of two Greek words, it was not used in ancient Greece. The term was coined in the early nineteenth century by Antoine Chrysostôme Quatremère de Quincy. ([source](https://en.wikipedia.org/wiki/Ancient_Greek_art#Polychromy))
 
+## Table of Contents
 
-![screenshot of polychrometext showing the classic palette and the fill menu](./docs/images/polychrome_screenshot.00.png)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Quick Start](#quick-start)
+- [Usage](#usage)
+  - [Basic Usage](#basic-usage)
+  - [Advanced Features](#advanced-features)
+- [Features & Capabilities](#features--capabilities)
+  - [Core Features](#core-features)
+  - [Roadmap](#roadmap)
+- [Development Setup](#development-setup)
+  - [Setup](#setup)
+  - [Build and Test](#build-and-test)
+- [Contributing](#contributing)
+  - [Contributing Guidelines](#contributing-guidelines)
+  - [Pull Request Process](#pull-request-process)
+- [Project Structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
-## Animations
+## Getting Started
 
-Output multiple images
-Run the `pcttool` to stitch them together using `ffmpeg` and  ImageMagick's `convert`
+### Prerequisites
 
-- `brew install ffmpeg` and `brew install imagemagick`
-- more options at [StackOverflow](https://askubuntu.com/a/837574/613420)
+- **Node.js**: Version 20.0.0 or higher.
 
-See below for some ffmpeg notes
+### Installation
 
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/MichaelPaulukonis/polychrome.p5.git
+    ```
+2.  **Navigate to the project directory:**
+    ```bash
+    cd polychrome.p5
+    ```
+3.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-## Previous version
-Conversion of my Processing.js text-app from [WebText sketches](https://github.com/MichaelPaulukonis/WebText)
+### Quick Start
 
-Previous version used to be online @ http://www.xradiograph.com/netart/024.html
+To run the application locally, use the following command:
 
-
-## Macros
-
-They're not recordings of actions (although that was the original idea). They're preprogrammed actions.
-They are evolving, which is good.
-
-## UI
-
-https://github.com/bit101/quicksettings => the raw, unwrapped version looks like it should work better than the p5 gui wrapper
-The "wrapper" requires the variables to be globals. UGH.
-IT does not appear to work with object parameters
-
-http://repo.zebkit.org/latest/samples/uidemo.html#
-
-
-## Scripting
-
-It is now possible to record and playback most activity.
-Not all of it is recorded correctly, and needs work.
-Also, I'd really like to extend it by a simple language (ay-yi-yi) to allow for some looping.
-Have a look at https://www.npmjs.com/package/tracery-grammar and https://github.com/kyranet/tracery
-
-https://shiffman.net/a2z/cfg/
-
-
-
-## ffmpeg
-
-This will take all png files in a folder and make one .mp4 from all them.
-The size will be of the largest image, with all other images centered (unscaled) and padded with black.
-See [notes on `pad`](http://ffmpeg.org/ffmpeg-filters.html#pad) for more.
-
-
-`ffmpeg -r 15 -f image2 -pattern_type glob -i '*.png' -vf pad="max(iw\,ih):ow:(ow-iw)/2:(oh-ih)/2" -vcodec libx264 -crf 17 -pix_fmt yuv420p 'combined.mp4'`
-
-
-```
-mogrify -path '/home/hamy/Documents/JP2_Wrangling/2DArtist_066/Processed' -verbose -quality 95 -format jpg *.jp2
-
-magick mogrify -path './' -verbose  -format png *.jp2
-
-magick mogrify -path './' -verbose -format jpg *.jp2
-
-mkdir denslow
-pdfimages -verbose -j denslow.goose.2003goudy25765.pdf ./denslow
+```bash
+npm run dev
 ```
 
-for FILENAME in $(ls *.bpm; do convert $FILENAME ${FILENAME%.*}.png 
+The application will be available at `http://localhost:3000`.
 
-for x in *.webp; do dwebp {} -o ${x%.*}.png ::: $x; done
+## Usage
 
-for x in *.bpm; do convert ${x%.*}.png ::: $x; done
+### Basic Usage
 
-convert *.pbm -set filename:fn '%[basename]' '%[filename:fn].png'
+Visit the [live demo](https://michaelpaulukonis.github.io/polychrome.p5/) and start painting! 
 
+-   **Mouse Painting**: Click and drag on the canvas to paint with text.
+-   **Keyboard Shortcuts**: An extensive system of hotkeys is available for power users. Hit cmd-S to save and FEEL THE POWER!
+-   **Auto-Paint Mode**: Let the application generate art for you with randomized parameters. If you don't expect a masterpiece you'll happy.
+-   **Recording and Playback**: Record, edit, and play back sequences of actions to create animations. Uhm, this needs better documentation. And a rewrite of the code.
+
+## Features & Capabilities
+
+### Core Features
+
+-   **Interactive Canvas**: Real-time visual feedback as you paint.
+-   **Dynamic Color Palettes**: Generate and manipulate a wide range of color schemes.
+-   **Multiple Drawing Modes**:
+    -   **Grid**: Arrange text in a grid pattern.
+    -   **Circle**: Place text along circular or arc-shaped paths.
+    -   **RowCol**: A simple row and column layout.
+-   **Save and Export**: Export your creations as PNG images.
+-   **Layer Management**: A multi-canvas system with a drawing layer, main canvas, and temporary layers for complex compositions.
+-   **Undo System**: A history management system for canvas states.
+
+### Roadmap
+
+I'm still working on this. Here are some of my high-priority goals:
+
+1.  **Nuxt Migration**: Upgrade from Nuxt 2 to Nuxt 3.
+2.  **UI Overhaul**: A comprehensive redesign of the user interface for a more intuitive experience.
+3.  **Layer System**: First class layers to work and blend in different ways.
+
+For a more detailed development roadmap, please see the [Trello board](https://trello.com/b/WdA1q4uV/polychrometext).
+
+## Development Setup
+
+### Setup
+
+To set up a local development environment, follow the [Installation](#installation) instructions.
+
+### Build and Test
+
+-   **Build for Production**:
+    ```zsh
+    npm run build
+    ```
+-   **Run Tests**:
+    ```zsh
+    npm test
+    ```
+
+## Contributing
+
+Pull requests welcome - if you can sense out of this, your help is appreciated!
+
+### Pull Request Process
+
+1.  Fork the repository.
+2.  Create a new branch for your feature or bug fix.
+3.  Make your changes and commit them with a clear and descriptive message.
+4.  Push your changes to your fork.
+5.  Submit a pull request to the `main` branch of the original repository.
+
+
+## Project Structure
+
+The project is organized into the following key directories:
+
+-   `/.github`: Instructional files for GitHub Copilot assistance.
+-   `/assets`: Images, fonts, and other static assets.
+-   `/components`: Vue components for the user interface.
+-   `/src`: The core source code for the application, including the p5.js sketch.
+-   `/docs`: Project documentation and notes.
+-   `/test`: Test files for the application.
+-   `/tools`: scripts for animating lots of images
+
+## Troubleshooting
+
+If you encounter any issues, please check the [GitHub Issues](https://github.com/MichaelPaulukonis/polychrome.p5/issues) page to see if a similar problem has already been reported. If not, please open a new issue with a detailed description of the problem.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](https://opensource.org/licenses/MIT) file for details.
+
+## Acknowledgments
+
+-   This project was inspired by the desire to Jackson Pollock, Mark Rothko, Allen Ginsberg and Andy Warhol all at the same time.
+-   There has been extensive AI documentation, testing, refactoring and some coding. This too shall pass. AI is particularly good at creating a comprehensive suite of front-end tests that don't actually work.
+-   Special thanks to the creators of p5.js, Nuxt.js, Quicksettings and others for their amazing tools.
