@@ -62,7 +62,7 @@ Recording System ←→ Undo System ←→ State Management ←→ Canvas Transf
 - **Ramda**: Functional programming utilities
 - **file-saver**: Canvas export functionality
 - **hotkeys-js**: Keyboard interaction
-- **quicksettings.js**: customized version of GUI library
+- **quicksettings.js**: customized (for Nuxt build) version of GUI library
 - **No external APIs or databases**
 
 ### **Design Patterns**

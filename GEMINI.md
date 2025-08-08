@@ -9,7 +9,4 @@ This is a creative coding app using Nuxt.js (Vue 2) and p5.js, focused on canvas
 - **Run development server:** `npm run dev`
 
 ## 3. Core Project Rules & Conventions
-For detailed project context, coding conventions, architectural patterns, and technology preferences, refer to the primary AI instruction file at `.github/copilot-instructions.md`.
-
-## 4. Commit Message Format
-All commit messages MUST follow the Conventional Commits specification. For detailed rules, see the main AI instruction file at `.github/copilot-instructions.md`.
+For detailed project context, coding conventions, architectural patterns, technology preferences, commit and changelog messages, refer to the primary AI instruction file at `.github/copilot-instructions.md`.

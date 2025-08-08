@@ -117,7 +117,9 @@ Multiple paint modes available:
 
 ### GUI Integration
 - QuickSettings-based control panels
-  - modified (unk) from https://github.com/bit101/quicksettings
+  - modified from https://github.com/bit101/quicksettings
+  - modified to work with build system
+  - no other code changes
 - Real-time parameter binding (via Nuxt/Vue)
 - Settings save/load system (localStorage API)
 
