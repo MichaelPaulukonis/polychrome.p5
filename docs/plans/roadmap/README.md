@@ -20,6 +20,8 @@ This document outlines potential features, refactorings, and improvements for th
   - [ ] Optimized canvas operations.
 - [ ] **UI/UX Improvements:**
   - [ ] UI overhaul
+    - https://lil-gui.georgealways.com/examples/kitchen-sink/
+    - It's a dat.gui almost-drop-in. And comes with the same visual baggage.
   - [ ] More intuitive color picker.
   - [ ] Customizable hotkeys.
 - [ ] Parameter skewing (stubs exist in code)  
