@@ -74,3 +74,20 @@ playwright-report/
 playwright/.cache/
 test/e2e/**/*-snapshots/
 
+
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+node_modules/
+# Environment variables
+# Editor directories and files
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
+
+# Task files
+# tasks.json
+# tasks/ 
