@@ -5,11 +5,10 @@
   ClientOnly
     HelpModal(ref="helpModal")
 
-  ClientOnly
-    AboutModal(ref="aboutModal")
+  AboutModal(ref="aboutModal")
 
   ClientOnly
-    PlaybackModal(ref="playbackModal")
+    PlaybackModal(ref="playbackModal" :pchrome="pchrome" :script="script" @scriptUpdated="script = $event")
 
   button(@click="openHelpModal") help
   button(@click="openAboutModal") About

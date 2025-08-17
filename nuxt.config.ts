@@ -47,9 +47,17 @@ export default defineNuxtConfig({
   */
   modules: [
     '@nuxt/ui',
-    '@nuxt/fonts'
+    '@nuxt/fonts',
+    '@nuxtjs/tailwindcss'
   ],
-
+  build: {
+    postcss: {
+      plugins: {
+        '@tailwindcss/postcss': {},
+        autoprefixer: {},
+      },
+    },
+  },
   fonts: {
     families: [
       { name: 'Graphik', src: `${routerBase}/fonts/fonts.css` },

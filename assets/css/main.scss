@@ -1,4 +1,8 @@
-@use 'utilities/functions';
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+
 @use 'utilities/variables';
 
 @use 'base/grid';

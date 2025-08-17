@@ -10,7 +10,6 @@
         </div>
       </template>
       <Playback
-        v-if="isPchromeInitialized"
         :pchrome="pchrome"
         :script="script"
         @scriptUpdated="script = $event"
@@ -27,10 +26,6 @@ import Playback from '@/components/playback.vue'
 const isOpen = ref(false)
 
 defineProps({
-  isPchromeInitialized: {
-    type: Boolean,
-    required: true
-  },
   pchrome: {
     type: Object,
     required: true
