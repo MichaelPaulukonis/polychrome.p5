@@ -30,3 +30,30 @@ But the getter property is a valid, though less common, approach.
 
 ---
 
+_**User**_
+
+What is the difference between `git add .` and `git add -A` ?
+
+---
+
+_**Assistant**_
+
+The difference between `git add .` and `git add -A` is in **what files they stage for commit**:
+
+- **`git add .`**  
+  Stages **new and modified files** in the current directory and its subdirectories, but **does not stage deletions** (removed files are not staged for commit).
+
+- **`git add -A`**  
+  Stages **all changes** in the repository:  
+  - New files  
+  - Modified files  
+  - **Deleted files** (removals)
+
+**Summary:**  
+- Use `git add .` to stage only new/modified files in the current directory.
+- Use `git add -A` to stage **all changes** (including deletions) across the entire repo.
+
+For most workflows, `git add -A` is safer to ensure nothing is missed, especially file deletions.
+
+---
+

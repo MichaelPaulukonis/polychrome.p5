@@ -1,6 +1,6 @@
 import UndoLayers from '@/src/undo/undo.layers.js'
 import Layers from '@/src/layers.js'
-import { allParams, fillParams, outlineParams, drawModes, globals } from '@/src/params.js'
+import { allParams, fillParams, outlineParams, globals } from '@/src/params.js'
 import { hexStringToColors } from '@/src/gui/gui.color.control'
 import { setupGui } from '@/src/gui/gui'
 import { recordAction, recordConfig, output, clear as clearRecording } from '@/src/scripting/record'
@@ -17,7 +17,7 @@ import imgMaskPath from '~/assets/9-96398_http-landrich-black-gradient-border-tr
 
 let namer = null
 
-export default function Sketch({ p5Instance: p5, guiControl, textManager, setupCallback }) {
+export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback }) {
   const params = allParams
   const pct = {}
 
@@ -72,7 +72,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
       recordAction,
       globals,
       renderLayers,
-      appMode: pct.appMode.
+      appMode: pct.appMode,
       APP_MODES
     })
 
@@ -453,10 +453,10 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
 
       const alpha = cfg.alpha || pct.p5.random(1)
 
-      let w = buff.width * pctSize;
-      let h = buff.height * pctSize;
-      let img = layers.p5.createImage(w, h);
-      img.copy(buff, 0, 0, buff.width, buff.height, 0, 0, w, h);
+      const w = buff.width * pctSize
+      const h = buff.height * pctSize
+      const img = layers.p5.createImage(w, h)
+      img.copy(buff, 0, 0, buff.width, buff.height, 0, 0, w, h)
 
       if (!params.hardEdge) {
         const mask2 = layers.p5.createImage(buff.width, buff.height)

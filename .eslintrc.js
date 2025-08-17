@@ -5,13 +5,11 @@ module.exports = {
     browser: true,
     node: true
   },
-  parserOptions: {
-    parser: 'babel-eslint'
-  },
   extends: [
+    'eslint:recommended',
+    'plugin:vue/vue3-recommended',
     'p5js',
-    'standard',
-    '@nuxtjs'
+    'standard'
   ],
   // add your custom rules here
   rules: {

@@ -17,7 +17,6 @@ import { fitTextOnCanvas } from '@/src/fit.text'
  */
 export const createRowColPainter = (dependencies) => {
   const {
-    layers,
     colorSystem,
     hexStringToColors
   } = dependencies

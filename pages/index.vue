@@ -2,34 +2,18 @@
 #app
   #title polychrome text
 
-  UModal(v-model="isTextManagerOpen")
-    textarea#bodycopy(v-model="currentText")
-    .text-controls
-      button#applytext(@click="resetTextPosition")
-        | Apply text
-      button#randomtext(@click="randomText")
-        | Random text
+  ClientOnly
+    HelpModal(ref="helpModal")
 
-  UModal(v-model="isAboutOpen")
-    About
+  ClientOnly
+    AboutModal(ref="aboutModal")
 
-  UModal(v-model="isHelpOpen")
-    Help
+  ClientOnly
+    PlaybackModal(ref="playbackModal")
 
-  UModal(v-model="isPlaybackOpen")
-    Playback(
-      v-if="isPchromeInitialized",
-      :pchrome="pchrome",
-      :script="script",
-      @scriptUpdated="script = $event"
-      @capturing="pchrome.params.capturing = $event"
-    )
-
-  button(@click="isTextManagerOpen = true") textManager
-  button#focus(@click="$setFocus()") focus on canvas
-  button(@click="isHelpOpen = true") help
-  button(@click="isAboutOpen = true") About
-  button(@click="isPlaybackOpen = true") Playback
+  button(@click="openHelpModal") help
+  button(@click="openAboutModal") About
+  button(@click="openPlaybackModal") Playback
   Counter(
     v-if="pchrome?.params?.capturing"
     :count="pchrome.params.globals.captureCount"
@@ -46,9 +30,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import P5 from 'p5'
-import Help from '@/components/help'
-import About from '@/components/about'
-import Playback from '@/components/playback'
+import HelpModal from '@/components/HelpModal.vue'
+import AboutModal from '@/components/AboutModal.vue'
+import PlaybackModal from '@/components/PlaybackModal.vue'
 import Counter from '@/components/captureCounter.vue'
 
 import TextManager from '@/src/text/TextManager'
@@ -65,13 +49,24 @@ const currentText = ref('placeholder')
 const pchrome = ref({})
 const script = ref([])
 const textManager = ref({})
-const isTextManagerOpen = ref(false)
-const isAboutOpen = ref(false)
-const isHelpOpen = ref(false)
-const isPlaybackOpen = ref(false)
+const helpModal = ref(null)
+const aboutModal = ref(null)
+const playbackModal = ref(null)
 const isPchromeInitialized = ref(false)
 
 const corpus = ref(texts)
+
+const openHelpModal = () => {
+  helpModal.value.isOpen = true
+}
+
+const openAboutModal = () => {
+  aboutModal.value.isOpen = true
+}
+
+const openPlaybackModal = () => {
+  playbackModal.value.isOpen = true
+}
 
 const randomText = () => {
   const text = randElem(corpus.value)

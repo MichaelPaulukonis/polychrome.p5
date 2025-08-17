@@ -1,8 +1,14 @@
 <template>
-  <div>
-    <slot />
-  </div>
+  <UApp>
+    <div>
+      <slot />
+      <UToast />
+    </div>
+  </UApp>
 </template>
+
+<script setup>
+</script>
 
 <style>
 html {
