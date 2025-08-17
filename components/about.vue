@@ -13,14 +13,8 @@
 
 </template>
 
-<script>
-export default {
-  computed: {
-    appVersion() {
-      return process.env.appVersion
-    }
-  }
-}
+<script setup>
+const { public: { appVersion } } = useRuntimeConfig()
 </script>
 
 <style scoped>

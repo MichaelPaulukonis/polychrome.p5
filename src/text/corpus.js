@@ -1,4 +1,4 @@
-const texts = [
+export const texts = [
   `when in spite of the general association of daisies with st margaret mrs lilies.
 this are they without use and it is rather honeysuckle.
 this a continuous employment involves the element of time and &c.
@@ -29,16 +29,17 @@ and.
 also old name for the plant was patience the bitter patience doors.
 according need scarcely say that the parts of the plant _o.
 2 _pucelle._ by fair persuasion mix’d educational.`,
-  `What clashes here of wills gen wonts, oystrygods gaggin fishy-
+
+`What clashes here of wills gen wonts, oystrygods gaggin fishy-
 gods! Brékkek Kékkek Kékkek Kékkek! Kóax Kóax Kóax! Ualu
 Ualu Ualu! Quaouauh! Where the Baddelaries partisans are still
 out to mathmaster Malachus Micgranes and the Verdons cata-
-pelting the camibalistics out of the Whoyteboyce of Hoodie 
+pelting the camibalistics out of the Whoyteboyce of Hoodie
 Head. Assiegates and boomeringstroms. Sod's brood, be me fear!
 Sanglorians, save! Arms apeal with larms, appalling. Killykill-
-killy: a toll, a toll. What chance cuddleys, what cashels aired 
+killy: a toll, a toll. What chance cuddleys, what cashels aired
 and ventilated! What bidimetoloves sinduced by what tegotetab-
-solvers! What true feeling for their's hayair with what strawng 
+solvers! What true feeling for their's hayair with what strawng
 voice of false jiccup! O here here how hoth sprowled met the
 duskt the father of fornicationists but, (O my shining stars and
 body!) how hath fanespanned most high heaven the skysign of
@@ -49,7 +50,7 @@ pharce for the nunce come to a setdown secular phoenish.
 Bygmester Finnegan, of the Stuttering Hand, freemen's mau-
 rer, lived in the broadest way immarginable in his rushlit toofar-
 back for messuages before joshuan judges had given us numbers
-or Helviticus committed deuteronomy (one yeastyday he sternely 
+or Helviticus committed deuteronomy (one yeastyday he sternely
 struxk his tete in a tub for to watsch the future of his fates but ere
 he swiftly stook it out again, by the might of moses, the very wat-
 er was eviparated and all the guenneses had met their exodus so
@@ -63,12 +64,13 @@ grasp and ivoroiled overalls which he habitacularly fondseed, like
 Haroun Childeric Eggeberth he would caligulate by multiplicab-
 les the alltitude and malltitude until he seesaw by neatlight of the
 liquor wheretwin 'twas born, his roundhead staple of other days
-to rise in undress maisonry upstanded (joygrantit!), a waalworth 
-of a skyerscape of most eyeful hoyth entowerly, erigenating from 
+to rise in undress maisonry upstanded (joygrantit!), a waalworth
+of a skyerscape of most eyeful hoyth entowerly, erigenating from
 next to nothing and celescalating the himals and all, hierarchitec-
 titiptitoploftical, with a burning bush abob off its baubletop and
 with larrons o'toolers clittering up and tombles a'buckets clotter-
 ing down.`,
+
   `I have eaten
 the plums
 that were in

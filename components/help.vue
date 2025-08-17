@@ -9,7 +9,7 @@ div#helpbox
 
 </template>
 
-<script>
+<script setup>
 const keymap = [
   {
     keys: ['t'],
@@ -136,12 +136,6 @@ const keymap = [
     note: 'Macro: bigCircleLowerRightCenter'
   }
 ]
-
-export default {
-  data () {
-    return { keymap }
-  }
-}
 </script>
 
 <style scoped>

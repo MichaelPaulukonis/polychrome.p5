@@ -1,16 +1,10 @@
 <template lang="pug">
 #playback
-  //- atom-spinner(
-  //-   v-show="playing",
-  //-   :animation-duration="1000",
-  //-   :size="60",
-  //-   :color="'#ff1d5e'"
-  //- )
 
   textarea#script(placeholder="[script goes here]", v-model="editableScript")
 
   #buttons
-    button(@click="playback") {{ playing ?  'playing' : 'Playback' }}
+    button(@click="doPlayback") {{ playing ?  'playing' : 'Playback' }}
     button(@click="output") Output script
     button(@click="keep") Keep script
     button(@click="clearCanvas") Clear Canvas
@@ -23,109 +17,102 @@
     p {{ errorMessage }}
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
 import { playback } from '@/src/scripting/playback'
-// import recording from '@/assets/scripts/rotate.circle.js'
-import recording from '@/assets/scripts/repeat.js'
+import { script as recordingScript } from '@/assets/scripts/repeat.js'
 
-import { AtomSpinner } from 'epic-spinners'
+const props = defineProps({
+  pchrome: {
+    type: Object,
+    default: () => ({})
+  },
+  script: {
+    type: Array,
+    default: () => ([])
+  },
+  originalCapturing: {
+    type: Boolean,
+    default: false
+  }
+})
 
-export default {
-  props: {
-    pchrome: {
-      type: Object,
-      default () {
-        return {}
-      }
-    },
-    script: {
-      type: Array,
-      default () {
-        return []
-      }
-    },
-    originalCapturing: {
-      type: Boolean,
-      default () {
-        return false
-      }
-    }
-  },
-  data () {
-    return {
-      defaultScript: recording.script,
-      editableScript: '',
-      errorMessage: '',
-      capturing: false,
-      playing: false
-    }
-  },
-  components: {
-    AtomSpinner
-  },
-  mounted () {
-    this.pchrome.stop()
-    this.editableScript = this.stringify(this.script)
-    this.capturing = this.originalCapturing
-  },
-  unmounted () {
-    // reset pchrome
-    this.pchrome.start()
-  },
-  methods: {
-    output () {
-      const pScript = this.pchrome.output()
-      this.editableScript = this.stringify(pScript)
-    },
-    playback () {
-      try {
-        this.playing = true
-        // if button for record, switch here
-        this.pchrome.playback = playback({ script: this.jsonify(), pct: this.pchrome })
-        this.pchrome.start(this.pchrome.APP_MODES.PLAYBACK)
-        // ah, but when done.... in unmounted ???
-      } catch (err) {
-        this.pchrome.stop()
-        this.errorMessage = err
-      } finally {
-        this.playing = false
-      }
-    },
-    keep () {
-      this.$emit('scriptUpdated', this.jsonify())
-    },
-    stringify (lines) {
-      return lines.map(JSON.stringify).join('\n')
-    },
-    jsonify () {
-      try {
-        const stringyArray = this.editableScript.split('\n').filter(l => l.trim().length > 0).map(JSON.parse)
-        return stringyArray
-      } catch (err) {
-        this.errorMessage = err
-        return []
-      }
-    },
-    clearMessages () {
-      this.errorMessage = ''
-    },
-    clearCanvas () {
-      this.pchrome.clearCanvas({ layers: this.pchrome.layers, params: this.pchrome.params })
-    },
-    clearScripts () {
-      this.pchrome.clearRecording()
-      this.editableScript = ''
-      this.$emit('scriptUpdated', this.jsonify([]))
-    },
-    loadRecording () {
-      this.editableScript = this.stringify(this.defaultScript)
-    },
-    saveFrames () {
-      this.capturing = !this.capturing
-      this.$emit('capturing', this.capturing)
-    }
+const emit = defineEmits(['scriptUpdated', 'capturing'])
+
+const defaultScript = recordingScript
+const editableScript = ref('')
+const errorMessage = ref('')
+const capturing = ref(false)
+const playing = ref(false)
+
+const output = () => {
+  const pScript = props.pchrome.output()
+  editableScript.value = stringify(pScript)
+}
+
+const doPlayback = () => {
+  try {
+    playing.value = true
+    props.pchrome.playback = playback({ script: jsonify(), pct: props.pchrome })
+    props.pchrome.start(props.pchrome.APP_MODES.PLAYBACK)
+  } catch (err) {
+    props.pchrome.stop()
+    errorMessage.value = err
+  } finally {
+    playing.value = false
   }
 }
+
+const keep = () => {
+  emit('scriptUpdated', jsonify())
+}
+
+const stringify = (lines) => {
+  return lines.map(JSON.stringify).join('\n')
+}
+
+const jsonify = () => {
+  try {
+    const stringyArray = editableScript.value.split('\n').filter(l => l.trim().length > 0).map(JSON.parse)
+    return stringyArray
+  } catch (err) {
+    errorMessage.value = err
+    return []
+  }
+}
+
+const clearMessages = () => {
+  errorMessage.value = ''
+}
+
+const clearCanvas = () => {
+  props.pchrome.clearCanvas({ layers: props.pchrome.layers, params: props.pchrome.params })
+}
+
+const clearScripts = () => {
+  props.pchrome.clearRecording()
+  editableScript.value = ''
+  emit('scriptUpdated', jsonify([]))
+}
+
+const loadRecording = () => {
+  editableScript.value = stringify(defaultScript)
+}
+
+const saveFrames = () => {
+  capturing.value = !capturing.value
+  emit('capturing', capturing.value)
+}
+
+onMounted(() => {
+  props.pchrome.stop()
+  editableScript.value = stringify(props.script)
+  capturing.value = props.originalCapturing
+})
+
+onUnmounted(() => {
+  props.pchrome.start()
+})
 </script>
 
 <style scoped>

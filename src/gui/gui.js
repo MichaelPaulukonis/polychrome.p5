@@ -6,11 +6,7 @@ import {
 } from '~/src/params'
 import { lerpList } from '~/src/gui/lerplist'
 import { hexStringToColors } from '~/src/gui/gui.color.control'
-
-const setFocus = (title) => {
-  console.log(JSON.stringify(title))
-  window.setFocus() /* eslint-disable-line no-undef */
-}
+import { useNuxtApp } from '#app'
 
 const createElement = (type, id, className) => {
   const element = document.createElement(type)
@@ -140,7 +136,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams, handleResize 
     .bindRange('rotation', -180, 180, params.rotation, 0.01, params)
     .bindBoolean('cumulativeRotation', params.cumulativeRotation, params)
     .bindDropDown('nextCharMode', params.nextCharModes, params)
-    .setGlobalChangeHandler(setFocus)
+    .setGlobalChangeHandler(() => useNuxtApp().$setFocus())
   fontGui.collapse()
 
   const shadowGui = QuickSettings.create(p5.windowWidth - 220, 100, 'Shadow', pDoc)
@@ -149,7 +145,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams, handleResize 
     .bindRange('shadowOffsetY', 0, 100, params.shadowOffsetY, 1, params)
     .bindRange('shadowBlur', 0, 100, params.shadowBlur, 1, params)
     .bindColor('shadowColor', params.shadowColor, params)
-    .setGlobalChangeHandler(setFocus)
+    .setGlobalChangeHandler(() => useNuxtApp().$setFocus())
   shadowGui.collapse()
 
   const getLerpNames = panel => Object.keys(panel._controls).filter(x => x.startsWith('lq'))
@@ -182,7 +178,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams, handleResize 
     .addButton('shift', shiftFillColors)
     .addButton('addColor', () => addColor({ panel: fillGui, lerps: fillParams.lerps, prefix: 'lq', params: fillParams }))
     .addButton('removeColor', () => removeColor({ panel: fillGui, prefix: 'lq', params: fillParams }))
-    .setGlobalChangeHandler(setFocus)
+    .setGlobalChangeHandler(() => useNuxtApp().$setFocus())
   addMultiColor({ gui: fillGui, prefix: 'lq', params: fillParams })
   fillGui.collapse()
 
@@ -199,7 +195,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams, handleResize 
     .addButton('shift', shiftOutlineColors)
     .addButton('addColor', () => addColor({ panel: outlineGui, lerps: outlineParams.lerps, prefix: 'lq', params: outlineParams }))
     .addButton('removeColor', () => removeColor({ panel: outlineGui, prefix: 'lq', params: outlineParams }))
-    .setGlobalChangeHandler(setFocus)
+    .setGlobalChangeHandler(() => useNuxtApp().$setFocus())
   addMultiColor({ gui: outlineGui, prefix: 'lq', params: outlineParams })
   outlineGui.collapse()
 
@@ -307,7 +303,7 @@ const setupGui = ({ p5, sketch, params, fillParams, outlineParams, handleResize 
     .addElement('preset', select)
     .addButton('update', update)
     .addButton('new', saveNew)
-    .setGlobalChangeHandler(setFocus)
+    .setGlobalChangeHandler(() => useNuxtApp().$setFocus())
   rememberPanel.collapse()
 
   if (presetNames[0]) {

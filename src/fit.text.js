@@ -1,5 +1,5 @@
 // from http://jsfiddle.net/ho9thkvo/2/
-const fitTextOnCanvas = (text, fontface, fitwidth, layer) => {
+export const fitTextOnCanvas = (text, fontface, fitwidth, layer) => {
   const size = measureTextBinaryMethod(text, fontface, 0, fitwidth, fitwidth, layer)
   return size
 }
@@ -19,5 +19,3 @@ const measureTextBinaryMethod = (txt, fontface, min, max, desiredWidth, layer) =
   }
   return found
 }
-
-module.exports = { fitTextOnCanvas }

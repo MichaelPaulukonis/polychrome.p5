@@ -46,13 +46,14 @@ export default defineNuxtConfig({
   ** Nuxt.js modules
   */
   modules: [
-    'nuxt-webfontloader'
+    '@nuxt/ui',
+    '@nuxt/fonts'
   ],
 
-  webfontloader: {
-    custom: {
-      families: ['Graphik', 'Tiempos Headline'],
-      urls: [`${routerBase}/fonts/fonts.css`]
-    }
+  fonts: {
+    families: [
+      { name: 'Graphik', src: `${routerBase}/fonts/fonts.css` },
+      { name: 'Tiempos Headline', src: `${routerBase}/fonts/fonts.css` }
+    ]
   },
 })

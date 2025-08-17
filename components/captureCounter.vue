@@ -2,16 +2,11 @@
 #counter {{ count }} / {{ total }}
 </template>
 
-<script>
-
-export default {
-  props: {
-    total: 0,
-    count: 0
-  },
-  methods: {
-  }
-}
+<script setup>
+defineProps({
+  total: Number,
+  count: Number
+})
 </script>
 
 <style lang="scss" scoped>

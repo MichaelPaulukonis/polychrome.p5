@@ -13,7 +13,7 @@ import { createDrawingModes } from '@/src/drawing-modes'
 import { apx, pushpop } from '@/src/utils'
 import { calculateZoneRect, isMouseInZone, centerZone, setZoneX, setZoneY } from '@/src/zone/zone-manipulation'
 
-const fonts = require.context('@/assets/fonts', false, /\.ttf$/)
+import imgMaskPath from '~/assets/9-96398_http-landrich-black-gradient-border-transparent.png'
 
 let namer = null
 
@@ -22,7 +22,6 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
   const pct = {}
 
   const density = 2
-  // scaleFactor is now always sourced from layers.scaleFactor
 
   let layers
   let colorSystem
@@ -34,16 +33,9 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
   let zoneStartPos = null
   let isDraggingZone = false
 
-  const fontList = {}
-
-  const loadedFonts = fonts.keys().map(f => f.replace(/\.\/(.*?)\.ttf/, '$1'))
-
   let imgMask
   p5.preload = () => {
-    loadedFonts.forEach((font) => {
-      fontList[font] = p5.loadFont(require(`@/assets/fonts/${font}.ttf`))
-    })
-    imgMask = p5.loadImage(require('~/assets/9-96398_http-landrich-black-gradient-border-transparent.png'))
+    imgMask = p5.loadImage(imgMaskPath)
   }
 
   const invertMask = () => {
@@ -65,15 +57,10 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     invertMask()
     p5.pixelDensity(density)
 
-    // scaling is now handled by Layers; do not set scaleFactor here
-
     const { shiftFillColors, shiftOutlineColors } = setupGui({ p5, sketch: pct, params, fillParams: params.fill, outlineParams: params.outline, handleResize })
     pct.shiftFillColors = shiftFillColors
     pct.shiftOutlineColors = shiftOutlineColors
 
-    // Use Layers to determine display size and scaling
-    // The actual canvas is created in Layers
-    // p5.createCanvas is still needed for the main display
     p5.createCanvas(params.width, params.height)
 
     pct.layers = layers = new Layers(p5, params, setFont)
@@ -85,7 +72,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
       recordAction,
       globals,
       renderLayers,
-      get appMode() { return pct.appMode },
+      appMode: pct.appMode.
       APP_MODES
     })
 
@@ -151,7 +138,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
   }
 
   const standardDraw = ({ x, y, override, params } = { x: p5.mouseX, y: p5.mouseY, override: false, params: pct.params }) => {
-    if (globals.isDefiningZone || isDraggingZone) return // Do not paint while defining or dragging a zone
+    if (globals.isDefiningZone || isDraggingZone) return
 
     if (override || (p5.mouseIsPressed && mouseInCanvas())) {
       recordConfig(params, pct.appMode !== APP_MODES.STANDARD_DRAW)
@@ -322,7 +309,6 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     }
   }
 
-  // NOTE: these are different "actions" that what are recorded or played-back
   const actions = setupActions(pct)
 
   const autoDraw = (minX, minY, maxX, maxY) => {
@@ -342,15 +328,12 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     globals.updatedCanvas = true
   }
 
-  // move to layers class ???
   const renderLayers = ({ layers }) => {
     renderTarget({ layers })
   }
 
-  // move to layers class
   const renderTarget = ({ layers }) => {
     layers.p5.image(layers.drawingCanvas, 0, 0)
-    // layers.drawingCanvas.clear()
   }
 
   const clearCanvas = ({ layers, params }) => {
@@ -358,19 +341,12 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     layers.resize(params.width, params.height)
     layers.clear(params.fill.color)
     layers.initializeColorMode(layers.drawingCanvas, params)
-    // undo.clear()
-    // undo.takeSnapshot()
   }
 
-  // move to layers class ???
-  // maybe not - this is only about drawing
-  // ugh, but it is called from initDrawingLayer SIGH
   const setFont = (font, layer = layers.drawingCanvas) => {
-    const tf = (loadedFonts.includes(font)) ? fontList[font] : font
-    layer.textFont(tf)
+    layer.textFont(font) // Use the font directly for now
   }
 
-  // s/b taking in a layer not assuming a layer
   const paint = (xPos, yPos, params, layer = layers.drawingCanvas, width = params.width, height = params.height) => {
     setFont(params.font, layer)
 
@@ -441,7 +417,6 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     layer.resetMatrix()
   }
 
-  // why redefine the util functions each time???
   pct.save_sketch = () => {
     const getDateFormatted = () => {
       const d = new Date()
@@ -456,13 +431,11 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
     p5.save(layers.drawingCanvas, `${params.name}.${getDateFormatted()}.png`)
   }
 
-  // TODO: move into a util object
   const coinflip = () => pct.p5.random() > 0.5
 
   const randomLayer = (cfg = {}) => {
-    const buff = pct.p5.random(pct.undo.history())
+    const buff = pct.undo.history()[pct.p5.floor(pct.p5.random(pct.undo.history().length))]
     layers.drawingCanvas.push()
-    // layers.drawingCanvas.push()
 
     try {
       layers.drawingCanvas.resetMatrix()
@@ -478,8 +451,6 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
       const radians = cfg.radians || pct.p5.random(360)
       if (rotateP) { layers.drawingCanvas.rotate(pct.p5.radians(radians)) }
 
-      // HSB mode is 0..1,
-      // TODO: check the mode and set appropriately
       const alpha = cfg.alpha || pct.p5.random(1)
 
       let w = buff.width * pctSize;
@@ -599,7 +570,7 @@ export default function Sketch({ p5Instance: p5, guiControl, textManager, setupC
   globals.isDefiningZone = false // Mode for dragging to create a zone
   globals.isZoneActive = false // Mode for confining painting to the zone
 
-  pct.skewCollection = [] // TODO: this is interesting, a stub I had forgotten about
+  pct.skewCollection = []
   pct.savit = savit
   pct.textManager = textManager
 

@@ -1,5 +1,4 @@
 // based on https://github.com/razagill/tumblr-random-posts
-import axios from 'axios'
 import cheerio from 'cheerio'
 const postCount = 20
 
@@ -18,17 +17,19 @@ const tumblrRandomPost = () => {
   }
   return new Promise((resolve, reject) => {
     const apiUrl = 'https://api.tumblr.com/v2/blog/' + settings.blogName + '/posts?api_key=' + settings.appKey
-    axios.get(apiUrl)
+    fetch(apiUrl)
+      .then(res => res.json())
       .then((response) => {
-        const rndPost = Math.floor(Math.random() * response.data.response.total_posts)
+        const rndPost = Math.floor(Math.random() * response.response.total_posts)
         return rndPost
       }, (err) => {
         reject(err)
       })
       .then(postId =>
-        axios.get(apiUrl + `&offset=${postId}&limit=${postCount}`) // maybe get a bunch of stuff?
+        fetch(apiUrl + `&offset=${postId}&limit=${postCount}`)
+          .then(res => res.json())
           .then((response) => {
-            const newCorpus = response.data.response.posts.map((post) => {
+            const newCorpus = response.response.posts.map((post) => {
               const body = cheerio.load(post.body)
               // also post.url, post.title
               return cleanup(body.text())
