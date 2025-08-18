@@ -3,16 +3,21 @@
   #title polychrome text
 
   ClientOnly
-    HelpModal(ref="helpModal")
+    HelpModal(ref="helpModal" @close="pchrome.start()")
 
-  AboutModal(ref="aboutModal")
+  AboutModal(ref="aboutModal" @close="pchrome.start()")
 
   ClientOnly
-    PlaybackModal(ref="playbackModal" :pchrome="pchrome" :script="script" @scriptUpdated="script = $event")
+    PlaybackModal(ref="playbackModal" :pchrome="pchrome" :script="script" @scriptUpdated="script = $event" @close="pchrome.start()")
+
+  ClientOnly
+    TextManagerModal(ref="textManagerModal" :textManager="textManager" :corpus="corpus" :currentText="currentText" @textUpdated="currentText = $event" @close="pchrome.start()")
 
   button(@click="openHelpModal") help
   button(@click="openAboutModal") About
   button(@click="openPlaybackModal") Playback
+  button(@click="openTextManagerModal") Text Manager
+  button(@click="useNuxtApp().$setFocus()") Focus on Canvas
   Counter(
     v-if="pchrome?.params?.capturing"
     :count="pchrome.params.globals.captureCount"
@@ -32,6 +37,7 @@ import P5 from 'p5'
 import HelpModal from '@/components/HelpModal.vue'
 import AboutModal from '@/components/AboutModal.vue'
 import PlaybackModal from '@/components/PlaybackModal.vue'
+import TextManagerModal from '@/components/TextManagerModal.vue'
 import Counter from '@/components/captureCounter.vue'
 
 import TextManager from '@/src/text/TextManager'
@@ -51,20 +57,29 @@ const textManager = ref({})
 const helpModal = ref(null)
 const aboutModal = ref(null)
 const playbackModal = ref(null)
+const textManagerModal = ref(null)
 const isPchromeInitialized = ref(false)
 
 const corpus = ref(texts)
 
 const openHelpModal = () => {
+  pchrome.value.stop()
   helpModal.value.isOpen = true
 }
 
 const openAboutModal = () => {
+  pchrome.value.stop()
   aboutModal.value.isOpen = true
 }
 
 const openPlaybackModal = () => {
+  pchrome.value.stop()
   playbackModal.value.isOpen = true
+}
+
+const openTextManagerModal = () => {
+  pchrome.value.stop()
+  textManagerModal.value.isOpen = true
 }
 
 const randomText = () => {

@@ -5,6 +5,7 @@ import { version } from './package.json'
 const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? '/polychrome.p5/' : ''
 
 export default defineNuxtConfig({
+  compatibilityDate: '2025-08-17',
   ssr: false,
   runtimeConfig: {
     public: {
@@ -46,15 +47,11 @@ export default defineNuxtConfig({
   ** Nuxt.js modules
   */
   modules: [
-    '@nuxt/ui',
-    '@nuxt/fonts',
-    '@nuxtjs/tailwindcss'
+    '@nuxt/fonts'
   ],
   build: {
     postcss: {
       plugins: {
-        '@tailwindcss/postcss': {},
-        autoprefixer: {},
       },
     },
   },
@@ -64,4 +61,6 @@ export default defineNuxtConfig({
       { name: 'Tiempos Headline', src: `${routerBase}/fonts/fonts.css` }
     ]
   },
+
+  postcss: {}
 })

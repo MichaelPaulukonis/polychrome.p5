@@ -28,7 +28,7 @@ import { playback } from '@/src/scripting/playback'
 // import recording from '@/assets/scripts/rotate.circle.js'
 import recording from '@/assets/scripts/repeat.js'
 
-import { AtomSpinner } from 'epic-spinners'
+// import { AtomSpinner } from 'epic-spinners'
 
 export default {
   props: {
@@ -61,7 +61,7 @@ export default {
     }
   },
   components: {
-    AtomSpinner
+    // AtomSpinner
   },
   mounted () {
     this.pchrome.stop()
