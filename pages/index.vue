@@ -165,6 +165,7 @@ onMounted(() => {
   background: linear-gradient(90deg, #f0f, #ff0);
   line-height: 1.5em;
   font-weight: 600;
+  font-family: "Graphik";
   width: 25vw;
   letter-spacing: 0.1em;
   margin-bottom: 1em;

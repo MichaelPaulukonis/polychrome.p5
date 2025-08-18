@@ -35,7 +35,8 @@ export default defineNuxtConfig({
   */
   css: [
     '@/assets/css/main.scss',
-    '@/assets/css/core.css'
+    '@/assets/css/core.css',
+    '@/assets/css/graphik.css'
   ],
   /*
   ** Plugins to load before mounting the App
@@ -47,20 +48,14 @@ export default defineNuxtConfig({
   ** Nuxt.js modules
   */
   modules: [
-    '@nuxt/fonts'
+    '@nuxt/fonts',
+    '~/modules/font-loader'
   ],
-  build: {
-    postcss: {
-      plugins: {
-      },
-    },
-  },
+  postcss: {},
+
   fonts: {
     families: [
-      { name: 'Graphik', src: `${routerBase}/fonts/fonts.css` },
-      { name: 'Tiempos Headline', src: `${routerBase}/fonts/fonts.css` }
+      { name: 'Tiempos Headline', src: '/fonts/Tiempos-Headline-Semibold.woff2', weight: '400' }
     ]
-  },
-
-  postcss: {}
+  }
 })

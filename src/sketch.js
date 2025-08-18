@@ -15,7 +15,11 @@ import { calculateZoneRect, isMouseInZone, centerZone, setZoneX, setZoneY } from
 
 import imgMaskPath from '~/assets/9-96398_http-landrich-black-gradient-border-transparent.png'
 
+import { fontNames } from 'virtual:font-names'
+
 let namer = null
+
+const fontList = {}
 
 export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback }) {
   const params = allParams
@@ -35,6 +39,9 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
 
   let imgMask
   p5.preload = () => {
+    fontNames.forEach((fontName) => {
+      fontList[fontName] = p5.loadFont(`/fonts/fonts/${fontName}.ttf`)
+    })
     imgMask = p5.loadImage(imgMaskPath)
   }
 
@@ -344,7 +351,8 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   }
 
   const setFont = (font, layer = layers.drawingCanvas) => {
-    layer.textFont(font) // Use the font directly for now
+    const tf = fontList[font] || font
+    layer.textFont(tf)
   }
 
   const paint = (xPos, yPos, params, layer = layers.drawingCanvas, width = params.width, height = params.height) => {
