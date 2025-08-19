@@ -44,6 +44,7 @@ build
 
 # Nuxt generate
 dist
+.output/
 
 # IDE / Editor
 .idea
@@ -90,4 +91,4 @@ node_modules/
 
 # Task files
 # tasks.json
-# tasks/ 
+# tasks/

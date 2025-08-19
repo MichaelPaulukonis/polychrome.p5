@@ -17,6 +17,7 @@
     "bump": "npm version patch",
     "prepublish:specstory": "git add .specstory && git commit -m 'chore(specstory): auto-commit before publish' || true",
     "publish": "npm run prepublish:specstory && npm run bump && DEPLOY_ENV=GH_PAGES npm run generate && npm run deploy",
+    "publish:nobump": "npm run prepublish:specstory && DEPLOY_ENV=GH_PAGES npm run generate && npm run deploy",
     "repomix": "npx repomix --ignore \"src/gui/quicksettings.js,**/*.settings.json,docs/,assets/fonts/\"",
     "lint:fix": "standard --fix",
     "lint": "standard",
