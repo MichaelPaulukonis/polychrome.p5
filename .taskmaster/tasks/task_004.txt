@@ -1,0 +1,17 @@
+# Task ID: 4
+# Title: Update Project Structure and File Organization
+# Status: done
+# Dependencies: 3
+# Priority: medium
+# Description: Reorganize project files to match Nuxt3 directory structure and conventions
+# Details:
+1. Move static/ directory contents to public/
+2. Update assets/ directory structure if needed
+3. Migrate middleware files to new format
+4. Update plugin file structure and registration
+5. Convert store/ to composables/ if using Pinia or composables
+6. Update layouts/ directory structure
+7. Ensure pages/ directory follows new routing conventions
+
+# Test Strategy:
+Verify all static assets load correctly. Test page routing and layout rendering. Confirm middleware execution.

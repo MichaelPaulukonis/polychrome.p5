@@ -85,7 +85,7 @@ Visit the [live demo](https://michaelpaulukonis.github.io/polychrome.p5/) and st
 -   **Mouse Painting**: Click and drag on the canvas to paint with text.
 -   **Keyboard Shortcuts**: An extensive system of hotkeys is available for power users. Hit cmd-S to save and FEEL THE POWER!
 -   **Auto-Paint Mode**: Let the application generate art for you with randomized parameters. If you don't expect a masterpiece you'll happy.
--   **Recording and Playback**: Record, edit, and play back sequences of actions to create animations. Uhm, this needs better documentation. And a rewrite of the code.
+-   **Recording and Playback**: Record, edit, and play back sequences of actions to create animations. This feature is currently under development and will be improved in future versions.
 
 ## Features & Capabilities
 
@@ -103,13 +103,10 @@ Visit the [live demo](https://michaelpaulukonis.github.io/polychrome.p5/) and st
 
 ### Roadmap
 
-I'm still working on this. Here are some of my high-priority goals:
-
-1.  **Nuxt Migration**: Upgrade from Nuxt 2 to Nuxt 3.
-2.  **UI Overhaul**: A comprehensive redesign of the user interface for a more intuitive experience.
-3.  **Layer System**: First class layers to work and blend in different ways.
-
-For a more detailed development roadmap, please see the [Trello board](https://trello.com/b/WdA1q4uV/polychrometext).
+-   **UI Overhaul**: A comprehensive redesign of the user interface for a more intuitive experience.
+-   **Layer System**: First class layers to work and blend in different ways.
+-   **TypeScript Migration**: Continue the migration to TypeScript for better type safety.
+-   **Documentation**: Improve user and developer documentation.
 
 ## Development Setup
 
@@ -148,10 +145,14 @@ The project is organized into the following key directories:
 -   `/.github`: Instructional files for GitHub Copilot assistance.
 -   `/assets`: Images, fonts, and other static assets.
 -   `/components`: Vue components for the user interface.
+-   `/docs`: Project documentation, including plans and analysis.
+-   `/layouts`: Vue layout components.
+-   `/modules`: Custom Nuxt modules.
+-   `/pages`: Vue pages for the application.
+-   `/plugins`: Vue plugins.
 -   `/src`: The core source code for the application, including the p5.js sketch.
--   `/docs`: Project documentation and notes.
--   `/test`: Test files for the application.
--   `/tools`: scripts for animating lots of images
+-   `/test`: Test files for the application, including unit and e2e tests.
+-   `/tools`: Scripts for animating lots of images.
 
 ## Troubleshooting
 
@@ -163,6 +164,6 @@ This project is licensed under the MIT License. See the [LICENSE](https://openso
 
 ## Acknowledgments
 
--   This project was inspired by the desire to Jackson Pollock, Mark Rothko, Allen Ginsberg and Andy Warhol all at the same time.
--   There has been extensive AI documentation, testing, refactoring and some coding. This too shall pass. AI is particularly good at creating a comprehensive suite of front-end tests that don't actually work.
--   Special thanks to the creators of p5.js, Nuxt.js, Quicksettings and others for their amazing tools.
+-   This project was inspired by the work of Jackson Pollock, Mark Rothko, Allen Ginsberg and Andy Warhol.
+-   This project makes use of several open-source libraries, including p5.js, Nuxt.js, and Quicksettings.
+-   AI has been used for documentation, testing, refactoring and some coding.

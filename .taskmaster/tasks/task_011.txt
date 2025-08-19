@@ -1,0 +1,97 @@
+# Task ID: 11
+# Title: Review documentation for updates
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Review all documentation files (not plans) to see if updates are needed after the Nuxt 3 migration and other recent changes.
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Update version badge in README.md [pending]
+### Dependencies: None
+### Description: Update the version badge in README.md to reflect the current version from package.json.
+### Details:
+
+
+## 2. Update screenshot in README.md [pending]
+### Dependencies: None
+### Description: Take a new screenshot of the application and update the README.md file.
+### Details:
+
+
+## 3. Update Usage section in README.md [pending]
+### Dependencies: None
+### Description: Update the \"Recording and Playback\" section in the README.md to reflect the current state of the feature.
+### Details:
+
+
+## 4. Update Roadmap section in README.md [pending]
+### Dependencies: None
+### Description: Update the Roadmap section in the README.md to reflect the current priorities.
+### Details:
+
+
+## 5. Update Project Structure section in README.md [pending]
+### Dependencies: None
+### Description: Update the Project Structure section in the README.md with more detailed descriptions of the directories.
+### Details:
+
+
+## 6. Update Acknowledgments section in README.md [pending]
+### Dependencies: None
+### Description: Update the Acknowledgments section in the README.md to be more professional.
+### Details:
+
+
+## 7. Update Technology Stack section in docs/master.md [pending]
+### Dependencies: None
+### Description: Update the Technology Stack section in docs/master.md to reflect the migration to Nuxt 3.
+### Details:
+
+
+## 9. Update File Structure section in docs/master.md [pending]
+### Dependencies: None
+### Description: Update the File Structure section in docs/master.md to be up-to-date.
+### Details:
+
+
+## 10. Update Setup Instructions section in docs/master.md [pending]
+### Dependencies: None
+### Description: Update the Setup Instructions section in docs/master.md to be up-to-date for Nuxt 3.
+### Details:
+
+
+## 11. Update Development Roadmap section in docs/master.md [pending]
+### Dependencies: None
+### Description: Update the Development Roadmap section in docs/master.md to reflect the current priorities.
+### Details:
+
+
+## 12. Rewrite repository analysis [pending]
+### Dependencies: None
+### Description: Rewrite the repository analysis in docs/repository.analysis.md to reflect the current state of the project.
+### Details:
+
+
+## 13. Update testing overview [pending]
+### Dependencies: None
+### Description: Update the testing overview in docs/test/testing-overview.md to reflect the new framework-agnostic testing strategy.
+### Details:
+
+
+## 14. Update font system documentation [pending]
+### Dependencies: None
+### Description: Review the font loading mechanism and update the documentation in docs/src/fonts.md to be accurate for the new Nuxt 3 build system.
+### Details:
+
+
+## 15. Update text module documentation [pending]
+### Dependencies: None
+### Description: Update the documentation in docs/src/text.md to remove the mention of `axios`.
+### Details:
+
+

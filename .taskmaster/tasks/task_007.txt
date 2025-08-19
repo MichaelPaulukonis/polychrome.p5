@@ -1,0 +1,17 @@
+# Task ID: 7
+# Title: Update Nuxt Context Usage and API Calls
+# Status: done
+# Dependencies: 6
+# Priority: medium
+# Description: Replace Nuxt2 context usage with Nuxt3 composables and update API calling patterns
+# Details:
+1. Replace context.$axios with $fetch or useFetch
+2. Update asyncData and fetch hooks to use new data fetching composables
+3. Replace context.redirect with navigateTo
+4. Update context.error with throw createError
+5. Replace context.$route with useRoute
+6. Update context.$router with useRouter
+7. Convert process.client/server checks to process.client/server or useSSRContext
+
+# Test Strategy:
+Test all API calls in both SSR and client-side contexts. Verify navigation and error handling work correctly.

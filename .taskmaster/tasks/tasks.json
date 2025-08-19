@@ -128,11 +128,160 @@
         ],
         "status": "done",
         "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Review documentation for updates",
+        "description": "Review all documentation files (not plans) to see if updates are needed after the Nuxt 3 migration and other recent changes.",
+        "details": "",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Update version badge in README.md",
+            "description": "Update the version badge in README.md to reflect the current version from package.json.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 2,
+            "title": "Update screenshot in README.md",
+            "description": "Take a new screenshot of the application and update the README.md file.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 3,
+            "title": "Update Usage section in README.md",
+            "description": "Update the \\\"Recording and Playback\\\" section in the README.md to reflect the current state of the feature.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 4,
+            "title": "Update Roadmap section in README.md",
+            "description": "Update the Roadmap section in the README.md to reflect the current priorities.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 5,
+            "title": "Update Project Structure section in README.md",
+            "description": "Update the Project Structure section in the README.md with more detailed descriptions of the directories.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 6,
+            "title": "Update Acknowledgments section in README.md",
+            "description": "Update the Acknowledgments section in the README.md to be more professional.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 7,
+            "title": "Update Technology Stack section in docs/master.md",
+            "description": "Update the Technology Stack section in docs/master.md to reflect the migration to Nuxt 3.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 9,
+            "title": "Update File Structure section in docs/master.md",
+            "description": "Update the File Structure section in docs/master.md to be up-to-date.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 10,
+            "title": "Update Setup Instructions section in docs/master.md",
+            "description": "Update the Setup Instructions section in docs/master.md to be up-to-date for Nuxt 3.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 11,
+            "title": "Update Development Roadmap section in docs/master.md",
+            "description": "Update the Development Roadmap section in docs/master.md to reflect the current priorities.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 12,
+            "title": "Rewrite repository analysis",
+            "description": "Rewrite the repository analysis in docs/repository.analysis.md to reflect the current state of the project.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 13,
+            "title": "Update testing overview",
+            "description": "Update the testing overview in docs/test/testing-overview.md to reflect the new framework-agnostic testing strategy.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 14,
+            "title": "Update font system documentation",
+            "description": "Review the font loading mechanism and update the documentation in docs/src/fonts.md to be accurate for the new Nuxt 3 build system.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          },
+          {
+            "id": 15,
+            "title": "Update text module documentation",
+            "description": "Update the documentation in docs/src/text.md to remove the mention of `axios`.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 11
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Incorporate Gemini analysis into roadmap and tasks",
+        "description": "Incorporate the suggestions from the Gemini code review (docs/src.analysis.gemini.md) into the project roadmap and create new tasks for the suggested improvements.",
+        "details": "",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-08-12T12:47:52.753Z",
-      "updated": "2025-08-19T04:40:24.744Z",
+      "updated": "2025-08-19T20:03:29.211Z",
       "description": "Tasks for master context"
     }
   }

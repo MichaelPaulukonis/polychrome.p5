@@ -8,7 +8,7 @@ PolychromeText is a multi-color text painter that allows the user to "paint with
 ## Technology Stack
 - **p5.js**: Core creative coding library for all visual rendering
 - **JavaScript/ES6+**: Primary programming language
-- **Nuxt 2**: Framework for building the application (with roadmap upgrade to v3)
+- **Nuxt 3**: Framework for building the application
 - **HTML5/CSS3**: Application structure and styling
 - **Local Storage**: For saving user preferences and images
 
@@ -28,18 +28,18 @@ PolychromeText is a multi-color text painter that allows the user to "paint with
 - **Object-Oriented Design**: Encapsulating elements as objects
 
 ### File Structure
-- `/.github`: instructional files for Github Copilot assistance
-- `/assets`: Images, fonts, and other static assets
-- `/components`: Vue components
-- `/dev.utilites`: which are somehow different from tools (not part of deployed app)
-- `/layouts`: layouts
-- `/notes`: project docs and thoughts
-- `/pages`: pages (one)
-- `/plugins`
-- `/src`: Source code
-- `/static`: fonts and favicon
-- `/styles`: CSS styling
-- `/tools`: move images around for animating (not part of deployed app)
+- `/.github`: Instructional files for GitHub Copilot assistance.
+- `/assets`: Images, fonts, and other static assets.
+- `/components`: Vue components for the user interface.
+- `/data`: Application data, including backups and chroma DB.
+- `/dev.utilities`: Development utility scripts (not part of the deployed app).
+- `/layouts`: Vue layout components.
+- `/pages`: Vue pages for the application.
+- `/playwright-report`: Playwright test reports.
+- `/plugins`: Vue plugins.
+- `/src`: The core source code for the application, including the p5.js sketch.
+- `/test`: Test files for the application.
+- `/tools`: Scripts for animating images (not part of the deployed app).
 
 ## Application Modes
 
@@ -137,19 +137,19 @@ Multiple paint modes available:
 
 ## Setup Instructions
 1. **Prerequisites**:
-   - Node.js (latest LTS version)
+   - Node.js (version 20.0.0 or higher)
    - npm or yarn package manager
 
 2. **Installation**:
    ```zsh
-   git clone https://github.com/username/polychrome.p5.git
+   git clone https://github.com/MichaelPaulukonis/polychrome.p5.git
    cd polychrome.p5
    npm install
    ```
 
 3. **Running Locally**:
    ```zsh
-   npm start
+   npm run dev
    ```
    The application will be available at `http://localhost:3000`
 
@@ -173,24 +173,18 @@ Multiple paint modes available:
 
 ## Development Roadmap
 
-Day-to-day work is tracked at [Trello](https://trello.com/b/WdA1q4uV/polychrometext)
-
 ### High Priority
-1. **Nuxt Migration**: Upgrade from Nuxt 2 to Nuxt 3
-   - Currently dependent on vue-js-modal
-2. **Area Targeting**: Paint into user-defined subsection of the canvas
-   - Draw to selected portion of canvas
-3. **UI Overhaul**: Comprehensive interface improvements
-   - Fix color components in UI
-   - Improve on-screen help/documentation
+1. **UI Overhaul**: Comprehensive interface improvements.
+2. **Layer System**: First class layers to work and blend in different ways.
+3. **TypeScript Migration**: Migrate to TypeScript for better type safety.
 
 ### Medium Priority
-4. **TypeScript Migration**: Migrate to TypeScript for better type safety
-5. **DSL Improvements**: A real parser for the DSL / a real DSL
-6. **Testing**: Implement comprehensive test suite
-7. **More Color Algorithms**: Expand color generation capabilities
-8. **p5js upgrade**: move to 2.0
+4. **Area Targeting**: Paint into user-defined subsection of the canvas.
+5. **DSL Improvements**: A real parser for the DSL / a real DSL.
+6. **Testing**: Implement comprehensive test suite.
+7. **More Color Algorithms**: Expand color generation capabilities.
+8. **p5js upgrade**: move to 2.0.
 
 ### Future Considerations
-9. **Framework Exploration**: Look at q5 as potential alternative
-10. **Dependency Cleanup**: cheerio can be removed, see dragline for native example
+9. **Framework Exploration**: Look at q5 as potential alternative.
+10. **Dependency Cleanup**: cheerio can be removed, see dragline for native example.

@@ -6,13 +6,13 @@ This document outlines the comprehensive testing strategy for the PolychromeText
 
 Our testing approach balances the need for creative flexibility with the stability required for a reliable application. The strategy is divided into three layers to ensure comprehensive coverage:
 
-1.  **Unit Tests (Vitest)**: For small, isolated pieces of logic.
-2.  **Integration Tests (Vitest)**: For interactions between modules.
-3.  **End-to-End Tests (Playwright)**: For real-world user scenarios in a browser.
+1.  **Unit Tests**: For small, isolated pieces of logic.
+2.  **Integration Tests**: For interactions between modules.
+3.  **End-to-End Tests**: For real-world user scenarios in a browser.
 
-## 2. Unit & Integration Testing (Vitest)
+## 2. Unit & Integration Testing
 
-We use **Vitest** for its speed, modern ESM support, and compatibility with our Vue 2 + Nuxt 2 environment.
+We utilize a modern JavaScript testing framework for unit and integration tests, chosen for its speed, module support, and compatibility with our Vue 2 + Nuxt 2 environment.
 
 -   **Location**: `test/` (excluding the `e2e` subdirectory)
 -   **Focus**:
@@ -30,13 +30,13 @@ npm test
 # Run in watch mode
 npm run test:watch
 
-# Open the Vitest UI
+# Open the test runner UI
 npm run test:ui
 ```
 
-## 3. End-to-End Testing (Playwright)
+## 3. End-to-End Testing
 
-We use **Playwright** to catch critical runtime issues that unit tests cannot, such as canvas rendering failures, browser-specific bugs, and integration problems between Vue and p5.js.
+We employ a robust browser automation framework for end-to-end tests to catch critical runtime issues that lower-level tests cannot, such as canvas rendering failures, browser-specific bugs, and integration problems between Vue and p5.js.
 
 -   **Location**: `test/e2e/`
 -   **Focus**:

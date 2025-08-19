@@ -1,5 +1,7 @@
 # Nuxt2 to Nuxt3 upgrade
 
+**This plan was completed on 2025-08-19.**
+
 MY MAJOR PROBLEM: vue-js-modal is not (natively) compatible with Nuxt3.
 There are fixes or forks available.
 
