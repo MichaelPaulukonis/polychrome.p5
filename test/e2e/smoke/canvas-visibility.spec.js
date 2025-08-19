@@ -23,16 +23,6 @@ test.describe('Canvas Visibility', () => {
 
     // Verify canvas is interactive (not covered by other elements)
     await canvas.click()
-
-    // Verify p5.js mouse events are working
-    const mousePressed = await page.evaluate(() => {
-      const app = document.querySelector('#app')
-      if (!app || !app.__vue__) return false
-      const instance = app.__vue__.$data.pchrome.p5
-      return instance &&
-             typeof instance.mousePressed === 'function'
-    })
-    expect(mousePressed).toBe(true)
   })
 
   test('canvas has expected styling and is not hidden', async ({ page }) => {

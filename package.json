@@ -77,7 +77,8 @@
     "sass": "^1.71.0",
     "sass-loader": "^12.0.0",
     "standard": "^17.1.2",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@vitejs/plugin-vue": "^6.0.1"
   },
   "standard": {
     "env": {

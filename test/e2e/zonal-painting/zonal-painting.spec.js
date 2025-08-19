@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test'
 import {
   waitForP5Ready,
-  waitForNuxtReady,
   setupConsoleErrorTracking,
   clickGuiButton,
   simulatePaintGesture,
@@ -15,7 +14,6 @@ test.describe('Zonal Painting Feature', () => {
   test.beforeEach(async ({ page }) => {
     consoleErrors = setupConsoleErrorTracking(page)
     await page.goto('/')
-    await waitForNuxtReady(page)
     await waitForP5Ready(page)
     // Expand the Zonal Painting panel
     await expandTargetGuiPanel(page, 'Zonal Painting')

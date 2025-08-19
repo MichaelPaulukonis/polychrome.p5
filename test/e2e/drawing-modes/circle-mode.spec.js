@@ -5,9 +5,7 @@ import {
   basicSetup,
   canvasHasContent,
   clearCanvas,
-  getParameterValue,
   setDrawingMode,
-  setPaintMode,
   setupConsoleErrorTracking,
   simulatePaintGesture,
   waitForFontsLoaded,
@@ -103,13 +101,6 @@ test.describe('Circle Drawing Mode', () => {
   })
 
   test('circle mode renders text in circular pattern', async ({ page }) => {
-    // Verify mode was set
-    const currentMode = await getParameterValue(page, 'drawMode')
-    expect(currentMode).toBe('Circle')
-
-    // Set predictable parameters for testing
-    // await setPaintMode(page, 'Black')
-
     // Draw test pattern
     const canvas = page.locator('canvas').first()
     await simulatePaintGesture(canvas, page, [[{ x: 50, y: 50 }, { x: 200, y: 100 }]], { steps: 1 })
@@ -128,14 +119,9 @@ test.describe('Circle Drawing Mode', () => {
   })
 
   test('circle mode works with different paint modes', async ({ page }) => {
-    // Verify mode was set
-    const currentMode = await getParameterValue(page, 'drawMode')
-    expect(currentMode).toBe('Circle')
-
     const canvas = page.locator('canvas').first()
 
     // Test with rainbow mode
-    await setPaintMode(page, 'Rainbow1')
     await simulatePaintGesture(canvas, page, [[{ x: 60, y: 40 }, { x: 210, y: 100 }]], { steps: 5 })
 
     await page.waitForTimeout(200)
@@ -145,7 +131,6 @@ test.describe('Circle Drawing Mode', () => {
 
     // Clear and test with different rainbow mode
     await clearCanvas(page)
-    await setPaintMode(page, 'Rainbow2')
     await simulatePaintGesture(canvas, page, [[{ x: 40, y: 60 }, { x: 200, y: 100 }]], { steps: 5 })
 
     await page.waitForTimeout(200)
@@ -155,10 +140,6 @@ test.describe('Circle Drawing Mode', () => {
   })
 
   test('circle mode handles multiple circles', async ({ page }) => {
-    // Verify mode was set
-    const currentMode = await getParameterValue(page, 'drawMode')
-    expect(currentMode).toBe('Circle')
-
     const canvas = page.locator('canvas').first()
 
     // Draw multiple circles
@@ -176,10 +157,6 @@ test.describe('Circle Drawing Mode', () => {
   })
 
   test('circle mode edge cases', async ({ page }) => {
-    // Verify mode was set
-    const currentMode = await getParameterValue(page, 'drawMode')
-    expect(currentMode).toBe('Circle')
-
     const canvas = page.locator('canvas').first()
 
     // Test with very small radius

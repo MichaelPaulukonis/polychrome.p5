@@ -7,21 +7,9 @@
  */
 export async function waitForP5Ready(page) {
   await page.waitForFunction(() => {
-    // Check if there's a canvas element (p5 creates this)
-    const canvas = document.querySelector('canvas')
-    if (!canvas) {
-      return false
-    }
-
-    // Check if Vue component is mounted and has pchrome
-    const app = document.querySelector('#app')
-    if (!app || !app.__vue__) {
-      return false
-    }
-
-    // pchrome is in the root Vue component, not a child
-    const rootVue = app.__vue__
-    return rootVue.$data && rootVue.$data.pchrome && rootVue.$data.pchrome.p5
+    const canvas = document.querySelector('canvas#defaultCanvas0')
+    const sketchHolder = document.querySelector('div#sketch-holder')
+    return canvas && sketchHolder && sketchHolder.contains(canvas)
   })
 }
 
@@ -122,21 +110,6 @@ export async function getCanvasPixelData(page, x, y) {
 }
 
 /**
- * Check if p5.js is in a specific drawing mode
- * Accesses PolychromeText's global parameters
- */
-export async function getCurrentDrawingMode(page) {
-  return await page.evaluate(() => {
-    const app = document.querySelector('#app')
-    if (!app || !app.__vue__) {
-      return 'unknown'
-    }
-    const rootVue = app.__vue__
-    return rootVue.$data?.pchrome?.params?.paintMode || 'unknown'
-  })
-}
-
-/**
  * Trigger p5.js keyboard shortcuts
  * Many PolychromeText features are accessed via keyboard
  */
@@ -154,27 +127,6 @@ export async function waitForFontsLoaded(page) {
   await page.waitForFunction(() => {
     return document.fonts.ready
   })
-}
-
-/**
- * Wait for Nuxt client-side hydration
- * Important for Vue/Nuxt apps
- */
-export async function waitForNuxtReady(page) {
-  await page.waitForFunction(() => {
-    return window.$nuxt
-  })
-}
-
-/**
- * Access Vue component data via Nuxt
- * Useful for checking component state
- */
-export async function getVueComponentData(page, selector) {
-  return await page.evaluate((sel) => {
-    const element = document.querySelector(sel)
-    return element?.__vue__?.$data || null
-  }, selector)
 }
 
 /**
@@ -285,41 +237,6 @@ export async function clickGuiButton(page, buttonText) {
   await button.click({ force: true });
   await page.waitForTimeout(100)
 }
-
-/**
- * Get current parameter value
- * @param {Page} page - Playwright page object
- * @param {string} parameter - Parameter name
- * @returns {Promise<any>} Current parameter value
- */
-export async function getParameterValue(page, parameter) {
-  return await page.evaluate((paramName) => {
-    const app = document.querySelector('#app')
-    if (!app || !app.__vue__) {
-      return null
-    }
-    const rootVue = app.__vue__
-    const params = rootVue.$data?.pchrome?.params
-    if (!params) {
-      return null
-    }
-
-    // Handle nested parameters (e.g., 'fill.paintMode')
-    const path = paramName.split('.')
-    let value = params
-    for (const key of path) {
-      value = value?.[key]
-      if (value === undefined) {
-        return null
-      }
-    }
-    return value
-  }, parameter)
-}
-
-
-
-
 
 /**
  * Verify canvas has content (not blank)
@@ -462,4 +379,23 @@ export async function simulatePaintGesture(
   }
 }
 
+export async function getParameterValue(page, parameter) {
+  return await page.evaluate((paramName) => {
+    const labels = Array.from(document.querySelectorAll('.qs_label'));
+    const label = labels.find(l => l.textContent.toLowerCase().includes(paramName.toLowerCase()));
+    if (label) {
+      const container = label.closest('.qs_container');
+      if (container) {
+        const input = container.querySelector('input, select');
+        if (input) {
+          return input.value;
+        }
+      }
+    }
+    return null;
+  }, parameter);
+}
 
+export async function getCurrentDrawingMode(page) {
+  return await getParameterValue(page, 'drawMode');
+}

@@ -11,12 +11,8 @@ test.describe('Simple Load Test', () => {
 
     // Let's see what's actually available in the global scope
     const globals = await page.evaluate(() => {
-      const app = document.querySelector('#app')
-      const p5Instance = app?.__vue__?.$data?.pchrome?.p5
       return {
         hasWindow: typeof window !== 'undefined',
-        hasP5Instance: !!p5Instance,
-        hasNuxt: typeof window.$nuxt !== 'undefined',
         hasP5: typeof window.p5 !== 'undefined',
         canvasCount: document.querySelectorAll('canvas').length,
         title: document.title,
@@ -31,6 +27,6 @@ test.describe('Simple Load Test', () => {
     // Basic assertions
     expect(globals.hasWindow).toBe(true)
     expect(globals.title).toBeTruthy()
-    expect(globals.hasP5Instance).toBe(true)
+    expect(globals.canvasCount).toBeGreaterThan(0)
   })
 })
