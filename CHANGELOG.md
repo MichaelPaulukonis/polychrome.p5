@@ -8,6 +8,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [1.5.1] - 2025-08-19
+
+### Fixed
+- Correct font loading paths for GitHub Pages deployment.
+
+### Changed
+- Updated script and .gitignore.
+
+## [1.5.0] - 2025-08-19
+
+### Added
+- Initial migration from Nuxt 2 to Nuxt 3.
+- Migrated modals to Nuxt 3 and improved functionality.
+- Made E2E tests framework-agnostic.
+
+### Fixed
+- Resolved font loading issues for UI and canvas.
+
+### Changed
+- Updated dependencies for Nuxt 3 migration.
+- Migrated nuxt.config.js to nuxt.config.ts for Nuxt 3.
+- Updated documentation to reflect Nuxt 3 migration and project state.
+
+## [1.4.1] - 2025-08-05
+
+### Changed
+- AI-generated readme with some choice edits; ffmpeg notes moved to the tools folder.
+- Documented quicksettings changes from original, updated gemini instructions for messages and changelog.
+- Dependency updates (pbkdf2, on-headers, compression).
+- Docs: notes on gui in the future.
+
+## [1.4.0] - 2025-08-05
+
+### Added
+- Refactored zone manipulation, updated e2e tests, and added repomix script.
+- Added unit tests for zone manipulation.
+- Implemented zone dragging, moving, and centering; updated docs and tests.
+- Implemented non-destructive zonal painting and transforms.
+- Added E2E tests for zonal painting feature.
+- Added e2e zonal-painting-plan, added new plans/roadmap folder.
+
+### Fixed
+- Fixed transparency for HSB and Graphics object in `randomLayer`.
+- Fixed 2 bugs in draw modes (next/prev and redundant OSD paint op).
+- Adjusted layout of introductory paragraphs and h3 in help.vue.
+- Updated help.vue with accurate keybindings.
+- Unified scaleFactor usage and ensured correct zone coordinate scaling.
+- Random preset load now honors bg color and canvas size.
+- Resolved painting offset and color issues in zonal painting.
+
+### Changed
+- Consolidated commit instructions and added shell safety guidelines.
+- Removed pointless .gitignore entry, added some new ones.
+
+## [1.3.0] - 2025-08-02
+
+### Added
+- Implemented off-screen rendering for high-resolution output.
+- Show app version in About panel; fixed favicon path for subfolder deploy.
+
+### Changed
+- Completed documentation review and update.
+- Updated drawing-mode-refactor plan with done and todo items.
+- Moved e2e plans to dedicated sub-folder.
+
 ## [1.2.0] - 2025-07-23
 
 ### Changed
