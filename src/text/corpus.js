@@ -105,4 +105,4 @@ TRENTINO With Mrs. Teasdale as my wife and Freedonia under my control -(He rubs 
 
 ]
 
-module.exports = texts
+export default texts

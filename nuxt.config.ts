@@ -13,7 +13,7 @@ export default defineNuxtConfig({
     }
   },
   app: {
-    baseURL: routerBase,
+    baseURL: process.env.NUXT_APP_BASE_URL || routerBase,
     head: {
       title: process.env.npm_package_name || '',
       meta: [

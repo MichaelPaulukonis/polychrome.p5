@@ -1,5 +1,5 @@
 // based on https://github.com/razagill/tumblr-random-posts
-import cheerio from 'cheerio'
+import { $fetch } from 'ofetch' // Added import
 const postCount = 20
 
 const cleanup = text => text
@@ -17,8 +17,8 @@ const tumblrRandomPost = () => {
   }
   return new Promise((resolve, reject) => {
     const apiUrl = 'https://api.tumblr.com/v2/blog/' + settings.blogName + '/posts?api_key=' + settings.appKey
-    fetch(apiUrl)
-      .then(res => res.json())
+    $fetch(apiUrl) // Changed fetch to $fetch
+      .then(res => res) // $fetch automatically parses JSON, so no need for .json()
       .then((response) => {
         const rndPost = Math.floor(Math.random() * response.response.total_posts)
         return rndPost
@@ -26,13 +26,15 @@ const tumblrRandomPost = () => {
         reject(err)
       })
       .then(postId =>
-        fetch(apiUrl + `&offset=${postId}&limit=${postCount}`)
-          .then(res => res.json())
+        $fetch(apiUrl + `&offset=${postId}&limit=${postCount}`) // Changed fetch to $fetch
+          .then(res => res) // $fetch automatically parses JSON
           .then((response) => {
             const newCorpus = response.response.posts.map((post) => {
-              const body = cheerio.load(post.body)
+              const parser = new DOMParser()
+              const doc = parser.parseFromString(post.body, 'text/html')
+              const body = doc.body
               // also post.url, post.title
-              return cleanup(body.text())
+              return cleanup(body.textContent)
             })
             resolve(newCorpus)
           }))
