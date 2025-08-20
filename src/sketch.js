@@ -21,7 +21,7 @@ let namer = null
 
 const fontList = {}
 
-export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback }) {
+export default function Sketch ({ p5Instance: p5, guiControl, textManager, setupCallback, baseURL }) {
   const params = allParams
   const pct = {}
 
@@ -40,7 +40,7 @@ export default function Sketch ({ p5Instance: p5, guiControl, textManager, setup
   let imgMask
   p5.preload = () => {
     fontNames.forEach((fontName) => {
-      fontList[fontName] = p5.loadFont(`/fonts/fonts/${fontName}.ttf`)
+      fontList[fontName] = p5.loadFont(`${baseURL}fonts/fonts/${fontName}.ttf`)
     })
     imgMask = p5.loadImage(imgMaskPath)
   }

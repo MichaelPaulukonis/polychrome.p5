@@ -47,6 +47,7 @@ import { texts } from '@/src/text/corpus.js'
 import Macros from '@/src/gui/macros.js'
 import { setupHotkeys } from '@/src/gui/keys.js'
 import * as keypress from 'keypress.js'
+import { useRuntimeConfig } from 'nuxt/app' // Added import
 
 const randElem = arr => arr[Math.floor(Math.random() * arr.length)]
 
@@ -120,8 +121,11 @@ onMounted(() => {
     setupHotkeys(sketch)
   }
 
+  const { app } = useRuntimeConfig() // Get runtime config
+  const baseURL = app.baseURL // Get baseURL
+
   const builder = (p5Instance) => {
-    const pctInstance = new Sketch({ p5Instance, textManager: textManager.value, keypress, setupCallback })
+    const pctInstance = new Sketch({ p5Instance, textManager: textManager.value, keypress, setupCallback, baseURL }) // Pass baseURL
     pchrome.value = pctInstance
     isPchromeInitialized.value = true
 
