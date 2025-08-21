@@ -36,18 +36,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - AI-generated readme with some choice edits; ffmpeg notes moved to the tools folder.
 - Documented quicksettings changes from original, updated gemini instructions for messages and changelog.
-- Dependency updates (pbkdf2, on-headers, compression).
 - Docs: notes on gui in the future.
 
 ## [1.4.0] - 2025-08-05
 
 ### Added
-- Refactored zone manipulation, updated e2e tests, and added repomix script.
-- Added unit tests for zone manipulation.
-- Implemented zone dragging, moving, and centering; updated docs and tests.
 - Implemented non-destructive zonal painting and transforms.
-- Added E2E tests for zonal painting feature.
-- Added e2e zonal-painting-plan, added new plans/roadmap folder.
+- Added E2E and unit tests for zonal painting feature.
+- Added new plans/roadmap folder.
 
 ### Fixed
 - Fixed transparency for HSB and Graphics object in `randomLayer`.
@@ -56,7 +52,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated help.vue with accurate keybindings.
 - Unified scaleFactor usage and ensured correct zone coordinate scaling.
 - Random preset load now honors bg color and canvas size.
-- Resolved painting offset and color issues in zonal painting.
 
 ### Changed
 - Consolidated commit instructions and added shell safety guidelines.
