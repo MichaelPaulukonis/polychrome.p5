@@ -54,7 +54,6 @@
   "homepage": "https://github.com/MichaelPaulukonis/polychrome.p5#readme",
   "dependencies": {
     "@nuxt/fonts": "^0.11.4",
-    "cheerio": "^0.22.0",
     "file-saver": "^2.0.5",
     "hotkeys-js": "^3.7.2",
     "keypress.js": "^2.1.5",
@@ -64,13 +63,14 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.53.1",
+    "@vitejs/plugin-vue": "^6.0.1",
     "@vitest/ui": "^3.2.4",
     "@vue/test-utils": "^2.0.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^7.25.0",
     "eslint-config-p5js": "^1.1.0",
     "eslint-config-standard": "^16.0.3",
-    "gh-pages": "^2.1.1",
+    "gh-pages": "^6.3.0",
     "husky": "^3.0.9",
     "jsdom": "^26.1.0",
     "open": "^7.0.0",
@@ -79,8 +79,7 @@
     "sass": "^1.71.0",
     "sass-loader": "^12.0.0",
     "standard": "^17.1.2",
-    "vitest": "^3.2.4",
-    "@vitejs/plugin-vue": "^6.0.1"
+    "vitest": "^3.2.4"
   },
   "standard": {
     "env": {

@@ -168,7 +168,7 @@ Multiple paint modes available:
 ## Current Limitations & TODOs
 - Undo system doesn't track rotation operations
 - Some color modes need refinement
-- Target mode is incomplete
+- Target mode is incomplete (or could be better)
 - Performance could be optimized for large canvases
 
 ## Development Roadmap
@@ -179,12 +179,12 @@ Multiple paint modes available:
 3. **TypeScript Migration**: Migrate to TypeScript for better type safety.
 
 ### Medium Priority
-4. **Area Targeting**: Paint into user-defined subsection of the canvas.
-5. **DSL Improvements**: A real parser for the DSL / a real DSL.
-6. **Testing**: Implement comprehensive test suite.
-7. **More Color Algorithms**: Expand color generation capabilities.
-8. **p5js upgrade**: move to 2.0.
+4. **Area Targeting**: DONE - Paint into user-defined subsection of the canvas.
+5. **Testing**: WIP - Implement comprehensive test suite.
+6. **More Color Algorithms**: Expand color generation capabilities.
+7. **p5js upgrade**: move to 2.0.
 
 ### Future Considerations
+8. **DSL Improvements**: A real parser for the DSL / a real DSL.
 9. **Framework Exploration**: Look at q5 as potential alternative.
-10. **Dependency Cleanup**: cheerio can be removed, see dragline for native example.
+10. **Dependency Cleanup**: DONE - cheerio can be removed, see dragline for native example.
