@@ -8,7 +8,7 @@ This is a **creative coding app focused on canvas rendering performance**, not a
 
 When suggesting code, please use the following technologies:
 
-- **Vue.js** with Nuxt 2 framework using Single File Components (SFCs)
+- **Vue.js** with Nuxt 3 framework using Single File Components (SFCs)
 - **p5.js** for all canvas and visual rendering operations
 - **TypeScript** (preferred over JavaScript; migration in progress)
 - **Ramda** library for functional programming utilities

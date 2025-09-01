@@ -1,7 +1,7 @@
 # Gemini Project Instructions: polychrome.p5
 
 ## 1. Project Overview
-This is a creative coding app using Nuxt.js (Vue 2) and p5.js, focused on canvas rendering performance and interactive transformations.
+This is a creative coding app using Nuxt 3 and p5.js, focused on canvas rendering performance and interactive transformations.
 
 ## 2. Key Commands
 - **Run tests:** `npm test`
