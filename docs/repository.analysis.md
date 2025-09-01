@@ -1,7 +1,7 @@
 # Repository Analysis: polychrome.p5
 
 ## 1. Project Overview
-The `polychrome.p5` project is a creative coding application built with Nuxt.js (Vue 2) and p5.js. Its primary focus is on optimizing canvas rendering performance and enabling interactive transformations. The application provides a platform for artistic expression through code, leveraging the capabilities of p5.js for drawing and Nuxt.js for a structured web application environment.
+The `polychrome.p5` project is a creative coding application built with Nuxt 3 and p5.js. Its primary focus is on optimizing canvas rendering performance and enabling interactive transformations. The application provides a platform for artistic expression through code, leveraging the capabilities of p5.js for drawing and Nuxt.js for a structured web application environment.
 
 ## 2. Key Commands
 

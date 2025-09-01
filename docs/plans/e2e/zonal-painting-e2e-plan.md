@@ -2,7 +2,7 @@
 
 **1. Test Suite Setup:**
 *   Use Playwright's `test.describe` to group tests for "Zonal Painting Feature".
-*   `beforeEach` hook to navigate to the application root (`/`) and wait for p5.js and Nuxt to be ready using `waitForP5Ready` and `waitForNuxtReady`.
+*   `beforeEach` hook to navigate to the application root (`/`) and wait for p5.js to be ready using `waitForP5Ready`.
 *   `setupConsoleErrorTracking` to capture and assert on console errors.
 
 **2. Test Cases:**

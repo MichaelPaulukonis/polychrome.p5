@@ -58,22 +58,14 @@ npm run test:e2e:headed
 npm run test:e2e:ui
 ```
 
-### **Critical Lesson: Testing p5.js within Nuxt/Vue**
+### **Critical Lesson: A Framework-Agnostic Testing Approach**
 
-A major challenge in our E2E testing was reliably detecting when the application was fully initialized. Our key findings were:
+A major challenge in our E2E testing was reliably detecting when the application was fully initialized. Our key finding was that relying on framework-specifics (like the Nuxt or Vue instance) made tests brittle.
 
-1.  **`window.p5Instance` is Unreliable**: The p5.js instance is **not** a global variable. It is encapsulated within the root Vue component's data. Tests must access it via the DOM:
-    ```javascript
-    const p5Instance = await page.evaluate(() => {
-      const app = document.querySelector('#app');
-      return app.__vue__.$data.pchrome.p5;
-    });
-    ```
+**The Solution: Custom, DOM-based Wait Utilities**: We created robust, application-specific waiting functions in `test/e2e/utils/canvas-utils.js` that solve these issues by checking for the actual rendered output:
+    -   `waitForP5Ready(page)`: This is the **primary function** to use. It waits for the p5.js canvas element to be present and visible within its container (`#sketch-holder`), ensuring the application is truly ready for interaction, independent of the underlying JS framework.
 
-2.  **Standard Load Events Fail**: Generic browser events like `load` or `networkidle` are not sufficient for a p5.js application with a continuous `draw()` loop. They will cause tests to time out.
-
-3.  **The Solution: Custom Wait Utilities**: We created robust, application-specific waiting functions in `test/e2e/utils/canvas-utils.js` that have solved these issues:
-    -   `waitForP5Ready(page)`: This is the **primary function** to use. It waits for the Vue instance to be mounted and for the p5.js instance to be fully initialized within Vue's data.
+By using these custom utilities, our tests are now much more stable and accurately reflect the application's true "ready" state.(page)`: This is the **primary function** to use. It waits for the Vue instance to be mounted and for the p5.js instance to be fully initialized within Vue's data.
     -   `waitForNuxtReady(page)`: A helper that confirms the Nuxt application has hydrated.
 
 By using these custom utilities, our tests are now much more stable and accurately reflect the application's true "ready" state.
