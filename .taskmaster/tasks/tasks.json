@@ -135,7 +135,7 @@
         "description": "Review all documentation files (not plans) to see if updates are needed after the Nuxt 3 migration and other recent changes.",
         "details": "",
         "testStrategy": "",
-        "status": "pending",
+        "status": "done",
         "dependencies": [],
         "priority": "medium",
         "subtasks": [
@@ -153,7 +153,7 @@
             "title": "Update screenshot in README.md",
             "description": "Take a new screenshot of the application and update the README.md file.",
             "details": "",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 11
           },
@@ -277,11 +277,24 @@
         "dependencies": [],
         "priority": "medium",
         "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Fix commit zone history tracking",
+        "description": "Implement proper history tracking for the commit zone to ensure user actions and changes are recorded and can be navigated through undo/redo functionality.",
+        "details": "1. Identify the commit zone component and its current state management implementation\n2. Add history tracking mechanism using either:\n   - Custom history stack with action objects containing state snapshots\n   - Integration with existing state management (Pinia stores) to track mutations\n   - Command pattern implementation for reversible operations\n3. Implement history entry creation for key commit zone actions:\n   - File additions/removals\n   - Content modifications\n   - Staging/unstaging operations\n   - Commit message changes\n4. Add undo/redo functionality with keyboard shortcuts (Ctrl+Z, Ctrl+Y)\n5. Implement history state persistence across component remounts\n6. Add visual indicators for history availability (enabled/disabled undo/redo buttons)\n7. Consider memory management for large history stacks with configurable limits\n8. Ensure history entries contain sufficient data for accurate state restoration\n9. Handle edge cases like rapid successive changes and concurrent operations",
+        "testStrategy": "1. Test history entry creation by performing various commit zone actions and verifying entries are added\n2. Test undo functionality by making changes, then undoing them to verify state restoration\n3. Test redo functionality after undo operations to ensure forward navigation works\n4. Test keyboard shortcuts for undo/redo operations\n5. Test history persistence by performing actions, remounting component, and verifying history is maintained\n6. Test history limits by exceeding configured maximum entries and verifying oldest entries are removed\n7. Test edge cases like undoing to empty state and redoing beyond available history\n8. Verify UI indicators correctly reflect history availability\n9. Test performance with large history stacks to ensure no memory leaks or performance degradation",
+        "status": "pending",
+        "dependencies": [
+          9
+        ],
+        "priority": "medium",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-08-12T12:47:52.753Z",
-      "updated": "2025-08-19T20:03:29.211Z",
+      "updated": "2025-10-17T21:19:00.991Z",
       "description": "Tasks for master context"
     }
   }
